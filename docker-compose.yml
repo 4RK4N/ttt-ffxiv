@@ -1,8 +1,10 @@
 services:
   ttt-discord-bot:
-    build: .
-    image: ttt-bot
-    container_name: ttt-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ttt-discord-bot
+    container_name: ttt-discord-bot
     # Loads DISCORD_TOKEN / CLIENT_ID / GUILD_ID from your .env file.
     env_file: .env
     # Keep the bot running and restart it automatically (e.g. after a reboot),

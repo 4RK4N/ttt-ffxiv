@@ -1,4 +1,12 @@
-import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
+import {
+  SlashCommandBuilder,
+  AttachmentBuilder,
+  GuildMember,
+  type ChatInputCommandInteraction,
+  type Attachment,
+  type SlashCommandOptionsOnlyBuilder,
+} from 'discord.js';
+import type { CommandModule } from '../../core/moduleLoader.js';
 
 const MAX_IMAGES = 10; // Discord allows up to 10 attachments per message.
 
@@ -18,7 +26,7 @@ const CUSTOM_EMOJI_REGEX = /<a?:\w+:\d+>/g;
  * appending "..." when truncated.
  * Note: thread names are plain text, so "@name" is literal (not a real mention).
  */
-function buildThreadName(authorName, message) {
+function buildThreadName(authorName: string, message: string): string {
   const oneLine = `@${authorName} - ${message}`
     .replace(CUSTOM_EMOJI_REGEX, '')
     .replace(/\s+/g, ' ')
@@ -31,7 +39,7 @@ function buildThreadName(authorName, message) {
  * Builds a slash command with a required `message` and image1..image10 options.
  * Used to create both `/pic` and its `/post` alias from one definition.
  */
-function buildCommand(name) {
+function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
   const builder = new SlashCommandBuilder()
     .setName(name)
     .setDescription('Re-post your images to this channel with attribution (avoids false auto-mod bans).')
@@ -55,7 +63,7 @@ function buildCommand(name) {
  * Shared handler for `/pic` and `/post`. Downloads the provided image attachments
  * and re-uploads them as the bot in the same channel, attributed to the author.
  */
-async function execute(interaction) {
+async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply({ ephemeral: true });
 
   const message = interaction.options.getString('message', true);
@@ -63,12 +71,12 @@ async function execute(interaction) {
   // Prefer the user's server nickname, then their global display name, then the
   // raw username only as a last resort.
   const displayName =
-    interaction.member?.displayName ??
+    (interaction.member instanceof GuildMember ? interaction.member.displayName : undefined) ??
     interaction.user.displayName ??
     interaction.user.username;
 
   // Collect provided attachments in order (image1..image10).
-  const attachments = [];
+  const attachments: Attachment[] = [];
   for (let i = 1; i <= MAX_IMAGES; i++) {
     const attachment = interaction.options.getAttachment(`image${i}`);
     if (attachment) attachments.push(attachment);
@@ -93,7 +101,7 @@ async function execute(interaction) {
 
   // Re-upload the bytes. Original attachment URLs are signed and expire, so we
   // must download and send fresh files rather than linking the originals.
-  let files;
+  let files: AttachmentBuilder[];
   try {
     files = await Promise.all(
       attachments.map(async (attachment) => {
@@ -116,6 +124,11 @@ async function execute(interaction) {
   // The mention renders as the author's server display name (nickname) and is
   // clickable; allowedMentions suppresses the ping.
   const content = `${message}\n\nby <@${interaction.user.id}>`;
+
+  if (!interaction.channel || !interaction.channel.isSendable()) {
+    await interaction.editReply('I cannot post in this channel.');
+    return;
+  }
 
   let sent;
   try {
@@ -166,10 +179,12 @@ async function execute(interaction) {
   );
 }
 
-export default {
+const picModule: CommandModule = {
   name: 'pic',
   commands: [
     { data: buildCommand('pic'), execute },
     { data: buildCommand('post'), execute }, // alias of /pic
   ],
 };
+
+export default picModule;

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-function required(name) {
+function required(name: string): string {
   const value = process.env[name];
   if (!value || value.trim() === '') {
     throw new Error(
@@ -11,12 +11,18 @@ function required(name) {
   return value.trim();
 }
 
-function optional(name) {
+function optional(name: string): string | undefined {
   const value = process.env[name];
   return value && value.trim() !== '' ? value.trim() : undefined;
 }
 
-export const config = {
+export interface Config {
+  token: string;
+  clientId: string;
+  guildId: string | undefined;
+}
+
+export const config: Config = {
   token: required('DISCORD_TOKEN'),
   clientId: required('CLIENT_ID'),
   // Optional: when set, slash commands register to this guild instantly (great for dev).

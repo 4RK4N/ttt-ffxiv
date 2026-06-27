@@ -1,8 +1,8 @@
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Events, GatewayIntentBits, type Interaction } from 'discord.js';
 import { config } from './config.js';
 import { loadModules } from './core/moduleLoader.js';
 
-async function main() {
+async function main(): Promise<void> {
   // Only the Guilds intent is needed: we send messages/attachments in response to
   // interactions, which requires no privileged (message content / members) intents.
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -14,7 +14,7 @@ async function main() {
     console.log(`Logged in as ${c.user.tag}.`);
   });
 
-  client.on(Events.InteractionCreate, async (interaction) => {
+  client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
     const execute = handlers.get(interaction.commandName);

@@ -1,6 +1,6 @@
 # ttt-bot
 
-Custom Discord bot for Trouble in Terrorist Town (TTT), built with an extensible
+Custom Discord bot for Tiny Temptation Tubs (TTT), built with an extensible
 module system so new features can be added without refactoring the core.
 
 ## Modules

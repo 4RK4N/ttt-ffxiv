@@ -1,0 +1,14 @@
+﻿---
+description: Be precise and conservative in output; avoid bloat
+alwaysApply: true
+---
+
+# Concise Output
+
+- Be precise and conservative. Answer what was asked, nothing more.
+- Don't pad responses with excessive prose, filler, or "nice-mode" phrasing.
+- Skip long, verbose thinking write-ups in the final answer; keep reasoning tight.
+- Bullet points are preferred over wordy paragraphs.
+- No flattery, no restating the question, no unnecessary preamble or summary.
+- Prefer code/commands/results over describing them at length.
+

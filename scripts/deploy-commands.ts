@@ -2,7 +2,7 @@ import { REST, Routes } from 'discord.js';
 import { config } from '../src/config.js';
 import { loadModules } from '../src/core/moduleLoader.js';
 
-async function main() {
+async function main(): Promise<void> {
   const { commandData } = await loadModules();
 
   if (commandData.length === 0) {
@@ -19,7 +19,7 @@ async function main() {
   const scope = config.guildId ? `guild ${config.guildId}` : 'globally';
   console.log(`Deploying ${commandData.length} command(s) ${scope}...`);
 
-  const data = await rest.put(route, { body: commandData });
+  const data = (await rest.put(route, { body: commandData })) as unknown[];
 
   console.log(`Successfully deployed ${data.length} command(s) ${scope}.`);
   if (!config.guildId) {

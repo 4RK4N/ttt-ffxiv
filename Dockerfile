@@ -1,19 +1,31 @@
-# Small, production-ready image for the Discord bot.
-FROM node:20-alpine
-
-# App lives here.
+# Stage 1: compile TypeScript to plain JS.
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install dependencies first for better layer caching.
-# Uses package-lock.json for reproducible installs; omits dev dependencies.
+# Install all dependencies (including dev) for the build.
+# Uses package-lock.json for reproducible installs.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Compile the sources into dist/.
+COPY tsconfig.json ./
+COPY src ./src
+COPY scripts ./scripts
+RUN npm run build
+
+# Stage 2: small runtime image with only production dependencies.
+FROM node:20-alpine
+WORKDIR /app
+
+# Production-only dependencies.
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-# Copy the rest of the source.
-COPY . .
+# Bring in the compiled output from the build stage.
+COPY --from=builder /app/dist ./dist
 
 # Run as the built-in non-root user for safety.
 USER node
 
 # The bot is a long-running process (no inbound ports needed).
-CMD ["node", "src/index.js"]
+CMD ["node", "dist/src/index.js"]

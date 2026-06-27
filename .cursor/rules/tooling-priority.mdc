@@ -1,0 +1,18 @@
+﻿---
+description: Prefer MCP tools, skills, and Cursor built-in tools over shell/script workarounds
+alwaysApply: true
+---
+
+# Tooling Priority
+
+Before reaching for PowerShell, Python, or other manual workarounds:
+
+- Check available MCP tools first and use them when they fit the task.
+- Check available skills and follow a relevant one instead of improvising.
+- Prefer Cursor built-in tools over shell/script equivalents, e.g.:
+  - Read instead of cat/Get-Content
+  - Glob/Grep instead of find/dir/Select-String
+  - StrReplace/Write instead of sed/awk/echo redirection
+  - WebFetch/WebSearch instead of curl/Invoke-WebRequest
+- Only fall back to PowerShell/Python/CLI when no MCP tool, skill, or built-in tool covers the task, or when they were blocked.
+- If you do fall back, say briefly why the preferred tool was not used.

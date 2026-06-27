@@ -94,7 +94,10 @@ docker compose version
 docker compose build
 ```
 
-This produces an image named `ttt-bot` using the included `Dockerfile`.
+This produces an image named `ttt-discord-bot` using the included `Dockerfile`. The
+`Dockerfile` is a multi-stage build: the first stage compiles the TypeScript
+sources to plain JavaScript (`npm run build` -> `dist/`), and the final runtime
+image ships only the compiled output plus production dependencies.
 
 ---
 
@@ -165,16 +168,16 @@ If you prefer not to use Compose:
 
 ```bash
 # Build
-docker build -t ttt-bot .
+docker build -t ttt-discord-bot .
 
 # Register commands (one-off)
-docker run --rm --env-file .env ttt-bot npm run deploy
+docker run --rm --env-file .env ttt-discord-bot npm run deploy
 
 # Run in the background with auto-restart
-docker run -d --name ttt-bot --env-file .env --restart unless-stopped ttt-bot
+docker run -d --name ttt-discord-bot --env-file .env --restart unless-stopped ttt-discord-bot
 
 # Logs
-docker logs -f ttt-bot
+docker logs -f ttt-discord-bot
 ```
 
 ---

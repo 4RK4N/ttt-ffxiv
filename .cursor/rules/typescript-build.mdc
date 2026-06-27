@@ -1,0 +1,11 @@
+﻿---
+description: TypeScript compilation is handled by Docker build, not local npm
+alwaysApply: true
+---
+
+# TypeScript Build
+
+- TypeScript compilation is handled by the Docker build process.
+- Do NOT run local builds/compiles like `tsc`, `npm run build`, `npm run dev`, or similar to produce/verify compiled output.
+- Just edit the `.ts` source files and stop; let the Docker build compile.
+- If you think compiled output is stale or the build is broken, say so and let the user run the Docker build, do not compile it yourself.
