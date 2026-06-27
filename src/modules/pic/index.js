@@ -8,13 +8,21 @@ const THREAD_FIRST_MESSAGE =
   'Bitte hier im Thread kommentieren um nicht den Channel zu überlasten.';
 const THREAD_AUTO_ARCHIVE_MINUTES = 10080; // 7 days
 
+// Custom (server) emoji are sent as "<:name:id>" or "<a:name:id>". They render as
+// literal text in thread names, so we strip them. Standard unicode emoji are kept.
+const CUSTOM_EMOJI_REGEX = /<a?:\w+:\d+>/g;
+
 /**
- * Derives a thread name in the form "@name - message": collapses whitespace to a
- * single line and truncates to Discord's limit, appending "..." when truncated.
+ * Derives a thread name in the form "@name - message": strips custom emoji,
+ * collapses whitespace to a single line, and truncates to Discord's limit,
+ * appending "..." when truncated.
  * Note: thread names are plain text, so "@name" is literal (not a real mention).
  */
 function buildThreadName(authorName, message) {
-  const oneLine = `@${authorName} - ${message}`.replace(/\s+/g, ' ').trim();
+  const oneLine = `@${authorName} - ${message}`
+    .replace(CUSTOM_EMOJI_REGEX, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (oneLine.length <= THREAD_NAME_MAX) return oneLine;
   return oneLine.slice(0, THREAD_NAME_MAX - 3) + '...';
 }
@@ -135,6 +143,14 @@ async function execute(interaction) {
       autoArchiveDuration: THREAD_AUTO_ARCHIVE_MINUTES,
     });
     await thread.send(THREAD_FIRST_MESSAGE);
+
+    // Add the command author to the thread so they follow the discussion.
+    // Isolated so a failure here doesn't flag the (already created) thread as failed.
+    try {
+      await thread.members.add(interaction.user.id);
+    } catch (err) {
+      console.error('Failed to add author to comments thread:', err);
+    }
   } catch (err) {
     threadFailed = true;
     console.error('Failed to create comments thread:', err);
