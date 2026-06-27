@@ -9,11 +9,12 @@ const THREAD_FIRST_MESSAGE =
 const THREAD_AUTO_ARCHIVE_MINUTES = 10080; // 7 days
 
 /**
- * Derives a thread name from the post message: collapses whitespace to a single
- * line and truncates to Discord's limit, appending "..." when truncated.
+ * Derives a thread name in the form "@name - message": collapses whitespace to a
+ * single line and truncates to Discord's limit, appending "..." when truncated.
+ * Note: thread names are plain text, so "@name" is literal (not a real mention).
  */
-function buildThreadName(message) {
-  const oneLine = message.replace(/\s+/g, ' ').trim();
+function buildThreadName(authorName, message) {
+  const oneLine = `@${authorName} - ${message}`.replace(/\s+/g, ' ').trim();
   if (oneLine.length <= THREAD_NAME_MAX) return oneLine;
   return oneLine.slice(0, THREAD_NAME_MAX - 3) + '...';
 }
@@ -50,6 +51,13 @@ async function execute(interaction) {
   await interaction.deferReply({ ephemeral: true });
 
   const message = interaction.options.getString('message', true);
+
+  // Prefer the user's server nickname, then their global display name, then the
+  // raw username only as a last resort.
+  const displayName =
+    interaction.member?.displayName ??
+    interaction.user.displayName ??
+    interaction.user.username;
 
   // Collect provided attachments in order (image1..image10).
   const attachments = [];
@@ -97,6 +105,8 @@ async function execute(interaction) {
     return;
   }
 
+  // The mention renders as the author's server display name (nickname) and is
+  // clickable; allowedMentions suppresses the ping.
   const content = `${message}\n\nby <@${interaction.user.id}>`;
 
   let sent;
@@ -104,7 +114,6 @@ async function execute(interaction) {
     sent = await interaction.channel.send({
       content,
       files,
-      // Render the mention as the username without sending a ping.
       allowedMentions: { users: [] },
     });
   } catch (err) {
@@ -122,7 +131,7 @@ async function execute(interaction) {
   let threadFailed = false;
   try {
     const thread = await sent.startThread({
-      name: buildThreadName(message),
+      name: buildThreadName(displayName, message),
       autoArchiveDuration: THREAD_AUTO_ARCHIVE_MINUTES,
     });
     await thread.send(THREAD_FIRST_MESSAGE);
