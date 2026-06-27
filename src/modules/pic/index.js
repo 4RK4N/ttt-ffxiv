@@ -142,15 +142,16 @@ async function execute(interaction) {
       name: buildThreadName(displayName, message),
       autoArchiveDuration: THREAD_AUTO_ARCHIVE_MINUTES,
     });
-    await thread.send(THREAD_FIRST_MESSAGE);
 
-    // Add the command author to the thread so they follow the discussion.
+    // Add the command author to the thread first so they follow the discussion.
     // Isolated so a failure here doesn't flag the (already created) thread as failed.
     try {
       await thread.members.add(interaction.user.id);
     } catch (err) {
       console.error('Failed to add author to comments thread:', err);
     }
+
+    await thread.send(THREAD_FIRST_MESSAGE);
   } catch (err) {
     threadFailed = true;
     console.error('Failed to create comments thread:', err);
