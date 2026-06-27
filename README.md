@@ -82,4 +82,5 @@ You should see `Logged in as <bot>#0000.` Then try `/pic` in a channel.
 
 - Attachment size is limited by the server's upload cap (10 MB by default, higher
   with server boosts). Oversized files are reported back to the user.
-- Hosting/deployment will be documented separately.
+- Hosting/deployment (Docker on your own server, plus free alternatives) is
+  documented in [INSTALL.md](INSTALL.md).
