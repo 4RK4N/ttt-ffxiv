@@ -38,5 +38,5 @@ export const config: Config = {
   // Optional: when set, slash commands register to this guild instantly (great for dev).
   guildId: optional('GUILD_ID'),
   // Channels where the bot auto-creates a comments thread on qualifying posts.
-  picChannelIds: optionalList('PIC_CHANNEL_IDS'),
+  picChannelIds: optionalList('AUTOTHREAD_CHANNEL_IDS'),
 };

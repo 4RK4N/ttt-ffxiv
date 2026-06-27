@@ -84,10 +84,10 @@ docker compose version
    DISCORD_TOKEN=your-bot-token
    CLIENT_ID=your-application-id
    GUILD_ID=your-server-id      # optional but recommended
-   PIC_CHANNEL_IDS=123,456      # channels to auto-thread (comma-separated IDs)
+   AUTOTHREAD_CHANNEL_IDS=123,456  # channels to auto-thread (comma-separated IDs)
    ```
 
-   `PIC_CHANNEL_IDS` lists the channels where the bot auto-creates comment threads
+   `AUTOTHREAD_CHANNEL_IDS` lists the channels where the bot auto-creates comment threads
    on qualifying posts; leave it empty to disable that module. The `.env` file
    stays only on the server and is git-ignored - never commit it.
 

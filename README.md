@@ -27,7 +27,7 @@ its first message is a short bilingual note asking people to comment in the thre
 channel; if it can't, the images are still posted and you get a note in the
 ephemeral confirmation.
 
-### pic-auto-thread (automatic threads)
+### links-pics-vids-autothread (automatic threads)
 
 Replicates the old Mee6 behavior in the pics channels: when a (non-bot) user posts
 a message, the bot automatically opens a comments thread on it if the message
@@ -42,11 +42,11 @@ removed from the text, or just `name` when the message has no text beyond the
 link. The first message is the same bilingual note, and the thread auto-archives
 after 7 days.
 
-Configure which channels are watched with `PIC_CHANNEL_IDS` (comma-separated
-channel IDs) in your `.env`. This module reads message content, so the bot needs
-the privileged **Message Content** intent enabled in the Developer Portal
-(Bot -> Privileged Gateway Intents). If `PIC_CHANNEL_IDS` is empty, the module
-stays disabled.
+Configure which channels are watched with `AUTOTHREAD_CHANNEL_IDS`
+(comma-separated channel IDs) in your `.env`. This module reads message content,
+so the bot needs the privileged **Message Content** intent enabled in the
+Developer Portal (Bot -> Privileged Gateway Intents). If `AUTOTHREAD_CHANNEL_IDS`
+is empty, the module stays disabled.
 
 ## Project layout
 
@@ -58,8 +58,8 @@ src/
     moduleLoader.js     # auto-discovers modules under src/modules/*
     threads.js          # shared thread title/first-message helpers
   modules/
-    pic-repost-commands/index.js  # the /pic + /post module
-    pic-auto-thread/index.js      # auto comments threads on posts
+    pic-repost-commands/index.js        # the /pic + /post module
+    links-pics-vids-autothread/index.js # auto comments threads on posts
 scripts/
   deploy-commands.js    # registers slash commands with Discord
 ```

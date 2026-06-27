@@ -102,22 +102,22 @@ async function handleMessage(message: Message): Promise<void> {
   }
 }
 
-const picAutoThreadModule: CommandModule = {
-  name: 'pic-auto-thread',
+const linksPicsVidsAutoThreadModule: CommandModule = {
+  name: 'links-pics-vids-autothread',
   init(client: Client): void {
     if (config.picChannelIds.length === 0) {
       console.warn(
-        '[pic-auto-thread] No PIC_CHANNEL_IDS configured; auto-threading is disabled.'
+        '[links-pics-vids-autothread] No AUTOTHREAD_CHANNEL_IDS configured; auto-threading is disabled.'
       );
       return;
     }
 
     client.on(Events.MessageCreate, (message) => {
       void handleMessage(message).catch((err) => {
-        console.error('[pic-auto-thread] Unhandled error:', err);
+        console.error('[links-pics-vids-autothread] Unhandled error:', err);
       });
     });
   },
 };
 
-export default picAutoThreadModule;
+export default linksPicsVidsAutoThreadModule;
