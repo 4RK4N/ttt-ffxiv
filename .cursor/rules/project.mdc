@@ -1,0 +1,20 @@
+---
+description: Core conventions for the ttt-bot Discord bot project
+alwaysApply: true
+---
+
+# ttt-bot Conventions
+
+A custom Discord bot for Trouble in Terrorist Town (TTT).
+
+## General
+
+- Keep secrets (bot tokens, API keys) out of source. Use a `.env` file loaded at runtime; never hardcode credentials.
+- Prefer small, focused modules: one command/handler per file.
+- Use async/await; always handle rejected promises and log failures with context.
+
+## Discord Interactions
+
+- Acknowledge interactions promptly (defer if work takes >3s) to avoid "interaction failed".
+- Validate user input and permissions before performing privileged actions.
+- Fail gracefully: reply to the user with a clear message instead of letting the handler throw.

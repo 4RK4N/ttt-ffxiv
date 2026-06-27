@@ -1,2 +1,85 @@
 # ttt-bot
-Custom Discord Bot for TTT
+
+Custom Discord bot for Trouble in Terrorist Town (TTT), built with an extensible
+module system so new features can be added without refactoring the core.
+
+## Modules
+
+### pic (`/pic`, alias `/post`)
+
+Lets users re-post images through the bot instead of uploading directly to an
+age-restricted channel, which helps avoid Discord's auto-moderation false bans.
+
+Usage: run `/pic` (or `/post`) in any channel:
+
+- `message` (required) - the text to include.
+- `image1` (required), `image2` ... `image10` (optional) - the images to post.
+
+The bot downloads the attachments, re-uploads them as its own message in the same
+channel, and adds `by @you` attribution. Your command invocation is answered with
+a private (ephemeral) confirmation, so only the bot's post is publicly visible.
+
+## Project layout
+
+```
+src/
+  index.js              # entry point: client + interaction routing
+  config.js             # loads & validates environment variables
+  core/
+    moduleLoader.js     # auto-discovers modules under src/modules/*
+  modules/
+    pic/index.js        # the /pic + /post module
+scripts/
+  deploy-commands.js    # registers slash commands with Discord
+```
+
+To add a new feature later, create `src/modules/<name>/index.js` that exports
+`{ name, commands: [{ data, execute }] }`. The loader and deploy script pick it
+up automatically - no core changes needed.
+
+## Setup
+
+1. Requirements: Node.js 18+ (uses the built-in global `fetch`).
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a Discord application and bot at the
+   [Developer Portal](https://discord.com/developers/applications):
+   - Copy the **bot token** and the **Application (client) ID**.
+   - Invite the bot with the `bot` and `applications.commands` scopes, granting
+     **Send Messages** and **Attach Files** permissions.
+4. Copy `env.example` to `.env` and fill in the values:
+
+```
+DISCORD_TOKEN=your-bot-token
+CLIENT_ID=your-application-id
+GUILD_ID=your-test-server-id   # optional; instant registration during dev
+```
+
+## Deploy slash commands
+
+Register the commands with Discord (run again whenever commands change):
+
+```bash
+npm run deploy
+```
+
+- With `GUILD_ID` set, commands register to that server instantly (best for dev).
+- Without it, commands register globally and can take up to ~1 hour to appear.
+
+## Run
+
+```bash
+npm start
+```
+
+You should see `Logged in as <bot>#0000.` Then try `/pic` in a channel.
+
+## Notes
+
+- Attachment size is limited by the server's upload cap (10 MB by default, higher
+  with server boosts). Oversized files are reported back to the user.
+- Hosting/deployment will be documented separately.
