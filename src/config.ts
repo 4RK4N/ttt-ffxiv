@@ -30,6 +30,7 @@ export interface Config {
   clientId: string;
   guildId: string | undefined;
   picChannelIds: string[];
+  welcomeChannelId: string | undefined;
 }
 
 export const config: Config = {
@@ -39,4 +40,6 @@ export const config: Config = {
   guildId: optional('GUILD_ID'),
   // Channels where the bot auto-creates a comments thread on qualifying posts.
   picChannelIds: optionalList('AUTOTHREAD_CHANNEL_IDS'),
+  // Channel where the welcome card is posted when a member joins.
+  welcomeChannelId: optional('WELCOME_CHANNEL_ID'),
 };

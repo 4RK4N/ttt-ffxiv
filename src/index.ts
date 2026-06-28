@@ -4,13 +4,16 @@ import { loadModules } from './core/moduleLoader.js';
 
 async function main(): Promise<void> {
   // Guilds: interaction handling. GuildMessages + MessageContent: the auto-thread
-  // module needs to read message text/attachments to detect posts. MessageContent
-  // is a privileged intent and must be enabled in the Discord Developer Portal.
+  // module needs to read message text/attachments to detect posts. GuildMembers:
+  // the welcome module needs the guildMemberAdd event. MessageContent and
+  // GuildMembers are privileged intents and must be enabled in the Discord
+  // Developer Portal.
   const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers,
     ],
   });
 
