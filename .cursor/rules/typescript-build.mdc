@@ -1,7 +1,0 @@
-﻿# TypeScript Build
-
-- A local `tsc` compile is allowed ONLY to verify that the code compiles.
-- Do NOT commit or push compiled output. The `dist/` directory is gitignored and the production build is handled by Docker.
-- After verifying, leave the working tree clean of build artifacts; never `git add` the `dist/` directory or other compiled files.
-- Prefer a type-check-only run (e.g. `tsc --noEmit`) when you just need to confirm it compiles, so no output files are produced.
-- If a real build is needed for deployment, let the Docker build produce it; do not hand-build and commit it.
