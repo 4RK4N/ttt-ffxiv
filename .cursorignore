@@ -1,16 +1,3 @@
-﻿# Editor / IDE config (local defaults)
-.cursor/
-.vscode/
-
-# Dependencies & build output
-node_modules/
-dist/
-build/
-
-# Environment / secrets
+﻿# Environment / secrets
 .env
 .env.*
-
-# Logs
-logs/
-*.log

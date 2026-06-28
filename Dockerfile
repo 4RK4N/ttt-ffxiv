@@ -24,6 +24,11 @@ RUN npm ci --omit=dev
 # Bring in the compiled output from the build stage.
 COPY --from=builder /app/dist ./dist
 
+# Module texts (JSON) and assets (images/fonts) are read from data/ at runtime.
+# Ship them in the image; docker-compose bind-mounts ./data over this so edits
+# (and a future web editor's writes) persist across restarts.
+COPY data ./data
+
 # Run as the built-in non-root user for safety.
 USER node
 

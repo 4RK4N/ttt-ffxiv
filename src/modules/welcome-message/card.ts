@@ -1,12 +1,10 @@
 import { createCanvas, GlobalFonts, loadImage, type SKRSContext2D } from '@napi-rs/canvas';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { moduleDataPath } from '../../core/texts.js';
 
-// Assets sit next to this module and are copied into dist/ by scripts/copy-assets.mjs,
-// so resolving relative to the compiled file works in both dev (tsx) and prod (node dist).
-const assetsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'assets');
-const BACKGROUND_PATH = path.join(assetsDir, 'background.png');
-const FONT_PATH = path.join(assetsDir, 'DancingScript.ttf');
+// Assets live in the runtime data dir (data/welcome-message/), so they can be
+// swapped without a rebuild and are not tied to the compiled output.
+const BACKGROUND_PATH = moduleDataPath('welcome-message', 'media', 'background.png');
+const FONT_PATH = moduleDataPath('welcome-message', 'fonts', 'DancingScript.ttf');
 const FONT_FAMILY = 'Dancing Script';
 
 if (!GlobalFonts.has(FONT_FAMILY)) {

@@ -2,6 +2,10 @@ import { Client, Events, GatewayIntentBits, type Interaction } from 'discord.js'
 import { config } from './config.js';
 import { loadModules } from './core/moduleLoader.js';
 
+// Generic fallback shown when a command handler throws. Not module-specific, so
+// it stays in code rather than a module's texts.json.
+const COMMAND_ERROR_MESSAGE = 'Something went wrong while handling your command. Please try again.';
+
 async function main(): Promise<void> {
   // Guilds: interaction handling. GuildMessages + MessageContent: the auto-thread
   // module needs to read message text/attachments to detect posts. GuildMembers:
@@ -45,7 +49,7 @@ async function main(): Promise<void> {
       await execute(interaction);
     } catch (err) {
       console.error(`Error handling "/${interaction.commandName}":`, err);
-      const message = 'Something went wrong while handling your command. Please try again.';
+      const message = COMMAND_ERROR_MESSAGE;
       try {
         if (interaction.deferred || interaction.replied) {
           await interaction.editReply(message);

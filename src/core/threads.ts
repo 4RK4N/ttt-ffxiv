@@ -1,6 +1,8 @@
 const THREAD_NAME_MAX = 100; // Discord's hard limit for thread names.
 
-export const THREAD_FIRST_MESSAGE =
+// Default bilingual opener for comments threads. Each thread module keeps its own
+// editable copy in its texts.json; this constant is the seed/fallback for them.
+export const DEFAULT_THREAD_FIRST_MESSAGE =
   'Please comment here in the thread to not clutter the channel.\n\n' +
   'Bitte hier im Thread kommentieren um nicht den Channel zu überlasten.';
 

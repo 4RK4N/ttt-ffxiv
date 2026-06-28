@@ -9,11 +9,46 @@ import {
 import type { CommandModule } from '../../core/moduleLoader.js';
 import {
   buildThreadName,
+  DEFAULT_THREAD_FIRST_MESSAGE,
   THREAD_AUTO_ARCHIVE_MINUTES,
-  THREAD_FIRST_MESSAGE,
 } from '../../core/threads.js';
+import { format, getTexts } from '../../core/texts.js';
 
 const MAX_IMAGES = 10; // Discord allows up to 10 attachments per message.
+
+interface PicTexts {
+  noImages: string;
+  notImages: string;
+  downloadFailed: string;
+  cannotPost: string;
+  postFailed: string;
+  attribution: string;
+  postedSuccess: string;
+  threadNote: string;
+  threadFirstMessage: string;
+}
+
+// Code defaults; data/pic-repost-commands/texts.json overrides these.
+const DEFAULTS: PicTexts = {
+  noImages: 'You need to attach at least one image.',
+  notImages: 'These attachments are not images: {names}. Please attach image files only.',
+  downloadFailed:
+    'Could not download one of your images. Please try again with a smaller or different file.',
+  cannotPost: 'I cannot post in this channel.',
+  postFailed:
+    'I could not post in this channel. This is usually a file size limit or missing ' +
+    '"Send Messages"/"Attach Files" permission.',
+  attribution: '{message}\n\nby {mention}',
+  postedSuccess: 'Posted {count} {images} to this channel.',
+  threadNote:
+    '\n\nNote: I could not create the comments thread. I may be missing the ' +
+    '"Create Public Threads" / "Send Messages in Threads" permission in this channel.',
+  threadFirstMessage: DEFAULT_THREAD_FIRST_MESSAGE,
+};
+
+function texts(): PicTexts {
+  return getTexts('pic-repost-commands', DEFAULTS);
+}
 
 /**
  * Builds a slash command with a required `message` and image1..image10 options.
@@ -46,6 +81,7 @@ function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
 async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply({ ephemeral: true });
 
+  const t = texts();
   const message = interaction.options.getString('message', true);
 
   // Prefer the user's server nickname, then their global display name, then the
@@ -63,7 +99,7 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
   }
 
   if (attachments.length === 0) {
-    await interaction.editReply('You need to attach at least one image.');
+    await interaction.editReply(t.noImages);
     return;
   }
 
@@ -73,8 +109,7 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
   );
   if (nonImages.length > 0) {
     await interaction.editReply(
-      `These attachments are not images: ${nonImages.map((a) => a.name).join(', ')}. ` +
-      'Please attach image files only.'
+      format(t.notImages, { names: nonImages.map((a) => a.name).join(', ') })
     );
     return;
   }
@@ -95,18 +130,16 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     );
   } catch (err) {
     console.error('Failed to download attachment(s):', err);
-    await interaction.editReply(
-      'Could not download one of your images. Please try again with a smaller or different file.'
-    );
+    await interaction.editReply(t.downloadFailed);
     return;
   }
 
   // The mention renders as the author's server display name (nickname) and is
   // clickable; allowedMentions suppresses the ping.
-  const content = `${message}\n\nby <@${interaction.user.id}>`;
+  const content = format(t.attribution, { message, mention: `<@${interaction.user.id}>` });
 
   if (!interaction.channel || !interaction.channel.isSendable()) {
-    await interaction.editReply('I cannot post in this channel.');
+    await interaction.editReply(t.cannotPost);
     return;
   }
 
@@ -119,10 +152,7 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     });
   } catch (err) {
     console.error('Failed to post images to channel:', err);
-    await interaction.editReply(
-      'I could not post in this channel. This is usually a file size limit or missing ' +
-      '"Send Messages"/"Attach Files" permission.'
-    );
+    await interaction.editReply(t.postFailed);
     return;
   }
 
@@ -144,19 +174,17 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
       console.error('Failed to add author to comments thread:', err);
     }
 
-    await thread.send(THREAD_FIRST_MESSAGE);
+    await thread.send(t.threadFirstMessage);
   } catch (err) {
     threadFailed = true;
     console.error('Failed to create comments thread:', err);
   }
 
-  await interaction.editReply(
-    `Posted ${files.length} image${files.length === 1 ? '' : 's'} to this channel.` +
-    (threadFailed
-      ? '\n\nNote: I could not create the comments thread. I may be missing the ' +
-      '"Create Public Threads" / "Send Messages in Threads" permission in this channel.'
-      : '')
-  );
+  const success = format(t.postedSuccess, {
+    count: files.length,
+    images: files.length === 1 ? 'image' : 'images',
+  });
+  await interaction.editReply(success + (threadFailed ? t.threadNote : ''));
 }
 
 const picRepostModule: CommandModule = {

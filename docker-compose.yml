@@ -7,6 +7,9 @@ services:
     container_name: ttt-discord-bot
     # Loads DISCORD_TOKEN / CLIENT_ID / GUILD_ID from your .env file.
     env_file: .env
+    # Persist module texts/assets so edits survive restarts and rebuilds.
+    volumes:
+      - ./data:/app/data
     # Keep the bot running and restart it automatically (e.g. after a reboot),
     # but not if you deliberately stop it.
     restart: unless-stopped

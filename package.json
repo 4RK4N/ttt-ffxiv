@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc && node scripts/copy-assets.mjs",
+    "build": "tsc",
     "start": "node dist/src/index.js",
     "deploy": "node dist/scripts/deploy-commands.js",
     "dev": "tsx src/index.ts"

@@ -56,10 +56,19 @@ src/
   config.js             # loads & validates environment variables
   core/
     moduleLoader.js     # auto-discovers modules under src/modules/*
-    threads.js          # shared thread title/first-message helpers
+    threads.js          # shared thread title helpers
+    texts.js            # loads per-module texts/assets from data/
   modules/
+    welcome-message/index.js            # welcome card + rules on member join
     pic-repost-commands/index.js        # the /pic + /post module
     links-pics-vids-autothread/index.js # auto comments threads on posts
+data/                   # editable runtime content (texts + assets), per module
+  welcome-message/
+    texts.json
+    media/background.png
+    fonts/DancingScript.ttf
+  pic-repost-commands/texts.json
+  links-pics-vids-autothread/texts.json
 scripts/
   deploy-commands.js    # registers slash commands with Discord
 ```
@@ -68,6 +77,16 @@ To add a new feature later, create `src/modules/<name>/index.js` that exports
 either `{ name, commands: [{ data, execute }] }` for slash commands, or
 `{ name, init(client) }` to register event listeners (or both). The loader and
 deploy script pick it up automatically - no core changes needed.
+
+### Editing texts and assets
+
+User-facing message text lives in `data/<module>/texts.json`, and the welcome
+card's image/font live in `data/welcome-message/media` and `.../fonts`. These are
+read at runtime (not bundled into the build), so you can edit them and the bot
+picks up changes on the next event - no rebuild or restart needed. Each module
+ships code defaults as a fallback, so a missing or malformed file never breaks the
+bot. Slash command names/descriptions stay in code (they require `npm run deploy`
+to change). The `data/` directory is the surface a future web editor will manage.
 
 ## Setup
 

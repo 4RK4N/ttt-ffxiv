@@ -178,8 +178,11 @@ docker build -t ttt-discord-bot .
 # Register commands (one-off)
 docker run --rm --env-file .env ttt-discord-bot npm run deploy
 
-# Run in the background with auto-restart
-docker run -d --name ttt-discord-bot --env-file .env --restart unless-stopped ttt-discord-bot
+# Run in the background with auto-restart.
+# The -v mount makes edits to module texts/assets in ./data persist (and survive
+# rebuilds); omit it to just use the texts/assets baked into the image.
+docker run -d --name ttt-discord-bot --env-file .env \
+  -v "$(pwd)/data:/app/data" --restart unless-stopped ttt-discord-bot
 
 # Logs
 docker logs -f ttt-discord-bot

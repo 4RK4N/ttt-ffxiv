@@ -3,9 +3,23 @@ import { config } from '../../config.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
 import {
   buildThreadName,
+  DEFAULT_THREAD_FIRST_MESSAGE,
   THREAD_AUTO_ARCHIVE_MINUTES,
-  THREAD_FIRST_MESSAGE,
 } from '../../core/threads.js';
+import { getTexts } from '../../core/texts.js';
+
+interface AutoThreadTexts {
+  threadFirstMessage: string;
+}
+
+// Code defaults; data/links-pics-vids-autothread/texts.json overrides these.
+const DEFAULTS: AutoThreadTexts = {
+  threadFirstMessage: DEFAULT_THREAD_FIRST_MESSAGE,
+};
+
+function texts(): AutoThreadTexts {
+  return getTexts('links-pics-vids-autothread', DEFAULTS);
+}
 
 // Matches http(s) URLs in free-form message text. We then parse each match with
 // the URL API and apply per-site post-detection rules below.
@@ -103,7 +117,7 @@ async function handleMessage(message: Message): Promise<void> {
       console.error('Failed to add author to auto comments thread:', err);
     }
 
-    await thread.send(THREAD_FIRST_MESSAGE);
+    await thread.send(texts().threadFirstMessage);
   } catch (err) {
     // Non-fatal: usually missing "Create Public Threads" / "Send Messages in
     // Threads" permission. The post itself is unaffected.
