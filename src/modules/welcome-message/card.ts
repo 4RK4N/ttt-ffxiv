@@ -15,6 +15,9 @@ if (!GlobalFonts.has(FONT_FAMILY)) {
 
 const SUBTITLE = 'Welcome to Tiny Temptation Tubs';
 
+// Opacity of the uniform dark tint laid over the background (0 = none, 1 = black).
+const BACKGROUND_DIM = 0.18;
+
 export interface WelcomeCardOptions {
   avatarUrl: string;
   displayName: string;
@@ -56,6 +59,12 @@ export async function renderWelcomeCard({
 
   ctx.drawImage(background, 0, 0, width, height);
 
+  // Slight, uniform darkening across the whole card for text contrast / mood.
+  // Full-bleed (covers the entire image) so there is no hard-edged dark box in
+  // the middle like the original MEE6 card. Tune BACKGROUND_DIM to taste (0 = none).
+  ctx.fillStyle = `rgba(0, 0, 0, ${BACKGROUND_DIM})`;
+  ctx.fillRect(0, 0, width, height);
+
   const avatarRes = await fetch(avatarUrl);
   if (!avatarRes.ok) {
     throw new Error(`Failed to fetch avatar (HTTP ${avatarRes.status}).`);
@@ -82,20 +91,21 @@ export async function renderWelcomeCard({
   ctx.strokeStyle = 'rgba(216, 191, 240, 0.95)';
   ctx.stroke();
 
-  // Shared text styling: centered with a soft shadow for legibility.
+  // Shared text styling: centered with a slight shadow for legibility over the
+  // brighter parts of the background (kept subtle so it doesn't darken the card).
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
-  ctx.shadowBlur = height * 0.02;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.82)';
+  ctx.shadowBlur = height * 0.026;
   ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = height * 0.004;
+  ctx.shadowOffsetY = height * 0.007;
 
   const maxTextWidth = width * 0.9;
 
   const nameLine = `${displayName} just joined the server`;
   const nameSize = fitFontSize(ctx, nameLine, 700, height * 0.14, height * 0.06, maxTextWidth);
   ctx.font = `700 ${nameSize}px "${FONT_FAMILY}"`;
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#e9d8f7';
   ctx.fillText(nameLine, centerX, height * 0.76);
 
   const subSize = fitFontSize(ctx, SUBTITLE, 400, height * 0.08, height * 0.04, maxTextWidth);
