@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits, type Interaction } from 'discord.js';
+import { Client, Events, GatewayIntentBits, MessageFlags, type Interaction } from 'discord.js';
 import { config } from './config.js';
 import { loadModules } from './core/moduleLoader.js';
 
@@ -54,7 +54,7 @@ async function main(): Promise<void> {
         if (interaction.deferred || interaction.replied) {
           await interaction.editReply(message);
         } else {
-          await interaction.reply({ content: message, ephemeral: true });
+          await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
         }
       } catch (replyErr) {
         console.error('Failed to send error response:', replyErr);

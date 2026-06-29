@@ -33,12 +33,12 @@ function loadRaw(): RawConfig {
 
 const raw = loadRaw();
 
-function str(value: unknown): string | undefined {
+function trimmedOrUndefined(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
 }
 
 function required(key: keyof RawConfig): string {
-  const value = str(raw[key]);
+  const value = trimmedOrUndefined(raw[key]);
   if (!value) {
     throw new Error(
       `Missing required config value "${key}" in "${CONFIG_FILE}". ` +
@@ -71,15 +71,15 @@ export const config: Config = {
   discordToken: required('discordToken'),
   clientId: required('clientId'),
   // Optional: when set, slash commands register to this guild instantly (great for dev).
-  guildId: str(raw.guildId),
+  guildId: trimmedOrUndefined(raw.guildId),
   // Bot/display name shown in the web editor title; falls back to "TTT".
-  botName: str(raw.botName) ?? 'TTT',
+  botName: trimmedOrUndefined(raw.botName) ?? 'TTT',
   // OAuth client secret used by the web editor to exchange the auth code.
-  clientSecret: str(raw.clientSecret),
+  clientSecret: trimmedOrUndefined(raw.clientSecret),
   // Secret used to sign the web editor's session cookies.
-  sessionSecret: str(raw.sessionSecret),
+  sessionSecret: trimmedOrUndefined(raw.sessionSecret),
   // Registered Discord OAuth2 redirect URI (must match the Developer Portal).
-  oauthRedirectUri: str(raw.oauthRedirectUri),
+  oauthRedirectUri: trimmedOrUndefined(raw.oauthRedirectUri),
   // Port the web editor listens on.
   webPort: optionalPort(raw.webPort, 8088),
 };

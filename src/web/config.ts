@@ -40,7 +40,7 @@ export function loadWebConfig(): WebConfig {
   try {
     secureCookies = new URL(config.oauthRedirectUri!).protocol === 'https:';
   } catch {
-    console.error(`[web] OAUTH_REDIRECT_URI is not a valid URL: "${config.oauthRedirectUri}".`);
+    console.error(`[web] Config value "oauthRedirectUri" is not a valid URL: "${config.oauthRedirectUri}".`);
     process.exit(1);
   }
 

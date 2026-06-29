@@ -129,6 +129,9 @@ async function main(): Promise<void> {
 
   app.route('/api', api);
 
+  // Binds 0.0.0.0 for the Caddy-proxied deployment: docker-compose publishes no
+  // host port and only exposes this via the internal caddy network (TLS + auth in
+  // front). Don't publish a host port without putting access control ahead of it.
   serve({ fetch: app.fetch, port: cfg.port }, (info) => {
     console.log(`[web] Admin interface listening on http://0.0.0.0:${info.port}`);
   });

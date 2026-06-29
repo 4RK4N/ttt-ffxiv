@@ -1,6 +1,5 @@
 import type { WebConfig } from './config.js';
-
-const DISCORD_API = 'https://discord.com/api/v10';
+import { DISCORD_API } from './discord.js';
 
 // Channel types we offer in the channel pickers: where text can be posted.
 // 0 = GuildText, 5 = GuildAnnouncement, 15 = GuildForum.

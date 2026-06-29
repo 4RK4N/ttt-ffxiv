@@ -19,7 +19,7 @@ function isMultiField(field: WebPluginField): boolean {
 }
 
 /** Reads and parses a module data file, returning {} on any failure. */
-function readFile(namespace: string, store: WebFieldStore): Record<string, unknown> {
+function readDataJson(namespace: string, store: WebFieldStore): Record<string, unknown> {
   const file = moduleDataPath(namespace, STORE_FILES[store]);
   try {
     return JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
@@ -54,12 +54,12 @@ async function writeJsonAtomic(file: string, data: Record<string, unknown>): Pro
  * missing key (legacy config) reads as enabled.
  */
 export function readEnabled(namespace: string): boolean {
-  return readFile(namespace, 'config').enabled !== false;
+  return readDataJson(namespace, 'config').enabled !== false;
 }
 
 /** Writes a module's master on/off switch to config.json, preserving other keys. */
 export async function writeEnabled(namespace: string, enabled: boolean): Promise<boolean> {
-  const existing = readFile(namespace, 'config');
+  const existing = readDataJson(namespace, 'config');
   const merged = { ...existing, enabled };
   await writeJsonAtomic(moduleDataPath(namespace, STORE_FILES.config), merged);
   return enabled;
@@ -74,7 +74,7 @@ export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
   // Read each backing file once.
   const parsedByStore: Partial<Record<WebFieldStore, Record<string, unknown>>> = {};
   function parsed(store: WebFieldStore): Record<string, unknown> {
-    return (parsedByStore[store] ??= readFile(plugin.namespace, store));
+    return (parsedByStore[store] ??= readDataJson(plugin.namespace, store));
   }
 
   const values: Record<string, FieldValue> = {};
@@ -136,7 +136,7 @@ export async function writeValues(
 
   // Write each touched file, preserving keys not included in this request.
   for (const store of Object.keys(updatesByStore) as WebFieldStore[]) {
-    const existing = readFile(plugin.namespace, store);
+    const existing = readDataJson(plugin.namespace, store);
     const merged = { ...existing, ...updatesByStore[store] };
     await writeJsonAtomic(moduleDataPath(plugin.namespace, STORE_FILES[store]), merged);
   }

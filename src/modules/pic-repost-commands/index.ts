@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   AttachmentBuilder,
   GuildMember,
+  MessageFlags,
   type ChatInputCommandInteraction,
   type Attachment,
   type SlashCommandOptionsOnlyBuilder,
@@ -83,7 +84,7 @@ function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
  * and re-uploads them as the bot in the same channel, attributed to the author.
  */
 async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const t = texts();
 

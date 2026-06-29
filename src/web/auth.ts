@@ -2,11 +2,8 @@ import { randomBytes } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
 import type { WebConfig } from './config.js';
+import { DISCORD_API } from './discord.js';
 
-// Pin the API version. Unversioned requests can return the legacy shape where a
-// guild's `permissions` is a number; v10 returns it as a string. We handle both
-// below, but pinning keeps the response shape predictable.
-const DISCORD_API = 'https://discord.com/api/v10';
 const AUTHORIZE_URL = 'https://discord.com/oauth2/authorize';
 const OAUTH_SCOPES = 'identify guilds';
 
@@ -15,8 +12,14 @@ const ADMINISTRATOR = 1n << 3n; // 0x8
 
 const SESSION_COOKIE = 'ttt_session';
 const STATE_COOKIE = 'ttt_oauth_state';
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+// Kept short on purpose: the session is only a convenience cache. Admin status is
+// re-validated against Discord (via the bot token) on each request, so a stale
+// session can't grant access for long even if this is lengthened.
+const SESSION_MAX_AGE = 60 * 60 * 4; // 4 hours
 const STATE_MAX_AGE = 60 * 10; // 10 minutes
+
+// How long a positive admin re-check is trusted before we ask Discord again.
+const ADMIN_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 
 export interface SessionUser {
   id: string;
@@ -123,6 +126,95 @@ async function isGuildAdmin(accessToken: string, guildId: string): Promise<boole
   }
 }
 
+interface DiscordGuild {
+  owner_id?: string;
+}
+
+interface DiscordGuildMember {
+  roles?: string[];
+}
+
+interface DiscordRole {
+  id: string;
+  permissions?: string | number;
+}
+
+// Per-user cache of the bot-token admin re-check, so we don't call Discord on
+// every request. Only positive results are short-lived; on a transient API error
+// we fall back to the last cached value (see isGuildAdminViaBot).
+const adminCache = new Map<string, { admin: boolean; at: number }>();
+
+async function discordBotGet<T>(cfg: WebConfig, path: string): Promise<T | null> {
+  const res = await fetch(`${DISCORD_API}${path}`, {
+    headers: { Authorization: `Bot ${cfg.botToken}` },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`Discord API returned HTTP ${res.status} for ${path}.`);
+  }
+  return (await res.json()) as T;
+}
+
+function hasAdminPermission(permissions: string | number | undefined): boolean {
+  if (permissions === undefined || permissions === null) return false;
+  try {
+    return (BigInt(permissions) & ADMINISTRATOR) === ADMINISTRATOR;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Re-checks, using the bot token, whether `userId` still has Administrator on the
+ * configured guild. Unlike the login-time `isGuildAdmin` (which uses the user's
+ * OAuth token), this needs no stored user token and reflects live permissions.
+ *
+ * The guild owner is admin implicitly; otherwise we OR the permission bits of all
+ * the member's roles (including @everyone, whose role id equals the guild id) and
+ * test the Administrator bit.
+ */
+async function isGuildAdminViaBot(cfg: WebConfig, userId: string): Promise<boolean> {
+  const member = await discordBotGet<DiscordGuildMember>(
+    cfg,
+    `/guilds/${cfg.guildId}/members/${userId}`
+  );
+  // 404: the user is no longer a member of the guild.
+  if (!member) return false;
+
+  const guild = await discordBotGet<DiscordGuild>(cfg, `/guilds/${cfg.guildId}`);
+  if (guild?.owner_id && guild.owner_id === userId) return true;
+
+  const roles = await discordBotGet<DiscordRole[]>(cfg, `/guilds/${cfg.guildId}/roles`);
+  if (!Array.isArray(roles)) return false;
+
+  const memberRoleIds = new Set(member.roles ?? []);
+  // @everyone (role id === guild id) applies to all members even if not listed.
+  memberRoleIds.add(cfg.guildId);
+
+  return roles.some((role) => memberRoleIds.has(role.id) && hasAdminPermission(role.permissions));
+}
+
+/**
+ * Cached wrapper around isGuildAdminViaBot. Returns the cached value within the
+ * TTL; on a transient Discord error, falls back to the last cached value (or
+ * false if none) so a brief API hiccup doesn't lock admins out.
+ */
+async function isStillAdmin(cfg: WebConfig, userId: string): Promise<boolean> {
+  const cached = adminCache.get(userId);
+  if (cached && Date.now() - cached.at < ADMIN_CACHE_TTL_MS) {
+    return cached.admin;
+  }
+
+  try {
+    const admin = await isGuildAdminViaBot(cfg, userId);
+    adminCache.set(userId, { admin, at: Date.now() });
+    return admin;
+  } catch (err) {
+    console.warn('[web/auth] Admin re-check failed; using last known value.', err);
+    return cached?.admin ?? false;
+  }
+}
+
 export interface CallbackResult {
   ok: boolean;
   status: number;
@@ -201,12 +293,22 @@ export async function getSessionUser(c: Context, cfg: WebConfig): Promise<Sessio
 export function requireAuth(cfg: WebConfig): MiddlewareHandler {
   return async (c, next) => {
     const user = await getSessionUser(c, cfg);
-    if (!user) {
+    const denied = () => {
       if (c.req.path.startsWith('/api/')) {
         return c.json({ error: 'Unauthorized' }, 401);
       }
       return c.redirect('/login');
+    };
+
+    if (!user) return denied();
+
+    // Re-validate against live Discord permissions (cached) so losing admin
+    // revokes access promptly, not only when the session cookie expires.
+    if (!(await isStillAdmin(cfg, user.id))) {
+      deleteCookie(c, SESSION_COOKIE, { path: '/' });
+      return denied();
     }
+
     c.set('user', user);
     await next();
   };

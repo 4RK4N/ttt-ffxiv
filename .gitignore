@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.env
 
 # Runtime config holds secrets (token, OAuth, channel IDs). Keep the *.example.json
 # templates tracked, but never commit the real config.json files.
