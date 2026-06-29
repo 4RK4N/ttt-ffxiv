@@ -25,11 +25,11 @@ so you do not need to open any firewall ports or set up a reverse proxy.
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
    and click **New Application**. Give it a name (e.g. `ttt-bot`).
 2. Open **Bot** in the sidebar -> **Reset Token** -> copy the token. This is your
-   `DISCORD_TOKEN`. Keep it secret. While on this page, enable the
+   `discordToken`. Keep it secret. While on this page, enable the
    **Message Content** intent under **Privileged Gateway Intents** - the
    auto-thread feature needs it to read message links/attachments.
 3. Open **General Information** -> copy the **Application ID**. This is your
-   `CLIENT_ID`.
+   `clientId`.
 4. Invite the bot to your server. Open this URL in a browser, replacing
    `YOUR_CLIENT_ID`:
 
@@ -43,7 +43,7 @@ so you do not need to open any firewall ports or set up a reverse proxy.
    Pick your server and authorize.
 5. (Recommended for fast command updates) Enable Developer Mode in Discord
    (User Settings -> Advanced -> Developer Mode), then right-click your server icon
-   -> **Copy Server ID**. This is your optional `GUILD_ID`.
+   -> **Copy Server ID**. This is your optional `guildId`.
 
 ---
 
@@ -73,23 +73,78 @@ docker compose version
    cd ttt-bot
    ```
 
-2. Create the `.env` file from the template and fill in your values:
+2. Create `data/config.json` from the template and fill in your values:
 
    ```bash
-   cp env.example .env
-   nano .env
+   cp data/config.example.json data/config.json
+   nano data/config.json
    ```
 
-   ```
-   DISCORD_TOKEN=your-bot-token
-   CLIENT_ID=your-application-id
-   GUILD_ID=your-server-id      # optional but recommended
-   AUTOTHREAD_CHANNEL_IDS=123,456  # channels to auto-thread (comma-separated IDs)
-   ```
+All `config.json` files stay only on the server and are git-ignored - never
+commit them. The `*.example.json` templates are safe to commit. See the
+**Configuration reference** below for every field.
 
-   `AUTOTHREAD_CHANNEL_IDS` lists the channels where the bot auto-creates comment threads
-   on qualifying posts; leave it empty to disable that module. The `.env` file
-   stays only on the server and is git-ignored - never commit it.
+---
+
+## Configuration reference
+
+The bot reads all configuration from JSON files under `data/`. There are no
+environment variables to set (only the optional `DATA_DIR`, which relocates the
+`data/` directory itself). Each file has a committed `*.example.json` template;
+copy it to `config.json` and edit.
+
+### `data/config.json` - core bot + web editor
+
+```json
+{
+  "discordToken": "your-bot-token",
+  "clientId": "your-application-id",
+  "guildId": "your-server-id-optional",
+  "botName": "TTT",
+  "clientSecret": "oauth2-client-secret-web-editor-only",
+  "sessionSecret": "long-random-string-web-editor-only",
+  "oauthRedirectUri": "https://your-host/callback",
+  "webPort": 8088
+}
+```
+
+| Field | Required | Description |
+| ----- | -------- | ----------- |
+| `discordToken` | **Yes** | Bot token from the Developer Portal (Bot -> Reset Token). Keep it secret. |
+| `clientId` | **Yes** | Application (client) ID from General Information. |
+| `guildId` | No | A server ID for instant, guild-scoped slash command registration during development. Empty = register globally (can take ~1 hour to propagate). Also **required for the web editor** (the admin check runs against this server). |
+| `botName` | No | Display name shown in the web editor's title (`<botName> Admin Interface`). Defaults to `TTT`. |
+| `clientSecret` | Editor only | OAuth2 client secret (Developer Portal -> OAuth2 -> Client Secret -> Reset). |
+| `sessionSecret` | Editor only | Long random string used to sign the editor's session cookies. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. |
+| `oauthRedirectUri` | Editor only | OAuth2 redirect URL, added verbatim under Developer Portal -> OAuth2 -> Redirects. Use the editor's public `/callback` URL (https makes the cookie `Secure`). For local dev: `http://localhost:8088/callback`. |
+| `webPort` | No | Port the editor listens on inside the container. Defaults to `8088`. Caddy proxies to this port (see `docker-compose.yml`), so changing it means updating that label too. |
+
+The four editor fields (`clientSecret`, `sessionSecret`, `oauthRedirectUri`,
+`webPort`) plus `guildId` are only needed if you run the browser-based text
+editor; the bot process ignores them. See [Web text editor](README.md#web-text-editor).
+
+### `data/links-pics-vids-autothread/config.json` - auto-threading
+
+```json
+{ "channelIds": ["123", "456"] }
+```
+
+`channelIds` lists the channels where the bot auto-creates a comments thread on
+qualifying posts (X/Twitter, Bluesky, Aethy links, or direct image/video).
+Leave it empty (`[]`) to disable the module. This module needs the privileged
+**Message Content** intent (Developer Portal -> Bot -> Privileged Gateway
+Intents).
+
+### `data/welcome-message/config.json` - join welcome card
+
+```json
+{ "channelId": "789" }
+```
+
+`channelId` is the channel where the welcome card is posted when a member joins.
+Leave it blank (`""`) to disable the module. This module needs the privileged
+**Server Members** intent (Developer Portal -> Bot -> Privileged Gateway
+Intents).
 
 ---
 
@@ -109,13 +164,14 @@ image ships only the compiled output plus production dependencies.
 ## Part 5 - Register the slash commands (run after every command change)
 
 Slash commands must be registered with Discord before they appear. Run the deploy
-script **inside a one-off container** that uses your `.env`:
+script **inside a one-off container** (it reads `data/config.json` from the
+mounted volume):
 
 ```bash
 docker compose run --rm ttt-discord-bot npm run deploy
 ```
 
-- With `GUILD_ID` set, the `/pic` and `/post` commands appear in that server within
+- With `guildId` set, the `/pic` and `/post` commands appear in that server within
   seconds.
 - Without it, they register globally and can take up to ~1 hour to show up.
 
@@ -175,13 +231,13 @@ If you prefer not to use Compose:
 # Build
 docker build -t ttt-discord-bot .
 
-# Register commands (one-off)
-docker run --rm --env-file .env ttt-discord-bot npm run deploy
+# Register commands (one-off). The -v mount provides data/config.json.
+docker run --rm -v "$(pwd)/data:/app/data" ttt-discord-bot npm run deploy
 
 # Run in the background with auto-restart.
-# The -v mount makes edits to module texts/assets in ./data persist (and survive
-# rebuilds); omit it to just use the texts/assets baked into the image.
-docker run -d --name ttt-discord-bot --env-file .env \
+# The -v mount provides data/config.json and makes edits to module texts/assets
+# in ./data persist (and survive rebuilds).
+docker run -d --name ttt-discord-bot \
   -v "$(pwd)/data:/app/data" --restart unless-stopped ttt-discord-bot
 
 # Logs
@@ -193,9 +249,9 @@ docker logs -f ttt-discord-bot
 ## Troubleshooting
 
 - **Commands don't appear**: make sure you ran the deploy step. Global commands
-  are slow to propagate - set `GUILD_ID` for instant updates during setup.
-- **"Missing required environment variable"** on start: your `.env` is missing or
-  a value is blank. Confirm `DISCORD_TOKEN` and `CLIENT_ID` are filled in.
+  are slow to propagate - set `guildId` for instant updates during setup.
+- **"Missing required config value"** on start: `data/config.json` is missing or
+  a value is blank. Confirm `discordToken` and `clientId` are filled in.
 - **Bot is online but `/pic` fails to post**: the bot needs **Send Messages** and
   **Attach Files** permissions in that channel. Re-check the channel's permission
   overrides for the bot's role.

@@ -1,36 +1,62 @@
-import 'dotenv/config';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
-function required(name: string): string {
-  const value = process.env[name];
-  if (!value || value.trim() === '') {
+// data/config.json is the single source of truth for the bot's configuration.
+// The data directory is resolved from the process working directory (or DATA_DIR)
+// exactly like core/texts' DATA_DIR, so it's stable across `tsx` dev, compiled
+// `dist/` prod, and Docker (where ./data is bind-mounted over the image).
+const DATA_DIR = path.resolve(process.env.DATA_DIR ?? process.cwd(), 'data');
+const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
+
+interface RawConfig {
+  discordToken?: string;
+  clientId?: string;
+  guildId?: string;
+  botName?: string;
+  clientSecret?: string;
+  sessionSecret?: string;
+  oauthRedirectUri?: string;
+  webPort?: number | string;
+}
+
+function loadRaw(): RawConfig {
+  try {
+    return JSON.parse(readFileSync(CONFIG_FILE, 'utf8')) as RawConfig;
+  } catch (err) {
     throw new Error(
-      `Missing required environment variable "${name}". ` +
-      'Copy "env.example" to ".env" and fill in the values.'
+      `Could not read configuration from "${CONFIG_FILE}". ` +
+      'Copy "data/config.example.json" to "data/config.json" and fill in the values. ' +
+      `(${(err as Error).message})`
     );
   }
-  return value.trim();
 }
 
-function optional(name: string): string | undefined {
-  const value = process.env[name];
-  return value && value.trim() !== '' ? value.trim() : undefined;
+const raw = loadRaw();
+
+function str(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
 }
 
-function optionalList(name: string): string[] {
-  const value = optional(name);
-  if (!value) return [];
-  return value
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part !== '');
+function required(key: keyof RawConfig): string {
+  const value = str(raw[key]);
+  if (!value) {
+    throw new Error(
+      `Missing required config value "${key}" in "${CONFIG_FILE}". ` +
+      'See "data/config.example.json" for the expected shape.'
+    );
+  }
+  return value;
+}
+
+function optionalPort(value: unknown, fallback: number): number {
+  const parsed = typeof value === 'number' ? value : Number.parseInt(String(value ?? ''), 10);
+  return Number.isInteger(parsed) && parsed > 0 && parsed < 65536 ? parsed : fallback;
 }
 
 export interface Config {
-  token: string;
+  discordToken: string;
   clientId: string;
   guildId: string | undefined;
-  picChannelIds: string[];
-  welcomeChannelId: string | undefined;
   // Display name used in the web editor's title (e.g. "<botName> Admin Interface").
   botName: string;
   // Web editor settings. These are optional here so the bot process starts
@@ -41,30 +67,19 @@ export interface Config {
   webPort: number;
 }
 
-function optionalPort(name: string, fallback: number): number {
-  const value = optional(name);
-  if (!value) return fallback;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 && parsed < 65536 ? parsed : fallback;
-}
-
 export const config: Config = {
-  token: required('DISCORD_TOKEN'),
-  clientId: required('CLIENT_ID'),
+  discordToken: required('discordToken'),
+  clientId: required('clientId'),
   // Optional: when set, slash commands register to this guild instantly (great for dev).
-  guildId: optional('GUILD_ID'),
-  // Channels where the bot auto-creates a comments thread on qualifying posts.
-  picChannelIds: optionalList('AUTOTHREAD_CHANNEL_IDS'),
-  // Channel where the welcome card is posted when a member joins.
-  welcomeChannelId: optional('WELCOME_CHANNEL_ID'),
+  guildId: str(raw.guildId),
   // Bot/display name shown in the web editor title; falls back to "TTT".
-  botName: optional('BOT_NAME') ?? 'TTT',
+  botName: str(raw.botName) ?? 'TTT',
   // OAuth client secret used by the web editor to exchange the auth code.
-  clientSecret: optional('CLIENT_SECRET'),
+  clientSecret: str(raw.clientSecret),
   // Secret used to sign the web editor's session cookies.
-  sessionSecret: optional('SESSION_SECRET'),
+  sessionSecret: str(raw.sessionSecret),
   // Registered Discord OAuth2 redirect URI (must match the Developer Portal).
-  oauthRedirectUri: optional('OAUTH_REDIRECT_URI'),
+  oauthRedirectUri: str(raw.oauthRedirectUri),
   // Port the web editor listens on.
-  webPort: optionalPort('WEB_PORT', 8088),
+  webPort: optionalPort(raw.webPort, 8088),
 };

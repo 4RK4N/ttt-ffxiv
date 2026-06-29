@@ -1,24 +1,38 @@
 import { Events, GuildMember, type Client, type Message } from 'discord.js';
-import { config } from '../../config.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
 import {
   buildThreadName,
   DEFAULT_THREAD_FIRST_MESSAGE,
   THREAD_AUTO_ARCHIVE_MINUTES,
 } from '../../core/threads.js';
-import { getTexts } from '../../core/texts.js';
+import { getConfig, getTexts } from '../../core/texts.js';
+
+const NAMESPACE = 'links-pics-vids-autothread';
 
 interface AutoThreadTexts {
   threadFirstMessage: string;
 }
 
 // Code defaults; data/links-pics-vids-autothread/texts.json overrides these.
-const DEFAULTS: AutoThreadTexts = {
+const TEXT_DEFAULTS: AutoThreadTexts = {
   threadFirstMessage: DEFAULT_THREAD_FIRST_MESSAGE,
 };
 
 function texts(): AutoThreadTexts {
-  return getTexts('links-pics-vids-autothread', DEFAULTS);
+  return getTexts(NAMESPACE, TEXT_DEFAULTS);
+}
+
+interface AutoThreadConfig {
+  // Channel IDs where the bot auto-creates a comments thread on qualifying posts.
+  channelIds: string[];
+}
+
+const CONFIG_DEFAULTS: AutoThreadConfig = {
+  channelIds: [],
+};
+
+function channelIds(): string[] {
+  return getConfig(NAMESPACE, CONFIG_DEFAULTS).channelIds;
 }
 
 // Matches http(s) URLs in free-form message text. We then parse each match with
@@ -88,7 +102,7 @@ async function handleMessage(message: Message): Promise<void> {
   if (message.author.bot || message.system) return;
 
   // Only the configured pics channels.
-  if (!config.picChannelIds.includes(message.channelId)) return;
+  if (!channelIds().includes(message.channelId)) return;
 
   // Don't act on messages already inside a thread, or that already have one.
   if (message.channel.isThread() || message.hasThread) return;
@@ -126,11 +140,12 @@ async function handleMessage(message: Message): Promise<void> {
 }
 
 const linksPicsVidsAutoThreadModule: CommandModule = {
-  name: 'links-pics-vids-autothread',
+  name: NAMESPACE,
   init(client: Client): void {
-    if (config.picChannelIds.length === 0) {
+    if (channelIds().length === 0) {
       console.warn(
-        '[links-pics-vids-autothread] No AUTOTHREAD_CHANNEL_IDS configured; auto-threading is disabled.'
+        '[links-pics-vids-autothread] No channelIds configured in ' +
+        'data/links-pics-vids-autothread/config.json; auto-threading is disabled.'
       );
       return;
     }

@@ -20,16 +20,16 @@ export interface WebConfig {
  */
 export function loadWebConfig(): WebConfig {
   const missing: string[] = [];
-  if (!config.clientSecret) missing.push('CLIENT_SECRET');
-  if (!config.sessionSecret) missing.push('SESSION_SECRET');
-  if (!config.oauthRedirectUri) missing.push('OAUTH_REDIRECT_URI');
-  // GUILD_ID is optional for the bot but required here for the admin check.
-  if (!config.guildId) missing.push('GUILD_ID');
+  if (!config.clientSecret) missing.push('clientSecret');
+  if (!config.sessionSecret) missing.push('sessionSecret');
+  if (!config.oauthRedirectUri) missing.push('oauthRedirectUri');
+  // guildId is optional for the bot but required here for the admin check.
+  if (!config.guildId) missing.push('guildId');
 
   if (missing.length > 0) {
     console.error(
-      `[web] Missing required environment variable(s): ${missing.join(', ')}.\n` +
-      'Copy "env.example" to ".env" and fill in the web editor section.'
+      `[web] Missing required config value(s): ${missing.join(', ')}.\n` +
+      'Set them in "data/config.json" (see "data/config.example.json").'
     );
     process.exit(1);
   }

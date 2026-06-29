@@ -35,16 +35,14 @@ function merge<T extends object>(defaults: T, overrides: Partial<T>): T {
 }
 
 /**
- * Loads a module's texts from data/<namespace>/texts.json, layered over the
- * supplied code defaults. Re-reads only when the file's mtime changes, so a
- * future web editor's changes take effect on the next call without a restart.
+ * Loads a JSON file layered over the supplied code defaults. Re-reads only when
+ * the file's mtime changes, so a future web editor's (or hand) edits take effect
+ * on the next call without a restart.
  *
  * Fails gracefully: on a missing file, parse error, or any other failure it
  * logs a warning and returns the defaults, so the bot never breaks on bad data.
  */
-export function getTexts<T extends object>(namespace: string, defaults: T): T {
-  const file = moduleDataPath(namespace, 'texts.json');
-
+function loadJson<T extends object>(file: string, defaults: T): T {
   let mtimeMs: number;
   try {
     mtimeMs = statSync(file).mtimeMs;
@@ -64,7 +62,17 @@ export function getTexts<T extends object>(namespace: string, defaults: T): T {
     cache.set(file, { mtimeMs, value });
     return value;
   } catch (err) {
-    console.warn(`[texts] Failed to read "${file}"; using defaults.`, err);
+    console.warn(`[data] Failed to read "${file}"; using defaults.`, err);
     return defaults;
   }
+}
+
+/** Loads a module's editable texts from data/<namespace>/texts.json. */
+export function getTexts<T extends object>(namespace: string, defaults: T): T {
+  return loadJson(moduleDataPath(namespace, 'texts.json'), defaults);
+}
+
+/** Loads a module's runtime settings from data/<namespace>/config.json. */
+export function getConfig<T extends object>(namespace: string, defaults: T): T {
+  return loadJson(moduleDataPath(namespace, 'config.json'), defaults);
 }

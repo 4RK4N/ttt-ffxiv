@@ -10,7 +10,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const rest = new REST().setToken(config.token);
+  const rest = new REST().setToken(config.discordToken);
 
   const route = config.guildId
     ? Routes.applicationGuildCommands(config.clientId, config.guildId)

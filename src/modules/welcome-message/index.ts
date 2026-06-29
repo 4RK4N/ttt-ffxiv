@@ -5,15 +5,30 @@ import {
   type Client,
   type GuildMember,
 } from 'discord.js';
-import { config } from '../../config.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
-import { format, getTexts } from '../../core/texts.js';
+import { format, getConfig, getTexts } from '../../core/texts.js';
 import { renderWelcomeCard } from './card.js';
+
+const NAMESPACE = 'welcome-message';
 
 interface WelcomeTexts {
   rulesMessage: string;
   welcomeContent: string;
   rulesChannelFallback: string;
+}
+
+interface WelcomeConfig {
+  // Channel where the welcome card is posted when a member joins. Empty disables it.
+  channelId: string;
+}
+
+const CONFIG_DEFAULTS: WelcomeConfig = {
+  channelId: '',
+};
+
+function welcomeChannelId(): string | undefined {
+  const id = getConfig(NAMESPACE, CONFIG_DEFAULTS).channelId.trim();
+  return id === '' ? undefined : id;
 }
 
 // Code defaults; data/welcome-message/texts.json overrides these (editable source
@@ -35,7 +50,7 @@ const DEFAULTS: WelcomeTexts = {
 };
 
 function texts(): WelcomeTexts {
-  return getTexts('welcome-message', DEFAULTS);
+  return getTexts(NAMESPACE, DEFAULTS);
 }
 
 // Discord error code returned when a user's DMs are closed to the bot.
@@ -57,7 +72,7 @@ async function sendRulesDM(member: GuildMember, fallbackToChannel: () => Promise
 }
 
 async function handleMemberAdd(member: GuildMember): Promise<void> {
-  const channelId = config.welcomeChannelId;
+  const channelId = welcomeChannelId();
   if (!channelId) return;
 
   const channel = await member.client.channels.fetch(channelId);
@@ -96,11 +111,12 @@ async function handleMemberAdd(member: GuildMember): Promise<void> {
 }
 
 const welcomeMessageModule: CommandModule = {
-  name: 'welcome-message',
+  name: NAMESPACE,
   init(client: Client): void {
-    if (!config.welcomeChannelId) {
+    if (!welcomeChannelId()) {
       console.warn(
-        '[welcome-message] No WELCOME_CHANNEL_ID configured; welcome messages are disabled.'
+        '[welcome-message] No channelId configured in ' +
+        'data/welcome-message/config.json; welcome messages are disabled.'
       );
       return;
     }

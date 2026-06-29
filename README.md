@@ -20,8 +20,9 @@ welcome channel and sends the server rules to the member.
   channel, mentioning them. The welcome card post is unaffected if the rules
   message fails.
 
-Configure the target channel with `WELCOME_CHANNEL_ID` in your `.env`. If it's
-empty, the module stays disabled. This module uses the `guildMemberAdd` event, so
+Configure the target channel with `channelId` in
+`data/welcome-message/config.json`. If it's empty, the module stays disabled.
+This module uses the `guildMemberAdd` event, so
 the bot needs the privileged **Server Members** intent enabled in the Developer
 Portal (Bot -> Privileged Gateway Intents).
 
@@ -66,18 +67,18 @@ removed from the text, or just `name` when the message has no text beyond the
 link. The first message is the same bilingual note, and the thread auto-archives
 after 7 days.
 
-Configure which channels are watched with `AUTOTHREAD_CHANNEL_IDS`
-(comma-separated channel IDs) in your `.env`. This module reads message content,
-so the bot needs the privileged **Message Content** intent enabled in the
-Developer Portal (Bot -> Privileged Gateway Intents). If `AUTOTHREAD_CHANNEL_IDS`
-is empty, the module stays disabled.
+Configure which channels are watched with `channelIds` (an array of channel IDs)
+in `data/links-pics-vids-autothread/config.json`. This module reads message
+content, so the bot needs the privileged **Message Content** intent enabled in
+the Developer Portal (Bot -> Privileged Gateway Intents). If `channelIds` is
+empty, the module stays disabled.
 
 ## Project layout
 
 ```
 src/
   index.ts              # entry point: client + interaction routing
-  config.ts             # loads & validates environment variables
+  config.ts             # loads & validates data/config.json
   core/
     moduleLoader.ts     # auto-discovers modules under src/modules/*
     threads.ts          # shared thread title helpers
@@ -99,13 +100,17 @@ src/
     plugins.ts          # scans modules for web-plugin.json manifests
     store.ts            # validated, atomic read/write of texts.json
     ui.ts               # the editor's HTML page
-data/                   # editable runtime content (texts + assets), per module
+data/                   # runtime config + editable content (git-ignored secrets)
+  config.json           # bot config (token, IDs, web editor) - from config.example.json
   welcome-message/
+    config.json         # { "channelId": "..." } - target welcome channel
     texts.json
     media/background.png
     fonts/DancingScript.ttf
   pic-repost-commands/texts.json
-  links-pics-vids-autothread/texts.json
+  links-pics-vids-autothread/
+    config.json         # { "channelIds": [...] } - watched channels
+    texts.json
 scripts/
   deploy-commands.ts    # registers slash commands with Discord
   copy-web-plugins.js   # copies web-plugin.json manifests into dist on build
@@ -141,7 +146,7 @@ directory, so saved edits take effect on the bot's next event - no restart.
   to the module's `index.js`. Each manifest lists fields (`key`, `label`,
   `type: text | textarea`, optional `help`). The editor scans modules at startup,
   so adding/removing editable fields is just editing that JSON - no code changes.
-- **Access** is restricted to **administrators of `GUILD_ID`**. Login is via
+- **Access** is restricted to **administrators of `guildId`**. Login is via
   Discord OAuth: the editor checks that your account has the Administrator
   permission on that server before letting you in.
 - **Safety**: writes are validated against the manifest (only known keys, string
@@ -150,28 +155,14 @@ directory, so saved edits take effect on the bot's next event - no restart.
 
 ### Configuration
 
-Add these to `.env` (see `env.example`). They are only needed by the editor; the
-bot ignores them:
-
-```
-CLIENT_SECRET=your-oauth2-client-secret      # Developer Portal -> OAuth2 -> Client Secret
-SESSION_SECRET=long-random-string            # signs the editor's session cookies
-OAUTH_REDIRECT_URI=https://ttt-bot.ii10.de/callback
-WEB_PORT=8088                                # port the editor listens on
-```
-
-`GUILD_ID` is also required here (it's the server whose admins get access).
-
-In the **Developer Portal -> OAuth2 -> Redirects**, add the exact
-`OAUTH_REDIRECT_URI` value (character-for-character, including `https` and
-`/callback`). No extra scopes or intents are needed - the editor requests
-`identify guilds` itself, and never touches the bot gateway.
-
-Generate a session secret with, e.g.:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+The editor reads `clientSecret`, `sessionSecret`, `oauthRedirectUri`, `webPort`,
+and `guildId` from `data/config.json`. These are only needed by the editor; the
+bot ignores them. See the
+[Configuration reference](INSTALL.md#configuration-reference) in `INSTALL.md`
+for each field, how to generate a session secret, and the exact
+`oauthRedirectUri` you must register under **Developer Portal -> OAuth2 ->
+Redirects**. No extra scopes or intents are needed - the editor requests
+`identify guilds` itself and never touches the bot gateway.
 
 ### Running
 
@@ -199,22 +190,18 @@ npm install
    - Copy the **bot token** and the **Application (client) ID**.
    - Invite the bot with the `bot` and `applications.commands` scopes, granting
      **Send Messages** and **Attach Files** permissions.
-4. Copy `env.example` to `.env` and fill in the values:
+4. Copy `data/config.example.json` to `data/config.json` and fill in at least
+   `discordToken` and `clientId`:
 
-```
-DISCORD_TOKEN=your-bot-token
-CLIENT_ID=your-application-id
-GUILD_ID=your-test-server-id        # optional; instant registration during dev
-AUTOTHREAD_CHANNEL_IDS=123,456      # optional; channels for auto comments threads
-WELCOME_CHANNEL_ID=789              # optional; channel for the join welcome card
+```bash
+cp data/config.example.json data/config.json
 ```
 
-The two privileged modules need their intents enabled in the Developer Portal
-(Bot -> Privileged Gateway Intents): **Message Content** for auto-threading and
-**Server Members** for the welcome card.
-
-If you also want to run the browser-based text editor, set its extra variables
-too - see [Web text editor](#web-text-editor).
+   Per-module channel settings live in
+   `data/links-pics-vids-autothread/config.json` (`channelIds`) and
+   `data/welcome-message/config.json` (`channelId`). For every field, what's
+   optional, and the privileged intents each module needs, see the
+   [Configuration reference](INSTALL.md#configuration-reference) in `INSTALL.md`.
 
 ## Deploy slash commands
 
@@ -224,7 +211,7 @@ Register the commands with Discord (run again whenever commands change):
 npm run deploy
 ```
 
-- With `GUILD_ID` set, commands register to that server instantly (best for dev).
+- With `guildId` set, commands register to that server instantly (best for dev).
 - Without it, commands register globally and can take up to ~1 hour to appear.
 
 ## Run

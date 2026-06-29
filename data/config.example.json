@@ -1,0 +1,10 @@
+{
+  "discordToken": "your-bot-token",
+  "clientId": "your-application-id",
+  "guildId": "your-server-id-optional",
+  "botName": "TTT",
+  "clientSecret": "oauth2-client-secret-web-editor-only",
+  "sessionSecret": "long-random-string-web-editor-only",
+  "oauthRedirectUri": "https://your-host/callback",
+  "webPort": 8088
+}

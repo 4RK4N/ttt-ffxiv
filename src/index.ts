@@ -62,7 +62,7 @@ async function main(): Promise<void> {
     }
   });
 
-  await client.login(config.token);
+  await client.login(config.discordToken);
 }
 
 main().catch((err) => {

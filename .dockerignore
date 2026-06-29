@@ -2,6 +2,8 @@ node_modules
 dist
 npm-debug.log*
 .env
+data/config.json
+data/*/config.json
 .git
 .gitignore
 *.log

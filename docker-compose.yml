@@ -10,9 +10,9 @@ services:
       dockerfile: Dockerfile
     image: ttt-discord-bot
     container_name: ttt-discord-bot
-    # Loads DISCORD_TOKEN / CLIENT_ID / GUILD_ID from your .env file.
-    env_file: .env
-    # Persist module texts/assets so edits survive restarts and rebuilds.
+    # All configuration (token, client ID, etc.) is read from data/config.json,
+    # provided by the bind mount below. Persist module texts/assets too so edits
+    # survive restarts and rebuilds.
     volumes:
       - ./data:/app/data
     # Keep the bot running and restart it automatically (e.g. after a reboot),
@@ -28,9 +28,8 @@ services:
     depends_on:
       - ttt-discord-bot
     command: ["node", "dist/src/web/server.js"]
-    # Reuses CLIENT_ID / CLIENT_SECRET / SESSION_SECRET / OAUTH_REDIRECT_URI /
-    # GUILD_ID / WEB_PORT from your .env file.
-    env_file: .env
+    # Reads the same data/config.json (clientId, clientSecret, sessionSecret,
+    # oauthRedirectUri, guildId, webPort) via the shared data volume below.
     # Same data volume as the bot, so edits made here take effect without a restart.
     volumes:
       - ./data:/app/data
