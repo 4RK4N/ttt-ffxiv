@@ -87,10 +87,7 @@ async function main(): Promise<void> {
   api.post('/modules/tickets/publish/:typeId', async (c) => {
     const typeId = c.req.param('typeId');
     try {
-      await publishTicketPanel(
-        { botToken: cfg.botToken, guildId: cfg.guildId },
-        typeId
-      );
+      await publishTicketPanel({ botToken: cfg.botToken }, typeId);
       console.log(`[web] ${c.get('user').username} published ticket panel "${typeId}".`);
       return c.json({ ok: true });
     } catch (err) {
@@ -103,10 +100,7 @@ async function main(): Promise<void> {
   api.post('/modules/tickets/unpublish/:typeId', async (c) => {
     const typeId = c.req.param('typeId');
     try {
-      await unpublishTicketPanel(
-        { botToken: cfg.botToken, guildId: cfg.guildId },
-        typeId
-      );
+      await unpublishTicketPanel(typeId);
       console.log(`[web] ${c.get('user').username} unpublished ticket panel "${typeId}".`);
       return c.json({ ok: true });
     } catch (err) {

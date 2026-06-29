@@ -34,13 +34,12 @@ so you do not need to open any firewall ports or set up a reverse proxy.
    `YOUR_CLIENT_ID`:
 
    ```
-   https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=395137042448
+   https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=8
    ```
 
-   Permissions `395137042448` = **Send Messages** + **Attach Files** + **Embed Links**
-   + **Create Public Threads** + **Create Private Threads** + **Send Messages in Threads**
-   + **Manage Threads** + **Manage Channels** (tickets module needs private threads and
-   channel lock/unlock on publish/unpublish; thread perms are also used by auto-thread).
+   `permissions=8` = **Administrator** (all server permissions). Recommended for a
+   single trusted self-hosted bot on your server. Keep `discordToken` secret — anyone
+   with the token has full server access through the bot.
    Pick your server and authorize.
 5. (Recommended for fast command updates) Enable Developer Mode in Discord
    (User Settings -> Advanced -> Developer Mode), then right-click your server icon
@@ -172,12 +171,11 @@ cp data/tickets/texts.example.json data/tickets/texts.json
 
 Each **ticket type** is one category: pick a channel (panel + threads live there),
 staff roles, panel copy, and flow messages. **Save**, then click **Publish panel**
-to post the open button in Discord. **Unpublish** removes the panel and locks the
-channel without deleting your config.
+to post the open button in Discord. **Unpublish** disables new tickets (the panel
+stays; clicking the button replies with an ephemeral “not available” message).
 
 Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
-they can see private threads. The bot needs **Create Private Threads**, **Manage
-Threads**, and **Manage Channels** (see invite URL above).
+they can see private threads (the bot itself uses **Administrator** from the invite above).
 
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 

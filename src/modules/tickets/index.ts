@@ -1,13 +1,7 @@
 import { type ButtonInteraction, type MessageComponentInteraction } from 'discord.js';
 import type { CommandModule, ComponentRoute } from '../../core/moduleLoader.js';
 import { updateTicketType } from './config-io.js';
-import {
-  deletePanelMessage,
-  lockTicketChannel,
-  publishPanel,
-  unlockTicketChannel,
-  type DiscordApiContext,
-} from './panel.js';
+import { publishPanel, type DiscordApiContext } from './panel.js';
 import { handleCloseCancel, handleCloseTicket } from './close.js';
 import { handleOpenTicket } from './open.js';
 import { getTicketTypeConfig } from './config-io.js';
@@ -38,8 +32,6 @@ export async function publishTicketPanel(ctx: DiscordApiContext, typeId: string)
   if (!ticketType) throw new Error(`Unknown ticket type "${typeId}".`);
   if (!ticketType.channelId.trim()) throw new Error('Channel is not configured for this ticket type.');
 
-  await unlockTicketChannel(ctx, ticketType.channelId);
-
   const messageId = await publishPanel(
     ctx,
     typeId,
@@ -53,22 +45,10 @@ export async function publishTicketPanel(ctx: DiscordApiContext, typeId: string)
   });
 }
 
-export async function unpublishTicketPanel(ctx: DiscordApiContext, typeId: string): Promise<void> {
-  const row = getTicketTypeConfig(typeId);
-  if (!row) throw new Error(`Unknown ticket type "${typeId}".`);
+export async function unpublishTicketPanel(typeId: string): Promise<void> {
+  if (!getTicketTypeConfig(typeId)) throw new Error(`Unknown ticket type "${typeId}".`);
 
-  if (row.panelMessageId && row.channelId) {
-    await deletePanelMessage(ctx, row.channelId, row.panelMessageId);
-  }
-
-  if (row.channelId) {
-    await lockTicketChannel(ctx, row.channelId);
-  }
-
-  await updateTicketType(typeId, {
-    published: false,
-    panelMessageId: '',
-  });
+  await updateTicketType(typeId, { published: false });
 }
 
 const ticketsModule: CommandModule = {

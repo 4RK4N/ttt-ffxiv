@@ -13,7 +13,6 @@ export const CLOSE_CONFIRM_PREFIX = 'tickets:close-confirm:';
 
 export interface DiscordApiContext {
   botToken: string;
-  guildId: string;
 }
 
 function authHeaders(botToken: string): HeadersInit {
@@ -64,50 +63,6 @@ async function discordFetch(
     ...init,
     headers: { ...authHeaders(botToken), ...init?.headers },
   });
-}
-
-/** Deny @everyone Send Messages on the ticket channel. */
-export async function lockTicketChannel(ctx: DiscordApiContext, channelId: string): Promise<void> {
-  const res = await discordFetch(ctx.botToken, `/channels/${channelId}/permissions/${ctx.guildId}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      type: 0,
-      allow: '0',
-      deny: '2048',
-    }),
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to lock channel (HTTP ${res.status}).`);
-  }
-}
-
-/** Remove the bot's @everyone Send Messages deny overwrite. */
-export async function unlockTicketChannel(ctx: DiscordApiContext, channelId: string): Promise<void> {
-  const res = await discordFetch(
-    ctx.botToken,
-    `/channels/${channelId}/permissions/${ctx.guildId}`,
-    { method: 'DELETE' }
-  );
-  if (res.status === 404) return;
-  if (!res.ok) {
-    throw new Error(`Failed to unlock channel (HTTP ${res.status}).`);
-  }
-}
-
-export async function deletePanelMessage(
-  ctx: DiscordApiContext,
-  channelId: string,
-  messageId: string
-): Promise<void> {
-  const res = await discordFetch(
-    ctx.botToken,
-    `/channels/${channelId}/messages/${messageId}`,
-    { method: 'DELETE' }
-  );
-  if (res.status === 404) return;
-  if (!res.ok) {
-    throw new Error(`Failed to delete panel message (HTTP ${res.status}).`);
-  }
 }
 
 export async function publishPanel(
