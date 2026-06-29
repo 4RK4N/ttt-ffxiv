@@ -7,6 +7,8 @@ export interface WebConfig {
   oauthRedirectUri: string;
   guildId: string;
   port: number;
+  /** Display name used in the page title ("<botName> Admin Interface"). */
+  botName: string;
   /** True when the redirect URI is https, so cookies can be marked Secure. */
   secureCookies: boolean;
 }
@@ -27,7 +29,7 @@ export function loadWebConfig(): WebConfig {
   if (missing.length > 0) {
     console.error(
       `[web] Missing required environment variable(s): ${missing.join(', ')}.\n` +
-        'Copy "env.example" to ".env" and fill in the web editor section.'
+      'Copy "env.example" to ".env" and fill in the web editor section.'
     );
     process.exit(1);
   }
@@ -47,6 +49,7 @@ export function loadWebConfig(): WebConfig {
     oauthRedirectUri: config.oauthRedirectUri!,
     guildId: config.guildId!,
     port: config.webPort,
+    botName: config.botName,
     secureCookies,
   };
 }

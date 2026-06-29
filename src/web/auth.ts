@@ -3,7 +3,10 @@ import type { Context, MiddlewareHandler } from 'hono';
 import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
 import type { WebConfig } from './config.js';
 
-const DISCORD_API = 'https://discord.com/api';
+// Pin the API version. Unversioned requests can return the legacy shape where a
+// guild's `permissions` is a number; v10 returns it as a string. We handle both
+// below, but pinning keeps the response shape predictable.
+const DISCORD_API = 'https://discord.com/api/v10';
 const AUTHORIZE_URL = 'https://discord.com/oauth2/authorize';
 const OAUTH_SCOPES = 'identify guilds';
 
@@ -28,7 +31,9 @@ interface DiscordTokenResponse {
 interface DiscordPartialGuild {
   id: string;
   name: string;
-  permissions?: string;
+  owner?: boolean;
+  // String in API v8+, number in older/unversioned responses.
+  permissions?: string | number;
 }
 
 function cookieOptions(cfg: WebConfig, maxAge: number) {
@@ -103,9 +108,15 @@ async function isGuildAdmin(accessToken: string, guildId: string): Promise<boole
 
   const guilds = (await res.json()) as DiscordPartialGuild[];
   const guild = guilds.find((g) => g.id === guildId);
-  if (!guild || typeof guild.permissions !== 'string') return false;
+  if (!guild) return false;
+
+  // The guild owner implicitly has every permission.
+  if (guild.owner === true) return true;
+
+  if (guild.permissions === undefined || guild.permissions === null) return false;
 
   try {
+    // BigInt accepts both the string (v8+) and number (legacy) forms.
     return (BigInt(guild.permissions) & ADMINISTRATOR) === ADMINISTRATOR;
   } catch {
     return false;

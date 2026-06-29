@@ -31,6 +31,8 @@ export interface Config {
   guildId: string | undefined;
   picChannelIds: string[];
   welcomeChannelId: string | undefined;
+  // Display name used in the web editor's title (e.g. "<botName> Admin Interface").
+  botName: string;
   // Web editor settings. These are optional here so the bot process starts
   // without them; the web entrypoint validates the ones it needs (see web/config).
   clientSecret: string | undefined;
@@ -55,6 +57,8 @@ export const config: Config = {
   picChannelIds: optionalList('AUTOTHREAD_CHANNEL_IDS'),
   // Channel where the welcome card is posted when a member joins.
   welcomeChannelId: optional('WELCOME_CHANNEL_ID'),
+  // Bot/display name shown in the web editor title; falls back to "TTT".
+  botName: optional('BOT_NAME') ?? 'TTT',
   // OAuth client secret used by the web editor to exchange the auth code.
   clientSecret: optional('CLIENT_SECRET'),
   // Secret used to sign the web editor's session cookies.

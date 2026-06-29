@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   app.get('/callback', async (c) => {
     const result = await handleCallback(c, cfg);
     if (result.ok) return c.redirect('/');
-    return c.html(loginPage(result.message), result.status as 400 | 403 | 502);
+    return c.html(loginPage(cfg.botName, result.message), result.status as 400 | 403 | 502);
   });
 
   app.get('/logout', (c) => {
@@ -41,8 +41,8 @@ async function main(): Promise<void> {
   // --- Editor page ------------------------------------------------------------
   app.get('/', async (c) => {
     const user = await getSessionUser(c, cfg);
-    if (!user) return c.html(loginPage());
-    return c.html(editorPage(user));
+    if (!user) return c.html(loginPage(cfg.botName));
+    return c.html(editorPage(cfg.botName, user));
   });
 
   // --- API (auth required) ----------------------------------------------------

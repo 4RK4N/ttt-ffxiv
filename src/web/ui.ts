@@ -73,19 +73,25 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** Builds the page title from the configured bot name. */
+function appTitle(botName: string): string {
+  return `${botName} Admin Interface`;
+}
+
 /** Login / access-denied page. `message` shows an error (e.g. not an admin). */
-export function loginPage(message?: string): string {
+export function loginPage(botName: string, message?: string): string {
+  const title = escapeHtml(appTitle(botName));
   const note = message ? `<p class="note">${escapeHtml(message)}</p>` : '';
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TTT Text Editor</title>
+<title>${title}</title>
 <style>${STYLES}</style>
 </head><body>
   <div class="login-wrap">
     <div class="login-card">
-      <h1>TTT Text Editor</h1>
+      <h1>${title}</h1>
       <p>Sign in with Discord. Server administrators only.</p>
       ${note}
       <a class="btn" href="/login">Login with Discord</a>
@@ -95,16 +101,17 @@ export function loginPage(message?: string): string {
 }
 
 /** Main editor shell. Data is loaded client-side from /api/modules. */
-export function editorPage(user: SessionUser): string {
+export function editorPage(botName: string, user: SessionUser): string {
+  const title = escapeHtml(appTitle(botName));
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TTT Text Editor</title>
+<title>${title}</title>
 <style>${STYLES}</style>
 </head><body>
   <header>
-    <h1>TTT Text Editor</h1>
+    <h1>${title}</h1>
     <div style="display:flex;align-items:center;gap:14px;">
       <span class="who">Signed in as ${escapeHtml(user.username)}</span>
       <a class="logout" href="/logout">Log out</a>
