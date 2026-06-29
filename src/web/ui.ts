@@ -115,7 +115,10 @@ const STYLES = `
     padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
   }
   .badge.on { color: var(--ok); border-color: var(--ok); }
-  .object-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .object-actions {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    margin-top: 12px;
+  }
   .add-row { margin-top: 8px; }
   .status { font-size: 13px; }
   .status.ok { color: var(--ok); }
@@ -423,8 +426,9 @@ const CLIENT_JS = `
           subFields.push({ key: sub.key, getValue: built.getValue, node: built.node });
         });
 
+        var cardActions = el('div', 'object-actions');
+
         if (ns === 'tickets') {
-          var pubActions = el('div', 'object-actions');
           var pubBtn = el('button', 'secondary');
           pubBtn.type = 'button';
           pubBtn.textContent = 'Publish panel';
@@ -493,19 +497,19 @@ const CLIENT_JS = `
             }
           });
 
-          pubActions.appendChild(pubBtn);
-          pubActions.appendChild(unpubBtn);
-          card.appendChild(pubActions);
+          cardActions.appendChild(pubBtn);
+          cardActions.appendChild(unpubBtn);
         }
 
         var removeBtn = el('button', 'secondary danger');
         removeBtn.type = 'button';
-        removeBtn.textContent = 'Remove';
+        removeBtn.textContent = 'DELETE';
         removeBtn.addEventListener('click', function () {
           items.splice(index, 1);
           renderRows();
         });
-        card.appendChild(removeBtn);
+        cardActions.appendChild(removeBtn);
+        card.appendChild(cardActions);
 
         rows.push({
           getValue: function () {
