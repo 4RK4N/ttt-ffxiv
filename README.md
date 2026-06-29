@@ -94,7 +94,7 @@ unavailable reply).
 
 - **Open**: any user (unless blocked by denied roles) gets a private thread;
   staff and admins are auto-added.
-- **Close / delete**: staff roles or Administrator only.
+- **Close / delete**: the ticket opener can close their own ticket; delete remains staff/admin only.
 - **Denied roles**: optional per type; users with any selected role cannot open.
 
 See [INSTALL.md — tickets](INSTALL.md#datatickets---ticket-panels-and-private-thread-tickets)

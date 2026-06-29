@@ -179,7 +179,7 @@ stays; clicking the button replies with an ephemeral “not available” message
 
 Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
 they can see private threads (the bot itself uses **Administrator** from the invite above).
-Only staff/admin can close or delete tickets; openers cannot self-close.
+Only staff/admin can delete tickets. The opener can close their own ticket; staff/admin can close any ticket.
 Optional **denied roles** per ticket type block users with those roles from opening
 (empty list = no check).
 

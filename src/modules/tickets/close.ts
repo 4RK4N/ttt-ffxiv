@@ -5,6 +5,7 @@ import {
   MessageFlags,
   type ButtonInteraction,
   type GuildMember,
+  type ThreadChannel,
 } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { buildClosedThreadName } from './names.js';
@@ -33,7 +34,31 @@ function parseCloseCustomId(customId: string): ParsedCloseCustomId | null {
   return { threadId, typeId: segments.slice(1).join(':') };
 }
 
-function canCloseTicket(interaction: ButtonInteraction, staffRoleIds: string[]): boolean {
+/** Bot-created private threads have the bot as owner, not the opener. */
+async function resolveOpenerUserId(
+  thread: ThreadChannel,
+  parsedOpenerUserId?: string
+): Promise<string | null> {
+  if (parsedOpenerUserId) return parsedOpenerUserId;
+
+  try {
+    const messages = await thread.messages.fetch({ limit: 10 });
+    const welcome = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp)[0];
+    const match = welcome?.content.match(/<@!?(\d+)>/);
+    return match?.[1] ?? null;
+  } catch (err) {
+    console.warn(`[tickets] Could not resolve opener for thread ${thread.id}:`, err);
+    return null;
+  }
+}
+
+function canCloseTicket(
+  interaction: ButtonInteraction,
+  openerUserId: string | null,
+  staffRoleIds: string[]
+): boolean {
+  if (openerUserId && interaction.user.id === openerUserId) return true;
+
   const member = interaction.member as GuildMember | null;
   if (!member) return false;
   return canStaffOrAdmin(member, staffRoleIds);
@@ -81,7 +106,9 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     return;
   }
 
-  if (!canCloseTicket(interaction, ticketType.staffRoleIds)) {
+  const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
+
+  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
     await interaction.reply({
       content: t.noPermission,
       flags: MessageFlags.Ephemeral,
@@ -89,7 +116,9 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     return;
   }
 
-  const closePayload = `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId ?? ''}`;
+  const closePayload = parsed.openerUserId
+    ? `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId}`
+    : `${parsed.threadId}:${parsed.typeId}:${openerUserId ?? ''}`;
 
   if (!isConfirm) {
     const yes = new ButtonBuilder()
@@ -112,7 +141,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     return;
   }
 
-  if (!canCloseTicket(interaction, ticketType.staffRoleIds)) {
+  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
     await interaction.reply({
       content: t.noPermission,
       flags: MessageFlags.Ephemeral,
