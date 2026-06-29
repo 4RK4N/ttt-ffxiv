@@ -3,6 +3,13 @@
   "description": "Greets new members with a welcome card and sends them the server rules via DM.",
   "fields": [
     {
+      "key": "rulesChannelId",
+      "label": "Rules channel",
+      "type": "channel",
+      "store": "config",
+      "help": "Linked from the rules message via the {rulesChannel} token. Leave empty to omit the link."
+    },
+    {
       "key": "channelId",
       "label": "Welcome channel",
       "type": "channel",
@@ -13,7 +20,7 @@
       "key": "rulesMessage",
       "label": "Rules message",
       "type": "textarea",
-      "help": "Sent to the new member via DM (and posted in-channel if their DMs are closed)."
+      "help": "Sent to the new member via DM (and posted in-channel if their DMs are closed). Tokens: {rulesChannel}"
     },
     {
       "key": "welcomeContent",

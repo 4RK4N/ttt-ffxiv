@@ -20,15 +20,32 @@ interface WelcomeTexts {
 interface WelcomeConfig {
   // Channel where the welcome card is posted when a member joins. Empty disables it.
   channelId: string;
+  // Channel linked from the rules message via the {rulesChannel} token.
+  rulesChannelId: string;
 }
 
 const CONFIG_DEFAULTS: WelcomeConfig = {
   channelId: '',
+  rulesChannelId: '',
 };
 
+function config(): WelcomeConfig {
+  return getConfig(NAMESPACE, CONFIG_DEFAULTS);
+}
+
 function welcomeChannelId(): string | undefined {
-  const id = getConfig(NAMESPACE, CONFIG_DEFAULTS).channelId.trim();
+  const id = config().channelId.trim();
   return id === '' ? undefined : id;
+}
+
+/**
+ * Renders the {rulesChannel} token: a clickable Discord channel link built from
+ * the guild and configured rules channel, or an empty string when unset.
+ */
+function rulesChannelLink(guildId: string): string {
+  const id = config().rulesChannelId.trim();
+  if (id === '') return '';
+  return `https://discord.com/channels/${guildId}/${id}`;
 }
 
 // Code defaults; data/welcome-message/texts.json overrides these (editable source
@@ -37,12 +54,12 @@ const DEFAULTS: WelcomeTexts = {
   rulesMessage: [
     '🇬🇧 English',
     'Have a great time here in **Tiny Temptation Tubs**',
-    'Please head over to https://discord.com/channels/1463307473552146434/1463322047039144009',
+    'Please head over to {rulesChannel}',
     ' and accept them to completely unlock the server for you (except NSFW that is optional).',
     '',
     '🇩🇪 Deutsch',
     'Viel Spass im **Tiny Temptation Tubs**',
-    'Bitte lies dir die Regeln in https://discord.com/channels/1463307473552146434/1463322047039144009',
+    'Bitte lies dir die Regeln in {rulesChannel}',
     ' durch und akzeptiere diese um den Server vollständig freizuschalten für dich (ausser NSFW dies ist optional).',
   ].join('\n'),
   welcomeContent: 'Welcome {mention}',
@@ -56,9 +73,13 @@ function texts(): WelcomeTexts {
 // Discord error code returned when a user's DMs are closed to the bot.
 const CANNOT_SEND_DM = 50007;
 
-async function sendRulesDM(member: GuildMember, fallbackToChannel: () => Promise<void>): Promise<void> {
+async function sendRulesDM(
+  member: GuildMember,
+  rulesMessage: string,
+  fallbackToChannel: () => Promise<void>
+): Promise<void> {
   try {
-    await member.send(texts().rulesMessage);
+    await member.send(rulesMessage);
   } catch (err) {
     if (err instanceof DiscordAPIError && err.code === CANNOT_SEND_DM) {
       console.warn(
@@ -100,11 +121,12 @@ async function handleMemberAdd(member: GuildMember): Promise<void> {
 
   // Rules message: DM first, fall back to a normal channel message if DMs are closed.
   // Isolated so a DM failure never affects the welcome image post above.
+  const t = texts();
+  const rulesMessage = format(t.rulesMessage, { rulesChannel: rulesChannelLink(member.guild.id) });
   try {
-    await sendRulesDM(member, async () => {
-      const t = texts();
+    await sendRulesDM(member, rulesMessage, async () => {
       await channel.send({
-        content: format(t.rulesChannelFallback, { mention, rules: t.rulesMessage }),
+        content: format(t.rulesChannelFallback, { mention, rules: rulesMessage }),
         allowedMentions: { users: [member.id] },
       });
     });
