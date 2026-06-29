@@ -275,9 +275,9 @@ const CLIENT_JS = `
   }
 
   // Returns { node, getValue } for one field.
-  function buildField(ns, f, value) {
+  function buildField(ns, f, value, saveModule) {
     if (f.type === 'object-list') {
-      return buildObjectList(ns, f, value);
+      return buildObjectList(ns, f, value, saveModule);
     }
 
     var wrap = el('div', 'field');
@@ -374,7 +374,14 @@ const CLIENT_JS = `
     return textFallback(wrap, f, value, false);
   }
 
-  function buildObjectList(ns, f, value) {
+  function liveRowValues(subFields, item) {
+    var out = { id: item.id || '' };
+    subFields.forEach(function (sf) { out[sf.key] = sf.getValue(); });
+    if (!out.id) out.id = slugify(out.openButtonLabel || out.panelTitle || 'ticket-type');
+    return out;
+  }
+
+  function buildObjectList(ns, f, value, saveModule) {
     var wrap = el('div', 'field');
     var topLabel = el('label');
     topLabel.textContent = f.label;
@@ -413,51 +420,76 @@ const CLIENT_JS = `
         (f.itemFields || []).forEach(function (sub) {
           var built = buildSubField(sub, item[sub.key]);
           card.appendChild(built.node);
-          subFields.push({ key: sub.key, getValue: built.getValue });
+          subFields.push({ key: sub.key, getValue: built.getValue, node: built.node });
         });
 
-        if (ns === 'tickets' && item.id) {
+        if (ns === 'tickets') {
           var pubActions = el('div', 'object-actions');
           var pubBtn = el('button', 'secondary');
           pubBtn.type = 'button';
           pubBtn.textContent = 'Publish panel';
-          pubBtn.disabled = !item.channelId;
           var unpubBtn = el('button', 'secondary danger');
           unpubBtn.type = 'button';
           unpubBtn.textContent = 'Unpublish';
           unpubBtn.disabled = !item.published;
 
+          function refreshPublishState() {
+            var live = liveRowValues(subFields, item);
+            pubBtn.disabled = !live.channelId;
+            unpubBtn.disabled = !item.published;
+          }
+          refreshPublishState();
+
+          subFields.forEach(function (sf) {
+            if (sf.key !== 'channelId') return;
+            var select = sf.node.querySelector('select');
+            if (select) select.addEventListener('change', refreshPublishState);
+          });
+
           pubBtn.addEventListener('click', async function () {
             pubBtn.disabled = true;
             try {
-              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(item.id), { method: 'POST' });
+              if (!saveModule) throw new Error('Save is unavailable.');
+              var values = await saveModule();
+              var savedTypes = values.ticketTypes || [];
+              var live = liveRowValues(subFields, item);
+              var typeId = live.id;
+              var saved = savedTypes.find(function (t) { return t.id === typeId; });
+              if (!saved) saved = savedTypes[index];
+              if (!saved || !saved.id) throw new Error('Could not save ticket type. Try Save first.');
+              if (!saved.channelId) throw new Error('Pick a channel before publishing.');
+
+              Object.assign(item, saved);
+              for (var k in saved) { if (Object.prototype.hasOwnProperty.call(saved, k)) item[k] = saved[k]; }
+
+              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(saved.id), { method: 'POST' });
               if (!res.ok) {
                 var err = await res.json().catch(function () { return {}; });
                 throw new Error(err.error || ('HTTP ' + res.status));
               }
-              items[index].published = true;
+              item.published = true;
               renderRows();
             } catch (e) {
               alert('Publish failed: ' + e.message);
-            } finally {
-              pubBtn.disabled = !items[index].channelId;
+              refreshPublishState();
             }
           });
 
           unpubBtn.addEventListener('click', async function () {
             unpubBtn.disabled = true;
             try {
-              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(item.id), { method: 'POST' });
+              var live = liveRowValues(subFields, item);
+              if (!live.id) throw new Error('Save this ticket type before unpublishing.');
+              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(live.id), { method: 'POST' });
               if (!res.ok) {
                 var err = await res.json().catch(function () { return {}; });
                 throw new Error(err.error || ('HTTP ' + res.status));
               }
-              items[index].published = false;
+              item.published = false;
               renderRows();
             } catch (e) {
               alert('Unpublish failed: ' + e.message);
-            } finally {
-              unpubBtn.disabled = !items[index].published;
+              refreshPublishState();
             }
           });
 
@@ -477,10 +509,7 @@ const CLIENT_JS = `
 
         rows.push({
           getValue: function () {
-            var out = { id: item.id || '' };
-            subFields.forEach(function (sf) { out[sf.key] = sf.getValue(); });
-            if (!out.id) out.id = slugify(out.openButtonLabel || out.panelTitle || 'ticket-type');
-            return out;
+            return liveRowValues(subFields, item);
           }
         });
 
@@ -512,6 +541,14 @@ const CLIENT_JS = `
       node: wrap,
       getValue: function () {
         return rows.map(function (r) { return r.getValue(); });
+      },
+      applySavedValues: function (savedRows) {
+        if (!Array.isArray(savedRows)) return;
+        items.length = 0;
+        savedRows.forEach(function (row) {
+          items.push(Object.assign({}, row));
+        });
+        renderRows();
       }
     };
   }
@@ -606,10 +643,26 @@ const CLIENT_JS = `
     }
 
     var fields = [];
+    async function saveModule() {
+      var payload = {};
+      fields.forEach(function (fld) { payload[fld.key] = fld.getValue(); });
+      var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        var err = await res.json().catch(function () { return {}; });
+        throw new Error(err.error || ('HTTP ' + res.status));
+      }
+      var body = await res.json();
+      return body.values || payload;
+    }
+
     mod.fields.forEach(function (f) {
-      var built = buildField(mod.namespace, f, mod.values[f.key]);
+      var built = buildField(mod.namespace, f, mod.values[f.key], saveModule);
       inner.appendChild(built.node);
-      fields.push({ key: f.key, getValue: built.getValue });
+      fields.push({ key: f.key, getValue: built.getValue, applySavedValues: built.applySavedValues });
     });
 
     var actions = el('div', 'actions');
@@ -622,26 +675,18 @@ const CLIENT_JS = `
     panel.appendChild(inner);
 
     btn.addEventListener('click', async function () {
-      var payload = {};
-      fields.forEach(function (f) { payload[f.key] = f.getValue(); });
       btn.disabled = true;
       status.className = 'status';
       status.textContent = 'Saving...';
       try {
-        var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+        var values = await saveModule();
+        fields.forEach(function (fld) {
+          if (typeof fld.applySavedValues === 'function' && values[fld.key]) {
+            fld.applySavedValues(values[fld.key]);
+          }
         });
-        if (!res.ok) {
-          var err = await res.json().catch(function () { return {}; });
-          throw new Error(err.error || ('HTTP ' + res.status));
-        }
         status.className = 'status ok';
         status.textContent = 'Saved';
-        if (mod.namespace === 'tickets') {
-          window.location.reload();
-        }
       } catch (e) {
         status.className = 'status err';
         status.textContent = 'Error: ' + e.message;
