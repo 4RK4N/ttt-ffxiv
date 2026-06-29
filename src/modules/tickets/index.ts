@@ -6,6 +6,7 @@ import { handleCloseCancel, handleCloseTicket } from './close.js';
 import { handleDeleteCancel, handleDeleteTicket } from './delete.js';
 import { handleOpenTicket } from './open.js';
 import { getTicketTypeConfig } from './config-io.js';
+import { registerMemberCacheWarm } from './member-cache.js';
 import { resolveTicketType, NAMESPACE } from './types.js';
 
 async function handleComponent(interaction: MessageComponentInteraction): Promise<void> {
@@ -64,6 +65,7 @@ export async function unpublishTicketPanel(typeId: string): Promise<void> {
 
 const ticketsModule: CommandModule = {
   name: NAMESPACE,
+  init: registerMemberCacheWarm,
   componentRoutes: [{ prefix: 'tickets:', handle: handleComponent }],
 };
 

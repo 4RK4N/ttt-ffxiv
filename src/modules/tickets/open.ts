@@ -75,7 +75,7 @@ export async function handleOpenTicket(interaction: ButtonInteraction): Promise<
 
     const guild = interaction.guild;
     if (guild) {
-      const staffUserIds = collectStaffUserIds(guild, ticketType.staffRoleIds);
+      const staffUserIds = await collectStaffUserIds(guild, ticketType.staffRoleIds);
       const staffFirst = staffUserIds.filter((id) => id !== interaction.user.id);
       await addMembersToThread(thread, staffFirst);
     }

@@ -177,6 +177,9 @@ stays; clicking the button replies with an ephemeral “not available” message
 Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
 they can see private threads (the bot itself uses **Administrator** from the invite above).
 On ticket open, all admins and configured staff roles are auto-added to the thread.
+At bot startup the member list is fetched once (1s pause between 1000-member
+pages); ticket opens pace thread member adds by 250ms. Discord.js REST also
+handles 429 retries automatically.
 
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 
