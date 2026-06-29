@@ -1,5 +1,3 @@
-version: "3"
-
 # The caddy-docker-proxy network is created by your Caddy stack; we just join it.
 networks:
   caddy:
