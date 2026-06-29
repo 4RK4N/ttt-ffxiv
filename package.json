@@ -8,15 +8,19 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-web-plugins.js",
     "start": "node dist/src/index.js",
     "deploy": "node dist/scripts/deploy-commands.js",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "web": "node dist/src/web/server.js",
+    "web:dev": "tsx src/web/server.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
     "@napi-rs/canvas": "^1.0.1",
     "discord.js": "^14.26.4",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "hono": "^4.6.14"
   },
   "overrides": {
     "undici": "^6.27.0"

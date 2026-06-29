@@ -1,0 +1,60 @@
+{
+  "title": "Pic Repost Commands",
+  "description": "Replies and messages for the /pic and /post image re-upload commands.",
+  "fields": [
+    {
+      "key": "noImages",
+      "label": "No images attached",
+      "type": "text",
+      "help": "Shown when the user runs the command without attaching an image."
+    },
+    {
+      "key": "notImages",
+      "label": "Non-image attachments",
+      "type": "text",
+      "help": "Shown when attachments are not images. Tokens: {names}"
+    },
+    {
+      "key": "downloadFailed",
+      "label": "Download failed",
+      "type": "text",
+      "help": "Shown when an attached image could not be downloaded."
+    },
+    {
+      "key": "cannotPost",
+      "label": "Cannot post",
+      "type": "text",
+      "help": "Shown when the bot cannot post in the channel."
+    },
+    {
+      "key": "postFailed",
+      "label": "Post failed",
+      "type": "textarea",
+      "help": "Shown when posting the images to the channel fails (size/permission issues)."
+    },
+    {
+      "key": "attribution",
+      "label": "Attribution caption",
+      "type": "textarea",
+      "help": "Caption posted with the re-uploaded images. Tokens: {message}, {mention}"
+    },
+    {
+      "key": "postedSuccess",
+      "label": "Success reply",
+      "type": "text",
+      "help": "Confirmation shown to the author. Tokens: {count}, {images}"
+    },
+    {
+      "key": "threadNote",
+      "label": "Thread failure note",
+      "type": "textarea",
+      "help": "Appended to the success reply when the comments thread could not be created."
+    },
+    {
+      "key": "threadFirstMessage",
+      "label": "Thread opener",
+      "type": "textarea",
+      "help": "First message posted in the comments thread."
+    }
+  ]
+}

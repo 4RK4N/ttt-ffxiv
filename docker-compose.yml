@@ -1,3 +1,10 @@
+version: "3"
+
+# The caddy-docker-proxy network is created by your Caddy stack; we just join it.
+networks:
+  caddy:
+    external: true
+
 services:
   ttt-discord-bot:
     build:
@@ -12,4 +19,29 @@ services:
       - ./data:/app/data
     # Keep the bot running and restart it automatically (e.g. after a reboot),
     # but not if you deliberately stop it.
+    restart: unless-stopped
+
+  # Web text editor: reuses the same image (built by ttt-discord-bot above) but
+  # runs the web server entrypoint instead of the bot. Lets guild administrators
+  # edit each module's texts.json; the bot hot-reloads the shared ./data volume.
+  ttt-web-editor:
+    image: ttt-discord-bot
+    container_name: ttt-web-editor
+    depends_on:
+      - ttt-discord-bot
+    command: ["node", "dist/src/web/server.js"]
+    # Reuses CLIENT_ID / CLIENT_SECRET / SESSION_SECRET / OAUTH_REDIRECT_URI /
+    # GUILD_ID / WEB_PORT from your .env file.
+    env_file: .env
+    # Same data volume as the bot, so edits made here take effect without a restart.
+    volumes:
+      - ./data:/app/data
+    # Exposed via the shared caddy-docker-proxy network (TLS + public hostname),
+    # so no host port is published. Caddy reaches the container on WEB_PORT (8088).
+    # The upstream port below is fixed; keep WEB_PORT=8088 (or update both together).
+    networks:
+      - caddy
+    labels:
+      caddy: ttt-bot.ii10.de
+      caddy.reverse_proxy: "{{upstreams 8088}}"
     restart: unless-stopped

@@ -1,0 +1,24 @@
+{
+  "title": "Welcome Message",
+  "description": "Texts sent to new members when they join.",
+  "fields": [
+    {
+      "key": "rulesMessage",
+      "label": "Rules message",
+      "type": "textarea",
+      "help": "Sent to the new member via DM (and posted in-channel if their DMs are closed)."
+    },
+    {
+      "key": "welcomeContent",
+      "label": "Welcome line",
+      "type": "text",
+      "help": "Posted with the welcome card. Tokens: {mention}"
+    },
+    {
+      "key": "rulesChannelFallback",
+      "label": "Rules channel fallback",
+      "type": "textarea",
+      "help": "Used when the rules DM fails. Tokens: {mention}, {rules}"
+    }
+  ]
+}

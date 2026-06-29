@@ -76,16 +76,29 @@ is empty, the module stays disabled.
 
 ```
 src/
-  index.js              # entry point: client + interaction routing
-  config.js             # loads & validates environment variables
+  index.ts              # entry point: client + interaction routing
+  config.ts             # loads & validates environment variables
   core/
-    moduleLoader.js     # auto-discovers modules under src/modules/*
-    threads.js          # shared thread title helpers
-    texts.js            # loads per-module texts/assets from data/
+    moduleLoader.ts     # auto-discovers modules under src/modules/*
+    threads.ts          # shared thread title helpers
+    texts.ts            # loads per-module texts/assets from data/
   modules/
-    welcome-message/index.js            # welcome card + rules on member join
-    pic-repost-commands/index.js        # the /pic + /post module
-    links-pics-vids-autothread/index.js # auto comments threads on posts
+    welcome-message/
+      index.ts          # welcome card + rules on member join
+      web-plugin.json   # editor manifest: which texts are editable
+    pic-repost-commands/
+      index.ts          # the /pic + /post module
+      web-plugin.json
+    links-pics-vids-autothread/
+      index.ts          # auto comments threads on posts
+      web-plugin.json
+  web/                  # the web text editor (separate process/container)
+    server.ts           # entry point: Hono HTTP server + routes
+    config.ts           # validates the editor's own env vars
+    auth.ts             # Discord OAuth login + guild-admin check + session
+    plugins.ts          # scans modules for web-plugin.json manifests
+    store.ts            # validated, atomic read/write of texts.json
+    ui.ts               # the editor's HTML page
 data/                   # editable runtime content (texts + assets), per module
   welcome-message/
     texts.json
@@ -94,13 +107,16 @@ data/                   # editable runtime content (texts + assets), per module
   pic-repost-commands/texts.json
   links-pics-vids-autothread/texts.json
 scripts/
-  deploy-commands.js    # registers slash commands with Discord
+  deploy-commands.ts    # registers slash commands with Discord
+  copy-web-plugins.js   # copies web-plugin.json manifests into dist on build
 ```
 
-To add a new feature later, create `src/modules/<name>/index.js` that exports
+To add a new feature later, create `src/modules/<name>/index.ts` that exports
 either `{ name, commands: [{ data, execute }] }` for slash commands, or
 `{ name, init(client) }` to register event listeners (or both). The loader and
-deploy script pick it up automatically - no core changes needed.
+deploy script pick it up automatically - no core changes needed. To make its
+texts editable in the web editor, drop a `web-plugin.json` in the same folder
+(see [Web text editor](#web-text-editor)); the editor discovers it automatically.
 
 ### Editing texts and assets
 
@@ -110,7 +126,64 @@ read at runtime (not bundled into the build), so you can edit them and the bot
 picks up changes on the next event - no rebuild or restart needed. Each module
 ships code defaults as a fallback, so a missing or malformed file never breaks the
 bot. Slash command names/descriptions stay in code (they require `npm run deploy`
-to change). The `data/` directory is the surface a future web editor will manage.
+to change).
+
+You can edit `texts.json` files by hand, or through the built-in
+[Web text editor](#web-text-editor), which writes the same files.
+
+## Web text editor
+
+A small browser UI for editing each module's `texts.json` without touching the
+server. It runs as a **separate process/container** that shares the bot's `data/`
+directory, so saved edits take effect on the bot's next event - no restart.
+
+- **What's editable** is declared per module by a `web-plugin.json` manifest next
+  to the module's `index.js`. Each manifest lists fields (`key`, `label`,
+  `type: text | textarea`, optional `help`). The editor scans modules at startup,
+  so adding/removing editable fields is just editing that JSON - no code changes.
+- **Access** is restricted to **administrators of `GUILD_ID`**. Login is via
+  Discord OAuth: the editor checks that your account has the Administrator
+  permission on that server before letting you in.
+- **Safety**: writes are validated against the manifest (only known keys, string
+  values) and written atomically, so a half-saved or malformed file can't reach
+  the bot.
+
+### Configuration
+
+Add these to `.env` (see `env.example`). They are only needed by the editor; the
+bot ignores them:
+
+```
+CLIENT_SECRET=your-oauth2-client-secret      # Developer Portal -> OAuth2 -> Client Secret
+SESSION_SECRET=long-random-string            # signs the editor's session cookies
+OAUTH_REDIRECT_URI=https://ttt-bot.ii10.de/callback
+WEB_PORT=8088                                # port the editor listens on
+```
+
+`GUILD_ID` is also required here (it's the server whose admins get access).
+
+In the **Developer Portal -> OAuth2 -> Redirects**, add the exact
+`OAUTH_REDIRECT_URI` value (character-for-character, including `https` and
+`/callback`). No extra scopes or intents are needed - the editor requests
+`identify guilds` itself, and never touches the bot gateway.
+
+Generate a session secret with, e.g.:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### Running
+
+```bash
+npm run build      # compiles TS and copies web-plugin.json manifests into dist/
+npm run web        # starts the editor (or `npm run web:dev` for tsx)
+```
+
+With Docker, `docker compose up -d --build` starts both the bot
+(`ttt-discord-bot`) and the editor (`ttt-web-editor`) from the same image. The
+editor is published behind a `caddy-docker-proxy` label rather than a host port;
+see [docker-compose.yml](docker-compose.yml) and [INSTALL.md](INSTALL.md).
 
 ## Setup
 
@@ -139,6 +212,9 @@ WELCOME_CHANNEL_ID=789              # optional; channel for the join welcome car
 The two privileged modules need their intents enabled in the Developer Portal
 (Bot -> Privileged Gateway Intents): **Message Content** for auto-threading and
 **Server Members** for the welcome card.
+
+If you also want to run the browser-based text editor, set its extra variables
+too - see [Web text editor](#web-text-editor).
 
 ## Deploy slash commands
 

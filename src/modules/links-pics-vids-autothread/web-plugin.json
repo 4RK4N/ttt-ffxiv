@@ -1,0 +1,12 @@
+{
+  "title": "Auto-Thread (Links / Pics / Vids)",
+  "description": "Text used when the bot auto-creates a comments thread on qualifying posts.",
+  "fields": [
+    {
+      "key": "threadFirstMessage",
+      "label": "Thread opener",
+      "type": "textarea",
+      "help": "First message posted in the auto-created comments thread."
+    }
+  ]
+}

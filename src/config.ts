@@ -31,6 +31,19 @@ export interface Config {
   guildId: string | undefined;
   picChannelIds: string[];
   welcomeChannelId: string | undefined;
+  // Web editor settings. These are optional here so the bot process starts
+  // without them; the web entrypoint validates the ones it needs (see web/config).
+  clientSecret: string | undefined;
+  sessionSecret: string | undefined;
+  oauthRedirectUri: string | undefined;
+  webPort: number;
+}
+
+function optionalPort(name: string, fallback: number): number {
+  const value = optional(name);
+  if (!value) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 && parsed < 65536 ? parsed : fallback;
 }
 
 export const config: Config = {
@@ -42,4 +55,12 @@ export const config: Config = {
   picChannelIds: optionalList('AUTOTHREAD_CHANNEL_IDS'),
   // Channel where the welcome card is posted when a member joins.
   welcomeChannelId: optional('WELCOME_CHANNEL_ID'),
+  // OAuth client secret used by the web editor to exchange the auth code.
+  clientSecret: optional('CLIENT_SECRET'),
+  // Secret used to sign the web editor's session cookies.
+  sessionSecret: optional('SESSION_SECRET'),
+  // Registered Discord OAuth2 redirect URI (must match the Developer Portal).
+  oauthRedirectUri: optional('OAUTH_REDIRECT_URI'),
+  // Port the web editor listens on.
+  webPort: optionalPort('WEB_PORT', 8088),
 };
