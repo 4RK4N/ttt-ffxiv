@@ -34,12 +34,13 @@ so you do not need to open any firewall ports or set up a reverse proxy.
    `YOUR_CLIENT_ID`:
 
    ```
-   https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=309237696512
+   https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=395137042448
    ```
 
-   Permissions `309237696512` = **Send Messages** + **Attach Files** + **Embed Links**
-   + **Create Public Threads** + **Send Messages in Threads** (the thread perms are
-   needed for the comments thread created on each post).
+   Permissions `395137042448` = **Send Messages** + **Attach Files** + **Embed Links**
+   + **Create Public Threads** + **Create Private Threads** + **Send Messages in Threads**
+   + **Manage Threads** + **Manage Channels** (tickets module needs private threads and
+   channel lock/unlock on publish/unpublish; thread perms are also used by auto-thread).
    Pick your server and authorize.
 5. (Recommended for fast command updates) Enable Developer Mode in Discord
    (User Settings -> Advanced -> Developer Mode), then right-click your server icon
@@ -159,6 +160,24 @@ the token as nothing. You can also set all of these in the
 [Web editor](README.md#web-editor) (channel dropdowns plus the on/off toggle)
 instead of editing the file. This module needs the privileged **Server Members**
 intent (Developer Portal -> Bot -> Privileged Gateway Intents).
+
+### `data/tickets/` - ticket panels and private-thread tickets
+
+Copy the examples and configure via the [Web editor](README.md#web-editor):
+
+```bash
+cp data/tickets/config.example.json data/tickets/config.json
+cp data/tickets/texts.example.json data/tickets/texts.json
+```
+
+Each **ticket type** is one category: pick a channel (panel + threads live there),
+staff roles, panel copy, and flow messages. **Save**, then click **Publish panel**
+to post the open button in Discord. **Unpublish** removes the panel and locks the
+channel without deleting your config.
+
+Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
+they can see private threads. The bot needs **Create Private Threads**, **Manage
+Threads**, and **Manage Channels** (see invite URL above).
 
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 

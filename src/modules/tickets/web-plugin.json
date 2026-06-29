@@ -1,0 +1,122 @@
+{
+  "title": "Tickets",
+  "description": "Private-thread ticket panels per category. Configure each type, save, then publish its panel to Discord.",
+  "fields": [
+    {
+      "key": "disabled",
+      "label": "Module disabled message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "noPermission",
+      "label": "No permission message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "categoryUnpublished",
+      "label": "Category unavailable message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "ticketTypes",
+      "label": "Ticket types",
+      "type": "object-list",
+      "store": "config",
+      "textsKey": "types",
+      "itemLabel": "Ticket type",
+      "itemFields": [
+        {
+          "key": "emoji",
+          "label": "Button emoji (optional)",
+          "type": "text",
+          "store": "config"
+        },
+        {
+          "key": "channelId",
+          "label": "Channel",
+          "type": "channel",
+          "store": "config",
+          "help": "Panel is posted here; ticket threads are created here."
+        },
+        {
+          "key": "staffRoleIds",
+          "label": "Staff roles",
+          "type": "role-multi",
+          "store": "config"
+        },
+        {
+          "key": "openButtonLabel",
+          "label": "Open button label",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "panelTitle",
+          "label": "Panel title",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "panelDescription",
+          "label": "Panel description",
+          "type": "textarea",
+          "store": "texts"
+        },
+        {
+          "key": "ticketWelcome",
+          "label": "Welcome message",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Tokens: {mention}"
+        },
+        {
+          "key": "closeButtonLabel",
+          "label": "Close button label",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "confirmClosePrompt",
+          "label": "Close confirm prompt",
+          "type": "textarea",
+          "store": "texts"
+        },
+        {
+          "key": "confirmCloseYes",
+          "label": "Confirm button label",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "confirmCloseNo",
+          "label": "Cancel button label",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "ticketClosed",
+          "label": "Closed message",
+          "type": "textarea",
+          "store": "texts"
+        },
+        {
+          "key": "alreadyOpen",
+          "label": "Already open message",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Tokens: {thread}"
+        },
+        {
+          "key": "openSuccess",
+          "label": "Open success (ephemeral)",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Tokens: {thread}"
+        }
+      ]
+    }
+  ]
+}

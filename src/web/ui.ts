@@ -95,6 +95,28 @@ const STYLES = `
   }
   button.save:hover { background: var(--accent-hover); }
   button.save:disabled { opacity: .6; cursor: default; }
+  button.secondary {
+    background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; font: inherit; cursor: pointer;
+  }
+  button.secondary:hover { border-color: var(--accent); }
+  button.secondary:disabled { opacity: .5; cursor: default; }
+  button.danger { border-color: var(--err); color: var(--err); }
+  .object-list { display: flex; flex-direction: column; gap: 16px; }
+  .object-card {
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--panel-2);
+  }
+  .object-card-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;
+  }
+  .object-card-head h3 { margin: 0; font-size: 15px; }
+  .badge {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .badge.on { color: var(--ok); border-color: var(--ok); }
+  .object-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .add-row { margin-top: 8px; }
   .status { font-size: 13px; }
   .status.ok { color: var(--ok); }
   .status.err { color: var(--err); }
@@ -185,6 +207,8 @@ const CLIENT_JS = `
   // keep the editor usable by falling back to a plain text input.
   var channels = [];
   var channelsError = null;
+  var roles = [];
+  var rolesError = null;
 
   function el(tag, className) {
     var node = document.createElement(tag);
@@ -196,8 +220,66 @@ const CLIENT_JS = `
     return '#' + ch.name;
   }
 
+  function roleLabel(role) {
+    return role.name;
+  }
+
+  function slugify(text) {
+    return (text || 'ticket-type').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'ticket-type';
+  }
+
+  function buildMultiChecklist(wrap, f, value, items, labelFn, emptyText, fallbackNote) {
+    if (fallbackNote) return textFallback(wrap, f, value, true);
+    var selected = Array.isArray(value) ? value.slice() : [];
+    var list = el('div', 'checklist');
+    var boxes = [];
+    items.forEach(function (item) {
+      var row = el('label');
+      var cb = el('input');
+      cb.type = 'checkbox';
+      cb.value = item.id;
+      if (selected.indexOf(item.id) !== -1) cb.checked = true;
+      boxes.push(cb);
+      var span = el('span');
+      span.textContent = labelFn(item);
+      row.appendChild(cb);
+      row.appendChild(span);
+      list.appendChild(row);
+    });
+    selected.forEach(function (id) {
+      if (items.some(function (item) { return item.id === id; })) return;
+      var row = el('label');
+      var cb = el('input');
+      cb.type = 'checkbox';
+      cb.value = id;
+      cb.checked = true;
+      boxes.push(cb);
+      var span = el('span');
+      span.textContent = id + ' (not found)';
+      row.appendChild(cb);
+      row.appendChild(span);
+      list.appendChild(row);
+    });
+    if (!items.length) {
+      var empty = el('div', 'help');
+      empty.textContent = emptyText;
+      list.appendChild(empty);
+    }
+    wrap.appendChild(list);
+    return {
+      node: wrap,
+      getValue: function () {
+        return boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+      }
+    };
+  }
+
   // Returns { node, getValue } for one field.
   function buildField(ns, f, value) {
+    if (f.type === 'object-list') {
+      return buildObjectList(ns, f, value);
+    }
+
     var wrap = el('div', 'field');
     var label = el('label');
     label.textContent = f.label;
@@ -235,53 +317,203 @@ const CLIENT_JS = `
     }
 
     if (f.type === 'channel-multi') {
-      if (channelsError) return textFallback(wrap, f, value, true);
-      var selected = Array.isArray(value) ? value.slice() : [];
-      var list = el('div', 'checklist');
-      var boxes = [];
-      channels.forEach(function (ch) {
-        var row = el('label');
-        var cb = el('input');
-        cb.type = 'checkbox';
-        cb.value = ch.id;
-        if (selected.indexOf(ch.id) !== -1) cb.checked = true;
-        boxes.push(cb);
-        var span = el('span');
-        span.textContent = channelLabel(ch);
-        row.appendChild(cb);
-        row.appendChild(span);
-        list.appendChild(row);
-      });
-      // Keep any selected ids that aren't in the current channel list.
-      selected.forEach(function (id) {
-        if (channels.some(function (ch) { return ch.id === id; })) return;
-        var row = el('label');
-        var cb = el('input');
-        cb.type = 'checkbox';
-        cb.value = id;
-        cb.checked = true;
-        boxes.push(cb);
-        var span = el('span');
-        span.textContent = id + ' (not found)';
-        row.appendChild(cb);
-        row.appendChild(span);
-        list.appendChild(row);
-      });
-      if (!channels.length) {
-        var empty = el('div', 'help');
-        empty.textContent = 'No channels available.';
-        list.appendChild(empty);
-      }
-      wrap.appendChild(list);
-      return {
-        node: wrap,
-        getValue: function () {
-          return boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
-        }
-      };
+      return buildMultiChecklist(wrap, f, value, channels, channelLabel, 'No channels available.', channelsError);
+    }
+
+    if (f.type === 'role-multi') {
+      return buildMultiChecklist(wrap, f, value, roles, roleLabel, 'No roles available.', rolesError);
     }
 
     return textFallback(wrap, f, value, false);
+  }
+
+  function buildSubField(f, value) {
+    var wrap = el('div', 'field');
+    var label = el('label');
+    label.textContent = f.label;
+    wrap.appendChild(label);
+    if (f.help) {
+      var help = el('div', 'help');
+      help.textContent = f.help;
+      wrap.appendChild(help);
+    }
+
+    if (f.type === 'channel') {
+      if (channelsError) return textFallback(wrap, f, value, true);
+      var select = el('select');
+      var none = el('option');
+      none.value = '';
+      none.textContent = '\u2014 none \u2014';
+      select.appendChild(none);
+      channels.forEach(function (ch) {
+        var opt = el('option');
+        opt.value = ch.id;
+        opt.textContent = channelLabel(ch);
+        if (ch.id === value) opt.selected = true;
+        select.appendChild(opt);
+      });
+      if (value && !channels.some(function (ch) { return ch.id === value; })) {
+        var stale = el('option');
+        stale.value = value;
+        stale.textContent = value + ' (not found)';
+        stale.selected = true;
+        select.appendChild(stale);
+      }
+      wrap.appendChild(select);
+      return { node: wrap, getValue: function () { return select.value; } };
+    }
+
+    if (f.type === 'channel-multi') {
+      return buildMultiChecklist(wrap, f, value, channels, channelLabel, 'No channels available.', channelsError);
+    }
+
+    if (f.type === 'role-multi') {
+      return buildMultiChecklist(wrap, f, value, roles, roleLabel, 'No roles available.', rolesError);
+    }
+
+    return textFallback(wrap, f, value, false);
+  }
+
+  function buildObjectList(ns, f, value) {
+    var wrap = el('div', 'field');
+    var topLabel = el('label');
+    topLabel.textContent = f.label;
+    wrap.appendChild(topLabel);
+    if (f.help) {
+      var topHelp = el('div', 'help');
+      topHelp.textContent = f.help;
+      wrap.appendChild(topHelp);
+    }
+
+    var list = el('div', 'object-list');
+    wrap.appendChild(list);
+
+    var rows = [];
+    var items = Array.isArray(value) ? value.slice() : [];
+
+    function cardTitle(row) {
+      return row.openButtonLabel || row.panelTitle || row.id || f.itemLabel || 'Ticket type';
+    }
+
+    function renderRows() {
+      list.innerHTML = '';
+      rows = [];
+      items.forEach(function (item, index) {
+        var card = el('div', 'object-card');
+        var head = el('div', 'object-card-head');
+        var title = el('h3');
+        title.textContent = cardTitle(item);
+        head.appendChild(title);
+        var badge = el('span', 'badge' + (item.published ? ' on' : ''));
+        badge.textContent = item.published ? 'Published' : 'Unpublished';
+        head.appendChild(badge);
+        card.appendChild(head);
+
+        var subFields = [];
+        (f.itemFields || []).forEach(function (sub) {
+          var built = buildSubField(sub, item[sub.key]);
+          card.appendChild(built.node);
+          subFields.push({ key: sub.key, getValue: built.getValue });
+        });
+
+        if (ns === 'tickets' && item.id) {
+          var pubActions = el('div', 'object-actions');
+          var pubBtn = el('button', 'secondary');
+          pubBtn.type = 'button';
+          pubBtn.textContent = 'Publish panel';
+          pubBtn.disabled = !item.channelId;
+          var unpubBtn = el('button', 'secondary danger');
+          unpubBtn.type = 'button';
+          unpubBtn.textContent = 'Unpublish';
+          unpubBtn.disabled = !item.published;
+
+          pubBtn.addEventListener('click', async function () {
+            pubBtn.disabled = true;
+            try {
+              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(item.id), { method: 'POST' });
+              if (!res.ok) {
+                var err = await res.json().catch(function () { return {}; });
+                throw new Error(err.error || ('HTTP ' + res.status));
+              }
+              items[index].published = true;
+              renderRows();
+            } catch (e) {
+              alert('Publish failed: ' + e.message);
+            } finally {
+              pubBtn.disabled = !items[index].channelId;
+            }
+          });
+
+          unpubBtn.addEventListener('click', async function () {
+            unpubBtn.disabled = true;
+            try {
+              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(item.id), { method: 'POST' });
+              if (!res.ok) {
+                var err = await res.json().catch(function () { return {}; });
+                throw new Error(err.error || ('HTTP ' + res.status));
+              }
+              items[index].published = false;
+              renderRows();
+            } catch (e) {
+              alert('Unpublish failed: ' + e.message);
+            } finally {
+              unpubBtn.disabled = !items[index].published;
+            }
+          });
+
+          pubActions.appendChild(pubBtn);
+          pubActions.appendChild(unpubBtn);
+          card.appendChild(pubActions);
+        }
+
+        var removeBtn = el('button', 'secondary danger');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', function () {
+          items.splice(index, 1);
+          renderRows();
+        });
+        card.appendChild(removeBtn);
+
+        rows.push({
+          getValue: function () {
+            var out = { id: item.id || '' };
+            subFields.forEach(function (sf) { out[sf.key] = sf.getValue(); });
+            if (!out.id) out.id = slugify(out.openButtonLabel || out.panelTitle || 'ticket-type');
+            return out;
+          }
+        });
+
+        list.appendChild(card);
+      });
+    }
+
+    renderRows();
+
+    var addBtn = el('button', 'secondary add-row');
+    addBtn.type = 'button';
+    addBtn.textContent = 'Add ticket type';
+    addBtn.addEventListener('click', function () {
+      items.push({
+        id: '', published: false, openButtonLabel: 'Open ticket', panelTitle: 'Support',
+        panelDescription: '', emoji: '', channelId: '', staffRoleIds: [],
+        ticketWelcome: 'Hi {mention}, describe your issue and staff will assist you.',
+        closeButtonLabel: 'Close ticket', confirmClosePrompt: 'Close this ticket?',
+        confirmCloseYes: 'Yes, close', confirmCloseNo: 'Cancel',
+        ticketClosed: 'This ticket has been closed.',
+        alreadyOpen: 'You already have an open ticket in this category.',
+        openSuccess: 'Your ticket was created: {thread}'
+      });
+      renderRows();
+    });
+    wrap.appendChild(addBtn);
+
+    return {
+      node: wrap,
+      getValue: function () {
+        return rows.map(function (r) { return r.getValue(); });
+      }
+    };
   }
 
   // Plain text/textarea input. Also used as the fallback for channel fields when
@@ -289,12 +521,13 @@ const CLIENT_JS = `
   function textFallback(wrap, f, value, channelFallback) {
     var input = f.type === 'textarea' ? el('textarea') : el('input');
     if (input.tagName === 'INPUT') input.type = 'text';
-    var isMulti = f.type === 'channel-multi';
+    var isMulti = f.type === 'channel-multi' || f.type === 'role-multi';
     input.value = isMulti ? (Array.isArray(value) ? value.join(', ') : '') : (value || '');
     wrap.appendChild(input);
     if (channelFallback) {
       var note = el('div', 'channel-note');
-      note.textContent = channelsError + ' Enter channel id(s) manually' + (isMulti ? ' (comma-separated).' : '.');
+      var errMsg = channelsError || rolesError || 'Could not load list.';
+      note.textContent = errMsg + ' Enter id(s) manually' + (isMulti ? ' (comma-separated).' : '.');
       wrap.appendChild(note);
     }
     return {
@@ -406,6 +639,9 @@ const CLIENT_JS = `
         }
         status.className = 'status ok';
         status.textContent = 'Saved';
+        if (mod.namespace === 'tickets') {
+          window.location.reload();
+        }
       } catch (e) {
         status.className = 'status err';
         status.textContent = 'Error: ' + e.message;
@@ -474,15 +710,25 @@ const CLIENT_JS = `
     fetch('/api/channels').then(function (r) {
       if (!r.ok) return null;
       return r.json();
+    }).catch(function () { return null; }),
+    fetch('/api/roles').then(function (r) {
+      if (!r.ok) return null;
+      return r.json();
     }).catch(function () { return null; })
   ])
     .then(function (results) {
       var mods = results[0];
       var chans = results[1];
+      var roleList = results[2];
       if (Array.isArray(chans)) {
         channels = chans;
       } else {
         channelsError = 'Could not load channels.';
+      }
+      if (Array.isArray(roleList)) {
+        roles = roleList;
+      } else {
+        rolesError = 'Could not load roles.';
       }
       render(mods);
     })

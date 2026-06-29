@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type {
   ChatInputCommandInteraction,
   Client,
+  MessageComponentInteraction,
   RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
@@ -26,16 +27,25 @@ export interface Command {
  */
 export type ModuleInit = (client: Client) => void | Promise<void>;
 
+export type ComponentHandler = (interaction: MessageComponentInteraction) => Promise<void>;
+
+export interface ComponentRoute {
+  prefix: string;
+  handle: ComponentHandler;
+}
+
 export interface CommandModule {
   name?: string;
   commands?: Command[];
   init?: ModuleInit;
+  componentRoutes?: ComponentRoute[];
 }
 
 export interface LoadedModules {
   commandData: RESTPostAPIApplicationCommandsJSONBody[];
   handlers: Map<string, CommandExecutor>;
   inits: ModuleInit[];
+  componentRoutes: ComponentRoute[];
 }
 
 /**
@@ -51,9 +61,10 @@ export async function loadModules(): Promise<LoadedModules> {
   const commandData: RESTPostAPIApplicationCommandsJSONBody[] = [];
   const handlers = new Map<string, CommandExecutor>();
   const inits: ModuleInit[] = [];
+  const componentRoutes: ComponentRoute[] = [];
 
   if (!existsSync(MODULES_DIR)) {
-    return { commandData, handlers, inits };
+    return { commandData, handlers, inits, componentRoutes };
   }
 
   const entries = await readdir(MODULES_DIR, { withFileTypes: true });
@@ -71,10 +82,11 @@ export async function loadModules(): Promise<LoadedModules> {
 
     const hasCommands = Array.isArray(mod?.commands);
     const hasInit = typeof mod?.init === 'function';
+    const hasComponents = Array.isArray(mod?.componentRoutes) && mod.componentRoutes.length > 0;
 
-    if (!hasCommands && !hasInit) {
+    if (!hasCommands && !hasInit && !hasComponents) {
       console.warn(
-        `[moduleLoader] Module "${entry.name}" exports no commands array or init function; skipping.`
+        `[moduleLoader] Module "${entry.name}" exports no commands, init, or componentRoutes; skipping.`
       );
       continue;
     }
@@ -102,8 +114,12 @@ export async function loadModules(): Promise<LoadedModules> {
       inits.push(mod.init!);
     }
 
+    if (Array.isArray(mod.componentRoutes)) {
+      componentRoutes.push(...mod.componentRoutes);
+    }
+
     console.log(`[moduleLoader] Loaded module "${mod.name ?? entry.name}".`);
   }
 
-  return { commandData, handlers, inits };
+  return { commandData, handlers, inits, componentRoutes };
 }

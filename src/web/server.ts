@@ -12,6 +12,8 @@ import {
 import { loadWebPlugins, type WebPlugin } from './plugins.js';
 import { readEnabled, readValues, ValidationError, writeEnabled, writeValues } from './store.js';
 import { listGuildChannels } from './channels.js';
+import { listGuildRoles } from './roles.js';
+import { publishTicketPanel, unpublishTicketPanel } from '../modules/tickets/index.js';
 import { editorPage, loginPage } from './ui.js';
 
 type Env = { Variables: { user: SessionUser } };
@@ -69,6 +71,48 @@ async function main(): Promise<void> {
     } catch (err) {
       console.error('[web] Failed to list guild channels:', err);
       return c.json({ error: 'Could not load channels from Discord.' }, 502);
+    }
+  });
+
+  api.get('/roles', async (c) => {
+    try {
+      const roles = await listGuildRoles(cfg);
+      return c.json(roles);
+    } catch (err) {
+      console.error('[web] Failed to list guild roles:', err);
+      return c.json({ error: 'Could not load roles from Discord.' }, 502);
+    }
+  });
+
+  api.post('/modules/tickets/publish/:typeId', async (c) => {
+    const typeId = c.req.param('typeId');
+    try {
+      await publishTicketPanel(
+        { botToken: cfg.botToken, guildId: cfg.guildId },
+        typeId
+      );
+      console.log(`[web] ${c.get('user').username} published ticket panel "${typeId}".`);
+      return c.json({ ok: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to publish panel.';
+      console.error(`[web] Publish failed for "${typeId}":`, err);
+      return c.json({ error: message }, 400);
+    }
+  });
+
+  api.post('/modules/tickets/unpublish/:typeId', async (c) => {
+    const typeId = c.req.param('typeId');
+    try {
+      await unpublishTicketPanel(
+        { botToken: cfg.botToken, guildId: cfg.guildId },
+        typeId
+      );
+      console.log(`[web] ${c.get('user').username} unpublished ticket panel "${typeId}".`);
+      return c.json({ ok: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to unpublish panel.';
+      console.error(`[web] Unpublish failed for "${typeId}":`, err);
+      return c.json({ error: message }, 400);
     }
   });
 

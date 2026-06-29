@@ -4,44 +4,80 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Resolve the modules directory the same way the bot's moduleLoader does, so the
-// web editor discovers modules from the same place (src/ under tsx, dist/ in prod).
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, '..', 'modules');
 
-export type WebFieldType = 'text' | 'textarea' | 'channel' | 'channel-multi';
+export type WebFieldType =
+  | 'text'
+  | 'textarea'
+  | 'channel'
+  | 'channel-multi'
+  | 'role-multi'
+  | 'object-list';
 
-/** Which data file a field is stored in. */
 export type WebFieldStore = 'texts' | 'config';
 
-export interface WebPluginField {
-  /** JSON key in the module's data file (texts.json or config.json). */
+export interface WebPluginSubField {
   key: string;
-  /** Human-readable label shown in the editor. */
   label: string;
-  /** Input style; defaults to "text". */
-  type: WebFieldType;
-  /** Which data file this field is read from / written to; defaults to "texts". */
-  store: WebFieldStore;
-  /** Optional hint (e.g. available tokens) shown under the field. */
+  type: Exclude<WebFieldType, 'object-list'>;
+  store?: WebFieldStore;
   help?: string;
 }
 
+export interface WebPluginField {
+  key: string;
+  label: string;
+  type: WebFieldType;
+  store: WebFieldStore;
+  help?: string;
+  itemLabel?: string;
+  /** Nested map key in texts.json for object-list text fields (e.g. "types"). */
+  textsKey?: string;
+  itemFields?: WebPluginSubField[];
+}
+
 export interface WebPlugin {
-  /** Data folder / getTexts namespace. Derived from the module folder name. */
   namespace: string;
   title: string;
   description?: string;
   fields: WebPluginField[];
 }
 
-const VALID_TYPES: WebFieldType[] = ['text', 'textarea', 'channel', 'channel-multi'];
+const VALID_SCALAR_TYPES: WebPluginSubField['type'][] = [
+  'text',
+  'textarea',
+  'channel',
+  'channel-multi',
+  'role-multi',
+];
+const VALID_TYPES: WebFieldType[] = [...VALID_SCALAR_TYPES, 'object-list'];
 const VALID_STORES: WebFieldStore[] = ['texts', 'config'];
 
-/**
- * Validates a parsed web-plugin.json into a WebPlugin, or returns null (with a
- * warning) if it is malformed. Keeps the editor resilient to a bad manifest.
- */
+function parseSubField(entry: unknown): WebPluginSubField | null {
+  if (typeof entry !== 'object' || entry === null) return null;
+  const f = entry as Record<string, unknown>;
+  if (typeof f.key !== 'string' || f.key.trim() === '') return null;
+
+  const type =
+    typeof f.type === 'string' && (VALID_SCALAR_TYPES as string[]).includes(f.type)
+      ? (f.type as WebPluginSubField['type'])
+      : 'text';
+
+  const store =
+    typeof f.store === 'string' && (VALID_STORES as string[]).includes(f.store)
+      ? (f.store as WebFieldStore)
+      : 'config';
+
+  return {
+    key: f.key,
+    label: typeof f.label === 'string' && f.label.trim() !== '' ? f.label : f.key,
+    type,
+    store,
+    help: typeof f.help === 'string' ? f.help : undefined,
+  };
+}
+
 function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
   if (typeof raw !== 'object' || raw === null) {
     console.warn(`[web/plugins] "${namespace}/web-plugin.json" is not an object; skipping.`);
@@ -77,12 +113,23 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
         ? (f.store as WebFieldStore)
         : 'texts';
 
+    const itemFields: WebPluginSubField[] = [];
+    if (type === 'object-list' && Array.isArray(f.itemFields)) {
+      for (const sub of f.itemFields) {
+        const parsed = parseSubField(sub);
+        if (parsed) itemFields.push(parsed);
+      }
+    }
+
     fields.push({
       key: f.key,
       label: typeof f.label === 'string' && f.label.trim() !== '' ? f.label : f.key,
       type,
       store,
       help: typeof f.help === 'string' ? f.help : undefined,
+      itemLabel: typeof f.itemLabel === 'string' ? f.itemLabel : 'Item',
+      textsKey: typeof f.textsKey === 'string' ? f.textsKey : undefined,
+      itemFields: itemFields.length > 0 ? itemFields : undefined,
     });
   }
 
@@ -94,11 +141,6 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
   return { namespace, title, description, fields };
 }
 
-/**
- * Scans every module folder for a web-plugin.json manifest and returns the valid
- * ones. The namespace (data folder) is the module folder name. Modules without a
- * manifest are simply not editable in the web UI.
- */
 export async function loadWebPlugins(): Promise<WebPlugin[]> {
   if (!existsSync(MODULES_DIR)) {
     console.warn(`[web/plugins] Modules directory not found at ${MODULES_DIR}.`);
@@ -126,7 +168,18 @@ export async function loadWebPlugins(): Promise<WebPlugin[]> {
     }
   }
 
-  // Stable, predictable order in the UI.
   plugins.sort((a, b) => a.title.localeCompare(b.title));
   return plugins;
+}
+
+export function isMultiSubField(field: WebPluginSubField): boolean {
+  return field.type === 'channel-multi' || field.type === 'role-multi';
+}
+
+export function isObjectListField(field: WebPluginField): boolean {
+  return field.type === 'object-list';
+}
+
+export function isMultiField(field: WebPluginField): boolean {
+  return field.type === 'channel-multi' || field.type === 'role-multi';
 }

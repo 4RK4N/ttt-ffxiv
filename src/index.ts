@@ -6,6 +6,9 @@ import { loadModules } from './core/moduleLoader.js';
 // it stays in code rather than a module's texts.json.
 const COMMAND_ERROR_MESSAGE = 'Something went wrong while handling your command. Please try again.';
 
+const COMPONENT_ERROR_MESSAGE =
+  'Something went wrong while handling that interaction. Please try again.';
+
 async function main(): Promise<void> {
   // Guilds: interaction handling. GuildMessages + MessageContent: the auto-thread
   // module needs to read message text/attachments to detect posts. GuildMembers:
@@ -21,7 +24,7 @@ async function main(): Promise<void> {
     ],
   });
 
-  const { handlers, inits } = await loadModules();
+  const { handlers, inits, componentRoutes } = await loadModules();
   console.log(`Registered ${handlers.size} command handler(s).`);
 
   for (const init of inits) {
@@ -37,6 +40,28 @@ async function main(): Promise<void> {
   });
 
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
+    if (interaction.isMessageComponent()) {
+      const route = componentRoutes.find((r) => interaction.customId.startsWith(r.prefix));
+      if (!route) return;
+
+      try {
+        await route.handle(interaction);
+      } catch (err) {
+        console.error(`Error handling component "${interaction.customId}":`, err);
+        const message = COMPONENT_ERROR_MESSAGE;
+        try {
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ content: message, components: [] });
+          } else {
+            await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
+          }
+        } catch (replyErr) {
+          console.error('Failed to send component error response:', replyErr);
+        }
+      }
+      return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     const execute = handlers.get(interaction.commandName);
