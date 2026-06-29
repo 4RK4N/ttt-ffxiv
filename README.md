@@ -53,6 +53,10 @@ its first message is a short bilingual note asking people to comment in the thre
 channel; if it can't, the images are still posted and you get a note in the
 ephemeral confirmation.
 
+This module can be turned off with its on/off toggle in the
+[Web editor](#web-editor); while off, `/pic` and `/post` reply with a short
+"disabled" notice instead of posting.
+
 ### links-pics-vids-autothread (automatic threads)
 
 Replicates the old Mee6 behavior in the pics channels: when a (non-bot) user posts
@@ -147,6 +151,12 @@ module). It runs as a **separate process/container** that shares the bot's
 `data/` directory, so saved edits take effect on the bot's next event - no
 restart.
 
+- **On/off toggle**: each module has a master switch in its tab (and a colored
+  dot on the side-tab: green = on, grey = off). Flipping it is instant and is
+  saved as an `enabled` boolean in that module's `config.json`. A disabled module
+  stops acting immediately - the bot hot-reloads the change on its next event, no
+  restart needed. Only an explicit `false` disables; a missing `enabled` key reads
+  as on, so modules stay enabled by default.
 - **What's editable** is declared per module by a `web-plugin.json` manifest next
   to the module's `index.js`. Each manifest lists fields with a `key`, `label`,
   optional `help`, a `type` (`text`, `textarea`, `channel`, or `channel-multi`),

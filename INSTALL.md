@@ -125,30 +125,38 @@ the bot process ignores them. The editor also uses `discordToken` (the bot
 token) to list the server's channels for its channel pickers. See
 [Web editor](README.md#web-editor).
 
+Every module's `config.json` also accepts an optional `enabled` boolean - the
+master on/off switch exposed as a toggle in the [Web editor](README.md#web-editor).
+Only an explicit `"enabled": false` disables the module; if the key is absent it
+reads as enabled, so existing configs keep working. The bot hot-reloads this, so
+toggling takes effect on the next event without a restart.
+
 ### `data/links-pics-vids-autothread/config.json` - auto-threading
 
 ```json
-{ "channelIds": ["123", "456"] }
+{ "enabled": true, "channelIds": ["123", "456"] }
 ```
 
 `channelIds` lists the channels where the bot auto-creates a comments thread on
 qualifying posts (X/Twitter, Bluesky, Aethy links, or direct image/video).
-Leave it empty (`[]`) to disable the module. You can also set this in the
-[Web editor](README.md#web-editor) with a channel picker instead of editing the
-file. This module needs the privileged **Message Content** intent (Developer
-Portal -> Bot -> Privileged Gateway Intents).
+Leave it empty (`[]`) to disable the module, or set `"enabled": false` to turn it
+off while keeping the channel list. You can also set both in the
+[Web editor](README.md#web-editor) (a channel picker plus the on/off toggle)
+instead of editing the file. This module needs the privileged **Message Content**
+intent (Developer Portal -> Bot -> Privileged Gateway Intents).
 
 ### `data/welcome-message/config.json` - join welcome card
 
 ```json
-{ "channelId": "789" }
+{ "enabled": true, "channelId": "789" }
 ```
 
 `channelId` is the channel where the welcome card is posted when a member joins.
-Leave it blank (`""`) to disable the module. You can also set this in the
-[Web editor](README.md#web-editor) with a channel dropdown instead of editing the
-file. This module needs the privileged **Server Members** intent (Developer
-Portal -> Bot -> Privileged Gateway Intents).
+Leave it blank (`""`) to disable the module, or set `"enabled": false` to turn it
+off while keeping the channel configured. You can also set both in the
+[Web editor](README.md#web-editor) (a channel dropdown plus the on/off toggle)
+instead of editing the file. This module needs the privileged **Server Members**
+intent (Developer Portal -> Bot -> Privileged Gateway Intents).
 
 ---
 
