@@ -5,11 +5,11 @@ import {
   MessageFlags,
   type ButtonInteraction,
   type GuildMember,
-  type ThreadChannel,
 } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { buildClosedThreadName } from './names.js';
 import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX, DELETE_PREFIX } from './panel.js';
+import { canStaffOrAdmin } from './permissions.js';
 import { resolveTicketType, texts, NAMESPACE } from './types.js';
 
 interface ParsedCloseCustomId {
@@ -33,36 +33,10 @@ function parseCloseCustomId(customId: string): ParsedCloseCustomId | null {
   return { threadId, typeId: segments.slice(1).join(':') };
 }
 
-/** Bot-created private threads have the bot as owner, not the opener. */
-async function resolveOpenerUserId(
-  thread: ThreadChannel,
-  parsedOpenerUserId?: string
-): Promise<string | null> {
-  if (parsedOpenerUserId) return parsedOpenerUserId;
-
-  try {
-    const messages = await thread.messages.fetch({ limit: 10 });
-    const welcome = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp)[0];
-    const match = welcome?.content.match(/<@!?(\d+)>/);
-    return match?.[1] ?? null;
-  } catch (err) {
-    console.warn(`[tickets] Could not resolve opener for thread ${thread.id}:`, err);
-    return null;
-  }
-}
-
-function canCloseTicket(
-  interaction: ButtonInteraction,
-  openerUserId: string | null,
-  staffRoleIds: string[]
-): boolean {
-  if (openerUserId && interaction.user.id === openerUserId) return true;
-
+function canCloseTicket(interaction: ButtonInteraction, staffRoleIds: string[]): boolean {
   const member = interaction.member as GuildMember | null;
   if (!member) return false;
-
-  if (staffRoleIds.some((roleId) => member.roles.cache.has(roleId))) return true;
-  return member.permissions.has('ManageThreads') || member.permissions.has('Administrator');
+  return canStaffOrAdmin(member, staffRoleIds);
 }
 
 export async function handleCloseTicket(interaction: ButtonInteraction): Promise<void> {
@@ -71,19 +45,20 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
 
   const isConfirm = interaction.customId.startsWith(CLOSE_CONFIRM_PREFIX);
   const ticketType = resolveTicketType(parsed.typeId);
+  const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
     if (interaction.deferred || interaction.replied) {
-      await interaction.editReply(texts().disabled);
+      await interaction.editReply(t.disabled);
     } else {
-      await interaction.reply({ content: texts().disabled, flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: t.disabled, flags: MessageFlags.Ephemeral });
     }
     return;
   }
 
   if (!ticketType) {
     await interaction.reply({
-      content: texts().categoryUnpublished,
+      content: t.categoryUnpublished,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -92,25 +67,29 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
   const thread = interaction.channel;
   if (!thread?.isThread()) {
     await interaction.reply({
-      content: 'This action must be used inside a ticket thread.',
+      content: t.threadContextRequired,
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
-
-  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
+  if (parsed.threadId !== thread.id) {
     await interaction.reply({
-      content: texts().noPermission,
+      content: t.invalidInteraction,
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  const closePayload = parsed.openerUserId
-    ? `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId}`
-    : `${parsed.threadId}:${parsed.typeId}:${openerUserId ?? ''}`;
+  if (!canCloseTicket(interaction, ticketType.staffRoleIds)) {
+    await interaction.reply({
+      content: t.noPermission,
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  const closePayload = `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId ?? ''}`;
 
   if (!isConfirm) {
     const yes = new ButtonBuilder()
@@ -128,6 +107,14 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     await interaction.reply({
       content: ticketType.confirmClosePrompt,
       components: [row],
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  if (!canCloseTicket(interaction, ticketType.staffRoleIds)) {
+    await interaction.reply({
+      content: t.noPermission,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -158,7 +145,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
   } catch (err) {
     console.error('[tickets] Failed to close ticket:', err);
     await interaction.followUp({
-      content: 'Something went wrong while closing this ticket.',
+      content: t.closeError,
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -166,7 +153,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
 
 export async function handleCloseCancel(interaction: ButtonInteraction): Promise<void> {
   await interaction.update({
-    content: 'Close cancelled.',
+    content: texts().closeCancelled,
     components: [],
   });
 }

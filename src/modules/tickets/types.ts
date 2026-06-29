@@ -9,6 +9,7 @@ export interface TicketTypeConfig {
   channelId: string;
   panelMessageId: string;
   staffRoleIds: string[];
+  deniedRoleIds: string[];
 }
 
 export interface TicketTypeTexts {
@@ -28,6 +29,7 @@ export interface TicketTypeTexts {
   ticketDeleted: string;
   alreadyOpen: string;
   openSuccess: string;
+  roleDenied: string;
 }
 
 export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
@@ -43,6 +45,16 @@ export interface TicketsTexts {
   noDeletePermission: string;
   deleteNotClosed: string;
   categoryUnpublished: string;
+  channelNotConfigured: string;
+  invalidChannel: string;
+  openError: string;
+  closeError: string;
+  deleteError: string;
+  closeCancelled: string;
+  deleteCancelled: string;
+  threadContextRequired: string;
+  invalidInteraction: string;
+  openInProgress: string;
   types: Record<string, TicketTypeTexts>;
 }
 
@@ -63,6 +75,7 @@ export const DEFAULT_TYPE_TEXTS: TicketTypeTexts = {
   ticketDeleted: 'Ticket deleted.',
   alreadyOpen: 'You already have an open ticket in this category.',
   openSuccess: 'Your ticket was created: {thread}',
+  roleDenied: 'You cannot open a ticket in this category.',
 };
 
 export const TEXT_DEFAULTS: TicketsTexts = {
@@ -71,6 +84,16 @@ export const TEXT_DEFAULTS: TicketsTexts = {
   noDeletePermission: "You don't have permission to delete this ticket.",
   deleteNotClosed: 'Only closed tickets can be deleted.',
   categoryUnpublished: 'This ticket category is not available right now.',
+  channelNotConfigured: 'This ticket category is not configured yet.',
+  invalidChannel: 'The configured ticket channel is invalid.',
+  openError: 'Something went wrong while opening your ticket. Please try again.',
+  closeError: 'Something went wrong while closing this ticket.',
+  deleteError: 'Something went wrong while deleting this ticket.',
+  closeCancelled: 'Close cancelled.',
+  deleteCancelled: 'Delete cancelled.',
+  threadContextRequired: 'This action must be used inside a ticket thread.',
+  invalidInteraction: 'This button does not match the current ticket thread.',
+  openInProgress: 'Your ticket is being opened — please wait a moment.',
   types: {},
 };
 
@@ -91,5 +114,10 @@ export function resolveTicketType(id: string): ResolvedTicketType | undefined {
   const row = config().ticketTypes.find((t) => t.id === id);
   if (!row) return undefined;
   const copy = texts().types[id] ?? DEFAULT_TYPE_TEXTS;
-  return { ...row, ...copy };
+  return {
+    ...row,
+    ...copy,
+    staffRoleIds: row.staffRoleIds ?? [],
+    deniedRoleIds: row.deniedRoleIds ?? [],
+  };
 }

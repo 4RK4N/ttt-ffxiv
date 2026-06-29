@@ -1,11 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { DATA_DIR } from './core/texts.js';
 
-// data/config.json is the single source of truth for the bot's configuration.
-// The data directory is resolved from the process working directory (or DATA_DIR)
-// exactly like core/texts' DATA_DIR, so it's stable across `tsx` dev, compiled
-// `dist/` prod, and Docker (where ./data is bind-mounted over the image).
-const DATA_DIR = path.resolve(process.env.DATA_DIR ?? process.cwd(), 'data');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 
 interface RawConfig {

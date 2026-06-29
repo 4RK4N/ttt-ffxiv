@@ -8,30 +8,47 @@ import {
   type ButtonInteraction,
   type GuildMember,
   type TextChannel,
+  type ThreadChannel,
 } from 'discord.js';
 import { format, isModuleEnabled } from '../../core/texts.js';
 import { THREAD_AUTO_ARCHIVE_MINUTES } from '../../core/threads.js';
-import { buildTicketThreadName } from './names.js';
+import { buildTicketThreadName, isClosedTicketThread } from './names.js';
 import { CLOSE_PREFIX } from './panel.js';
+import { memberHasAnyRole } from './permissions.js';
 import { addMembersToThread, collectStaffUserIds } from './thread-members.js';
 import { resolveTicketType, texts, NAMESPACE } from './types.js';
+
+const openInFlight = new Set<string>();
+
+function openLockKey(channelId: string, userId: string): string {
+  return `${channelId}:${userId}`;
+}
 
 function threadLink(guildId: string, threadId: string): string {
   return `https://discord.com/channels/${guildId}/${threadId}`;
 }
 
-async function userHasOpenTicket(channel: TextChannel, userId: string): Promise<boolean> {
+/** Returns an open ticket thread id for this user in the channel, if any. */
+async function findOpenTicketThreadId(
+  channel: TextChannel,
+  userId: string
+): Promise<string | null> {
   const active = await channel.threads.fetchActive();
-  return active.threads.some(
-    (thread) => thread.ownerId === userId && !thread.locked && !thread.name.startsWith('[CLOSED]')
-  );
+  for (const thread of active.threads.values()) {
+    if (thread.locked || isClosedTicketThread(thread.name, thread.locked ?? false)) continue;
+    const members = await thread.members.fetch();
+    if (members.has(userId)) return thread.id;
+  }
+  return null;
 }
 
 export async function handleOpenTicket(interaction: ButtonInteraction): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+  const t = texts();
+
   if (!isModuleEnabled(NAMESPACE)) {
-    await interaction.editReply(texts().disabled);
+    await interaction.editReply(t.disabled);
     return;
   }
 
@@ -39,34 +56,59 @@ export async function handleOpenTicket(interaction: ButtonInteraction): Promise<
   const ticketType = resolveTicketType(typeId);
 
   if (!ticketType || !ticketType.published) {
-    await interaction.editReply(texts().categoryUnpublished);
+    await interaction.editReply(t.categoryUnpublished);
     return;
   }
 
   if (!ticketType.channelId) {
-    await interaction.editReply('This ticket category is not configured yet.');
+    await interaction.editReply(t.channelNotConfigured);
+    return;
+  }
+
+  const member = interaction.member as GuildMember | null;
+  if (!member) {
+    await interaction.editReply(t.openError);
+    return;
+  }
+
+  if (
+    ticketType.deniedRoleIds.length > 0 &&
+    memberHasAnyRole(member, ticketType.deniedRoleIds)
+  ) {
+    await interaction.editReply(ticketType.roleDenied);
     return;
   }
 
   const channel = await interaction.client.channels.fetch(ticketType.channelId);
   if (!channel?.isTextBased() || channel.isDMBased() || channel.isThread()) {
-    await interaction.editReply('The configured ticket channel is invalid.');
+    await interaction.editReply(t.invalidChannel);
     return;
   }
 
   const textChannel = channel as TextChannel;
+  const lockKey = openLockKey(textChannel.id, interaction.user.id);
+
+  if (openInFlight.has(lockKey)) {
+    await interaction.editReply(t.openInProgress);
+    return;
+  }
+
+  openInFlight.add(lockKey);
+
+  let thread: ThreadChannel | undefined;
 
   try {
-    if (await userHasOpenTicket(textChannel, interaction.user.id)) {
-      await interaction.editReply(ticketType.alreadyOpen);
+    const existingThreadId = await findOpenTicketThreadId(textChannel, interaction.user.id);
+    if (existingThreadId && interaction.guildId) {
+      const link = threadLink(interaction.guildId, existingThreadId);
+      await interaction.editReply(format(ticketType.alreadyOpen, { thread: link }));
       return;
     }
 
-    const member = interaction.member as GuildMember;
     const displayName = member.displayName || interaction.user.username;
     const threadName = buildTicketThreadName(displayName, new Date());
 
-    const thread = await textChannel.threads.create({
+    thread = await textChannel.threads.create({
       name: threadName,
       type: ChannelType.PrivateThread,
       invitable: false,
@@ -98,6 +140,15 @@ export async function handleOpenTicket(interaction: ButtonInteraction): Promise<
     await interaction.editReply(format(ticketType.openSuccess, { thread: link }));
   } catch (err) {
     console.error('[tickets] Failed to open ticket:', err);
-    await interaction.editReply('Something went wrong while opening your ticket. Please try again.');
+    if (thread) {
+      try {
+        await thread.delete();
+      } catch (cleanupErr) {
+        console.warn(`[tickets] Failed to clean up thread ${thread.id} after open error:`, cleanupErr);
+      }
+    }
+    await interaction.editReply(t.openError);
+  } finally {
+    openInFlight.delete(lockKey);
   }
 }

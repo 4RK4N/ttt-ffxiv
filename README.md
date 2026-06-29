@@ -83,6 +83,23 @@ the bot needs the privileged **Message Content** intent enabled in the Developer
 Portal (Bot -> Privileged Gateway Intents). If `channelIds` is empty, the module
 stays disabled.
 
+### tickets (private-thread ticket panels)
+
+Button-driven support tickets via private threads — no slash commands. Each
+**ticket type** is a category with its own channel, staff roles, optional denied
+roles, panel copy, and flow messages. Configure in the [Web editor](#web-editor),
+save, then **Publish panel** to post the open button in Discord. **Unpublish**
+disables new opens (the panel message stays; clicks get an ephemeral
+unavailable reply).
+
+- **Open**: any user (unless blocked by denied roles) gets a private thread;
+  staff and admins are auto-added.
+- **Close / delete**: staff roles or Administrator only.
+- **Denied roles**: optional per type; users with any selected role cannot open.
+
+See [INSTALL.md — tickets](INSTALL.md#datatickets---ticket-panels-and-private-thread-tickets)
+for setup. Requires **Server Members** intent (staff resolution).
+
 ## Project layout
 
 ```
@@ -102,6 +119,9 @@ src/
       web-plugin.json
     links-pics-vids-autothread/
       index.ts          # auto comments threads on posts
+      web-plugin.json
+    tickets/
+      index.ts          # ticket panel buttons + open/close/delete flow
       web-plugin.json
   web/                  # the web editor (separate process/container)
     server.ts           # entry point: Hono HTTP server + routes
@@ -123,6 +143,9 @@ data/                   # runtime config + editable content (git-ignored secrets
     texts.json
   links-pics-vids-autothread/
     config.json         # { "channelIds": [...] } - watched channels
+    texts.json
+  tickets/
+    config.json         # { "ticketTypes": [...] } - per-type channels, roles, publish state
     texts.json
 scripts/
   deploy-commands.ts    # registers slash commands with Discord
@@ -165,19 +188,21 @@ restart.
   as on, so modules stay enabled by default.
 - **What's editable** is declared per module by a `web-plugin.json` manifest next
   to the module's `index.js`. Each manifest lists fields with a `key`, `label`,
-  optional `help`, a `type` (`text`, `textarea`, `channel`, or `channel-multi`),
-  and a `store` (`texts` for `texts.json`, `config` for `config.json`; defaults
-  to `texts`). The editor scans modules at startup, so adding/removing editable
-  fields is just editing that JSON - no code changes.
-- **Channel pickers**: `channel`/`channel-multi` fields render as dropdowns
-  populated with the server's channels, fetched live via the bot token, so you
-  set channel IDs by picking from a list instead of copying IDs by hand.
+  optional `help`, a `type` (`text`, `textarea`, `channel`, `channel-multi`,
+  `role-multi`, or `object-list`), and a `store` (`texts` for `texts.json`,
+  `config` for `config.json`; defaults to `texts`). The editor scans modules at
+  startup, so adding/removing editable fields is just editing that JSON - no
+  code changes.
+- **Channel/role pickers**: `channel`/`channel-multi` and `role-multi` fields
+  render as checklists populated live via the bot token.
 - **Access** is restricted to **administrators of `guildId`**. Login is via
   Discord OAuth: the editor checks that your account has the Administrator
   permission on that server before letting you in.
 - **Safety**: writes are validated against the manifest (only known keys, correct
   value types) and written atomically, so a half-saved or malformed file can't
-  reach the bot.
+  reach the bot. Mutating API requests require a CSRF token (double-submit via
+  signed cookie + `X-CSRF-Token` header). Session cookies use `SameSite=Lax`
+  (required for OAuth; `Strict` breaks the Discord login redirect).
 
 ### Configuration
 
@@ -201,7 +226,8 @@ npm run web        # starts the editor (or `npm run web:dev` for tsx)
 With Docker, `docker compose up -d --build` starts both the bot
 (`ttt-discord-bot`) and the editor (`ttt-web-editor`) from the same image. The
 editor is published behind a `caddy-docker-proxy` label rather than a host port;
-see [docker-compose.yml](docker-compose.yml) and [INSTALL.md](INSTALL.md).
+replace the `caddy:` hostname in [docker-compose.yml](docker-compose.yml) with
+yours and keep port `8088` in sync with `webPort`. See [INSTALL.md](INSTALL.md).
 
 ## Setup
 
@@ -215,8 +241,14 @@ npm install
 3. Create a Discord application and bot at the
    [Developer Portal](https://discord.com/developers/applications):
    - Copy the **bot token** and the **Application (client) ID**.
-   - Invite the bot with the `bot` and `applications.commands` scopes, granting
-     **Send Messages** and **Attach Files** permissions.
+   - Invite the bot to your server. Recommended URL (Administrator — needed for
+     tickets, channel/role listing, thread management):
+
+     ```
+     https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=8
+     ```
+
+     See [INSTALL.md](INSTALL.md) Part 1 for details.
 4. Copy `data/config.example.json` to `data/config.json` and fill in at least
    `discordToken` and `clientId`:
 

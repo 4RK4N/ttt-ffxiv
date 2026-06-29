@@ -179,12 +179,14 @@ export function loginPage(botName: string, message?: string): string {
 }
 
 /** Main editor shell. Data is loaded client-side from /api/modules. */
-export function editorPage(botName: string, user: SessionUser): string {
+export function editorPage(botName: string, user: SessionUser, csrfToken: string): string {
   const title = escapeHtml(appTitle(botName));
+  const csrf = escapeHtml(csrfToken);
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="csrf-token" content="${csrf}" />
 <title>${title}</title>
 <style>${STYLES}</style>
 </head><body>
@@ -212,6 +214,16 @@ const CLIENT_JS = `
   var channelsError = null;
   var roles = [];
   var rolesError = null;
+
+  function csrfHeaders(extra) {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    var token = meta ? meta.getAttribute('content') : '';
+    var headers = { 'X-CSRF-Token': token || '' };
+    if (extra) {
+      for (var k in extra) headers[k] = extra[k];
+    }
+    return headers;
+  }
 
   function el(tag, className) {
     var node = document.createElement(tag);
@@ -466,7 +478,10 @@ const CLIENT_JS = `
               Object.assign(item, saved);
               for (var k in saved) { if (Object.prototype.hasOwnProperty.call(saved, k)) item[k] = saved[k]; }
 
-              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(saved.id), { method: 'POST' });
+              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(saved.id), {
+                method: 'POST',
+                headers: csrfHeaders(),
+              });
               if (!res.ok) {
                 var err = await res.json().catch(function () { return {}; });
                 throw new Error(err.error || ('HTTP ' + res.status));
@@ -484,7 +499,10 @@ const CLIENT_JS = `
             try {
               var live = liveRowValues(subFields, item);
               if (!live.id) throw new Error('Save this ticket type before unpublishing.');
-              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(live.id), { method: 'POST' });
+              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(live.id), {
+                method: 'POST',
+                headers: csrfHeaders(),
+              });
               if (!res.ok) {
                 var err = await res.json().catch(function () { return {}; });
                 throw new Error(err.error || ('HTTP ' + res.status));
@@ -529,7 +547,8 @@ const CLIENT_JS = `
     addBtn.addEventListener('click', function () {
       items.push({
         id: '', published: false, openButtonLabel: 'Open ticket', panelTitle: 'Support',
-        panelDescription: '', emoji: '', channelId: '', staffRoleIds: [],
+        panelTitle: '', panelDescription: '', emoji: '', channelId: '', staffRoleIds: [], deniedRoleIds: [],
+        roleDenied: 'You cannot open a ticket in this category.',
         ticketWelcome: 'Hi {mention}, describe your issue and staff will assist you.',
         closeButtonLabel: 'Close ticket', confirmClosePrompt: 'Close this ticket?',
         confirmCloseYes: 'Yes, close', confirmCloseNo: 'Cancel',
@@ -613,7 +632,7 @@ const CLIENT_JS = `
       try {
         var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace) + '/enabled', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ enabled: on }),
         });
         if (!res.ok) {
@@ -656,7 +675,7 @@ const CLIENT_JS = `
       fields.forEach(function (fld) { payload[fld.key] = fld.getValue(); });
       var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace), {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
       });
       if (!res.ok) {

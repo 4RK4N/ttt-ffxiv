@@ -1,8 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
-import { renameSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
 import { moduleDataPath } from '../core/texts.js';
+import { writeJsonAtomic } from '../core/jsonWrite.js';
 import type { WebPlugin, WebPluginField, WebPluginSubField, WebFieldStore } from './plugins.js';
 import { isMultiField, isMultiSubField, isObjectListField } from './plugins.js';
 
@@ -25,14 +23,6 @@ function readDataJson(namespace: string, store: WebFieldStore): Record<string, u
 function toStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((v): v is string => typeof v === 'string');
-}
-
-async function writeJsonAtomic(file: string, data: Record<string, unknown>): Promise<void> {
-  await mkdir(dirname(file), { recursive: true });
-  const json = JSON.stringify(data, null, 2) + '\n';
-  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
-  writeFileSync(tmp, json, 'utf8');
-  renameSync(tmp, file);
 }
 
 function slugify(value: string): string {

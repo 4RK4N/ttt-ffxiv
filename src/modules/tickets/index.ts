@@ -1,12 +1,11 @@
 import { type ButtonInteraction, type MessageComponentInteraction } from 'discord.js';
 import type { CommandModule, ComponentRoute } from '../../core/moduleLoader.js';
-import { updateTicketType } from './config-io.js';
-import { publishPanel, type DiscordApiContext } from './panel.js';
+import { getTicketTypeConfig, updateTicketType } from './config-io.js';
 import { handleCloseCancel, handleCloseTicket } from './close.js';
 import { handleDeleteCancel, handleDeleteTicket } from './delete.js';
-import { handleOpenTicket } from './open.js';
-import { getTicketTypeConfig } from './config-io.js';
 import { registerMemberCacheWarm } from './member-cache.js';
+import { handleOpenTicket } from './open.js';
+import { publishPanel, type DiscordApiContext } from './panel.js';
 import { resolveTicketType, NAMESPACE } from './types.js';
 
 async function handleComponent(interaction: MessageComponentInteraction): Promise<void> {

@@ -13,7 +13,7 @@ function readRawConfig(): TicketsConfig {
   }
 }
 
-/** Updates one ticket type in config.json and writes atomically. */
+/** Updates one ticket type in config.json and writes atomically (mtime bump refreshes getConfig()). */
 export async function updateTicketType(
   typeId: string,
   patch: Partial<TicketTypeConfig>

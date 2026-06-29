@@ -4,7 +4,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from 'discord.js';
-import { DISCORD_API } from '../../core/discordApi.js';
+import { discordBotFetch } from '../../core/discordApi.js';
 import { resolveTicketType } from './types.js';
 
 export const OPEN_PREFIX = 'tickets:open:';
@@ -15,13 +15,6 @@ export const DELETE_CONFIRM_PREFIX = 'tickets:delete-confirm:';
 
 export interface DiscordApiContext {
   botToken: string;
-}
-
-function authHeaders(botToken: string): HeadersInit {
-  return {
-    Authorization: `Bot ${botToken}`,
-    'Content-Type': 'application/json',
-  };
 }
 
 function parseEmoji(emoji: string): { name: string } | undefined {
@@ -56,17 +49,6 @@ export function buildPanelPayload(typeId: string) {
   };
 }
 
-async function discordFetch(
-  botToken: string,
-  path: string,
-  init?: RequestInit
-): Promise<Response> {
-  return fetch(`${DISCORD_API}${path}`, {
-    ...init,
-    headers: { ...authHeaders(botToken), ...init?.headers },
-  });
-}
-
 export async function publishPanel(
   ctx: DiscordApiContext,
   typeId: string,
@@ -76,7 +58,7 @@ export async function publishPanel(
   const payload = buildPanelPayload(typeId);
 
   if (existingMessageId) {
-    const editRes = await discordFetch(
+    const editRes = await discordBotFetch(
       ctx.botToken,
       `/channels/${channelId}/messages/${existingMessageId}`,
       { method: 'PATCH', body: JSON.stringify(payload) }
@@ -87,7 +69,7 @@ export async function publishPanel(
     }
   }
 
-  const createRes = await discordFetch(ctx.botToken, `/channels/${channelId}/messages`, {
+  const createRes = await discordBotFetch(ctx.botToken, `/channels/${channelId}/messages`, {
     method: 'POST',
     body: JSON.stringify(payload),
   });

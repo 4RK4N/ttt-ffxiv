@@ -33,6 +33,66 @@
       "store": "texts"
     },
     {
+      "key": "channelNotConfigured",
+      "label": "Channel not configured message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "invalidChannel",
+      "label": "Invalid channel message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "openError",
+      "label": "Open error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "closeError",
+      "label": "Close error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "deleteError",
+      "label": "Delete error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "closeCancelled",
+      "label": "Close cancelled message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "deleteCancelled",
+      "label": "Delete cancelled message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "threadContextRequired",
+      "label": "Wrong context message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "invalidInteraction",
+      "label": "Mismatched button message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "openInProgress",
+      "label": "Open in progress message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
       "key": "ticketTypes",
       "label": "Ticket types",
       "type": "object-list",
@@ -58,6 +118,19 @@
           "label": "Staff roles",
           "type": "role-multi",
           "store": "config"
+        },
+        {
+          "key": "deniedRoleIds",
+          "label": "Denied roles",
+          "type": "role-multi",
+          "store": "config",
+          "help": "Users with any of these roles cannot open this ticket type. Leave empty to disable."
+        },
+        {
+          "key": "roleDenied",
+          "label": "Denied role message",
+          "type": "textarea",
+          "store": "texts"
         },
         {
           "key": "openButtonLabel",

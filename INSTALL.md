@@ -27,7 +27,8 @@ so you do not need to open any firewall ports or set up a reverse proxy.
 2. Open **Bot** in the sidebar -> **Reset Token** -> copy the token. This is your
    `discordToken`. Keep it secret. While on this page, enable the
    **Message Content** intent under **Privileged Gateway Intents** - the
-   auto-thread feature needs it to read message links/attachments.
+   auto-thread feature needs it to read message links/attachments. Also enable
+   **Server Members** - required for the welcome module and ticket staff resolution.
 3. Open **General Information** -> copy the **Application ID**. This is your
    `clientId`.
 4. Invite the bot to your server. Open this URL in a browser, replacing
@@ -122,8 +123,10 @@ copy it to `config.json` or `texts.json` and edit.
 The four editor fields (`clientSecret`, `sessionSecret`, `oauthRedirectUri`,
 `webPort`) plus `guildId` are only needed if you run the browser-based editor;
 the bot process ignores them. The editor also uses `discordToken` (the bot
-token) to list the server's channels for its channel pickers. See
-[Web editor](README.md#web-editor).
+token) to list the server's channels for its channel pickers. Session cookies
+use `SameSite=Lax` (required for OAuth — `Strict` breaks the Discord callback).
+Mutating API requests require a CSRF token (`X-CSRF-Token` header matching a
+signed cookie set at login). See [Web editor](README.md#web-editor).
 
 Every module's `config.json` also accepts an optional `enabled` boolean - the
 master on/off switch exposed as a toggle in the [Web editor](README.md#web-editor).
@@ -176,10 +179,18 @@ stays; clicking the button replies with an ephemeral “not available” message
 
 Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
 they can see private threads (the bot itself uses **Administrator** from the invite above).
-On ticket open, all admins and configured staff roles are auto-added to the thread.
-At bot startup the member list is fetched once (1s pause between 1000-member
-pages); ticket opens pace thread member adds by 250ms. Discord.js REST also
-handles 429 retries automatically.
+Only staff/admin can close or delete tickets; openers cannot self-close.
+Optional **denied roles** per ticket type block users with those roles from opening
+(empty list = no check).
+
+On ticket open, all members of roles with Administrator permission plus configured
+staff roles are auto-added to the thread. At bot startup the member list is fetched
+once into a tickets-owned cache (1s pause between 1000-member pages); gateway events
+keep it current. Ticket opens pace thread member adds by 250ms. Large guilds may delay
+startup warm; if warm fails, opens still work but staff auto-add may be incomplete.
+
+**Unpublish** disables new opens only — the Discord panel message stays until removed
+manually or the type is re-published after deleting the old message.
 
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 
@@ -227,6 +238,10 @@ You only need to repeat this when you add or change commands - not on every rest
 ---
 
 ## Part 6 - Start the bot
+
+When using Docker Compose with Caddy, replace the `caddy:` hostname label on
+`ttt-web-editor` in `docker-compose.yml` with your public hostname. The
+`caddy.reverse_proxy` upstream port must match `webPort` (default `8088`).
 
 ```bash
 docker compose up -d

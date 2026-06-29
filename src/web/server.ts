@@ -2,10 +2,12 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { loadWebConfig } from './config.js';
 import {
+  getCsrfToken,
   getSessionUser,
   handleCallback,
   logout,
   requireAuth,
+  requireCsrf,
   startLogin,
   type SessionUser,
 } from './auth.js';
@@ -45,12 +47,14 @@ async function main(): Promise<void> {
   app.get('/', async (c) => {
     const user = await getSessionUser(c, cfg);
     if (!user) return c.html(loginPage(cfg.botName));
-    return c.html(editorPage(cfg.botName, user));
+    const csrfToken = (await getCsrfToken(c, cfg)) ?? '';
+    return c.html(editorPage(cfg.botName, user, csrfToken));
   });
 
   // --- API (auth required) ----------------------------------------------------
   const api = new Hono<Env>();
   api.use('*', requireAuth(cfg));
+  api.use('*', requireCsrf(cfg));
 
   api.get('/modules', (c) => {
     const payload = plugins.map((p) => ({

@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
 import type { WebConfig } from './config.js';
-import { DISCORD_API } from './discord.js';
+import { discordBotFetch } from '../core/discordApi.js';
 
 const AUTHORIZE_URL = 'https://discord.com/oauth2/authorize';
 const OAUTH_SCOPES = 'identify guilds';
@@ -12,6 +12,7 @@ const ADMINISTRATOR = 1n << 3n; // 0x8
 
 const SESSION_COOKIE = 'ttt_session';
 const STATE_COOKIE = 'ttt_oauth_state';
+const CSRF_COOKIE = 'ttt_csrf';
 // Kept short on purpose: the session is only a convenience cache. Admin status is
 // re-validated against Discord (via the bot token) on each request, so a stale
 // session can't grant access for long even if this is lengthened.
@@ -139,15 +140,13 @@ interface DiscordRole {
   permissions?: string | number;
 }
 
-// Per-user cache of the bot-token admin re-check, so we don't call Discord on
-// every request. Only positive results are short-lived; on a transient API error
-// we fall back to the last cached value (see isGuildAdminViaBot).
-const adminCache = new Map<string, { admin: boolean; at: number }>();
+// Per-user cache of positive bot-token admin re-checks only.
+const adminCache = new Map<string, { at: number }>();
+
+const DISCORD_API = 'https://discord.com/api/v10';
 
 async function discordBotGet<T>(cfg: WebConfig, path: string): Promise<T | null> {
-  const res = await fetch(`${DISCORD_API}${path}`, {
-    headers: { Authorization: `Bot ${cfg.botToken}` },
-  });
+  const res = await discordBotFetch(cfg.botToken, path);
   if (res.status === 404) return null;
   if (!res.ok) {
     throw new Error(`Discord API returned HTTP ${res.status} for ${path}.`);
@@ -168,17 +167,12 @@ function hasAdminPermission(permissions: string | number | undefined): boolean {
  * Re-checks, using the bot token, whether `userId` still has Administrator on the
  * configured guild. Unlike the login-time `isGuildAdmin` (which uses the user's
  * OAuth token), this needs no stored user token and reflects live permissions.
- *
- * The guild owner is admin implicitly; otherwise we OR the permission bits of all
- * the member's roles (including @everyone, whose role id equals the guild id) and
- * test the Administrator bit.
  */
 async function isGuildAdminViaBot(cfg: WebConfig, userId: string): Promise<boolean> {
   const member = await discordBotGet<DiscordGuildMember>(
     cfg,
     `/guilds/${cfg.guildId}/members/${userId}`
   );
-  // 404: the user is no longer a member of the guild.
   if (!member) return false;
 
   const guild = await discordBotGet<DiscordGuild>(cfg, `/guilds/${cfg.guildId}`);
@@ -188,30 +182,29 @@ async function isGuildAdminViaBot(cfg: WebConfig, userId: string): Promise<boole
   if (!Array.isArray(roles)) return false;
 
   const memberRoleIds = new Set(member.roles ?? []);
-  // @everyone (role id === guild id) applies to all members even if not listed.
   memberRoleIds.add(cfg.guildId);
 
   return roles.some((role) => memberRoleIds.has(role.id) && hasAdminPermission(role.permissions));
 }
 
-/**
- * Cached wrapper around isGuildAdminViaBot. Returns the cached value within the
- * TTL; on a transient Discord error, falls back to the last cached value (or
- * false if none) so a brief API hiccup doesn't lock admins out.
- */
+/** Cached positive admin checks only; demoted admins are re-checked every request. */
 async function isStillAdmin(cfg: WebConfig, userId: string): Promise<boolean> {
   const cached = adminCache.get(userId);
   if (cached && Date.now() - cached.at < ADMIN_CACHE_TTL_MS) {
-    return cached.admin;
+    return true;
   }
 
   try {
     const admin = await isGuildAdminViaBot(cfg, userId);
-    adminCache.set(userId, { admin, at: Date.now() });
+    if (admin) {
+      adminCache.set(userId, { at: Date.now() });
+    } else {
+      adminCache.delete(userId);
+    }
     return admin;
   } catch (err) {
-    console.warn('[web/auth] Admin re-check failed; using last known value.', err);
-    return cached?.admin ?? false;
+    console.warn('[web/auth] Admin re-check failed.', err);
+    return false;
   }
 }
 
@@ -265,11 +258,15 @@ export async function handleCallback(c: Context, cfg: WebConfig): Promise<Callba
     cookieOptions(cfg, SESSION_MAX_AGE)
   );
 
+  const csrfToken = randomBytes(32).toString('hex');
+  await setSignedCookie(c, CSRF_COOKIE, csrfToken, cfg.sessionSecret, cookieOptions(cfg, SESSION_MAX_AGE));
+
   return { ok: true, status: 200, user };
 }
 
 export function logout(c: Context): void {
   deleteCookie(c, SESSION_COOKIE, { path: '/' });
+  deleteCookie(c, CSRF_COOKIE, { path: '/' });
 }
 
 /** Reads and verifies the session cookie, returning the user or null. */
@@ -283,6 +280,12 @@ export async function getSessionUser(c: Context, cfg: WebConfig): Promise<Sessio
     // Tampered or malformed cookie.
   }
   return null;
+}
+
+/** CSRF token for double-submit validation (signed cookie, set on login). */
+export async function getCsrfToken(c: Context, cfg: WebConfig): Promise<string | null> {
+  const token = await getSignedCookie(c, cfg.sessionSecret, CSRF_COOKIE);
+  return typeof token === 'string' ? token : null;
 }
 
 /**
@@ -302,14 +305,32 @@ export function requireAuth(cfg: WebConfig): MiddlewareHandler {
 
     if (!user) return denied();
 
-    // Re-validate against live Discord permissions (cached) so losing admin
-    // revokes access promptly, not only when the session cookie expires.
     if (!(await isStillAdmin(cfg, user.id))) {
       deleteCookie(c, SESSION_COOKIE, { path: '/' });
+      deleteCookie(c, CSRF_COOKIE, { path: '/' });
       return denied();
     }
 
     c.set('user', user);
+    await next();
+  };
+}
+
+/** Validates X-CSRF-Token header against the signed CSRF cookie on mutating requests. */
+export function requireCsrf(cfg: WebConfig): MiddlewareHandler {
+  return async (c, next) => {
+    const method = c.req.method.toUpperCase();
+    if (method !== 'POST' && method !== 'PUT' && method !== 'PATCH' && method !== 'DELETE') {
+      await next();
+      return;
+    }
+
+    const cookieToken = await getSignedCookie(c, cfg.sessionSecret, CSRF_COOKIE);
+    const headerToken = c.req.header('X-CSRF-Token');
+    if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+      return c.json({ error: 'Invalid CSRF token.' }, 403);
+    }
+
     await next();
   };
 }

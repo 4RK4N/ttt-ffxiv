@@ -41,15 +41,16 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
 
   const isConfirm = interaction.customId.startsWith(DELETE_CONFIRM_PREFIX);
   const ticketType = resolveTicketType(parsed.typeId);
+  const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    await interaction.reply({ content: texts().disabled, flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: t.disabled, flags: MessageFlags.Ephemeral });
     return;
   }
 
   if (!ticketType) {
     await interaction.reply({
-      content: texts().categoryUnpublished,
+      content: t.categoryUnpublished,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -58,7 +59,15 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
   const thread = interaction.channel;
   if (!thread?.isThread()) {
     await interaction.reply({
-      content: 'This action must be used inside a ticket thread.',
+      content: t.threadContextRequired,
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  if (parsed.threadId !== thread.id) {
+    await interaction.reply({
+      content: t.invalidInteraction,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -66,7 +75,7 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
 
   if (!isClosedTicketThread(thread.name, thread.locked === true)) {
     await interaction.reply({
-      content: texts().deleteNotClosed,
+      content: t.deleteNotClosed,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -74,7 +83,7 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
 
   if (!canDeleteTicket(interaction, ticketType.staffRoleIds)) {
     await interaction.reply({
-      content: texts().noDeletePermission,
+      content: t.noDeletePermission,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -103,6 +112,14 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
     return;
   }
 
+  if (!canDeleteTicket(interaction, ticketType.staffRoleIds)) {
+    await interaction.reply({
+      content: t.noDeletePermission,
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
   await interaction.update({ content: ticketType.ticketDeleted, components: [] });
 
   try {
@@ -110,7 +127,7 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
   } catch (err) {
     console.error('[tickets] Failed to delete ticket thread:', err);
     await interaction.followUp({
-      content: 'Something went wrong while deleting this ticket.',
+      content: t.deleteError,
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -118,7 +135,7 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
 
 export async function handleDeleteCancel(interaction: ButtonInteraction): Promise<void> {
   await interaction.update({
-    content: 'Delete cancelled.',
+    content: texts().deleteCancelled,
     components: [],
   });
 }

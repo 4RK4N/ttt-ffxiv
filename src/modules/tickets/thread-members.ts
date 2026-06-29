@@ -6,6 +6,7 @@ import {
   type ThreadChannel,
 } from 'discord.js';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { getMembersForGuild, upsertApiMember } from './member-cache.js';
 
 /** Discord max per GET /guilds/{id}/members page. */
 const MEMBER_LIST_PAGE_SIZE = 1000;
@@ -20,11 +21,6 @@ const memberCacheWarmed = new Set<string>();
 /** In-flight warm requests — concurrent ticket opens await the same fetch. */
 const warmPromises = new Map<string, Promise<void>>();
 
-function cacheGuildMember(guild: Guild, data: APIGuildMember): void {
-  // Internal discord.js API — same path as GuildMemberManager._fetchMany().
-  (guild.members as unknown as { _add(data: APIGuildMember): void })._add(data);
-}
-
 async function fetchAllGuildMembers(guild: Guild): Promise<number> {
   let after: string | undefined;
   let total = 0;
@@ -38,7 +34,7 @@ async function fetchAllGuildMembers(guild: Guild): Promise<number> {
     })) as APIGuildMember[];
 
     for (const data of page) {
-      cacheGuildMember(guild, data);
+      upsertApiMember(guild.id, data);
       total++;
     }
 
@@ -51,9 +47,8 @@ async function fetchAllGuildMembers(guild: Guild): Promise<number> {
 }
 
 /**
- * Fetches all guild members once per session. After this, discord.js keeps
- * guild.members.cache and role.members updated via gateway events
- * (GuildMemberAdd/Update/Remove) — no extra listeners needed.
+ * Fetches all guild members once per session into the tickets member map.
+ * Gateway listeners in member-cache.ts keep it updated afterward.
  */
 export async function warmGuildMemberCache(guild: Guild): Promise<void> {
   if (memberCacheWarmed.has(guild.id)) return;
@@ -80,22 +75,26 @@ export async function warmGuildMemberCache(guild: Guild): Promise<void> {
 
 /** Non-bot guild admins plus all members of the configured staff roles (deduped). */
 export async function collectStaffUserIds(guild: Guild, staffRoleIds: string[]): Promise<string[]> {
-  await warmGuildMemberCache(guild);
+  try {
+    await warmGuildMemberCache(guild);
+  } catch {
+    // Ticket open proceeds; staff auto-add may be partial until warm succeeds.
+  }
 
-  const ids = new Set<string>();
-
+  const adminRoleIds = new Set<string>();
   for (const role of guild.roles.cache.values()) {
-    if (!role.permissions.has(PermissionFlagsBits.Administrator)) continue;
-    for (const member of role.members.values()) {
-      if (!member.user.bot) ids.add(member.id);
+    if (role.permissions.has(PermissionFlagsBits.Administrator)) {
+      adminRoleIds.add(role.id);
     }
   }
 
-  for (const roleId of staffRoleIds) {
-    const role = guild.roles.cache.get(roleId);
-    if (!role) continue;
-    for (const member of role.members.values()) {
-      if (!member.user.bot) ids.add(member.id);
+  const staffSet = new Set(staffRoleIds);
+  const ids = new Set<string>();
+
+  for (const [userId, member] of getMembersForGuild(guild.id)) {
+    if (member.isBot) continue;
+    if (member.roleIds.some((rid) => staffSet.has(rid) || adminRoleIds.has(rid))) {
+      ids.add(userId);
     }
   }
 
