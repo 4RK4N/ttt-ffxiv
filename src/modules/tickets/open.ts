@@ -83,7 +83,7 @@ export async function handleOpenTicket(interaction: ButtonInteraction): Promise<
     await addMembersToThread(thread, [interaction.user.id]);
 
     const closeButton = new ButtonBuilder()
-      .setCustomId(`${CLOSE_PREFIX}${thread.id}:${typeId}`)
+      .setCustomId(`${CLOSE_PREFIX}${thread.id}:${typeId}:${interaction.user.id}`)
       .setLabel(ticketType.closeButtonLabel.slice(0, 80))
       .setStyle(ButtonStyle.Danger);
 

@@ -5,30 +5,58 @@ import {
   MessageFlags,
   type ButtonInteraction,
   type GuildMember,
+  type ThreadChannel,
 } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { buildClosedThreadName } from './names.js';
 import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
 import { resolveTicketType, texts, NAMESPACE } from './types.js';
 
-function parseCloseCustomId(customId: string): { threadId: string; typeId: string } | null {
+interface ParsedCloseCustomId {
+  threadId: string;
+  typeId: string;
+  openerUserId?: string;
+}
+
+function parseCloseCustomId(customId: string): ParsedCloseCustomId | null {
   const confirm = customId.startsWith(CLOSE_CONFIRM_PREFIX);
   const prefix = confirm ? CLOSE_CONFIRM_PREFIX : CLOSE_PREFIX;
   if (!customId.startsWith(prefix)) return null;
 
-  const rest = customId.slice(prefix.length);
-  const colon = rest.indexOf(':');
-  if (colon === -1) return null;
+  const segments = customId.slice(prefix.length).split(':');
+  if (segments.length < 2) return null;
 
-  return { threadId: rest.slice(0, colon), typeId: rest.slice(colon + 1) };
+  const threadId = segments[0];
+  if (segments.length >= 3) {
+    return { threadId, typeId: segments[1], openerUserId: segments[2] };
+  }
+  return { threadId, typeId: segments.slice(1).join(':') };
+}
+
+/** Bot-created private threads have the bot as owner, not the opener. */
+async function resolveOpenerUserId(
+  thread: ThreadChannel,
+  parsedOpenerUserId?: string
+): Promise<string | null> {
+  if (parsedOpenerUserId) return parsedOpenerUserId;
+
+  try {
+    const messages = await thread.messages.fetch({ limit: 10 });
+    const welcome = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp)[0];
+    const match = welcome?.content.match(/<@!?(\d+)>/);
+    return match?.[1] ?? null;
+  } catch (err) {
+    console.warn(`[tickets] Could not resolve opener for thread ${thread.id}:`, err);
+    return null;
+  }
 }
 
 function canCloseTicket(
   interaction: ButtonInteraction,
-  threadOwnerId: string | null,
+  openerUserId: string | null,
   staffRoleIds: string[]
 ): boolean {
-  if (interaction.user.id === threadOwnerId) return true;
+  if (openerUserId && interaction.user.id === openerUserId) return true;
 
   const member = interaction.member as GuildMember | null;
   if (!member) return false;
@@ -70,7 +98,9 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     return;
   }
 
-  if (!canCloseTicket(interaction, thread.ownerId, ticketType.staffRoleIds)) {
+  const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
+
+  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
     await interaction.reply({
       content: texts().noPermission,
       flags: MessageFlags.Ephemeral,
@@ -78,9 +108,13 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     return;
   }
 
+  const closePayload = parsed.openerUserId
+    ? `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId}`
+    : `${parsed.threadId}:${parsed.typeId}:${openerUserId ?? ''}`;
+
   if (!isConfirm) {
     const yes = new ButtonBuilder()
-      .setCustomId(`${CLOSE_CONFIRM_PREFIX}${parsed.threadId}:${parsed.typeId}`)
+      .setCustomId(`${CLOSE_CONFIRM_PREFIX}${closePayload}`)
       .setLabel(ticketType.confirmCloseYes.slice(0, 80))
       .setStyle(ButtonStyle.Danger);
 
