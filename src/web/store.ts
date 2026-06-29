@@ -2,74 +2,121 @@ import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { moduleDataPath } from '../core/texts.js';
-import type { WebPlugin } from './plugins.js';
+import type { WebPlugin, WebPluginField, WebFieldStore } from './plugins.js';
 
-/**
- * Reads the current saved values for a plugin's namespace from
- * data/<namespace>/texts.json. Only keys declared in the manifest are returned;
- * unknown/missing keys come back as empty strings so the form always renders.
- * Never throws: a missing or unreadable file yields all-empty values.
- */
-export function readValues(plugin: WebPlugin): Record<string, string> {
-  const file = moduleDataPath(plugin.namespace, 'texts.json');
+/** A field value is a string (text/channel) or a string array (channel-multi). */
+export type FieldValue = string | string[];
 
-  let parsed: Record<string, unknown> = {};
+/** Map of store -> data file name. */
+const STORE_FILES: Record<WebFieldStore, string> = {
+  texts: 'texts.json',
+  config: 'config.json',
+};
+
+/** A field's natural value type, derived from its input type. */
+function isMultiField(field: WebPluginField): boolean {
+  return field.type === 'channel-multi';
+}
+
+/** Reads and parses a module data file, returning {} on any failure. */
+function readFile(namespace: string, store: WebFieldStore): Record<string, unknown> {
+  const file = moduleDataPath(namespace, STORE_FILES[store]);
   try {
-    parsed = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
+    return JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
   } catch {
     // No file yet, or invalid JSON: fall back to empty values.
-    parsed = {};
+    return {};
+  }
+}
+
+/** Coerces an unknown value to a string array of channel ids. */
+function toStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is string => typeof v === 'string');
+}
+
+/**
+ * Reads the current saved values for every field in the manifest from the
+ * appropriate file (texts.json or config.json). Missing keys come back as empty
+ * (string '' or []) so the form always renders. Never throws.
+ */
+export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
+  // Read each backing file once.
+  const parsedByStore: Partial<Record<WebFieldStore, Record<string, unknown>>> = {};
+  function parsed(store: WebFieldStore): Record<string, unknown> {
+    return (parsedByStore[store] ??= readFile(plugin.namespace, store));
   }
 
-  const values: Record<string, string> = {};
+  const values: Record<string, FieldValue> = {};
   for (const field of plugin.fields) {
-    const current = parsed[field.key];
-    values[field.key] = typeof current === 'string' ? current : '';
+    const current = parsed(field.store)[field.key];
+    if (isMultiField(field)) {
+      values[field.key] = toStringArray(current);
+    } else {
+      values[field.key] = typeof current === 'string' ? current : '';
+    }
   }
   return values;
 }
 
-export class ValidationError extends Error {}
+export class ValidationError extends Error { }
 
 /**
  * Validates an incoming edit against the manifest and writes it atomically to
- * data/<namespace>/texts.json. Only keys present in the manifest are accepted
- * (unknown keys are rejected), and all values must be strings. The file is
- * written to a temp path then renamed so a reader never sees a half-written
- * file, and so the bot's mtime-based hot reload picks up the change.
+ * the matching files (texts.json and/or config.json). Only keys present in the
+ * manifest are accepted; values must match the field type (string, or string[]
+ * for channel-multi). Each file is written to a temp path then renamed so a
+ * reader never sees a half-written file, and so the bot's mtime-based hot reload
+ * picks up the change.
  */
 export async function writeValues(
   plugin: WebPlugin,
   input: unknown
-): Promise<Record<string, string>> {
+): Promise<Record<string, FieldValue>> {
   if (typeof input !== 'object' || input === null) {
     throw new ValidationError('Request body must be a JSON object of field values.');
   }
 
-  const allowed = new Set(plugin.fields.map((f) => f.key));
+  const fieldsByKey = new Map(plugin.fields.map((f) => [f.key, f]));
   const incoming = input as Record<string, unknown>;
 
-  const next: Record<string, string> = {};
+  // Group validated values by the store they belong to.
+  const updatesByStore: Partial<Record<WebFieldStore, Record<string, FieldValue>>> = {};
   for (const [key, value] of Object.entries(incoming)) {
-    if (!allowed.has(key)) {
+    const field = fieldsByKey.get(key);
+    if (!field) {
       throw new ValidationError(`Unknown field "${key}" for module "${plugin.namespace}".`);
     }
-    if (typeof value !== 'string') {
-      throw new ValidationError(`Field "${key}" must be a string.`);
+
+    let normalized: FieldValue;
+    if (isMultiField(field)) {
+      if (!Array.isArray(value) || value.some((v) => typeof v !== 'string')) {
+        throw new ValidationError(`Field "${key}" must be an array of strings.`);
+      }
+      normalized = value as string[];
+    } else {
+      if (typeof value !== 'string') {
+        throw new ValidationError(`Field "${key}" must be a string.`);
+      }
+      normalized = value;
     }
-    next[key] = value;
+
+    (updatesByStore[field.store] ??= {})[key] = normalized;
   }
 
-  // Preserve any fields not included in this request by layering over current values.
-  const merged = { ...readValues(plugin), ...next };
+  // Write each touched file, preserving keys not included in this request.
+  for (const store of Object.keys(updatesByStore) as WebFieldStore[]) {
+    const existing = readFile(plugin.namespace, store);
+    const merged = { ...existing, ...updatesByStore[store] };
 
-  const file = moduleDataPath(plugin.namespace, 'texts.json');
-  await mkdir(dirname(file), { recursive: true });
+    const file = moduleDataPath(plugin.namespace, STORE_FILES[store]);
+    await mkdir(dirname(file), { recursive: true });
 
-  const json = JSON.stringify(merged, null, 2) + '\n';
-  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
-  writeFileSync(tmp, json, 'utf8');
-  renameSync(tmp, file);
+    const json = JSON.stringify(merged, null, 2) + '\n';
+    const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+    writeFileSync(tmp, json, 'utf8');
+    renameSync(tmp, file);
+  }
 
-  return merged;
+  return readValues(plugin);
 }

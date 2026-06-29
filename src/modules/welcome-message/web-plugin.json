@@ -3,6 +3,13 @@
   "description": "Texts sent to new members when they join.",
   "fields": [
     {
+      "key": "channelId",
+      "label": "Welcome channel",
+      "type": "channel",
+      "store": "config",
+      "help": "Channel where the welcome card is posted when a member joins. Leave empty to disable."
+    },
+    {
       "key": "rulesMessage",
       "label": "Rules message",
       "type": "textarea",

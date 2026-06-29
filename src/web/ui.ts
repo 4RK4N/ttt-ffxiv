@@ -23,30 +23,54 @@ const STYLES = `
     padding: 6px 12px; border-radius: 8px;
   }
   header a.logout:hover { color: var(--text); border-color: var(--accent); }
-  main { max-width: 860px; margin: 0 auto; padding: 24px; }
-  .module {
-    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 20px 22px; margin-bottom: 22px;
+  .layout { display: flex; align-items: flex-start; gap: 0; min-height: calc(100vh - 61px); }
+  .sidebar {
+    flex: 0 0 240px; border-right: 1px solid var(--border); background: var(--panel);
+    padding: 16px 12px; position: sticky; top: 61px; align-self: stretch;
   }
-  .module h2 { margin: 0 0 4px; font-size: 17px; }
-  .module .desc { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .sidebar .nav-title {
+    color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+    padding: 0 10px 8px;
+  }
+  .tab {
+    display: block; width: 100%; text-align: left; background: transparent; color: var(--text);
+    border: 1px solid transparent; border-radius: 8px; padding: 9px 10px; margin-bottom: 2px;
+    font: inherit; cursor: pointer;
+  }
+  .tab:hover { background: var(--panel-2); }
+  .tab.active { background: var(--panel-2); border-color: var(--accent); }
+  .content { flex: 1; min-width: 0; padding: 24px; max-width: 820px; }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .desc { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
   .field { margin-bottom: 16px; }
   .field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
   .field .help { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-  .field input, .field textarea {
+  .field input, .field textarea, .field select {
     width: 100%; background: var(--panel-2); color: var(--text);
     border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
     font: inherit; resize: vertical;
   }
   .field textarea { min-height: 110px; }
-  .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+  .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .checklist {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; max-height: 240px; overflow-y: auto;
+  }
+  .checklist label {
+    display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 0; padding: 4px 0;
+    cursor: pointer;
+  }
+  .checklist input { width: auto; }
+  .channel-note { color: var(--err); font-size: 12px; margin-top: 6px; }
   .actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
-  button {
+  button.save {
     background: var(--accent); color: #fff; border: none; border-radius: 8px;
     padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer;
   }
-  button:hover { background: var(--accent-hover); }
-  button:disabled { opacity: .6; cursor: default; }
+  button.save:hover { background: var(--accent-hover); }
+  button.save:disabled { opacity: .6; cursor: default; }
   .status { font-size: 13px; }
   .status.ok { color: var(--ok); }
   .status.err { color: var(--err); }
@@ -63,6 +87,11 @@ const STYLES = `
     padding: 12px 22px; border-radius: 8px; font-weight: 600;
   }
   a.btn:hover { background: var(--accent-hover); }
+  @media (max-width: 720px) {
+    .layout { flex-direction: column; }
+    .sidebar { flex-basis: auto; width: 100%; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    .content { padding: 18px; }
+  }
 `;
 
 function escapeHtml(value: string): string {
@@ -117,7 +146,7 @@ export function editorPage(botName: string, user: SessionUser): string {
       <a class="logout" href="/logout">Log out</a>
     </div>
   </header>
-  <main id="app"><div class="loading">Loading modules...</div></main>
+  <div id="app"><div class="loading">Loading modules...</div></div>
   <script>${CLIENT_JS}</script>
 </body></html>`;
 }
@@ -128,72 +157,176 @@ const CLIENT_JS = `
 (function () {
   const app = document.getElementById('app');
 
-  function field(ns, f, value) {
-    const wrap = document.createElement('div');
-    wrap.className = 'field';
-    const label = document.createElement('label');
+  // Channels are loaded once and shared by all channel pickers. On failure we
+  // keep the editor usable by falling back to a plain text input.
+  var channels = [];
+  var channelsError = null;
+
+  function el(tag, className) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    return node;
+  }
+
+  function channelLabel(ch) {
+    return '#' + ch.name;
+  }
+
+  // Returns { node, getValue } for one field.
+  function buildField(ns, f, value) {
+    var wrap = el('div', 'field');
+    var label = el('label');
     label.textContent = f.label;
-    label.htmlFor = ns + '__' + f.key;
     wrap.appendChild(label);
     if (f.help) {
-      const help = document.createElement('div');
-      help.className = 'help';
+      var help = el('div', 'help');
       help.textContent = f.help;
       wrap.appendChild(help);
     }
-    const input = f.type === 'textarea' ? document.createElement('textarea') : document.createElement('input');
-    if (input.tagName === 'INPUT') input.type = 'text';
-    input.id = ns + '__' + f.key;
-    input.dataset.key = f.key;
-    input.value = value || '';
-    wrap.appendChild(input);
-    return wrap;
-  }
 
-  function moduleSection(mod) {
-    const section = document.createElement('section');
-    section.className = 'module';
-    const h = document.createElement('h2');
-    h.textContent = mod.title;
-    section.appendChild(h);
-    if (mod.description) {
-      const d = document.createElement('p');
-      d.className = 'desc';
-      d.textContent = mod.description;
-      section.appendChild(d);
+    if (f.type === 'channel') {
+      if (channelsError) return textFallback(wrap, f, value, true);
+      var select = el('select');
+      var none = el('option');
+      none.value = '';
+      none.textContent = '\u2014 none \u2014';
+      select.appendChild(none);
+      channels.forEach(function (ch) {
+        var opt = el('option');
+        opt.value = ch.id;
+        opt.textContent = channelLabel(ch);
+        if (ch.id === value) opt.selected = true;
+        select.appendChild(opt);
+      });
+      // Preserve an unknown/stale id so saving doesn't silently drop it.
+      if (value && !channels.some(function (ch) { return ch.id === value; })) {
+        var stale = el('option');
+        stale.value = value;
+        stale.textContent = value + ' (not found)';
+        stale.selected = true;
+        select.appendChild(stale);
+      }
+      wrap.appendChild(select);
+      return { node: wrap, getValue: function () { return select.value; } };
     }
 
-    const inputs = [];
+    if (f.type === 'channel-multi') {
+      if (channelsError) return textFallback(wrap, f, value, true);
+      var selected = Array.isArray(value) ? value.slice() : [];
+      var list = el('div', 'checklist');
+      var boxes = [];
+      channels.forEach(function (ch) {
+        var row = el('label');
+        var cb = el('input');
+        cb.type = 'checkbox';
+        cb.value = ch.id;
+        if (selected.indexOf(ch.id) !== -1) cb.checked = true;
+        boxes.push(cb);
+        var span = el('span');
+        span.textContent = channelLabel(ch);
+        row.appendChild(cb);
+        row.appendChild(span);
+        list.appendChild(row);
+      });
+      // Keep any selected ids that aren't in the current channel list.
+      selected.forEach(function (id) {
+        if (channels.some(function (ch) { return ch.id === id; })) return;
+        var row = el('label');
+        var cb = el('input');
+        cb.type = 'checkbox';
+        cb.value = id;
+        cb.checked = true;
+        boxes.push(cb);
+        var span = el('span');
+        span.textContent = id + ' (not found)';
+        row.appendChild(cb);
+        row.appendChild(span);
+        list.appendChild(row);
+      });
+      if (!channels.length) {
+        var empty = el('div', 'help');
+        empty.textContent = 'No channels available.';
+        list.appendChild(empty);
+      }
+      wrap.appendChild(list);
+      return {
+        node: wrap,
+        getValue: function () {
+          return boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+        }
+      };
+    }
+
+    return textFallback(wrap, f, value, false);
+  }
+
+  // Plain text/textarea input. Also used as the fallback for channel fields when
+  // the channel list could not be loaded.
+  function textFallback(wrap, f, value, channelFallback) {
+    var input = f.type === 'textarea' ? el('textarea') : el('input');
+    if (input.tagName === 'INPUT') input.type = 'text';
+    var isMulti = f.type === 'channel-multi';
+    input.value = isMulti ? (Array.isArray(value) ? value.join(', ') : '') : (value || '');
+    wrap.appendChild(input);
+    if (channelFallback) {
+      var note = el('div', 'channel-note');
+      note.textContent = channelsError + ' Enter channel id(s) manually' + (isMulti ? ' (comma-separated).' : '.');
+      wrap.appendChild(note);
+    }
+    return {
+      node: wrap,
+      getValue: function () {
+        if (isMulti) {
+          return input.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        }
+        return input.value;
+      }
+    };
+  }
+
+  function buildPanel(mod) {
+    var panel = el('section', 'panel');
+    panel.dataset.ns = mod.namespace;
+    var inner = el('div', 'module');
+    var h = el('h2');
+    h.textContent = mod.title;
+    inner.appendChild(h);
+    if (mod.description) {
+      var d = el('p', 'desc');
+      d.textContent = mod.description;
+      inner.appendChild(d);
+    }
+
+    var fields = [];
     mod.fields.forEach(function (f) {
-      const node = field(mod.namespace, f, mod.values[f.key]);
-      section.appendChild(node);
-      inputs.push(node.querySelector('input, textarea'));
+      var built = buildField(mod.namespace, f, mod.values[f.key]);
+      inner.appendChild(built.node);
+      fields.push({ key: f.key, getValue: built.getValue });
     });
 
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-    const btn = document.createElement('button');
+    var actions = el('div', 'actions');
+    var btn = el('button', 'save');
     btn.textContent = 'Save';
-    const status = document.createElement('span');
-    status.className = 'status';
+    var status = el('span', 'status');
     actions.appendChild(btn);
     actions.appendChild(status);
-    section.appendChild(actions);
+    inner.appendChild(actions);
+    panel.appendChild(inner);
 
     btn.addEventListener('click', async function () {
-      const payload = {};
-      inputs.forEach(function (el) { payload[el.dataset.key] = el.value; });
+      var payload = {};
+      fields.forEach(function (f) { payload[f.key] = f.getValue(); });
       btn.disabled = true;
       status.className = 'status';
       status.textContent = 'Saving...';
       try {
-        const res = await fetch('/api/texts/' + encodeURIComponent(mod.namespace), {
+        var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
         if (!res.ok) {
-          const err = await res.json().catch(function () { return {}; });
+          var err = await res.json().catch(function () { return {}; });
           throw new Error(err.error || ('HTTP ' + res.status));
         }
         status.className = 'status ok';
@@ -206,30 +339,77 @@ const CLIENT_JS = `
       }
     });
 
-    return section;
+    return panel;
   }
 
-  fetch('/api/modules')
-    .then(function (r) {
+  function render(mods) {
+    app.innerHTML = '';
+    if (!mods.length) {
+      var e = el('div', 'empty');
+      e.textContent = 'No editable modules found.';
+      app.appendChild(e);
+      return;
+    }
+
+    var layout = el('div', 'layout');
+    var sidebar = el('nav', 'sidebar');
+    var navTitle = el('div', 'nav-title');
+    navTitle.textContent = 'Modules';
+    sidebar.appendChild(navTitle);
+    var content = el('div', 'content');
+
+    var tabs = [];
+    var panels = [];
+
+    function activate(i) {
+      tabs.forEach(function (t, j) { t.classList.toggle('active', i === j); });
+      panels.forEach(function (p, j) { p.classList.toggle('active', i === j); });
+    }
+
+    mods.forEach(function (mod, i) {
+      var tab = el('button', 'tab');
+      tab.type = 'button';
+      tab.textContent = mod.title;
+      tab.addEventListener('click', function () { activate(i); });
+      sidebar.appendChild(tab);
+      tabs.push(tab);
+
+      var panel = buildPanel(mod);
+      content.appendChild(panel);
+      panels.push(panel);
+    });
+
+    layout.appendChild(sidebar);
+    layout.appendChild(content);
+    app.appendChild(layout);
+    activate(0);
+  }
+
+  Promise.all([
+    fetch('/api/modules').then(function (r) {
       if (r.status === 401) { window.location.href = '/login'; throw new Error('unauthorized'); }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    })
-    .then(function (mods) {
-      app.innerHTML = '';
-      if (!mods.length) {
-        const e = document.createElement('div');
-        e.className = 'empty';
-        e.textContent = 'No editable modules found.';
-        app.appendChild(e);
-        return;
+    }),
+    fetch('/api/channels').then(function (r) {
+      if (!r.ok) return null;
+      return r.json();
+    }).catch(function () { return null; })
+  ])
+    .then(function (results) {
+      var mods = results[0];
+      var chans = results[1];
+      if (Array.isArray(chans)) {
+        channels = chans;
+      } else {
+        channelsError = 'Could not load channels.';
       }
-      mods.forEach(function (mod) { app.appendChild(moduleSection(mod)); });
+      render(mods);
     })
     .catch(function (e) {
       if (e.message === 'unauthorized') return;
       app.innerHTML = '';
-      const d = document.createElement('div');
-      d.className = 'empty';
+      var d = el('div', 'empty');
       d.textContent = 'Failed to load modules: ' + e.message;
       app.appendChild(d);
     });

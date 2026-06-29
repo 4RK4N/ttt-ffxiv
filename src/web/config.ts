@@ -7,6 +7,8 @@ export interface WebConfig {
   oauthRedirectUri: string;
   guildId: string;
   port: number;
+  /** Bot token, used to list the guild's channels for the channel pickers. */
+  botToken: string;
   /** Display name used in the page title ("<botName> Admin Interface"). */
   botName: string;
   /** True when the redirect URI is https, so cookies can be marked Secure. */
@@ -49,6 +51,7 @@ export function loadWebConfig(): WebConfig {
     oauthRedirectUri: config.oauthRedirectUri!,
     guildId: config.guildId!,
     port: config.webPort,
+    botToken: config.discordToken,
     botName: config.botName,
     secureCookies,
   };

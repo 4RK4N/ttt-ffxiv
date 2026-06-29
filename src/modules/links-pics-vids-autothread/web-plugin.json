@@ -3,6 +3,13 @@
   "description": "Text used when the bot auto-creates a comments thread on qualifying posts.",
   "fields": [
     {
+      "key": "channelIds",
+      "label": "Watched channels",
+      "type": "channel-multi",
+      "store": "config",
+      "help": "Channels where the bot auto-creates a comments thread on qualifying posts."
+    },
+    {
       "key": "threadFirstMessage",
       "label": "Thread opener",
       "type": "textarea",

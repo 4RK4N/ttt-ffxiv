@@ -9,15 +9,20 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, '..', 'modules');
 
-export type WebFieldType = 'text' | 'textarea';
+export type WebFieldType = 'text' | 'textarea' | 'channel' | 'channel-multi';
+
+/** Which data file a field is stored in. */
+export type WebFieldStore = 'texts' | 'config';
 
 export interface WebPluginField {
-  /** JSON key in the module's data/<namespace>/texts.json. */
+  /** JSON key in the module's data file (texts.json or config.json). */
   key: string;
   /** Human-readable label shown in the editor. */
   label: string;
   /** Input style; defaults to "text". */
   type: WebFieldType;
+  /** Which data file this field is read from / written to; defaults to "texts". */
+  store: WebFieldStore;
   /** Optional hint (e.g. available tokens) shown under the field. */
   help?: string;
 }
@@ -30,7 +35,8 @@ export interface WebPlugin {
   fields: WebPluginField[];
 }
 
-const VALID_TYPES: WebFieldType[] = ['text', 'textarea'];
+const VALID_TYPES: WebFieldType[] = ['text', 'textarea', 'channel', 'channel-multi'];
+const VALID_STORES: WebFieldStore[] = ['texts', 'config'];
 
 /**
  * Validates a parsed web-plugin.json into a WebPlugin, or returns null (with a
@@ -66,10 +72,16 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
         ? (f.type as WebFieldType)
         : 'text';
 
+    const store: WebFieldStore =
+      typeof f.store === 'string' && (VALID_STORES as string[]).includes(f.store)
+        ? (f.store as WebFieldStore)
+        : 'texts';
+
     fields.push({
       key: f.key,
       label: typeof f.label === 'string' && f.label.trim() !== '' ? f.label : f.key,
       type,
+      store,
       help: typeof f.help === 'string' ? f.help : undefined,
     });
   }
