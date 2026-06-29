@@ -148,13 +148,15 @@ intent (Developer Portal -> Bot -> Privileged Gateway Intents).
 ### `data/welcome-message/config.json` - join welcome card
 
 ```json
-{ "enabled": true, "channelId": "789" }
+{ "enabled": true, "channelId": "789", "rulesChannelId": "456" }
 ```
 
 `channelId` is the channel where the welcome card is posted when a member joins.
 Leave it blank (`""`) to disable the module, or set `"enabled": false` to turn it
-off while keeping the channel configured. You can also set both in the
-[Web editor](README.md#web-editor) (a channel dropdown plus the on/off toggle)
+off while keeping the channel configured. `rulesChannelId` is the channel linked
+from the rules message via the `{rulesChannel}` token; leave it blank to render
+the token as nothing. You can also set all of these in the
+[Web editor](README.md#web-editor) (channel dropdowns plus the on/off toggle)
 instead of editing the file. This module needs the privileged **Server Members**
 intent (Developer Portal -> Bot -> Privileged Gateway Intents).
 

@@ -18,11 +18,15 @@ welcome channel and sends the server rules to the member.
 - **Rules message**: a bilingual (EN/DE) note is sent to the member by **DM**. If
   the member has DMs closed, the bot falls back to posting it in the welcome
   channel, mentioning them. The welcome card post is unaffected if the rules
-  message fails.
+  message fails. The rules channel is linked via the `{rulesChannel}` token,
+  which renders as a clickable channel link (built from the guild and the
+  configured `rulesChannelId`).
 
 Configure the target channel with `channelId` in
-`data/welcome-message/config.json`, or pick it from a channel dropdown in the
-[Web editor](#web-editor). If it's empty, the module stays disabled.
+`data/welcome-message/config.json`, and the linked rules channel with
+`rulesChannelId`, or pick both from channel dropdowns in the
+[Web editor](#web-editor). If `channelId` is empty, the module stays disabled;
+if `rulesChannelId` is empty, the `{rulesChannel}` token renders as nothing.
 This module uses the `guildMemberAdd` event, so
 the bot needs the privileged **Server Members** intent enabled in the Developer
 Portal (Bot -> Privileged Gateway Intents).
@@ -110,7 +114,7 @@ src/
 data/                   # runtime config + editable content (git-ignored secrets)
   config.json           # bot config (token, IDs, web editor) - from config.example.json
   welcome-message/
-    config.json         # { "channelId": "..." } - target welcome channel
+    config.json         # { "channelId": "...", "rulesChannelId": "..." } - welcome + rules channels
     texts.json
     media/background.png
     fonts/DancingScript.ttf
@@ -222,7 +226,7 @@ cp data/config.example.json data/config.json
 
    Per-module channel settings live in
    `data/links-pics-vids-autothread/config.json` (`channelIds`) and
-   `data/welcome-message/config.json` (`channelId`). For every field, what's
+   `data/welcome-message/config.json` (`channelId`, `rulesChannelId`). For every field, what's
    optional, and the privileged intents each module needs, see the
    [Configuration reference](INSTALL.md#configuration-reference) in `INSTALL.md`.
 
