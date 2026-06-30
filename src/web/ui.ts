@@ -112,7 +112,15 @@ const STYLES = `
   .object-card-head {
     display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;
   }
-  .object-card-head h3 { margin: 0; font-size: 15px; }
+  .object-card.collapsed .object-card-head { margin-bottom: 0; }
+  .object-card-head-toggle { cursor: pointer; user-select: none; }
+  .object-card-head-toggle:hover h3 { color: var(--accent); }
+  .object-card-head-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+  .object-card-head h3 { margin: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .collapse-chevron {
+    flex: 0 0 auto; color: var(--muted); font-size: 11px; width: 14px; text-align: center;
+  }
+  .object-card.collapsed .object-card-body { display: none; }
   .badge {
     font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
     padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
@@ -596,6 +604,17 @@ const CLIENT_JS = `
 
     var rows = [];
     var items = Array.isArray(value) ? value.slice() : [];
+    var expandedRowKeys = new Set();
+
+    function rowKey(item, index) {
+      return item.id && String(item.id).trim() ? String(item.id).trim() : ('__idx__' + index);
+    }
+
+    function isRowCollapsed(item, index) {
+      if (!f.collapsible) return false;
+      if (!item.id || !String(item.id).trim()) return false;
+      return !expandedRowKeys.has(rowKey(item, index));
+    }
 
     function cardTitle(row) {
       return row.openButtonLabel || row.panelTitle || row.id || f.itemLabel || 'Item';
@@ -606,23 +625,62 @@ const CLIENT_JS = `
       rows = [];
       items.forEach(function (item, index) {
         var card = el('div', 'object-card');
+        if (isRowCollapsed(item, index)) card.classList.add('collapsed');
+
         var head = el('div', 'object-card-head');
+        if (f.collapsible) head.classList.add('object-card-head-toggle');
+
+        var headLeft = el('div', 'object-card-head-left');
+        if (f.collapsible) {
+          var chevron = el('span', 'collapse-chevron');
+          chevron.textContent = isRowCollapsed(item, index) ? '\\u25B6' : '\\u25BC';
+          chevron.setAttribute('aria-hidden', 'true');
+          headLeft.appendChild(chevron);
+        }
         var title = el('h3');
         title.textContent = cardTitle(item);
-        head.appendChild(title);
+        headLeft.appendChild(title);
+        head.appendChild(headLeft);
+
         var badge = el('span', 'badge' + (item.published ? ' on' : ''));
         badge.textContent = item.published ? 'Published' : 'Unpublished';
         head.appendChild(badge);
         card.appendChild(head);
 
+        var body = el('div', 'object-card-body');
+
         var subFields = [];
         (f.itemFields || []).forEach(function (sub) {
           var built = buildSubField(sub, item[sub.key]);
-          card.appendChild(built.node);
+          body.appendChild(built.node);
           subFields.push({ key: sub.key, getValue: built.getValue, node: built.node });
         });
 
         syncEphemeralField(subFields, ns);
+
+        function refreshHeadTitle() {
+          title.textContent = cardTitle(liveRowValues(subFields, item, f));
+        }
+        subFields.forEach(function (sf) {
+          if (sf.key !== 'panelTitle' && sf.key !== 'openButtonLabel') return;
+          var input = sf.node.querySelector('input, textarea');
+          if (input) input.addEventListener('input', refreshHeadTitle);
+        });
+
+        if (f.collapsible) {
+          head.addEventListener('click', function () {
+            var key = rowKey(item, index);
+            if (card.classList.contains('collapsed')) {
+              expandedRowKeys.add(key);
+              card.classList.remove('collapsed');
+              chevron.textContent = '\\u25BC';
+            } else {
+              expandedRowKeys.delete(key);
+              card.classList.add('collapsed');
+              chevron.textContent = '\\u25B6';
+            }
+          });
+        }
 
         var cardActions = el('div', 'object-actions');
 
@@ -712,7 +770,8 @@ const CLIENT_JS = `
           renderRows();
         });
         cardActions.appendChild(removeBtn);
-        card.appendChild(cardActions);
+        body.appendChild(cardActions);
+        card.appendChild(body);
 
         rows.push({
           getValue: function () {

@@ -45,6 +45,8 @@ export interface WebPluginField {
   itemLabel?: string;
   /** When true, object-list cards get Publish/Unpublish actions. */
   publishable?: boolean;
+  /** When true, object-list cards collapse to title + published badge. */
+  collapsible?: boolean;
   /** Nested map key in texts.json for object-list text fields (e.g. "types"). */
   textsKey?: string;
   itemFields?: WebPluginSubField[];
@@ -168,6 +170,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       help: typeof f.help === 'string' ? f.help : undefined,
       itemLabel: typeof f.itemLabel === 'string' ? f.itemLabel : 'Item',
       publishable: f.publishable === true,
+      collapsible: f.collapsible === true,
       textsKey: typeof f.textsKey === 'string' ? f.textsKey : undefined,
       itemFields: itemFields.length > 0 ? itemFields : undefined,
     });

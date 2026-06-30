@@ -100,6 +100,7 @@
       "textsKey": "types",
       "itemLabel": "Ticket type",
       "publishable": true,
+      "collapsible": true,
       "itemFields": [
         {
           "key": "emoji",
