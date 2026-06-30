@@ -69,16 +69,17 @@ const STYLES = `
   .panel { display: none; }
   .panel.active { display: block; }
   .field { margin-bottom: 16px; }
-  .field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+  .field > label:not(.switch) { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
   .field .help { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-  .field input, .field textarea, .field select {
+  .field input[type="text"], .field textarea, .field select {
     width: 100%; background: var(--panel-2); color: var(--text);
     border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
     font: inherit; resize: vertical;
   }
+  .field label.switch { margin-bottom: 0; font-weight: 400; }
   .field textarea { min-height: 110px; }
-  .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
-  .field.disabled input, .field.disabled textarea, .field.disabled select { opacity: .5; pointer-events: none; }
+  .field input[type="text"]:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .field.disabled input[type="text"], .field.disabled textarea, .field.disabled select { opacity: .5; pointer-events: none; }
   .field.disabled .help-disabled { color: var(--muted); font-size: 12px; margin-top: 4px; }
   .checklist {
     background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
@@ -283,23 +284,37 @@ const CLIENT_JS = `
     return { node: wrap, getValue: function () { return select.value; }, input: select };
   }
 
-  function buildBooleanControl(wrap, value) {
-    var on = value === true;
+  function buildToggleSwitch(checked, onChange) {
+    var on = checked === true;
     var label = el('label', 'switch');
     var input = el('input');
     input.type = 'checkbox';
     input.checked = on;
     var track = el('span', 'track');
     var text = el('span', 'switch-label');
-    text.textContent = on ? 'On' : 'Off';
+    function reflect(isOn) {
+      text.textContent = isOn ? 'On' : 'Off';
+    }
+    reflect(on);
     label.appendChild(input);
     label.appendChild(track);
     label.appendChild(text);
     input.addEventListener('change', function () {
-      text.textContent = input.checked ? 'On' : 'Off';
+      reflect(input.checked);
+      if (onChange) onChange(input.checked);
     });
-    wrap.appendChild(label);
-    return { node: wrap, getValue: function () { return input.checked; }, input: input };
+    return {
+      node: label,
+      getValue: function () { return input.checked; },
+      input: input,
+      setChecked: function (v) { input.checked = v; reflect(v); }
+    };
+  }
+
+  function buildBooleanControl(wrap, value) {
+    var toggle = buildToggleSwitch(value);
+    wrap.appendChild(toggle.node);
+    return { node: wrap, getValue: toggle.getValue, input: toggle.input };
   }
 
   function buildOptionList(wrap, f, value) {
@@ -786,25 +801,13 @@ const CLIENT_JS = `
   // Renders the on/off switch for a module. Instant-apply: each change PUTs the
   // new state and updates the sidebar tab; on failure it reverts the checkbox.
   function buildSwitch(mod, tab) {
-    var enabled = mod.enabled !== false;
-    var label = el('label', 'switch');
-    var input = el('input');
-    input.type = 'checkbox';
-    input.checked = enabled;
-    var track = el('span', 'track');
-    var text = el('span', 'switch-label');
-    text.textContent = enabled ? 'On' : 'Off';
-    label.appendChild(input);
-    label.appendChild(track);
-    label.appendChild(text);
-
-    function reflect(on) {
-      text.textContent = on ? 'On' : 'Off';
-      tab.classList.toggle('off', !on);
-    }
+    var toggle = buildToggleSwitch(mod.enabled !== false);
+    var label = toggle.node;
+    var input = toggle.input;
 
     input.addEventListener('change', async function () {
       var on = input.checked;
+      tab.classList.toggle('off', !on);
       label.classList.add('busy');
       input.disabled = true;
       try {
@@ -817,10 +820,9 @@ const CLIENT_JS = `
           var err = await res.json().catch(function () { return {}; });
           throw new Error(err.error || ('HTTP ' + res.status));
         }
-        reflect(on);
       } catch (e) {
-        input.checked = !on;
-        reflect(!on);
+        toggle.setChecked(!on);
+        tab.classList.toggle('off', on);
         alert('Could not change module state: ' + e.message);
       } finally {
         label.classList.remove('busy');
