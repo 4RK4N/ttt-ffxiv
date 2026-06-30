@@ -562,6 +562,32 @@ const CLIENT_JS = `
     return out;
   }
 
+  function syncEphemeralField(subFields, ns) {
+    if (ns !== 'reaction-roles') return;
+    var reactionField = subFields.find(function (sf) { return sf.key === 'reactionType'; });
+    var ephemeralField = subFields.find(function (sf) { return sf.key === 'ephemeralMessage'; });
+    if (!reactionField || !ephemeralField) return;
+    var reactionSelect = reactionField.node.querySelector('select');
+    var ephemeralWrap = ephemeralField.node;
+    var disabledNote = ephemeralWrap.querySelector('.help-disabled');
+    function apply() {
+      var isEmoji = reactionSelect && reactionSelect.value === 'emoji';
+      ephemeralWrap.classList.toggle('disabled', isEmoji);
+      if (isEmoji) {
+        if (!disabledNote) {
+          disabledNote = el('div', 'help-disabled');
+          disabledNote.textContent = 'Not available for emoji reactions.';
+          ephemeralWrap.appendChild(disabledNote);
+        }
+      } else if (disabledNote) {
+        disabledNote.remove();
+        disabledNote = null;
+      }
+    }
+    if (reactionSelect) reactionSelect.addEventListener('change', apply);
+    apply();
+  }
+
   function buildObjectList(ns, f, value, saveModule) {
     var wrap = el('div', 'field');
     var topLabel = el('label');
@@ -629,6 +655,8 @@ const CLIENT_JS = `
           body.appendChild(built.node);
           subFields.push({ key: sub.key, getValue: built.getValue, node: built.node });
         });
+
+        syncEphemeralField(subFields, ns);
 
         function refreshHeadTitle() {
           title.textContent = cardTitle(liveRowValues(subFields, item, f));
@@ -764,7 +792,7 @@ const CLIENT_JS = `
       if (ns === 'reaction-roles') {
         items.push({
           id: '', published: false, channelId: '', reactionType: 'button', toggleable: true,
-          panelTitle: 'Pick your roles', panelDescription: '', roleOptions: []
+          panelTitle: 'Pick your roles', panelDescription: '', ephemeralMessage: '', roleOptions: []
         });
       } else {
         items.push({

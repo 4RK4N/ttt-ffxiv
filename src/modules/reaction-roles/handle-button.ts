@@ -1,9 +1,10 @@
 import { MessageFlags, type ButtonInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
+import { formatEphemeralMessage } from './respond.js';
 import { tryAssignRole, tryRemoveRole } from './roles.js';
 import { BTN_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
-import { resolveOption, resolvePanel, texts, NAMESPACE } from './types.js';
+import { resolveOption, resolvePanel, texts, NAMESPACE, type ResolvedRolePanel } from './types.js';
 
 function parseButtonCustomId(customId: string): { panelId: string; optionId: string } | null {
   if (!customId.startsWith(BTN_PREFIX)) return null;
@@ -22,6 +23,20 @@ async function replyError(interaction: ButtonInteraction, content: string): Prom
     return;
   }
   await interaction.reply({ flags: MessageFlags.Ephemeral, content });
+}
+
+async function replySuccess(
+  interaction: ButtonInteraction,
+  panel: ResolvedRolePanel,
+  roleName: string
+): Promise<void> {
+  const message = formatEphemeralMessage(panel, {
+    mention: `<@${interaction.user.id}>`,
+    role: roleName,
+  });
+  if (message) {
+    await interaction.followUp({ flags: MessageFlags.Ephemeral, content: message });
+  }
 }
 
 export async function handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
@@ -73,6 +88,7 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
 
   const guildMember = await interaction.guild.members.fetch(interaction.user.id);
   const hasRole = guildMember.roles.cache.has(option.roleId);
+  const roleName = interaction.guild.roles.cache.get(option.roleId)?.name ?? 'role';
 
   await interaction.deferUpdate();
 
@@ -85,7 +101,9 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
         interaction,
         result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
       );
+      return;
     }
+    await replySuccess(interaction, panel, roleName);
     return;
   }
 
@@ -96,6 +114,8 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
         interaction,
         result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
       );
+      return;
     }
+    await replySuccess(interaction, panel, roleName);
   }
 }

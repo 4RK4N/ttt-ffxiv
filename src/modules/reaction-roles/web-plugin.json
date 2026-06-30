@@ -93,6 +93,13 @@
           "store": "texts"
         },
         {
+          "key": "ephemeralMessage",
+          "label": "Ephemeral reply (optional)",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Button and dropdown only. Sent privately after a successful interaction when filled in. Tokens: {mention}, {role}. Leave blank for no reply."
+        },
+        {
           "key": "roleOptions",
           "label": "Role options",
           "type": "option-list",

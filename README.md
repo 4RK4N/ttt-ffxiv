@@ -104,7 +104,8 @@ for setup. Requires **Server Members** intent (staff resolution).
 
 Web-configured role panels posted as embeds — buttons, emoji reactions, or a
 dropdown (single- or multi-select). Each **panel** has its own channel,
-interaction type, and role options. **Publish panel** posts or updates the
+interaction type, role options, and optional ephemeral follow-up for buttons
+and dropdowns (leave blank for no reply). **Publish panel** posts or updates the
 Discord message; **Unpublish** stops processing interactions.
 
 See [INSTALL.md — reaction-roles](INSTALL.md#datareaction-roles---embed-role-panels)

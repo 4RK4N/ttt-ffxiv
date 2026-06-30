@@ -208,6 +208,8 @@ interactions on that panel (the message stays).
 
 - **Toggleable**: when enabled, re-interacting removes roles; when disabled, roles
   are assigned once.
+- **Ephemeral reply**: optional per panel for buttons and dropdowns; not available
+  for emoji mode. Tokens: `{mention}`, `{role}`. Leave blank for no reply.
 - **Bot role**: must be above every assignable role and have **Manage Roles**.
   Managed/integration roles cannot be assigned.
 
