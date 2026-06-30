@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits, MessageFlags, type Interaction } from 'discord.js';
+import { Client, Events, GatewayIntentBits, MessageFlags, Partials, type Interaction } from 'discord.js';
 import { config } from './config.js';
 import { loadModules } from './core/moduleLoader.js';
 
@@ -10,15 +10,18 @@ const COMPONENT_ERROR_MESSAGE =
   'Something went wrong while handling that interaction. Please try again.';
 
 async function main(): Promise<void> {
-  // GuildMembers: welcome module + ticket staff cache. MessageContent and
-  // GuildMembers are privileged intents — enable them in the Developer Portal.
+  // GuildMembers: welcome module + ticket staff cache. GuildMessageReactions:
+  // reaction-roles emoji mode. MessageContent and GuildMembers are privileged
+  // intents — enable them in the Developer Portal.
   const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
       GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildMessageReactions,
     ],
+    partials: [Partials.Message, Partials.Reaction],
   });
 
   const { handlers, inits, componentRoutes } = await loadModules();

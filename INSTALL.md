@@ -192,6 +192,29 @@ startup warm; if warm fails, opens still work but staff auto-add may be incomple
 **Unpublish** disables new opens only — the Discord panel message stays until removed
 manually or the type is re-published after deleting the old message.
 
+### `data/reaction-roles/` - embed role panels
+
+Copy the examples and configure via the [Web editor](README.md#web-editor):
+
+```bash
+cp data/reaction-roles/config.example.json data/reaction-roles/config.json
+cp data/reaction-roles/texts.example.json data/reaction-roles/texts.json
+```
+
+Each **panel** is one embed message: pick a channel, interaction type (buttons,
+emoji reactions, or multi-select dropdown), role options, and copy. **Save**, then
+**Publish panel** to post to Discord. **Unpublish** stops the bot from handling
+interactions on that panel (the message stays).
+
+- **Toggleable**: when enabled, re-interacting removes roles; when disabled, roles
+  are assigned once.
+- **Ephemeral reply**: optional per panel for buttons/dropdown; not available for
+  emoji mode. Tokens: `{mention}`, `{role}`.
+- **Bot role**: must be above every assignable role and have **Manage Roles**.
+  Managed/integration roles cannot be assigned.
+
+Emoji mode adds reactions to the published message automatically on publish.
+
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 
 ```json

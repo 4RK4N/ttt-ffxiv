@@ -16,6 +16,7 @@ import { readEnabled, readValues, ValidationError, writeEnabled, writeValues } f
 import { listGuildChannels } from './channels.js';
 import { listGuildRoles } from './roles.js';
 import { publishTicketPanel, unpublishTicketPanel } from '../modules/tickets/index.js';
+import { publishRolePanel, unpublishRolePanel } from '../modules/reaction-roles/index.js';
 import { editorPage, loginPage } from './ui.js';
 
 type Env = { Variables: { user: SessionUser } };
@@ -88,28 +89,42 @@ async function main(): Promise<void> {
     }
   });
 
-  api.post('/modules/tickets/publish/:typeId', async (c) => {
-    const typeId = c.req.param('typeId');
+  api.post('/modules/:namespace/publish/:itemId', async (c) => {
+    const namespace = c.req.param('namespace');
+    const itemId = c.req.param('itemId');
     try {
-      await publishTicketPanel({ botToken: cfg.botToken }, typeId);
-      console.log(`[web] ${c.get('user').username} published ticket panel "${typeId}".`);
+      if (namespace === 'tickets') {
+        await publishTicketPanel({ botToken: cfg.botToken }, itemId);
+      } else if (namespace === 'reaction-roles') {
+        await publishRolePanel({ botToken: cfg.botToken }, itemId);
+      } else {
+        return c.json({ error: `Module "${namespace}" does not support publishing.` }, 404);
+      }
+      console.log(`[web] ${c.get('user').username} published ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to publish panel.';
-      console.error(`[web] Publish failed for "${typeId}":`, err);
+      console.error(`[web] Publish failed for "${namespace}/${itemId}":`, err);
       return c.json({ error: message }, 400);
     }
   });
 
-  api.post('/modules/tickets/unpublish/:typeId', async (c) => {
-    const typeId = c.req.param('typeId');
+  api.post('/modules/:namespace/unpublish/:itemId', async (c) => {
+    const namespace = c.req.param('namespace');
+    const itemId = c.req.param('itemId');
     try {
-      await unpublishTicketPanel(typeId);
-      console.log(`[web] ${c.get('user').username} unpublished ticket panel "${typeId}".`);
+      if (namespace === 'tickets') {
+        await unpublishTicketPanel(itemId);
+      } else if (namespace === 'reaction-roles') {
+        await unpublishRolePanel(itemId);
+      } else {
+        return c.json({ error: `Module "${namespace}" does not support unpublishing.` }, 404);
+      }
+      console.log(`[web] ${c.get('user').username} unpublished ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to unpublish panel.';
-      console.error(`[web] Unpublish failed for "${typeId}":`, err);
+      console.error(`[web] Unpublish failed for "${namespace}/${itemId}":`, err);
       return c.json({ error: message }, 400);
     }
   });

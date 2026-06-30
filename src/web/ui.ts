@@ -78,6 +78,8 @@ const STYLES = `
   }
   .field textarea { min-height: 110px; }
   .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .field.disabled input, .field.disabled textarea, .field.disabled select { opacity: .5; pointer-events: none; }
+  .field.disabled .help-disabled { color: var(--muted); font-size: 12px; margin-top: 4px; }
   .checklist {
     background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
     padding: 8px 12px; max-height: 240px; overflow-y: auto;
@@ -243,6 +245,113 @@ const CLIENT_JS = `
     return (text || 'ticket-type').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'ticket-type';
   }
 
+  function buildRoleSelect(wrap, value) {
+    if (rolesError) return textFallback(wrap, { type: 'text' }, value, true);
+    var select = el('select');
+    var none = el('option');
+    none.value = '';
+    none.textContent = '\u2014 none \u2014';
+    select.appendChild(none);
+    roles.forEach(function (role) {
+      var opt = el('option');
+      opt.value = role.id;
+      opt.textContent = roleLabel(role);
+      if (role.id === value) opt.selected = true;
+      select.appendChild(opt);
+    });
+    if (value && !roles.some(function (role) { return role.id === value; })) {
+      var stale = el('option');
+      stale.value = value;
+      stale.textContent = value + ' (not found)';
+      stale.selected = true;
+      select.appendChild(stale);
+    }
+    wrap.appendChild(select);
+    return { node: wrap, getValue: function () { return select.value; }, input: select };
+  }
+
+  function buildSelectControl(wrap, f, value) {
+    var select = el('select');
+    (f.options || []).forEach(function (opt) {
+      var option = el('option');
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if (opt.value === value) option.selected = true;
+      select.appendChild(option);
+    });
+    wrap.appendChild(select);
+    return { node: wrap, getValue: function () { return select.value; }, input: select };
+  }
+
+  function buildBooleanControl(wrap, value) {
+    var row = el('label');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.gap = '8px';
+    row.style.fontWeight = '400';
+    var cb = el('input');
+    cb.type = 'checkbox';
+    cb.checked = value === true;
+    row.appendChild(cb);
+    var span = el('span');
+    span.textContent = 'Enabled';
+    row.appendChild(span);
+    wrap.appendChild(row);
+    return { node: wrap, getValue: function () { return cb.checked; }, input: cb };
+  }
+
+  function buildOptionList(wrap, f, value) {
+    var list = el('div', 'object-list');
+    wrap.appendChild(list);
+    var items = Array.isArray(value) ? value.slice() : [];
+    var rows = [];
+
+    function renderOptions() {
+      list.innerHTML = '';
+      rows = [];
+      items.forEach(function (item, index) {
+        var card = el('div', 'object-card');
+        var subFields = [];
+        (f.optionFields || []).forEach(function (sub) {
+          var built = buildSubField(sub, item[sub.key]);
+          card.appendChild(built.node);
+          subFields.push({ key: sub.key, getValue: built.getValue });
+        });
+        var removeBtn = el('button', 'secondary danger');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', function () {
+          items.splice(index, 1);
+          renderOptions();
+        });
+        card.appendChild(removeBtn);
+        rows.push({
+          getValue: function () {
+            var out = { id: item.id || '' };
+            subFields.forEach(function (sf) { out[sf.key] = sf.getValue(); });
+            if (!out.id) out.id = slugify(out.label || 'option');
+            return out;
+          }
+        });
+        list.appendChild(card);
+      });
+    }
+
+    renderOptions();
+    var addBtn = el('button', 'secondary add-row');
+    addBtn.type = 'button';
+    addBtn.textContent = 'Add option';
+    addBtn.addEventListener('click', function () {
+      items.push({ id: '', roleId: '', emoji: '', label: '' });
+      renderOptions();
+    });
+    wrap.appendChild(addBtn);
+    return {
+      node: wrap,
+      getValue: function () { return rows.map(function (r) { return r.getValue(); }); }
+    };
+  }
+
   function buildMultiChecklist(wrap, f, value, items, labelFn, emptyText, fallbackNote) {
     if (fallbackNote) return textFallback(wrap, f, value, true);
     var selected = Array.isArray(value) ? value.slice() : [];
@@ -339,6 +448,22 @@ const CLIENT_JS = `
       return buildMultiChecklist(wrap, f, value, roles, roleLabel, 'No roles available.', rolesError);
     }
 
+    if (f.type === 'role') {
+      return buildRoleSelect(wrap, value);
+    }
+
+    if (f.type === 'select') {
+      return buildSelectControl(wrap, f, value);
+    }
+
+    if (f.type === 'boolean') {
+      return buildBooleanControl(wrap, value === true);
+    }
+
+    if (f.type === 'option-list') {
+      return buildOptionList(wrap, f, value);
+    }
+
     return textFallback(wrap, f, value, false);
   }
 
@@ -386,14 +511,56 @@ const CLIENT_JS = `
       return buildMultiChecklist(wrap, f, value, roles, roleLabel, 'No roles available.', rolesError);
     }
 
+    if (f.type === 'role') {
+      return buildRoleSelect(wrap, value);
+    }
+
+    if (f.type === 'select') {
+      return buildSelectControl(wrap, f, value);
+    }
+
+    if (f.type === 'boolean') {
+      return buildBooleanControl(wrap, value === true);
+    }
+
+    if (f.type === 'option-list') {
+      return buildOptionList(wrap, f, value);
+    }
+
     return textFallback(wrap, f, value, false);
   }
 
-  function liveRowValues(subFields, item) {
+  function liveRowValues(subFields, item, f) {
     var out = { id: item.id || '' };
     subFields.forEach(function (sf) { out[sf.key] = sf.getValue(); });
-    if (!out.id) out.id = slugify(out.openButtonLabel || out.panelTitle || 'ticket-type');
+    if (!out.id) out.id = slugify(out.openButtonLabel || out.panelTitle || (f && f.itemLabel) || 'item');
     return out;
+  }
+
+  function syncEphemeralField(subFields, ns) {
+    if (ns !== 'reaction-roles') return;
+    var reactionField = subFields.find(function (sf) { return sf.key === 'reactionType'; });
+    var ephemeralField = subFields.find(function (sf) { return sf.key === 'ephemeralMessage'; });
+    if (!reactionField || !ephemeralField) return;
+    var reactionSelect = reactionField.node.querySelector('select');
+    var ephemeralWrap = ephemeralField.node;
+    var disabledNote = ephemeralWrap.querySelector('.help-disabled');
+    function apply() {
+      var isEmoji = reactionSelect && reactionSelect.value === 'emoji';
+      ephemeralWrap.classList.toggle('disabled', isEmoji);
+      if (isEmoji) {
+        if (!disabledNote) {
+          disabledNote = el('div', 'help-disabled');
+          disabledNote.textContent = 'Not available for emoji reactions — use buttons or dropdown if you need a follow-up message.';
+          ephemeralWrap.appendChild(disabledNote);
+        }
+      } else if (disabledNote) {
+        disabledNote.remove();
+        disabledNote = null;
+      }
+    }
+    if (reactionSelect) reactionSelect.addEventListener('change', apply);
+    apply();
   }
 
   function buildObjectList(ns, f, value, saveModule) {
@@ -414,7 +581,7 @@ const CLIENT_JS = `
     var items = Array.isArray(value) ? value.slice() : [];
 
     function cardTitle(row) {
-      return row.openButtonLabel || row.panelTitle || row.id || f.itemLabel || 'Ticket type';
+      return row.openButtonLabel || row.panelTitle || row.id || f.itemLabel || 'Item';
     }
 
     function renderRows() {
@@ -438,9 +605,11 @@ const CLIENT_JS = `
           subFields.push({ key: sub.key, getValue: built.getValue, node: built.node });
         });
 
+        syncEphemeralField(subFields, ns);
+
         var cardActions = el('div', 'object-actions');
 
-        if (ns === 'tickets') {
+        if (f.publishable) {
           var pubBtn = el('button', 'secondary');
           pubBtn.type = 'button';
           pubBtn.textContent = 'Publish panel';
@@ -450,7 +619,7 @@ const CLIENT_JS = `
           unpubBtn.disabled = !item.published;
 
           function refreshPublishState() {
-            var live = liveRowValues(subFields, item);
+            var live = liveRowValues(subFields, item, f);
             pubBtn.disabled = !live.channelId;
             unpubBtn.disabled = !item.published;
           }
@@ -467,18 +636,18 @@ const CLIENT_JS = `
             try {
               if (!saveModule) throw new Error('Save is unavailable.');
               var values = await saveModule();
-              var savedTypes = values.ticketTypes || [];
-              var live = liveRowValues(subFields, item);
-              var typeId = live.id;
-              var saved = savedTypes.find(function (t) { return t.id === typeId; });
-              if (!saved) saved = savedTypes[index];
-              if (!saved || !saved.id) throw new Error('Could not save ticket type. Try Save first.');
+              var savedRows = values[f.key] || [];
+              var live = liveRowValues(subFields, item, f);
+              var rowId = live.id;
+              var saved = savedRows.find(function (t) { return t.id === rowId; });
+              if (!saved) saved = savedRows[index];
+              if (!saved || !saved.id) throw new Error('Could not save panel. Try Save first.');
               if (!saved.channelId) throw new Error('Pick a channel before publishing.');
 
               Object.assign(item, saved);
               for (var k in saved) { if (Object.prototype.hasOwnProperty.call(saved, k)) item[k] = saved[k]; }
 
-              var res = await fetch('/api/modules/tickets/publish/' + encodeURIComponent(saved.id), {
+              var res = await fetch('/api/modules/' + encodeURIComponent(ns) + '/publish/' + encodeURIComponent(saved.id), {
                 method: 'POST',
                 headers: csrfHeaders(),
               });
@@ -497,9 +666,9 @@ const CLIENT_JS = `
           unpubBtn.addEventListener('click', async function () {
             unpubBtn.disabled = true;
             try {
-              var live = liveRowValues(subFields, item);
-              if (!live.id) throw new Error('Save this ticket type before unpublishing.');
-              var res = await fetch('/api/modules/tickets/unpublish/' + encodeURIComponent(live.id), {
+              var live = liveRowValues(subFields, item, f);
+              if (!live.id) throw new Error('Save this panel before unpublishing.');
+              var res = await fetch('/api/modules/' + encodeURIComponent(ns) + '/unpublish/' + encodeURIComponent(live.id), {
                 method: 'POST',
                 headers: csrfHeaders(),
               });
@@ -531,7 +700,7 @@ const CLIENT_JS = `
 
         rows.push({
           getValue: function () {
-            return liveRowValues(subFields, item);
+            return liveRowValues(subFields, item, f);
           }
         });
 
@@ -543,23 +712,30 @@ const CLIENT_JS = `
 
     var addBtn = el('button', 'secondary add-row');
     addBtn.type = 'button';
-    addBtn.textContent = 'Add ticket type';
+    addBtn.textContent = 'Add ' + (f.itemLabel || 'item').toLowerCase();
     addBtn.addEventListener('click', function () {
-      items.push({
-        id: '', published: false, openButtonLabel: 'Open ticket', panelTitle: 'Support',
-        panelTitle: '', panelDescription: '', emoji: '', channelId: '', staffRoleIds: [], deniedRoleIds: [],
-        roleDenied: 'You cannot open a ticket in this category.',
-        ticketWelcome: 'Hi {mention}, describe your issue and staff will assist you.',
-        closeButtonLabel: 'Close ticket', confirmClosePrompt: 'Close this ticket?',
-        confirmCloseYes: 'Yes, close', confirmCloseNo: 'Cancel',
-        ticketClosed: 'This ticket has been closed.',
-        deleteButtonLabel: 'DELETE',
-        confirmDeletePrompt: 'Delete this closed ticket permanently?',
-        confirmDeleteYes: 'Yes, delete', confirmDeleteNo: 'Cancel',
-        ticketDeleted: 'Ticket deleted.',
-        alreadyOpen: 'You already have an open ticket in this category.',
-        openSuccess: 'Your ticket was created: {thread}'
-      });
+      if (ns === 'reaction-roles') {
+        items.push({
+          id: '', published: false, channelId: '', reactionType: 'button', toggleable: true,
+          panelTitle: 'Pick your roles', panelDescription: '', ephemeralMessage: '', roleOptions: []
+        });
+      } else {
+        items.push({
+          id: '', published: false, openButtonLabel: 'Open ticket', panelTitle: 'Support',
+          panelDescription: '', emoji: '', channelId: '', staffRoleIds: [], deniedRoleIds: [],
+          roleDenied: 'You cannot open a ticket in this category.',
+          ticketWelcome: 'Hi {mention}, describe your issue and staff will assist you.',
+          closeButtonLabel: 'Close ticket', confirmClosePrompt: 'Close this ticket?',
+          confirmCloseYes: 'Yes, close', confirmCloseNo: 'Cancel',
+          ticketClosed: 'This ticket has been closed.',
+          deleteButtonLabel: 'DELETE',
+          confirmDeletePrompt: 'Delete this closed ticket permanently?',
+          confirmDeleteYes: 'Yes, delete', confirmDeleteNo: 'Cancel',
+          ticketDeleted: 'Ticket deleted.',
+          alreadyOpen: 'You already have an open ticket in this category.',
+          openSuccess: 'Your ticket was created: {thread}'
+        });
+      }
       renderRows();
     });
     wrap.appendChild(addBtn);

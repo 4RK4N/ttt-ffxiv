@@ -12,10 +12,19 @@ export type WebFieldType =
   | 'textarea'
   | 'channel'
   | 'channel-multi'
+  | 'role'
   | 'role-multi'
+  | 'boolean'
+  | 'select'
+  | 'option-list'
   | 'object-list';
 
 export type WebFieldStore = 'texts' | 'config';
+
+export interface WebPluginSelectOption {
+  value: string;
+  label: string;
+}
 
 export interface WebPluginSubField {
   key: string;
@@ -23,6 +32,8 @@ export interface WebPluginSubField {
   type: Exclude<WebFieldType, 'object-list'>;
   store?: WebFieldStore;
   help?: string;
+  options?: WebPluginSelectOption[];
+  optionFields?: WebPluginSubField[];
 }
 
 export interface WebPluginField {
@@ -32,6 +43,8 @@ export interface WebPluginField {
   store: WebFieldStore;
   help?: string;
   itemLabel?: string;
+  /** When true, object-list cards get Publish/Unpublish actions. */
+  publishable?: boolean;
   /** Nested map key in texts.json for object-list text fields (e.g. "types"). */
   textsKey?: string;
   itemFields?: WebPluginSubField[];
@@ -49,10 +62,26 @@ const VALID_SCALAR_TYPES: WebPluginSubField['type'][] = [
   'textarea',
   'channel',
   'channel-multi',
+  'role',
   'role-multi',
+  'boolean',
+  'select',
+  'option-list',
 ];
 const VALID_TYPES: WebFieldType[] = [...VALID_SCALAR_TYPES, 'object-list'];
 const VALID_STORES: WebFieldStore[] = ['texts', 'config'];
+
+function parseSelectOptions(raw: unknown): WebPluginSelectOption[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const options: WebPluginSelectOption[] = [];
+  for (const entry of raw) {
+    if (typeof entry !== 'object' || entry === null) continue;
+    const o = entry as Record<string, unknown>;
+    if (typeof o.value !== 'string' || typeof o.label !== 'string') continue;
+    options.push({ value: o.value, label: o.label });
+  }
+  return options.length > 0 ? options : undefined;
+}
 
 function parseSubField(entry: unknown): WebPluginSubField | null {
   if (typeof entry !== 'object' || entry === null) return null;
@@ -69,12 +98,22 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
       ? (f.store as WebFieldStore)
       : 'config';
 
+  const optionFields: WebPluginSubField[] = [];
+  if (type === 'option-list' && Array.isArray(f.optionFields)) {
+    for (const sub of f.optionFields) {
+      const parsed = parseSubField(sub);
+      if (parsed) optionFields.push(parsed);
+    }
+  }
+
   return {
     key: f.key,
     label: typeof f.label === 'string' && f.label.trim() !== '' ? f.label : f.key,
     type,
     store,
     help: typeof f.help === 'string' ? f.help : undefined,
+    options: parseSelectOptions(f.options),
+    optionFields: optionFields.length > 0 ? optionFields : undefined,
   };
 }
 
@@ -128,6 +167,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       store,
       help: typeof f.help === 'string' ? f.help : undefined,
       itemLabel: typeof f.itemLabel === 'string' ? f.itemLabel : 'Item',
+      publishable: f.publishable === true,
       textsKey: typeof f.textsKey === 'string' ? f.textsKey : undefined,
       itemFields: itemFields.length > 0 ? itemFields : undefined,
     });
@@ -182,4 +222,12 @@ export function isObjectListField(field: WebPluginField): boolean {
 
 export function isMultiField(field: WebPluginField): boolean {
   return field.type === 'channel-multi' || field.type === 'role-multi';
+}
+
+export function isOptionListSubField(field: WebPluginSubField): boolean {
+  return field.type === 'option-list';
+}
+
+export function isBooleanSubField(field: WebPluginSubField): boolean {
+  return field.type === 'boolean';
 }

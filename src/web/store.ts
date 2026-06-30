@@ -2,14 +2,22 @@ import { readFileSync } from 'node:fs';
 import { moduleDataPath } from '../core/texts.js';
 import { writeJsonAtomic } from '../core/jsonWrite.js';
 import type { WebPlugin, WebPluginField, WebPluginSubField, WebFieldStore } from './plugins.js';
-import { isMultiField, isMultiSubField, isObjectListField } from './plugins.js';
+import {
+  isBooleanSubField,
+  isMultiField,
+  isMultiSubField,
+  isObjectListField,
+  isOptionListSubField,
+} from './plugins.js';
 
-export type FieldValue = string | string[] | Record<string, unknown>[];
+export type FieldValue = string | string[] | boolean | Record<string, unknown>[];
 
 const STORE_FILES: Record<WebFieldStore, string> = {
   texts: 'texts.json',
   config: 'config.json',
 };
+
+const MAX_OPTION_LIST = 25;
 
 function readDataJson(namespace: string, store: WebFieldStore): Record<string, unknown> {
   const file = moduleDataPath(namespace, STORE_FILES[store]);
@@ -31,7 +39,7 @@ function slugify(value: string): string {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-      .slice(0, 32) || 'ticket-type'
+      .slice(0, 32) || 'item'
   );
 }
 
@@ -44,6 +52,86 @@ function uniqueId(base: string, used: Set<string>): string {
   }
   used.add(id);
   return id;
+}
+
+function readSubValue(sub: WebPluginSubField, val: unknown): FieldValue {
+  if (isMultiSubField(sub)) return toStringArray(val);
+  if (isBooleanSubField(sub)) return val === true;
+  if (isOptionListSubField(sub)) {
+    if (!Array.isArray(val)) return [];
+    return val.filter((v): v is Record<string, unknown> => typeof v === 'object' && v !== null);
+  }
+  return typeof val === 'string' ? val : '';
+}
+
+function validateOptionList(
+  sub: WebPluginSubField,
+  value: unknown,
+  label: string
+): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    throw new ValidationError(`${label}.${sub.key} must be an array of objects.`);
+  }
+  if (value.length > MAX_OPTION_LIST) {
+    throw new ValidationError(`${label}.${sub.key} must have at most ${MAX_OPTION_LIST} entries.`);
+  }
+
+  const usedIds = new Set<string>();
+  const rows: Record<string, unknown>[] = [];
+
+  for (const raw of value) {
+    if (typeof raw !== 'object' || raw === null) {
+      throw new ValidationError(`Each entry in ${label}.${sub.key} must be an object.`);
+    }
+    const row = raw as Record<string, unknown>;
+    const optionFields = sub.optionFields ?? [];
+
+    let id = typeof row.id === 'string' && row.id.trim() !== '' ? row.id.trim() : '';
+    if (!id) {
+      const labelKey =
+        typeof row.label === 'string' && row.label.trim() !== '' ? row.label : 'option';
+      id = uniqueId(slugify(labelKey), usedIds);
+    } else {
+      usedIds.add(id);
+    }
+
+    const normalized: Record<string, unknown> = { id };
+    for (const optSub of optionFields) {
+      const normalizedVal = validateSubValue(optSub, row[optSub.key], `${label}.${sub.key}[${id}]`);
+      normalized[optSub.key] = normalizedVal;
+    }
+    rows.push(normalized);
+  }
+
+  return rows;
+}
+
+function validateSubValue(sub: WebPluginSubField, value: unknown, label: string): FieldValue {
+  if (isMultiSubField(sub)) {
+    if (!Array.isArray(value) || value.some((v) => typeof v !== 'string')) {
+      throw new ValidationError(`${label}.${sub.key} must be an array of strings.`);
+    }
+    return value as string[];
+  }
+  if (isBooleanSubField(sub)) {
+    return value === true;
+  }
+  if (isOptionListSubField(sub)) {
+    return validateOptionList(sub, value, label);
+  }
+  if (sub.type === 'select') {
+    if (typeof value !== 'string') {
+      throw new ValidationError(`${label}.${sub.key} must be a string.`);
+    }
+    if (sub.options?.length && value && !sub.options.some((o) => o.value === value)) {
+      throw new ValidationError(`${label}.${sub.key} has an invalid selection.`);
+    }
+    return value;
+  }
+  if (typeof value !== 'string') {
+    throw new ValidationError(`${label}.${sub.key} must be a string.`);
+  }
+  return value;
 }
 
 function readObjectListValues(
@@ -71,28 +159,10 @@ function readObjectListValues(
       for (const sub of field.itemFields ?? []) {
         const store = sub.store ?? 'config';
         const source = store === 'texts' ? textRow : row;
-        const val = source[sub.key];
-        if (isMultiSubField(sub)) {
-          merged[sub.key] = toStringArray(val);
-        } else {
-          merged[sub.key] = typeof val === 'string' ? val : '';
-        }
+        merged[sub.key] = readSubValue(sub, source[sub.key]);
       }
       return merged;
     });
-}
-
-function validateSubValue(sub: WebPluginSubField, value: unknown, label: string): FieldValue {
-  if (isMultiSubField(sub)) {
-    if (!Array.isArray(value) || value.some((v) => typeof v !== 'string')) {
-      throw new ValidationError(`${label}.${sub.key} must be an array of strings.`);
-    }
-    return value as string[];
-  }
-  if (typeof value !== 'string') {
-    throw new ValidationError(`${label}.${sub.key} must be a string.`);
-  }
-  return value;
 }
 
 export function readEnabled(namespace: string): boolean {
@@ -171,11 +241,6 @@ export async function writeValues(
       );
 
       const textsKey = field.textsKey ?? 'types';
-      const existingTexts =
-        typeof textsExisting[textsKey] === 'object' && textsExisting[textsKey] !== null
-          ? { ...(textsExisting[textsKey] as Record<string, Record<string, unknown>>) }
-          : {};
-
       const usedIds = new Set<string>();
       const newConfigRows: Record<string, unknown>[] = [];
       const newTextsMap: Record<string, Record<string, unknown>> = {};
@@ -189,9 +254,11 @@ export async function writeValues(
         let id = typeof row.id === 'string' && row.id.trim() !== '' ? row.id.trim() : '';
         if (!id) {
           const label =
-            typeof row.openButtonLabel === 'string' && row.openButtonLabel.trim() !== ''
-              ? row.openButtonLabel
-              : field.itemLabel ?? 'type';
+            typeof row.panelTitle === 'string' && row.panelTitle.trim() !== ''
+              ? row.panelTitle
+              : typeof row.openButtonLabel === 'string' && row.openButtonLabel.trim() !== ''
+                ? row.openButtonLabel
+                : field.itemLabel ?? 'item';
           id = uniqueId(slugify(label), usedIds);
         } else {
           usedIds.add(id);

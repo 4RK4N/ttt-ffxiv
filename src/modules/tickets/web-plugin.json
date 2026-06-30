@@ -99,6 +99,7 @@
       "store": "config",
       "textsKey": "types",
       "itemLabel": "Ticket type",
+      "publishable": true,
       "itemFields": [
         {
           "key": "emoji",

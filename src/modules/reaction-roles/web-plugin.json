@@ -1,0 +1,127 @@
+{
+  "title": "Reaction roles",
+  "description": "Embed role panels with buttons, emoji reactions, or a multi-select dropdown. Configure each panel, save, then publish to Discord.",
+  "fields": [
+    {
+      "key": "disabled",
+      "label": "Module disabled message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "panelUnpublished",
+      "label": "Panel unavailable message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "invalidInteraction",
+      "label": "Invalid interaction message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "roleError",
+      "label": "Role update error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "roleHierarchyError",
+      "label": "Role hierarchy error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "panels",
+      "label": "Role panels",
+      "type": "object-list",
+      "store": "config",
+      "textsKey": "panels",
+      "itemLabel": "Panel",
+      "publishable": true,
+      "itemFields": [
+        {
+          "key": "channelId",
+          "label": "Channel",
+          "type": "channel",
+          "store": "config",
+          "help": "The panel message is posted here."
+        },
+        {
+          "key": "reactionType",
+          "label": "Interaction type",
+          "type": "select",
+          "store": "config",
+          "options": [
+            {
+              "value": "button",
+              "label": "Buttons"
+            },
+            {
+              "value": "emoji",
+              "label": "Emoji reactions"
+            },
+            {
+              "value": "dropdown",
+              "label": "Dropdown (multi-select)"
+            }
+          ]
+        },
+        {
+          "key": "toggleable",
+          "label": "Allow toggling roles",
+          "type": "boolean",
+          "store": "config",
+          "help": "When enabled, pressing again removes the role. When disabled, roles are assigned once."
+        },
+        {
+          "key": "panelTitle",
+          "label": "Embed title",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "panelDescription",
+          "label": "Embed description",
+          "type": "textarea",
+          "store": "texts"
+        },
+        {
+          "key": "ephemeralMessage",
+          "label": "Ephemeral reply (optional)",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Button and dropdown only. Sent privately after interaction. Tokens: {mention}, {role}."
+        },
+        {
+          "key": "roleOptions",
+          "label": "Role options",
+          "type": "option-list",
+          "store": "config",
+          "optionFields": [
+            {
+              "key": "roleId",
+              "label": "Role",
+              "type": "role",
+              "store": "config"
+            },
+            {
+              "key": "emoji",
+              "label": "Emoji (optional for buttons/dropdown)",
+              "type": "text",
+              "store": "config"
+            },
+            {
+              "key": "label",
+              "label": "Label",
+              "type": "text",
+              "store": "config",
+              "help": "Button or dropdown option label. Required for button/dropdown mode."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

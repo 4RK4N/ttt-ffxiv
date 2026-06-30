@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "panels": [
+    {
+      "id": "example-panel",
+      "published": false,
+      "panelMessageId": "",
+      "channelId": "",
+      "reactionType": "button",
+      "toggleable": true,
+      "roleOptions": [
+        {
+          "id": "gamer",
+          "roleId": "",
+          "emoji": "🎮",
+          "label": "Gamer"
+        }
+      ]
+    }
+  ]
+}
