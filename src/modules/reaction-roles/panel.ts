@@ -67,7 +67,7 @@ function buildButtonRows(panel: ResolvedRolePanel): ActionRowBuilder<ButtonBuild
     const button = new ButtonBuilder()
       .setCustomId(`${BTN_PREFIX}${panel.id}:${opt.id}`)
       .setLabel(opt.label.slice(0, 80))
-      .setStyle(ButtonStyle.Secondary);
+      .setStyle(ButtonStyle.Primary);
 
     const parsed = parseEmoji(opt.emoji);
     if (parsed) button.setEmoji(parsed.id ? { id: parsed.id, name: parsed.name } : parsed);
