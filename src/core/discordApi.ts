@@ -6,12 +6,17 @@ export async function discordBotFetch(
   path: string,
   init?: RequestInit
 ): Promise<Response> {
+  const hasBody = init?.body !== undefined && init?.body !== null && init?.body !== '';
+  const headers: Record<string, string> = {
+    Authorization: `Bot ${botToken}`,
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (hasBody && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   return fetch(`${DISCORD_API}${path}`, {
     ...init,
-    headers: {
-      Authorization: `Bot ${botToken}`,
-      'Content-Type': 'application/json',
-      ...init?.headers,
-    },
+    headers,
   });
 }

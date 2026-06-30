@@ -5,13 +5,8 @@ import {
   EmbedBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
-import {
-  emojiMatchKey,
-  encodeEmojiForReaction,
-  parseCustomEmojiId,
-  parseEmoji,
-} from '../../core/discordEmoji.js';
-import { discordBotFetch } from '../../core/discordApi.js';
+import { emojiMatchKey, parseEmoji } from '../../core/discordEmoji.js';
+import { syncBotMessageReactions } from '../../core/discordReactions.js';
 import { publishDiscordMessage, type DiscordApiContext } from '../../core/panelPublish.js';
 import type { ResolvedRolePanel, RoleOption } from './types.js';
 import { resolvePanel } from './types.js';
@@ -131,20 +126,8 @@ async function syncEmojiReactions(
   messageId: string,
   options: RoleOption[]
 ): Promise<void> {
-  for (const opt of options) {
-    const encoded = encodeEmojiForReaction(opt.emoji);
-    if (!encoded) continue;
-    const res = await discordBotFetch(
-      ctx.botToken,
-      `/channels/${channelId}/messages/${messageId}/reactions/${encoded}/@me`,
-      { method: 'PUT' }
-    );
-    if (!res.ok && res.status !== 204) {
-      console.warn(
-        `[reaction-roles] Failed to add reaction ${opt.emoji} to message ${messageId} (HTTP ${res.status}).`
-      );
-    }
-  }
+  const emojis = options.map((opt) => opt.emoji);
+  await syncBotMessageReactions(ctx.botToken, channelId, messageId, emojis);
 }
 
 export async function publishPanel(
@@ -168,12 +151,16 @@ export function matchOptionByReaction(
   emojiName: string | null,
   emojiId: string | null
 ): RoleOption | undefined {
+  const reactionKey = emojiId
+    ? `custom:${emojiId}`
+    : emojiName
+      ? `unicode:${emojiName}`
+      : undefined;
+  if (!reactionKey) return undefined;
+
   for (const opt of options) {
-    const trimmed = opt.emoji.trim();
-    if (!trimmed) continue;
-    const customId = parseCustomEmojiId(trimmed);
-    if (customId && emojiId === customId) return opt;
-    if (!customId && emojiName && trimmed === emojiName) return opt;
+    const key = emojiMatchKey(opt.emoji);
+    if (key === reactionKey) return opt;
   }
   return undefined;
 }
