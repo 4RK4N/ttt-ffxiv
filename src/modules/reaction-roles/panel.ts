@@ -32,6 +32,15 @@ function parseCustomEmojiId(emoji: string): string | undefined {
   return match?.[2];
 }
 
+/** Stable key for duplicate emoji checks (custom id or unicode literal). */
+function emojiMatchKey(emoji: string): string | undefined {
+  const trimmed = emoji.trim();
+  if (!trimmed) return undefined;
+  const customId = parseCustomEmojiId(trimmed);
+  if (customId) return `custom:${customId}`;
+  return `unicode:${trimmed}`;
+}
+
 /** URL path segment for Discord reaction API. */
 export function encodeEmojiForReaction(emoji: string): string | undefined {
   const trimmed = emoji.trim();
@@ -47,10 +56,21 @@ function validatePanel(panel: ResolvedRolePanel): void {
     throw new Error(`Panel must have 1–${MAX_OPTIONS} role options (has ${count}).`);
   }
   if (panel.reactionType === 'emoji') {
+    const seenEmoji = new Set<string>();
     for (const opt of panel.roleOptions) {
       if (!opt.emoji.trim()) {
         throw new Error(`Emoji is required for option "${opt.label || opt.id}" in emoji mode.`);
       }
+      if (!opt.roleId.trim()) {
+        throw new Error(`Role is required for option "${opt.label || opt.id}" in emoji mode.`);
+      }
+      const key = emojiMatchKey(opt.emoji);
+      if (key && seenEmoji.has(key)) {
+        throw new Error(
+          `Duplicate emoji "${opt.emoji.trim()}" — each option must use a different emoji in emoji reaction mode.`
+        );
+      }
+      if (key) seenEmoji.add(key);
     }
   }
   if (panel.reactionType === 'button' || panel.reactionType === 'dropdown') {

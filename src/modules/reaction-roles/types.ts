@@ -79,7 +79,7 @@ export function resolvePanel(id: string): ResolvedRolePanel | undefined {
     ...row,
     ...copy,
     reactionType: row.reactionType ?? 'button',
-    toggleable: row.toggleable === true,
+    toggleable: row.toggleable !== false,
     roleOptions: Array.isArray(row.roleOptions) ? row.roleOptions : [],
   };
 }

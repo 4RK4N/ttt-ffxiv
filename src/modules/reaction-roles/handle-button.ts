@@ -3,12 +3,13 @@ import { isModuleEnabled } from '../../core/texts.js';
 import { formatEphemeralMessage } from './respond.js';
 import { tryAssignRole, tryRemoveRole } from './roles.js';
 import { BTN_PREFIX } from './panel.js';
+import { isActivePanelMessage } from './guards.js';
 import { resolveOption, resolvePanel, texts, NAMESPACE } from './types.js';
 
 function parseButtonCustomId(customId: string): { panelId: string; optionId: string } | null {
   if (!customId.startsWith(BTN_PREFIX)) return null;
   const rest = customId.slice(BTN_PREFIX.length);
-  const sep = rest.indexOf(':');
+  const sep = rest.lastIndexOf(':');
   if (sep === -1) return null;
   const panelId = rest.slice(0, sep);
   const optionId = rest.slice(sep + 1);
@@ -43,6 +44,17 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
     return;
   }
 
+  if (
+    !isActivePanelMessage(
+      panel,
+      interaction.channelId,
+      interaction.message.id
+    )
+  ) {
+    await interaction.editReply(t.invalidInteraction);
+    return;
+  }
+
   const option = resolveOption(panel, parsed.optionId);
   if (!option || !option.roleId.trim()) {
     await interaction.editReply(t.invalidInteraction);
@@ -57,7 +69,6 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
   const guildMember = await interaction.guild.members.fetch(interaction.user.id);
 
   const hasRole = guildMember.roles.cache.has(option.roleId);
-  let changed = false;
 
   if (panel.toggleable) {
     const result = hasRole
@@ -67,17 +78,15 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
       await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
       return;
     }
-    changed = true;
   } else if (!hasRole) {
     const result = await tryAssignRole(guildMember, option.roleId);
     if (!result.ok) {
       await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
       return;
     }
-    changed = true;
   }
 
-  const roleName = interaction.guild?.roles.cache.get(option.roleId)?.name ?? 'role';
+  const roleName = interaction.guild.roles.cache.get(option.roleId)?.name ?? 'role';
   const message = formatEphemeralMessage(panel, {
     mention: `<@${interaction.user.id}>`,
     role: roleName,
@@ -85,8 +94,6 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
 
   if (message) {
     await interaction.editReply(message);
-  } else if (changed) {
-    await interaction.editReply('\u200b');
   } else {
     await interaction.editReply('\u200b');
   }

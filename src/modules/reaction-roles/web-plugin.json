@@ -108,9 +108,10 @@
             },
             {
               "key": "emoji",
-              "label": "Emoji (optional for buttons/dropdown)",
+              "label": "Emoji",
               "type": "text",
-              "store": "config"
+              "store": "config",
+              "help": "Required for emoji reaction mode — each option must use a different emoji (do not reuse the same one twice). Optional decoration for buttons/dropdown."
             },
             {
               "key": "label",

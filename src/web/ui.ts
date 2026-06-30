@@ -662,7 +662,6 @@ const CLIENT_JS = `
               if (!saved.channelId) throw new Error('Pick a channel before publishing.');
 
               Object.assign(item, saved);
-              for (var k in saved) { if (Object.prototype.hasOwnProperty.call(saved, k)) item[k] = saved[k]; }
 
               var res = await fetch('/api/modules/' + encodeURIComponent(ns) + '/publish/' + encodeURIComponent(saved.id), {
                 method: 'POST',

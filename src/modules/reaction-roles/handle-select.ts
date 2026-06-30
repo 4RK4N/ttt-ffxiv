@@ -3,6 +3,7 @@ import { isModuleEnabled } from '../../core/texts.js';
 import { formatEphemeralMessage } from './respond.js';
 import { memberHasPanelRole, tryAssignRole, tryRemoveRole } from './roles.js';
 import { SEL_PREFIX } from './panel.js';
+import { isActivePanelMessage } from './guards.js';
 import { resolvePanel, texts, NAMESPACE } from './types.js';
 
 function parseSelectCustomId(customId: string): string | null {
@@ -36,6 +37,17 @@ export async function handleSelectInteraction(
   }
 
   if (panel.reactionType !== 'dropdown') {
+    await interaction.editReply(t.invalidInteraction);
+    return;
+  }
+
+  if (
+    !isActivePanelMessage(
+      panel,
+      interaction.channelId,
+      interaction.message.id
+    )
+  ) {
     await interaction.editReply(t.invalidInteraction);
     return;
   }
