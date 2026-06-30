@@ -1,6 +1,5 @@
 import { MessageFlags, type ButtonInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
-import { formatEphemeralMessage } from './respond.js';
 import { tryAssignRole, tryRemoveRole } from './roles.js';
 import { BTN_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
@@ -17,30 +16,36 @@ function parseButtonCustomId(customId: string): { panelId: string; optionId: str
   return { panelId, optionId };
 }
 
-export async function handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+async function replyError(interaction: ButtonInteraction, content: string): Promise<void> {
+  if (interaction.deferred || interaction.replied) {
+    await interaction.followUp({ flags: MessageFlags.Ephemeral, content });
+    return;
+  }
+  await interaction.reply({ flags: MessageFlags.Ephemeral, content });
+}
 
+export async function handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
   const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    await interaction.editReply(t.disabled);
+    await replyError(interaction, t.disabled);
     return;
   }
 
   const parsed = parseButtonCustomId(interaction.customId);
   if (!parsed) {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
   const panel = resolvePanel(parsed.panelId);
   if (!panel || !panel.published) {
-    await interaction.editReply(t.panelUnpublished);
+    await replyError(interaction, t.panelUnpublished);
     return;
   }
 
   if (panel.reactionType !== 'button') {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
@@ -51,50 +56,46 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
       interaction.message.id
     )
   ) {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
   const option = resolveOption(panel, parsed.optionId);
   if (!option || !option.roleId.trim()) {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
   if (!interaction.guild) {
-    await interaction.editReply(t.roleError);
+    await replyError(interaction, t.roleError);
     return;
   }
 
   const guildMember = await interaction.guild.members.fetch(interaction.user.id);
-
   const hasRole = guildMember.roles.cache.has(option.roleId);
+
+  await interaction.deferUpdate();
 
   if (panel.toggleable) {
     const result = hasRole
       ? await tryRemoveRole(guildMember, option.roleId)
       : await tryAssignRole(guildMember, option.roleId);
     if (!result.ok) {
-      await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
-      return;
+      await replyError(
+        interaction,
+        result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
+      );
     }
-  } else if (!hasRole) {
-    const result = await tryAssignRole(guildMember, option.roleId);
-    if (!result.ok) {
-      await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
-      return;
-    }
+    return;
   }
 
-  const roleName = interaction.guild.roles.cache.get(option.roleId)?.name ?? 'role';
-  const message = formatEphemeralMessage(panel, {
-    mention: `<@${interaction.user.id}>`,
-    role: roleName,
-  });
-
-  if (message) {
-    await interaction.editReply(message);
-  } else {
-    await interaction.editReply('\u200b');
+  if (!hasRole) {
+    const result = await tryAssignRole(guildMember, option.roleId);
+    if (!result.ok) {
+      await replyError(
+        interaction,
+        result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
+      );
+    }
   }
 }

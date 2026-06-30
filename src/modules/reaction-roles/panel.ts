@@ -42,7 +42,11 @@ function validatePanel(panel: ResolvedRolePanel): void {
       if (key) seenEmoji.add(key);
     }
   }
-  if (panel.reactionType === 'button' || panel.reactionType === 'dropdown') {
+  if (
+    panel.reactionType === 'button' ||
+    panel.reactionType === 'dropdown' ||
+    panel.reactionType === 'dropdown-single'
+  ) {
     for (const opt of panel.roleOptions) {
       if (!opt.label.trim()) {
         throw new Error(`Label is required for option "${opt.id}" in ${panel.reactionType} mode.`);
@@ -79,11 +83,12 @@ function buildButtonRows(panel: ResolvedRolePanel): ActionRowBuilder<ButtonBuild
 }
 
 function buildSelectRow(panel: ResolvedRolePanel): ActionRowBuilder<StringSelectMenuBuilder> {
+  const single = panel.reactionType === 'dropdown-single';
   const menu = new StringSelectMenuBuilder()
     .setCustomId(`${SEL_PREFIX}${panel.id}`)
-    .setPlaceholder('Select roles')
+    .setPlaceholder(single ? 'Select a role' : 'Select roles')
     .setMinValues(0)
-    .setMaxValues(panel.roleOptions.length);
+    .setMaxValues(single ? 1 : panel.roleOptions.length);
 
   for (const opt of panel.roleOptions) {
     const option: { label: string; value: string; emoji?: { name: string } } = {
@@ -113,7 +118,7 @@ export function buildPanelPayload(panelId: string) {
 
   if (panel.reactionType === 'button') {
     payload.components = buildButtonRows(panel).map((r) => r.toJSON());
-  } else if (panel.reactionType === 'dropdown') {
+  } else if (panel.reactionType === 'dropdown' || panel.reactionType === 'dropdown-single') {
     payload.components = [buildSelectRow(panel).toJSON()];
   }
 

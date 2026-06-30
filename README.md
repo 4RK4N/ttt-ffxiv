@@ -103,10 +103,9 @@ for setup. Requires **Server Members** intent (staff resolution).
 ### reaction-roles (embed role panels)
 
 Web-configured role panels posted as embeds — buttons, emoji reactions, or a
-multi-select dropdown. Each **panel** has its own channel, interaction type,
-role options, and optional ephemeral follow-up (buttons/dropdown only; disabled
-for emoji mode). **Publish panel** posts or updates the Discord message;
-**Unpublish** stops processing interactions.
+dropdown (single- or multi-select). Each **panel** has its own channel,
+interaction type, and role options. **Publish panel** posts or updates the
+Discord message; **Unpublish** stops processing interactions.
 
 See [INSTALL.md — reaction-roles](INSTALL.md#datareaction-roles---embed-role-panels)
 for setup. Emoji mode needs **Guild Message Reactions** intent (standard, not

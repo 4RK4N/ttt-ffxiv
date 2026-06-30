@@ -1,6 +1,6 @@
 {
   "title": "Reaction Roles",
-  "description": "Embed role panels with buttons, emoji reactions, or a multi-select dropdown. Configure each panel, save, then publish to Discord.",
+  "description": "Embed role panels with buttons, emoji reactions, or a dropdown. Configure each panel, save, then publish to Discord.",
   "fields": [
     {
       "key": "disabled",
@@ -66,6 +66,10 @@
             {
               "value": "dropdown",
               "label": "Dropdown (multi-select)"
+            },
+            {
+              "value": "dropdown-single",
+              "label": "Dropdown (single-select)"
             }
           ]
         },
@@ -89,13 +93,6 @@
           "store": "texts"
         },
         {
-          "key": "ephemeralMessage",
-          "label": "Ephemeral reply (optional)",
-          "type": "textarea",
-          "store": "texts",
-          "help": "Button and dropdown only. Sent privately after interaction. Tokens: {mention}, {role}."
-        },
-        {
           "key": "roleOptions",
           "label": "Role options",
           "type": "option-list",
@@ -112,14 +109,14 @@
               "label": "Emoji",
               "type": "text",
               "store": "config",
-              "help": "Required for emoji reaction mode — each option must use a different emoji (do not reuse the same one twice). Optional decoration for buttons/dropdown."
+              "help": "Required for emoji reaction mode — each option must use a different emoji (do not reuse the same one twice). Optional decoration for buttons and dropdowns."
             },
             {
               "key": "label",
               "label": "Label",
               "type": "text",
               "store": "config",
-              "help": "Button or dropdown option label. Required for button/dropdown mode."
+              "help": "Button or dropdown option label. Required for button and dropdown modes."
             }
           ]
         }

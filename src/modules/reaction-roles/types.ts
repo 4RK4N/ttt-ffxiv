@@ -2,7 +2,7 @@ import { getConfig, getTexts } from '../../core/texts.js';
 
 export const NAMESPACE = 'reaction-roles';
 
-export type ReactionType = 'button' | 'emoji' | 'dropdown';
+export type ReactionType = 'button' | 'emoji' | 'dropdown' | 'dropdown-single';
 
 export interface RoleOption {
   id: string;
@@ -24,7 +24,6 @@ export interface RolePanelConfig {
 export interface RolePanelTexts {
   panelTitle: string;
   panelDescription: string;
-  ephemeralMessage: string;
 }
 
 export interface ResolvedRolePanel extends RolePanelConfig, RolePanelTexts { }
@@ -46,7 +45,6 @@ export interface ReactionRolesTexts {
 export const DEFAULT_PANEL_TEXTS: RolePanelTexts = {
   panelTitle: 'Role selection',
   panelDescription: 'Pick your roles below.',
-  ephemeralMessage: '',
 };
 
 export const TEXT_DEFAULTS: ReactionRolesTexts = {

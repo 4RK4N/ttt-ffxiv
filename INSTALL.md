@@ -202,14 +202,12 @@ cp data/reaction-roles/texts.example.json data/reaction-roles/texts.json
 ```
 
 Each **panel** is one embed message: pick a channel, interaction type (buttons,
-emoji reactions, or multi-select dropdown), role options, and copy. **Save**, then
+emoji reactions, or dropdown), role options, and copy. **Save**, then
 **Publish panel** to post to Discord. **Unpublish** stops the bot from handling
 interactions on that panel (the message stays).
 
 - **Toggleable**: when enabled, re-interacting removes roles; when disabled, roles
   are assigned once.
-- **Ephemeral reply**: optional per panel for buttons/dropdown; not available for
-  emoji mode. Tokens: `{mention}`, `{role}`.
 - **Bot role**: must be above every assignable role and have **Manage Roles**.
   Managed/integration roles cannot be assigned.
 

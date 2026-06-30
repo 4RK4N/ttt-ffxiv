@@ -7,8 +7,7 @@
   "panels": {
     "example-panel": {
       "panelTitle": "Pick your roles",
-      "panelDescription": "Use the buttons below to get or remove roles.",
-      "ephemeralMessage": ""
+      "panelDescription": "Use the buttons below to get or remove roles."
     }
   }
 }

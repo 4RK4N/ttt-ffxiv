@@ -1,6 +1,5 @@
 import { MessageFlags, type StringSelectMenuInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
-import { formatEphemeralMessage } from './respond.js';
 import { memberHasPanelRole, tryAssignRole, tryRemoveRole } from './roles.js';
 import { SEL_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
@@ -12,32 +11,45 @@ function parseSelectCustomId(customId: string): string | null {
   return panelId || null;
 }
 
+function isDropdownType(reactionType: string): boolean {
+  return reactionType === 'dropdown' || reactionType === 'dropdown-single';
+}
+
+async function replyError(
+  interaction: StringSelectMenuInteraction,
+  content: string
+): Promise<void> {
+  if (interaction.deferred || interaction.replied) {
+    await interaction.followUp({ flags: MessageFlags.Ephemeral, content });
+    return;
+  }
+  await interaction.reply({ flags: MessageFlags.Ephemeral, content });
+}
+
 export async function handleSelectInteraction(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
   const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    await interaction.editReply(t.disabled);
+    await replyError(interaction, t.disabled);
     return;
   }
 
   const panelId = parseSelectCustomId(interaction.customId);
   if (!panelId) {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
   const panel = resolvePanel(panelId);
   if (!panel || !panel.published) {
-    await interaction.editReply(t.panelUnpublished);
+    await replyError(interaction, t.panelUnpublished);
     return;
   }
 
-  if (panel.reactionType !== 'dropdown') {
-    await interaction.editReply(t.invalidInteraction);
+  if (!isDropdownType(panel.reactionType)) {
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
@@ -48,31 +60,26 @@ export async function handleSelectInteraction(
       interaction.message.id
     )
   ) {
-    await interaction.editReply(t.invalidInteraction);
+    await replyError(interaction, t.invalidInteraction);
     return;
   }
 
   const guildMember = await interaction.guild?.members.fetch(interaction.user.id);
   if (!guildMember) {
-    await interaction.editReply(t.roleError);
+    await replyError(interaction, t.roleError);
     return;
   }
 
   const validOptionIds = new Set(panel.roleOptions.map((o) => o.id));
   const selected = interaction.values.filter((v) => validOptionIds.has(v));
-
   const panelRoleIds = panel.roleOptions.map((o) => o.roleId).filter(Boolean);
 
   if (!panel.toggleable && memberHasPanelRole(guildMember, panelRoleIds)) {
-    const message = formatEphemeralMessage(panel, {
-      mention: `<@${interaction.user.id}>`,
-      role: '',
-    });
-    await interaction.editReply(message ?? '\u200b');
+    await interaction.deferUpdate();
     return;
   }
 
-  const changedRoleNames: string[] = [];
+  await interaction.deferUpdate();
 
   for (const opt of panel.roleOptions) {
     if (!opt.roleId.trim()) continue;
@@ -83,35 +90,31 @@ export async function handleSelectInteraction(
       if (isSelected && !hasRole) {
         const result = await tryAssignRole(guildMember, opt.roleId);
         if (!result.ok) {
-          await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
+          await replyError(
+            interaction,
+            result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
+          );
           return;
         }
-        const name = interaction.guild?.roles.cache.get(opt.roleId)?.name;
-        if (name) changedRoleNames.push(name);
       } else if (!isSelected && hasRole) {
         const result = await tryRemoveRole(guildMember, opt.roleId);
         if (!result.ok) {
-          await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
+          await replyError(
+            interaction,
+            result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
+          );
           return;
         }
-        const name = interaction.guild?.roles.cache.get(opt.roleId)?.name;
-        if (name) changedRoleNames.push(name);
       }
     } else if (isSelected && !hasRole) {
       const result = await tryAssignRole(guildMember, opt.roleId);
       if (!result.ok) {
-        await interaction.editReply(result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError);
+        await replyError(
+          interaction,
+          result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
+        );
         return;
       }
-      const name = interaction.guild?.roles.cache.get(opt.roleId)?.name;
-      if (name) changedRoleNames.push(name);
     }
   }
-
-  const message = formatEphemeralMessage(panel, {
-    mention: `<@${interaction.user.id}>`,
-    role: changedRoleNames.join(', '),
-  });
-
-  await interaction.editReply(message ?? '\u200b');
 }
