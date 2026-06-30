@@ -5,50 +5,24 @@ import {
   EmbedBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
+import {
+  emojiMatchKey,
+  encodeEmojiForReaction,
+  parseCustomEmojiId,
+  parseEmoji,
+} from '../../core/discordEmoji.js';
 import { discordBotFetch } from '../../core/discordApi.js';
+import { publishDiscordMessage, type DiscordApiContext } from '../../core/panelPublish.js';
 import type { ResolvedRolePanel, RoleOption } from './types.js';
 import { resolvePanel } from './types.js';
+
+export type { DiscordApiContext };
 
 export const BTN_PREFIX = 'reaction-roles:btn:';
 export const SEL_PREFIX = 'reaction-roles:sel:';
 
-export interface DiscordApiContext {
-  botToken: string;
-}
-
 const MAX_OPTIONS = 25;
 const MAX_BUTTONS_PER_ROW = 5;
-
-function parseEmoji(emoji: string): { name: string } | undefined {
-  const trimmed = emoji.trim();
-  if (!trimmed) return undefined;
-  const custom = trimmed.match(/^<a?:(\w+):\d+>$/);
-  if (custom) return { name: custom[1] };
-  return { name: trimmed };
-}
-
-function parseCustomEmojiId(emoji: string): string | undefined {
-  const match = emoji.trim().match(/^<a?:(\w+):(\d+)>$/);
-  return match?.[2];
-}
-
-/** Stable key for duplicate emoji checks (custom id or unicode literal). */
-function emojiMatchKey(emoji: string): string | undefined {
-  const trimmed = emoji.trim();
-  if (!trimmed) return undefined;
-  const customId = parseCustomEmojiId(trimmed);
-  if (customId) return `custom:${customId}`;
-  return `unicode:${trimmed}`;
-}
-
-/** URL path segment for Discord reaction API. */
-export function encodeEmojiForReaction(emoji: string): string | undefined {
-  const trimmed = emoji.trim();
-  if (!trimmed) return undefined;
-  const custom = trimmed.match(/^<a?:(\w+):(\d+)>$/);
-  if (custom) return encodeURIComponent(`${custom[1]}:${custom[2]}`);
-  return encodeURIComponent(trimmed);
-}
 
 function validatePanel(panel: ResolvedRolePanel): void {
   const count = panel.roleOptions.length;
@@ -180,40 +154,12 @@ export async function publishPanel(
   existingMessageId?: string
 ): Promise<string> {
   const { panel, payload } = buildPanelPayload(panelId);
+  const afterPublish =
+    panel.reactionType === 'emoji'
+      ? (messageId: string) => syncEmojiReactions(ctx, channelId, messageId, panel.roleOptions)
+      : undefined;
 
-  if (existingMessageId) {
-    const editRes = await discordBotFetch(
-      ctx.botToken,
-      `/channels/${channelId}/messages/${existingMessageId}`,
-      { method: 'PATCH', body: JSON.stringify(payload) }
-    );
-    if (editRes.ok) {
-      if (panel.reactionType === 'emoji') {
-        await syncEmojiReactions(ctx, channelId, existingMessageId, panel.roleOptions);
-      }
-      return existingMessageId;
-    }
-    if (editRes.status !== 404) {
-      throw new Error(`Failed to edit panel message (HTTP ${editRes.status}).`);
-    }
-  }
-
-  const createRes = await discordBotFetch(ctx.botToken, `/channels/${channelId}/messages`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  if (!createRes.ok) {
-    throw new Error(`Failed to post panel message (HTTP ${createRes.status}).`);
-  }
-
-  const body = (await createRes.json()) as { id?: string };
-  if (!body.id) throw new Error('Discord did not return a message id.');
-
-  if (panel.reactionType === 'emoji') {
-    await syncEmojiReactions(ctx, channelId, body.id, panel.roleOptions);
-  }
-
-  return body.id;
+  return publishDiscordMessage(ctx, channelId, payload, existingMessageId, afterPublish);
 }
 
 /** Match a reaction emoji to a panel option. */

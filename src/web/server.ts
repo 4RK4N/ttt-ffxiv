@@ -11,12 +11,11 @@ import {
   startLogin,
   type SessionUser,
 } from './auth.js';
-import { loadWebPlugins, type WebPlugin } from './plugins.js';
+import { loadWebPlugins, hasPublishableField, type WebPlugin } from './plugins.js';
 import { readEnabled, readValues, ValidationError, writeEnabled, writeValues } from './store.js';
 import { listGuildChannels } from './channels.js';
 import { listGuildRoles } from './roles.js';
-import { publishTicketPanel, unpublishTicketPanel } from '../modules/tickets/index.js';
-import { publishRolePanel, unpublishRolePanel } from '../modules/reaction-roles/index.js';
+import { getPublishHandlers } from './publishHandlers.js';
 import { editorPage, loginPage } from './ui.js';
 
 type Env = { Variables: { user: SessionUser } };
@@ -92,14 +91,16 @@ async function main(): Promise<void> {
   api.post('/modules/:namespace/publish/:itemId', async (c) => {
     const namespace = c.req.param('namespace');
     const itemId = c.req.param('itemId');
+    const plugin = byNamespace.get(namespace);
+    if (!plugin || !hasPublishableField(plugin)) {
+      return c.json({ error: `Module "${namespace}" does not support publishing.` }, 404);
+    }
+    const handlers = getPublishHandlers(namespace);
+    if (!handlers) {
+      return c.json({ error: `No publish handler registered for "${namespace}".` }, 501);
+    }
     try {
-      if (namespace === 'tickets') {
-        await publishTicketPanel({ botToken: cfg.botToken }, itemId);
-      } else if (namespace === 'reaction-roles') {
-        await publishRolePanel({ botToken: cfg.botToken }, itemId);
-      } else {
-        return c.json({ error: `Module "${namespace}" does not support publishing.` }, 404);
-      }
+      await handlers.publish({ botToken: cfg.botToken }, itemId);
       console.log(`[web] ${c.get('user').username} published ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {
@@ -112,14 +113,16 @@ async function main(): Promise<void> {
   api.post('/modules/:namespace/unpublish/:itemId', async (c) => {
     const namespace = c.req.param('namespace');
     const itemId = c.req.param('itemId');
+    const plugin = byNamespace.get(namespace);
+    if (!plugin || !hasPublishableField(plugin)) {
+      return c.json({ error: `Module "${namespace}" does not support unpublishing.` }, 404);
+    }
+    const handlers = getPublishHandlers(namespace);
+    if (!handlers) {
+      return c.json({ error: `No unpublish handler registered for "${namespace}".` }, 501);
+    }
     try {
-      if (namespace === 'tickets') {
-        await unpublishTicketPanel(itemId);
-      } else if (namespace === 'reaction-roles') {
-        await unpublishRolePanel(itemId);
-      } else {
-        return c.json({ error: `Module "${namespace}" does not support unpublishing.` }, 404);
-      }
+      await handlers.unpublish(itemId);
       console.log(`[web] ${c.get('user').username} unpublished ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {

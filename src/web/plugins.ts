@@ -234,3 +234,7 @@ export function isOptionListSubField(field: WebPluginSubField): boolean {
 export function isBooleanSubField(field: WebPluginSubField): boolean {
   return field.type === 'boolean';
 }
+
+export function hasPublishableField(plugin: WebPlugin): boolean {
+  return plugin.fields.some((f) => isObjectListField(f) && f.publishable === true);
+}
