@@ -251,7 +251,7 @@ const CLIENT_JS = `
   }
 
   function slugify(text) {
-    return (text || 'ticket-type').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'ticket-type';
+    return (text || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'item';
   }
 
   function buildRoleSelect(wrap, value) {

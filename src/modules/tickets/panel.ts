@@ -30,7 +30,9 @@ export function buildPanelPayload(typeId: string) {
     .setStyle(ButtonStyle.Primary);
 
   const parsedEmoji = parseEmoji(ticketType.emoji);
-  if (parsedEmoji) button.setEmoji(parsedEmoji);
+  if (parsedEmoji) {
+    button.setEmoji(parsedEmoji.id ? { id: parsedEmoji.id, name: parsedEmoji.name } : parsedEmoji);
+  }
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 

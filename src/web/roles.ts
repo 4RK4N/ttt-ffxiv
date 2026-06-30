@@ -12,6 +12,7 @@ interface RawRole {
   name?: string;
   color?: number;
   position?: number;
+  managed?: boolean;
 }
 
 const CACHE_TTL_MS = 30_000;
@@ -34,7 +35,10 @@ export async function listGuildRoles(cfg: WebConfig): Promise<GuildRole[]> {
   const roles = raw
     .filter(
       (r): r is Required<Pick<RawRole, 'id' | 'name'>> & RawRole =>
-        typeof r.id === 'string' && typeof r.name === 'string' && r.name !== '@everyone'
+        typeof r.id === 'string' &&
+        typeof r.name === 'string' &&
+        r.name !== '@everyone' &&
+        r.managed !== true
     )
     .sort((a, b) => (b.position ?? 0) - (a.position ?? 0))
     .map((r) => ({ id: r.id, name: r.name, color: r.color ?? 0 }));

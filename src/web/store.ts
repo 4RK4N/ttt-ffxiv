@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { MAX_PANEL_OPTIONS } from '../core/limits.js';
 import { moduleDataPath } from '../core/texts.js';
 import { writeJsonAtomic } from '../core/jsonWrite.js';
 import type { WebPlugin, WebPluginField, WebPluginSubField, WebFieldStore } from './plugins.js';
@@ -17,7 +18,23 @@ const STORE_FILES: Record<WebFieldStore, string> = {
   config: 'config.json',
 };
 
-const MAX_OPTION_LIST = 25;
+const MAX_OPTION_LIST = MAX_PANEL_OPTIONS;
+const SLUG_ID = /^[a-z0-9-]{1,32}$/;
+const SNOWFLAKE = /^\d{17,20}$/;
+
+function assertSlugId(id: string, label: string): void {
+  if (!SLUG_ID.test(id)) {
+    throw new ValidationError(
+      `${label}: id must use lowercase letters, numbers, and hyphens only (no colons).`
+    );
+  }
+}
+
+function assertSnowflake(value: string, label: string): void {
+  if (value && !SNOWFLAKE.test(value)) {
+    throw new ValidationError(`${label} must be a valid Discord ID.`);
+  }
+}
 
 function readDataJson(namespace: string, store: WebFieldStore): Record<string, unknown> {
   const file = moduleDataPath(namespace, STORE_FILES[store]);
@@ -92,6 +109,7 @@ function validateOptionList(
         typeof row.label === 'string' && row.label.trim() !== '' ? row.label : 'option';
       id = uniqueId(slugify(labelKey), usedIds);
     } else {
+      assertSlugId(id, `${label}.${sub.key}`);
       usedIds.add(id);
     }
 
@@ -130,6 +148,9 @@ function validateSubValue(sub: WebPluginSubField, value: unknown, label: string)
   }
   if (typeof value !== 'string') {
     throw new ValidationError(`${label}.${sub.key} must be a string.`);
+  }
+  if (sub.type === 'role' || sub.type === 'channel') {
+    assertSnowflake(value, `${label}.${sub.key}`);
   }
   return value;
 }
@@ -261,6 +282,7 @@ export async function writeValues(
                 : field.itemLabel ?? 'item';
           id = uniqueId(slugify(label), usedIds);
         } else {
+          assertSlugId(id, `${key}[${id}]`);
           usedIds.add(id);
         }
 

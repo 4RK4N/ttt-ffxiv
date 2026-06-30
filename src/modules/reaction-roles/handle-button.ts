@@ -1,6 +1,6 @@
 import { MessageFlags, type ButtonInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
-import { formatEphemeralMessage } from './respond.js';
+import { formatEphemeralMessage, replyEphemeral } from './respond.js';
 import { tryAssignRole, tryRemoveRole } from './roles.js';
 import { BTN_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
@@ -15,14 +15,6 @@ function parseButtonCustomId(customId: string): { panelId: string; optionId: str
   const optionId = rest.slice(sep + 1);
   if (!panelId || !optionId) return null;
   return { panelId, optionId };
-}
-
-async function replyError(interaction: ButtonInteraction, content: string): Promise<void> {
-  if (interaction.deferred || interaction.replied) {
-    await interaction.followUp({ flags: MessageFlags.Ephemeral, content });
-    return;
-  }
-  await interaction.reply({ flags: MessageFlags.Ephemeral, content });
 }
 
 async function replySuccess(
@@ -43,24 +35,24 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
   const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    await replyError(interaction, t.disabled);
+    await replyEphemeral(interaction, t.disabled);
     return;
   }
 
   const parsed = parseButtonCustomId(interaction.customId);
   if (!parsed) {
-    await replyError(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   const panel = resolvePanel(parsed.panelId);
   if (!panel || !panel.published) {
-    await replyError(interaction, t.panelUnpublished);
+    await replyEphemeral(interaction, t.panelUnpublished);
     return;
   }
 
   if (panel.reactionType !== 'button') {
-    await replyError(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
@@ -71,18 +63,18 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
       interaction.message.id
     )
   ) {
-    await replyError(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   const option = resolveOption(panel, parsed.optionId);
   if (!option || !option.roleId.trim()) {
-    await replyError(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   if (!interaction.guild) {
-    await replyError(interaction, t.roleError);
+    await replyEphemeral(interaction, t.roleError);
     return;
   }
 
@@ -97,7 +89,7 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
       ? await tryRemoveRole(guildMember, option.roleId)
       : await tryAssignRole(guildMember, option.roleId);
     if (!result.ok) {
-      await replyError(
+      await replyEphemeral(
         interaction,
         result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
       );
@@ -110,7 +102,7 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
   if (!hasRole) {
     const result = await tryAssignRole(guildMember, option.roleId);
     if (!result.ok) {
-      await replyError(
+      await replyEphemeral(
         interaction,
         result.reason === 'hierarchy' ? t.roleHierarchyError : t.roleError
       );

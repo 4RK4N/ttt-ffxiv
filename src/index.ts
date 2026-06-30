@@ -51,7 +51,14 @@ async function main(): Promise<void> {
         const message = COMPONENT_ERROR_MESSAGE;
         try {
           if (interaction.deferred || interaction.replied) {
-            await interaction.editReply({ content: message, components: [] });
+            // deferUpdate() — never editReply; that would wipe the channel panel message.
+            const panelSafe =
+              interaction.isMessageComponent() && interaction.deferred && !interaction.ephemeral;
+            if (panelSafe) {
+              await interaction.followUp({ content: message, flags: MessageFlags.Ephemeral });
+            } else {
+              await interaction.editReply({ content: message });
+            }
           } else {
             await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
           }

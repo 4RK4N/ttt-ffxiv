@@ -104,9 +104,8 @@ async function main(): Promise<void> {
       console.log(`[web] ${c.get('user').username} published ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to publish panel.';
       console.error(`[web] Publish failed for "${namespace}/${itemId}":`, err);
-      return c.json({ error: message }, 400);
+      return c.json({ error: 'Failed to publish panel.' }, 400);
     }
   });
 
@@ -126,9 +125,8 @@ async function main(): Promise<void> {
       console.log(`[web] ${c.get('user').username} unpublished ${namespace} panel "${itemId}".`);
       return c.json({ ok: true });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to unpublish panel.';
       console.error(`[web] Unpublish failed for "${namespace}/${itemId}":`, err);
-      return c.json({ error: message }, 400);
+      return c.json({ error: 'Failed to unpublish panel.' }, 400);
     }
   });
 

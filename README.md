@@ -120,6 +120,11 @@ src/
   config.ts             # loads & validates data/config.json
   core/
     moduleLoader.ts     # auto-discovers modules under src/modules/*
+    discordApi.ts       # authenticated Discord REST fetch
+    discordEmoji.ts     # emoji parse/encode helpers
+    discordReactions.ts # bot reaction sync with rate-limit spacing
+    panelPublish.ts     # shared panel message post/edit
+    limits.ts           # shared caps (e.g. max panel options)
     threads.ts          # shared thread title helpers
     texts.ts            # loads per-module texts/assets from data/
   modules/
@@ -143,6 +148,7 @@ src/
     config.ts           # validates the editor's own config
     auth.ts             # Discord OAuth login + guild-admin check + session
     plugins.ts          # scans modules for web-plugin.json manifests
+    publishHandlers.ts  # registry for module publish/unpublish routes
     store.ts            # validated, atomic read/write of texts.json + config.json
     channels.ts         # lists the guild's channels for the channel pickers
     ui.ts               # the editor's HTML page (side-tabs per module)

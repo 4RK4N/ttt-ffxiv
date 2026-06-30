@@ -5,7 +5,8 @@ import {
   EmbedBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
-import { emojiMatchKey, parseEmoji } from '../../core/discordEmoji.js';
+import { emojiMatchKey, parseEmoji, reactionMatchKey } from '../../core/discordEmoji.js';
+import { MAX_PANEL_OPTIONS } from '../../core/limits.js';
 import { syncBotMessageReactions } from '../../core/discordReactions.js';
 import { publishDiscordMessage, type DiscordApiContext } from '../../core/panelPublish.js';
 import type { ResolvedRolePanel, RoleOption } from './types.js';
@@ -16,7 +17,7 @@ export type { DiscordApiContext };
 export const BTN_PREFIX = 'reaction-roles:btn:';
 export const SEL_PREFIX = 'reaction-roles:sel:';
 
-const MAX_OPTIONS = 25;
+const MAX_OPTIONS = MAX_PANEL_OPTIONS;
 const MAX_BUTTONS_PER_ROW = 5;
 
 function validatePanel(panel: ResolvedRolePanel): void {
@@ -69,7 +70,7 @@ function buildButtonRows(panel: ResolvedRolePanel): ActionRowBuilder<ButtonBuild
       .setStyle(ButtonStyle.Secondary);
 
     const parsed = parseEmoji(opt.emoji);
-    if (parsed) button.setEmoji(parsed);
+    if (parsed) button.setEmoji(parsed.id ? { id: parsed.id, name: parsed.name } : parsed);
 
     current.addComponents(button);
     if (current.components.length >= MAX_BUTTONS_PER_ROW) {
@@ -91,12 +92,12 @@ function buildSelectRow(panel: ResolvedRolePanel): ActionRowBuilder<StringSelect
     .setMaxValues(single ? 1 : panel.roleOptions.length);
 
   for (const opt of panel.roleOptions) {
-    const option: { label: string; value: string; emoji?: { name: string } } = {
+    const option: { label: string; value: string; emoji?: { name: string; id?: string } } = {
       label: opt.label.slice(0, 100),
       value: opt.id,
     };
     const parsed = parseEmoji(opt.emoji);
-    if (parsed) option.emoji = parsed;
+    if (parsed) option.emoji = parsed.id ? { id: parsed.id, name: parsed.name } : parsed;
     menu.addOptions(option);
   }
 
@@ -156,16 +157,11 @@ export function matchOptionByReaction(
   emojiName: string | null,
   emojiId: string | null
 ): RoleOption | undefined {
-  const reactionKey = emojiId
-    ? `custom:${emojiId}`
-    : emojiName
-      ? `unicode:${emojiName}`
-      : undefined;
-  if (!reactionKey) return undefined;
+  const key = reactionMatchKey(emojiName, emojiId);
+  if (!key) return undefined;
 
   for (const opt of options) {
-    const key = emojiMatchKey(opt.emoji);
-    if (key === reactionKey) return opt;
+    if (emojiMatchKey(opt.emoji) === key) return opt;
   }
   return undefined;
 }

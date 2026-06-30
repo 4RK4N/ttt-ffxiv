@@ -62,6 +62,11 @@ async function handleReaction(
       console.warn(
         `[reaction-roles] Emoji add failed panel=${panel.id} user=${user.id} role=${option.roleId}`
       );
+      try {
+        await reaction.users.remove(user.id);
+      } catch {
+        // best effort — reaction may already be gone
+      }
     }
     return;
   }
