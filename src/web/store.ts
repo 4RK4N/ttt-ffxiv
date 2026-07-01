@@ -4,6 +4,7 @@ import { moduleDataPath } from '../core/texts.js';
 import { writeJsonAtomic } from '../core/jsonWrite.js';
 import type { WebPlugin, WebPluginField, WebPluginSubField, WebFieldStore } from './plugins.js';
 import {
+  isBooleanField,
   isBooleanSubField,
   isMultiField,
   isMultiSubField,
@@ -213,6 +214,8 @@ export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
     const current = parsed(field.store)[field.key];
     if (isMultiField(field)) {
       values[field.key] = toStringArray(current);
+    } else if (isBooleanField(field)) {
+      values[field.key] = current === true;
     } else {
       values[field.key] = typeof current === 'string' ? current : '';
     }
@@ -319,6 +322,11 @@ export async function writeValues(
         throw new ValidationError(`Field "${key}" must be an array of strings.`);
       }
       normalized = value as string[];
+    } else if (isBooleanField(field)) {
+      if (typeof value !== 'boolean') {
+        throw new ValidationError(`Field "${key}" must be a boolean.`);
+      }
+      normalized = value;
     } else {
       if (typeof value !== 'string') {
         throw new ValidationError(`Field "${key}" must be a string.`);

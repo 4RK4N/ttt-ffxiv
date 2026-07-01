@@ -231,6 +231,10 @@ export function isOptionListSubField(field: WebPluginSubField): boolean {
   return field.type === 'option-list';
 }
 
+export function isBooleanField(field: WebPluginField): boolean {
+  return field.type === 'boolean';
+}
+
 export function isBooleanSubField(field: WebPluginSubField): boolean {
   return field.type === 'boolean';
 }
