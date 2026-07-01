@@ -129,10 +129,11 @@ async function handleMessageDeleteBulk(
 
 async function handleGuildBanAdd(ban: GuildBan): Promise<void> {
   if (!isModuleEnabled(NAMESPACE)) return;
-  if (!config().logMemberBanned) return;
-  if (!logChannelId()) return;
 
   markRecentBan(ban.user.id);
+
+  if (!config().logMemberBanned) return;
+  if (!logChannelId()) return;
 
   const audit = await findRecentBan(ban.guild, ban.user.id);
   const embed = buildMemberBannedEmbed(texts(), ban.user, new Date(), audit?.executorId ?? null);
@@ -149,31 +150,49 @@ async function handleGuildBanRemove(ban: GuildBan): Promise<void> {
   await postLog(ban.client, embed);
 }
 
+async function resolveRemovedMember(
+  member: GuildMember | PartialGuildMember
+): Promise<{ guild: GuildMember['guild']; user: NonNullable<GuildMember['user']> } | null> {
+  const guildId = member.guild?.id ?? ('guildId' in member ? member.guildId : undefined);
+  if (!guildId) return null;
+
+  const guild =
+    member.guild ??
+    member.client.guilds.cache.get(guildId) ??
+    (await member.client.guilds.fetch(guildId).catch(() => null));
+
+  if (!guild) return null;
+
+  const user =
+    member.user ?? (await member.client.users.fetch(member.id).catch(() => null));
+
+  if (!user) return null;
+
+  return { guild, user };
+}
+
 async function handleGuildMemberRemove(member: GuildMember | PartialGuildMember): Promise<void> {
   if (!isModuleEnabled(NAMESPACE)) return;
   if (!logChannelId()) return;
   if (wasRecentBan(member.id)) return;
 
-  const user = member.user;
-  if (!user) return;
+  const resolved = await resolveRemovedMember(member);
+  if (!resolved) return;
 
+  const { guild, user } = resolved;
   const cfg = config();
   const t = texts();
   const timestamp = new Date();
 
-  const kickEntry =
-    cfg.logMemberKicked || cfg.logMemberLeft
-      ? await findRecentKick(member.guild, member.id)
-      : null;
-
-  if (kickEntry) {
-    if (cfg.logMemberKicked) {
+  if (cfg.logMemberKicked) {
+    const kickEntry = await findRecentKick(guild, member.id);
+    if (kickEntry) {
       await postLog(
         member.client,
         buildMemberKickedEmbed(t, user, timestamp, kickEntry.executorId)
       );
+      return;
     }
-    return;
   }
 
   if (!cfg.logMemberLeft) return;
