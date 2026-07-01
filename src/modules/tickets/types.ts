@@ -10,6 +10,7 @@ export interface TicketTypeConfig {
   panelMessageId: string;
   staffRoleIds: string[];
   deniedRoleIds: string[];
+  roleActionRoleId?: string;
 }
 
 export interface TicketTypeTexts {
@@ -30,6 +31,8 @@ export interface TicketTypeTexts {
   alreadyOpen: string;
   openSuccess: string;
   roleDenied: string;
+  roleActionButtonLabel: string;
+  roleActionConfirmation: string;
 }
 
 export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
@@ -55,6 +58,9 @@ export interface TicketsTexts {
   threadContextRequired: string;
   invalidInteraction: string;
   openInProgress: string;
+  roleActionError: string;
+  roleActionHierarchyError: string;
+  roleActionOpenerMissing: string;
   types: Record<string, TicketTypeTexts>;
 }
 
@@ -76,6 +82,8 @@ export const DEFAULT_TYPE_TEXTS: TicketTypeTexts = {
   alreadyOpen: 'You already have an open ticket in this category.',
   openSuccess: 'Your ticket was created: {thread}',
   roleDenied: 'You cannot open a ticket in this category.',
+  roleActionButtonLabel: 'Grant role',
+  roleActionConfirmation: '{mention} was given {role}.',
 };
 
 export const TEXT_DEFAULTS: TicketsTexts = {
@@ -94,6 +102,9 @@ export const TEXT_DEFAULTS: TicketsTexts = {
   threadContextRequired: 'This action must be used inside a ticket thread.',
   invalidInteraction: 'This button does not match the current ticket thread.',
   openInProgress: 'Your ticket is being opened — please wait a moment.',
+  roleActionError: 'Could not assign the role. Please try again or contact an admin.',
+  roleActionHierarchyError: 'I cannot assign that role — it is above my highest role.',
+  roleActionOpenerMissing: 'Could not find the ticket opener to assign the role.',
   types: {},
 };
 
@@ -119,5 +130,6 @@ export function resolveTicketType(id: string): ResolvedTicketType | undefined {
     ...copy,
     staffRoleIds: row.staffRoleIds ?? [],
     deniedRoleIds: row.deniedRoleIds ?? [],
+    roleActionRoleId: row.roleActionRoleId?.trim() || undefined,
   };
 }

@@ -6,6 +6,7 @@ import { handleDeleteCancel, handleDeleteTicket } from './delete.js';
 import { registerMemberCacheWarm } from './member-cache.js';
 import { handleOpenTicket } from './open.js';
 import { publishPanel, type DiscordApiContext } from './panel.js';
+import { handleRoleAction } from './role-action.js';
 import { resolveTicketType, NAMESPACE } from './types.js';
 
 async function handleComponent(interaction: MessageComponentInteraction): Promise<void> {
@@ -25,6 +26,11 @@ async function handleComponent(interaction: MessageComponentInteraction): Promis
 
   if (customId.startsWith('tickets:delete-cancel:')) {
     await handleDeleteCancel(interaction);
+    return;
+  }
+
+  if (customId.startsWith('tickets:role-action:')) {
+    await handleRoleAction(interaction as ButtonInteraction);
     return;
   }
 

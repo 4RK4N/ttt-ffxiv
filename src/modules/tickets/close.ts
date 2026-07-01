@@ -5,11 +5,10 @@ import {
   MessageFlags,
   type ButtonInteraction,
   type GuildMember,
-  type ThreadChannel,
 } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
-import { buildClosedThreadName } from './names.js';
-import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX, DELETE_PREFIX } from './panel.js';
+import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
+import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
 import { resolveTicketType, texts, NAMESPACE } from './types.js';
 
@@ -32,24 +31,6 @@ function parseCloseCustomId(customId: string): ParsedCloseCustomId | null {
     return { threadId, typeId: segments[1], openerUserId: segments[2] };
   }
   return { threadId, typeId: segments.slice(1).join(':') };
-}
-
-/** Bot-created private threads have the bot as owner, not the opener. */
-async function resolveOpenerUserId(
-  thread: ThreadChannel,
-  parsedOpenerUserId?: string
-): Promise<string | null> {
-  if (parsedOpenerUserId) return parsedOpenerUserId;
-
-  try {
-    const messages = await thread.messages.fetch({ limit: 10 });
-    const welcome = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp)[0];
-    const match = welcome?.content.match(/<@!?(\d+)>/);
-    return match?.[1] ?? null;
-  } catch (err) {
-    console.warn(`[tickets] Could not resolve opener for thread ${thread.id}:`, err);
-    return null;
-  }
 }
 
 function canCloseTicket(
@@ -152,25 +133,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
   await interaction.deferUpdate();
 
   try {
-    const messages = await thread.messages.fetch({ limit: 10 });
-    const welcome = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp)[0];
-    if (welcome?.components.length) {
-      await welcome.edit({ components: [] });
-    }
-
-    const deleteButton = new ButtonBuilder()
-      .setCustomId(`${DELETE_PREFIX}${thread.id}:${parsed.typeId}`)
-      .setLabel(ticketType.deleteButtonLabel.slice(0, 80))
-      .setStyle(ButtonStyle.Danger);
-
-    const deleteRow = new ActionRowBuilder<ButtonBuilder>().addComponents(deleteButton);
-
-    await thread.send({
-      content: ticketType.ticketClosed,
-      components: [deleteRow],
-    });
-    await thread.setName(buildClosedThreadName(thread.name));
-    await thread.setLocked(true);
+    await finalizeTicketClose(thread, parsed.typeId, ticketType, ticketType.ticketClosed);
   } catch (err) {
     console.error('[tickets] Failed to close ticket:', err);
     await interaction.followUp({

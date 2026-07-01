@@ -13,7 +13,7 @@ import {
 import { format, isModuleEnabled } from '../../core/texts.js';
 import { THREAD_AUTO_ARCHIVE_MINUTES } from '../../core/threads.js';
 import { buildTicketThreadName, isClosedTicketThread } from './names.js';
-import { CLOSE_PREFIX } from './panel.js';
+import { CLOSE_PREFIX, ROLE_ACTION_PREFIX } from './panel.js';
 import { memberHasAnyRole } from './permissions.js';
 import { addMembersToThread, collectStaffUserIds } from './thread-members.js';
 import { resolveTicketType, texts, NAMESPACE } from './types.js';
@@ -129,7 +129,16 @@ export async function handleOpenTicket(interaction: ButtonInteraction): Promise<
       .setLabel(ticketType.closeButtonLabel.slice(0, 80))
       .setStyle(ButtonStyle.Danger);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
+    const row = new ActionRowBuilder<ButtonBuilder>();
+    if (ticketType.roleActionRoleId) {
+      row.addComponents(
+        new ButtonBuilder()
+          .setCustomId(`${ROLE_ACTION_PREFIX}${thread.id}:${typeId}:${interaction.user.id}`)
+          .setLabel(ticketType.roleActionButtonLabel.slice(0, 80))
+          .setStyle(ButtonStyle.Success)
+      );
+    }
+    row.addComponents(closeButton);
 
     await thread.send({
       content: format(ticketType.ticketWelcome, { mention: `<@${interaction.user.id}>` }),

@@ -798,9 +798,12 @@ const CLIENT_JS = `
         items.push({
           id: '', published: false, openButtonLabel: 'Open ticket', panelTitle: 'Support',
           panelDescription: '', emoji: '', channelId: '', staffRoleIds: [], deniedRoleIds: [],
+          roleActionRoleId: '',
           roleDenied: 'You cannot open a ticket in this category.',
           ticketWelcome: 'Hi {mention}, describe your issue and staff will assist you.',
-          closeButtonLabel: 'Close ticket', confirmClosePrompt: 'Close this ticket?',
+          closeButtonLabel: 'Close ticket',
+          roleActionButtonLabel: 'Grant role',
+          roleActionConfirmation: '{mention} was given {role}.', confirmClosePrompt: 'Close this ticket?',
           confirmCloseYes: 'Yes, close', confirmCloseNo: 'Cancel',
           ticketClosed: 'This ticket has been closed.',
           deleteButtonLabel: 'DELETE',

@@ -93,6 +93,24 @@
       "store": "texts"
     },
     {
+      "key": "roleActionError",
+      "label": "Role action error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "roleActionHierarchyError",
+      "label": "Role action hierarchy error message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
+      "key": "roleActionOpenerMissing",
+      "label": "Role action opener missing message",
+      "type": "textarea",
+      "store": "texts"
+    },
+    {
       "key": "ticketTypes",
       "label": "Ticket types",
       "type": "object-list",
@@ -127,6 +145,13 @@
           "type": "role-multi",
           "store": "config",
           "help": "Users with any of these roles cannot open this ticket type. Leave empty to disable."
+        },
+        {
+          "key": "roleActionRoleId",
+          "label": "Role action role (optional)",
+          "type": "role",
+          "store": "config",
+          "help": "When set, staff can use a green button on the welcome message to grant this role to the opener and close the ticket."
         },
         {
           "key": "roleDenied",
@@ -164,6 +189,19 @@
           "label": "Close button label",
           "type": "text",
           "store": "texts"
+        },
+        {
+          "key": "roleActionButtonLabel",
+          "label": "Role action button label",
+          "type": "text",
+          "store": "texts"
+        },
+        {
+          "key": "roleActionConfirmation",
+          "label": "Role action confirmation",
+          "type": "textarea",
+          "store": "texts",
+          "help": "Posted in the channel when staff use the role action button. Tokens: {mention}, {role}"
         },
         {
           "key": "confirmClosePrompt",

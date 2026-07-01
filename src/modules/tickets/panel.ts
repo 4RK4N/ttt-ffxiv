@@ -15,6 +15,7 @@ export const CLOSE_PREFIX = 'tickets:close:';
 export const CLOSE_CONFIRM_PREFIX = 'tickets:close-confirm:';
 export const DELETE_PREFIX = 'tickets:delete:';
 export const DELETE_CONFIRM_PREFIX = 'tickets:delete-confirm:';
+export const ROLE_ACTION_PREFIX = 'tickets:role-action:';
 
 export function buildPanelPayload(typeId: string) {
   const ticketType = resolveTicketType(typeId);
