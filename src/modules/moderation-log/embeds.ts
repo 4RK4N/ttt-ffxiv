@@ -11,6 +11,7 @@ export interface ModLogTexts {
   memberLeft: string;
   memberKicked: string;
   memberBanned: string;
+  memberUnbanned: string;
   executorUnknown: string;
   footerMessageId: string;
   footerUserId: string;
@@ -23,6 +24,7 @@ export const TEXT_DEFAULTS: ModLogTexts = {
   memberLeft: '📤 {mention} has left the server',
   memberKicked: '👮 {mention} has been kicked by {executorId}',
   memberBanned: '👮 🔒 {mention} has been banned by {executorId}',
+  memberUnbanned: '🔓 {mention} has been unbanned by {executorId}',
   executorUnknown: 'Unknown',
   footerMessageId: 'Message ID: {messageId}',
   footerUserId: 'ID: {userId}',
@@ -110,6 +112,15 @@ export function buildMemberBannedEmbed(
   executorId: string | null
 ): EmbedBuilder {
   return buildMemberEmbed(texts.memberBanned, texts.footerUserId, texts, user, timestamp, executorId);
+}
+
+export function buildMemberUnbannedEmbed(
+  texts: ModLogTexts,
+  user: UserLike,
+  timestamp: Date,
+  executorId: string | null
+): EmbedBuilder {
+  return buildMemberEmbed(texts.memberUnbanned, texts.footerUserId, texts, user, timestamp, executorId);
 }
 
 function buildMemberEmbed(

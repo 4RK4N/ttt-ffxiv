@@ -29,6 +29,17 @@ export async function findRecentBan(
   return findRecentAuditEntry(guild, userId, AuditLogEvent.MemberBanAdd, 'ban');
 }
 
+/**
+ * Returns a recent MemberBanRemove audit entry for the user, if any.
+ * Requires the bot to have View Audit Log permission.
+ */
+export async function findRecentUnban(
+  guild: Guild,
+  userId: string
+): Promise<ModerationAuditEntry | null> {
+  return findRecentAuditEntry(guild, userId, AuditLogEvent.MemberBanRemove, 'unban');
+}
+
 async function findRecentAuditEntry(
   guild: Guild,
   userId: string,

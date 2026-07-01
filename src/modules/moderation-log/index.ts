@@ -12,12 +12,13 @@ import {
 } from 'discord.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
 import { getConfig, getTexts, isModuleEnabled } from '../../core/texts.js';
-import { findRecentBan, findRecentKick } from './audit.js';
+import { findRecentBan, findRecentKick, findRecentUnban } from './audit.js';
 import {
   TEXT_DEFAULTS,
   buildMemberBannedEmbed,
   buildMemberKickedEmbed,
   buildMemberLeftEmbed,
+  buildMemberUnbannedEmbed,
   buildMessageDeletedEmbed,
   resolveDeleteAuthor,
   type ModLogTexts,
@@ -31,6 +32,7 @@ interface ModLogConfig {
   logMemberLeft: boolean;
   logMemberKicked: boolean;
   logMemberBanned: boolean;
+  logMemberUnbanned: boolean;
 }
 
 const CONFIG_DEFAULTS: ModLogConfig = {
@@ -39,6 +41,7 @@ const CONFIG_DEFAULTS: ModLogConfig = {
   logMemberLeft: true,
   logMemberKicked: true,
   logMemberBanned: true,
+  logMemberUnbanned: true,
 };
 
 /** User IDs recently banned — suppresses duplicate leave/kick logs. */
@@ -136,6 +139,16 @@ async function handleGuildBanAdd(ban: GuildBan): Promise<void> {
   await postLog(ban.client, embed);
 }
 
+async function handleGuildBanRemove(ban: GuildBan): Promise<void> {
+  if (!isModuleEnabled(NAMESPACE)) return;
+  if (!config().logMemberUnbanned) return;
+  if (!logChannelId()) return;
+
+  const audit = await findRecentUnban(ban.guild, ban.user.id);
+  const embed = buildMemberUnbannedEmbed(texts(), ban.user, new Date(), audit?.executorId ?? null);
+  await postLog(ban.client, embed);
+}
+
 async function handleGuildMemberRemove(member: GuildMember | PartialGuildMember): Promise<void> {
   if (!isModuleEnabled(NAMESPACE)) return;
   if (!logChannelId()) return;
@@ -193,6 +206,12 @@ const moderationLogModule: CommandModule = {
     client.on(Events.GuildBanAdd, (ban) => {
       void handleGuildBanAdd(ban).catch((err) => {
         console.error('[moderation-log] GuildBanAdd handler error:', err);
+      });
+    });
+
+    client.on(Events.GuildBanRemove, (ban) => {
+      void handleGuildBanRemove(ban).catch((err) => {
+        console.error('[moderation-log] GuildBanRemove handler error:', err);
       });
     });
 

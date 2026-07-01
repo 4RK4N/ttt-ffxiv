@@ -1,6 +1,6 @@
 {
   "title": "Moderation Log",
-  "description": "Posts embed logs to a channel when messages are deleted or members leave, are kicked, or are banned.",
+  "description": "Posts embed logs to a channel when messages are deleted or members leave, are kicked, banned, or unbanned.",
   "fields": [
     {
       "key": "channelId",
@@ -30,6 +30,12 @@
     {
       "key": "logMemberBanned",
       "label": "Log member ban",
+      "type": "boolean",
+      "store": "config"
+    },
+    {
+      "key": "logMemberUnbanned",
+      "label": "Log member unban",
       "type": "boolean",
       "store": "config"
     },
@@ -66,6 +72,12 @@
     {
       "key": "memberBanned",
       "label": "Member banned",
+      "type": "text",
+      "help": "Tokens: {mention}, {executorId}"
+    },
+    {
+      "key": "memberUnbanned",
+      "label": "Member unbanned",
       "type": "text",
       "help": "Tokens: {mention}, {executorId}"
     },
