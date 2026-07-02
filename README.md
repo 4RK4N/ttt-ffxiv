@@ -96,6 +96,9 @@ unavailable reply).
   staff and admins are auto-added.
 - **Close / delete**: the ticket opener can close their own ticket; delete remains staff/admin only.
 - **Denied roles**: optional per type; users with any selected role cannot open.
+- **Role action button** (optional): per ticket type, staff can click a button inside the
+  thread to grant a configured role to the ticket opener. Leave `roleActionRoleId` empty to
+  hide the button.
 
 See [INSTALL.md — tickets](INSTALL.md#datatickets---ticket-panels-and-private-thread-tickets)
 for setup. Requires **Server Members** intent (staff resolution).
@@ -112,6 +115,31 @@ See [INSTALL.md — reaction-roles](INSTALL.md#datareaction-roles---embed-role-p
 for setup. Emoji mode needs **Guild Message Reactions** intent (standard, not
 privileged). The bot role must sit above assignable roles and have **Manage Roles**.
 
+### moderation-log (audit-style event logging)
+
+Posts embed logs to a configured channel when messages are deleted or members leave,
+are kicked, banned, or unbanned. Each event type can be toggled independently in the
+[Web editor](#web-editor). Kick, ban, and unban entries include the moderator when
+Discord's audit log provides one (requires **View Audit Log**). Ban events are
+deduplicated so a ban does not also log as a leave or kick.
+
+Configure the log channel with `channelId` in `data/moderation-log/config.json`, or
+pick it from a channel dropdown in the editor. If `channelId` is empty, the module
+stays disabled. Member leave/kick detection uses the **Server Members** intent.
+
+See [INSTALL.md — moderation-log](INSTALL.md#datamoderation-log---event-logging).
+
+### custom-embeds (static info embed panels)
+
+Web-configured embed messages for server info, rules summaries, or other static content
+— no slash commands. Each **panel** has its own channel, title, description, optional
+author/footer, and optional timestamp (refreshed on re-publish). **Save**, then
+**Publish panel** to post or update the Discord message; **Unpublish** stops tracking
+the panel (the message stays until removed manually).
+
+See [INSTALL.md — custom-embeds](INSTALL.md#datacustom-embeds---static-embed-panels)
+for setup. The bot needs **Send Messages** and **Embed Links** in the target channel.
+
 ## Project layout
 
 ```
@@ -123,7 +151,11 @@ src/
     discordApi.ts       # authenticated Discord REST fetch
     discordEmoji.ts     # emoji parse/encode helpers
     discordReactions.ts # bot reaction sync with rate-limit spacing
+    embedBuilder.ts     # shared Discord embed construction
     panelPublish.ts     # shared panel message post/edit
+    panelPublisher.ts   # shared publish/unpublish orchestration
+    configIo.ts         # shared config read/write helpers
+    jsonWrite.ts        # atomic JSON file writes
     limits.ts           # shared caps (e.g. max panel options)
     threads.ts          # shared thread title helpers
     texts.ts            # loads per-module texts/assets from data/
@@ -142,6 +174,12 @@ src/
       web-plugin.json
     reaction-roles/
       index.ts          # role panel buttons/selects + emoji reactions
+      web-plugin.json
+    moderation-log/
+      index.ts          # message delete + member leave/kick/ban/unban logs
+      web-plugin.json
+    custom-embeds/
+      index.ts          # static embed panel publish/unpublish
       web-plugin.json
   web/                  # the web editor (separate process/container)
     server.ts           # entry point: Hono HTTP server + routes
@@ -167,6 +205,12 @@ data/                   # runtime config + editable content (git-ignored secrets
     texts.json
   tickets/
     config.json         # { "ticketTypes": [...] } - per-type channels, roles, publish state
+    texts.json
+  moderation-log/
+    config.json         # { "channelId": "...", log* toggles } - log channel + event filters
+    texts.json
+  custom-embeds/
+    config.json         # { "panels": [...] } - per-panel channel, publish state, timestamp
     texts.json
 scripts/
   deploy-commands.ts    # registers slash commands with Discord
@@ -209,7 +253,7 @@ restart.
   as on, so modules stay enabled by default.
 - **What's editable** is declared per module by a `web-plugin.json` manifest next
   to the module's `index.js`. Each manifest lists fields with a `key`, `label`,
-  optional `help`, a `type` (`text`, `textarea`, `channel`, `channel-multi`,
+  optional `help`, a `type` (`text`, `textarea`, `boolean`, `channel`, `channel-multi`,
   `role-multi`, or `object-list`), and a `store` (`texts` for `texts.json`,
   `config` for `config.json`; defaults to `texts`). The editor scans modules at
   startup, so adding/removing editable fields is just editing that JSON - no
@@ -263,7 +307,7 @@ npm install
    [Developer Portal](https://discord.com/developers/applications):
    - Copy the **bot token** and the **Application (client) ID**.
    - Invite the bot to your server. Recommended URL (Administrator — needed for
-     tickets, channel/role listing, thread management):
+     tickets, moderation-log audit attribution, channel/role listing, thread management):
 
      ```
      https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=8
@@ -277,10 +321,10 @@ npm install
 cp data/config.example.json data/config.json
 ```
 
-   Per-module channel settings live in
-   `data/links-pics-vids-autothread/config.json` (`channelIds`) and
-   `data/welcome-message/config.json` (`channelId`, `rulesChannelId`). For every field, what's
-   optional, and the privileged intents each module needs, see the
+   Per-module settings live under `data/<module>/`. Copy each module's
+   `*.example.json` templates before first use (e.g. welcome channel, auto-thread
+   channels, moderation log channel). For every field, what's optional, and the
+   privileged intents each module needs, see the
    [Configuration reference](INSTALL.md#configuration-reference) in `INSTALL.md`.
 
 ## Deploy slash commands

@@ -181,7 +181,9 @@ Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
 they can see private threads (the bot itself uses **Administrator** from the invite above).
 Only staff/admin can delete tickets. The opener can close their own ticket; staff/admin can close any ticket.
 Optional **denied roles** per ticket type block users with those roles from opening
-(empty list = no check).
+(empty list = no check). Optional **role action button** per ticket type: when
+`roleActionRoleId` is set, staff see a button in the thread that grants that role to
+the ticket opener (label and confirmation text are editable per type).
 
 On ticket open, all members of roles with Administrator permission plus configured
 staff roles are auto-added to the thread. At bot startup the member list is fetched
@@ -214,6 +216,62 @@ interactions on that panel (the message stays).
   Managed/integration roles cannot be assigned.
 
 Emoji mode adds reactions to the published message automatically on publish.
+
+### `data/moderation-log/` - event logging
+
+Copy the examples and configure via the [Web editor](README.md#web-editor):
+
+```bash
+cp data/moderation-log/config.example.json data/moderation-log/config.json
+cp data/moderation-log/texts.example.json data/moderation-log/texts.json
+```
+
+Set `channelId` to the channel where log embeds are posted. Leave it empty (`""`) to
+disable the module, or set `"enabled": false` to turn it off while keeping the channel
+configured. Each event type has its own boolean toggle:
+
+| Config key | Default | Event |
+| ---------- | ------- | ----- |
+| `logMessageDeleted` | `true` | A message is deleted (including bulk deletes) |
+| `logMemberLeft` | `true` | A member leaves voluntarily |
+| `logMemberKicked` | `true` | A member is kicked (detected via audit log) |
+| `logMemberBanned` | `true` | A member is banned |
+| `logMemberUnbanned` | `true` | A member is unbanned |
+
+Kick, ban, and unban logs include the moderator when Discord's audit log provides an
+executor within ~5 seconds of the event. The bot needs **View Audit Log** for that;
+without it, logs still post but show "Unknown" for the moderator. Ban events are
+deduplicated so the same removal does not also log as a leave or kick.
+
+Member leave/kick detection uses the privileged **Server Members** intent (Developer
+Portal -> Bot -> Privileged Gateway Intents). Deleted-message logs do not require
+**Message Content** — the delete event carries cached content when available.
+
+Text templates in `texts.json` support tokens such as `{author}`, `{channel}`,
+`{mention}`, `{executorId}`, `{messageId}`, and `{userId}`. See
+`data/moderation-log/texts.example.json` for defaults.
+
+### `data/custom-embeds/` - static embed panels
+
+Copy the examples and configure via the [Web editor](README.md#web-editor):
+
+```bash
+cp data/custom-embeds/config.example.json data/custom-embeds/config.json
+cp data/custom-embeds/texts.example.json data/custom-embeds/texts.json
+```
+
+Each **panel** is one embed message: pick a channel, set title/description, and
+optionally author name/icon URL, footer, and a timestamp toggle. **Save**, then
+**Publish panel** to post or update the Discord message. **Unpublish** stops tracking
+the panel (the message stays until removed manually or the panel is re-published
+after deleting the old message).
+
+- **Description** is required; title, author, and footer are optional.
+- **Author icon URL** must be a valid `http` or `https` URL and requires an author name.
+- **Show timestamp**: when enabled, the embed shows the publish time; re-publishing
+  refreshes it.
+
+The bot needs **Send Messages** and **Embed Links** in each target channel.
 
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 
