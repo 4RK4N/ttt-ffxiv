@@ -9,6 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ttt-discord-bot:1.0.0
+    pull_policy: build
     container_name: ttt-discord-bot
     # All configuration (token, client ID, etc.) is read from data/config.json,
     # provided by the bind mount below. Persist module texts/assets too so edits
@@ -24,6 +25,7 @@ services:
   # edit each module's texts.json; the bot hot-reloads the shared ./data volume.
   ttt-web-editor:
     image: ttt-discord-bot:1.0.0
+    pull_policy: never
     container_name: ttt-web-editor
     depends_on:
       - ttt-discord-bot
