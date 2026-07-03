@@ -7,11 +7,11 @@ import {
   type ThreadChannel,
 } from 'discord.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
-import { isModuleEnabled } from '../../core/texts.js';
+import { guardTicketThreadAction } from './guards.js';
 import { isClosedTicketThread } from './names.js';
 import { DELETE_CONFIRM_PREFIX, DELETE_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
-import { resolveTicketType, texts, NAMESPACE } from './config-io.js';
+import { texts } from './config-io.js';
 
 interface ParsedDeleteCustomId {
   threadId: string;
@@ -40,29 +40,10 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
   if (!parsed) return;
 
   const isConfirm = interaction.customId.startsWith(DELETE_CONFIRM_PREFIX);
-  const ticketType = resolveTicketType(parsed.typeId);
-  const t = texts();
+  const guarded = await guardTicketThreadAction(interaction, parsed.typeId, parsed.threadId);
+  if (!guarded.ok) return;
 
-  if (!isModuleEnabled(NAMESPACE)) {
-    await replyEphemeral(interaction, t.disabled);
-    return;
-  }
-
-  if (!ticketType) {
-    await replyEphemeral(interaction, t.categoryUnpublished);
-    return;
-  }
-
-  const thread = interaction.channel;
-  if (!thread?.isThread()) {
-    await replyEphemeral(interaction, t.threadContextRequired);
-    return;
-  }
-
-  if (parsed.threadId !== thread.id) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
+  const { ticketType, thread, t } = guarded.ctx;
 
   if (!isClosedTicketThread(thread.name, thread.locked === true)) {
     await replyEphemeral(interaction, t.deleteNotClosed);

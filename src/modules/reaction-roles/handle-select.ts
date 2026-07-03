@@ -1,21 +1,16 @@
 import { type GuildMember, type StringSelectMenuInteraction } from 'discord.js';
-import { isModuleEnabled } from '../../core/texts.js';
 import { memberHasAnyRole, replyEphemeral } from '../../core/discordInteractions.js';
 import { tryAssignRole, tryRemoveRole } from '../../core/discordRoles.js';
 import { isOnCooldown, touchCooldown } from './cooldown.js';
+import { guardPublishedPanel } from './guards.js';
 import { formatEphemeralMessage } from './respond.js';
 import { SEL_PREFIX } from './panel.js';
-import { isActivePanelMessage } from './guards.js';
-import { resolvePanel, texts, NAMESPACE } from './config-io.js';
+import { texts } from './config-io.js';
 
 function parseSelectCustomId(customId: string): string | null {
   if (!customId.startsWith(SEL_PREFIX)) return null;
   const panelId = customId.slice(SEL_PREFIX.length);
   return panelId || null;
-}
-
-function isDropdownType(reactionType: string): boolean {
-  return reactionType === 'dropdown' || reactionType === 'dropdown-single';
 }
 
 type AppliedChange = { roleId: string; action: 'add' | 'remove' };
@@ -31,40 +26,18 @@ async function rollbackChanges(member: GuildMember, applied: AppliedChange[]): P
 export async function handleSelectInteraction(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const t = texts();
-
-  if (!isModuleEnabled(NAMESPACE)) {
-    await replyEphemeral(interaction, t.disabled);
-    return;
-  }
-
   const panelId = parseSelectCustomId(interaction.customId);
   if (!panelId) {
-    await replyEphemeral(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, texts().invalidInteraction);
     return;
   }
 
-  const panel = resolvePanel(panelId);
-  if (!panel || !panel.published) {
-    await replyEphemeral(interaction, t.panelUnpublished);
-    return;
-  }
+  const guarded = await guardPublishedPanel(interaction, panelId, {
+    reactionType: ['dropdown', 'dropdown-single'],
+  });
+  if (!guarded.ok) return;
 
-  if (!isDropdownType(panel.reactionType)) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
-
-  if (
-    !isActivePanelMessage(
-      panel,
-      interaction.channelId,
-      interaction.message.id
-    )
-  ) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
+  const { panel, t } = guarded;
 
   const guildMember = await interaction.guild?.members.fetch(interaction.user.id);
   if (!guildMember) {

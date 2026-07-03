@@ -88,7 +88,7 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
       })
     );
   } catch (err) {
-    console.error('Failed to download attachment(s):', err);
+    console.error(`[${NAMESPACE}] Failed to download attachment(s):`, err);
     await interaction.editReply(t.downloadFailed);
     return;
   }
@@ -108,7 +108,7 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
       allowedMentions: { users: [] },
     });
   } catch (err) {
-    console.error('Failed to post images to channel:', err);
+    console.error(`[${NAMESPACE}] Failed to post images to channel:`, err);
     await interaction.editReply(t.postFailed);
     return;
   }

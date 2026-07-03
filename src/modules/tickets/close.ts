@@ -6,11 +6,11 @@ import {
   type GuildMember,
 } from 'discord.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
-import { isModuleEnabled } from '../../core/texts.js';
 import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
+import { guardTicketThreadAction } from './guards.js';
 import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
-import { resolveTicketType, texts, NAMESPACE } from './config-io.js';
+import { texts } from './config-io.js';
 
 interface ParsedCloseCustomId {
   threadId: string;
@@ -50,34 +50,10 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
   if (!parsed) return;
 
   const isConfirm = interaction.customId.startsWith(CLOSE_CONFIRM_PREFIX);
-  const ticketType = resolveTicketType(parsed.typeId);
-  const t = texts();
+  const guarded = await guardTicketThreadAction(interaction, parsed.typeId, parsed.threadId);
+  if (!guarded.ok) return;
 
-  if (!isModuleEnabled(NAMESPACE)) {
-    if (interaction.deferred || interaction.replied) {
-      await interaction.editReply(t.disabled);
-    } else {
-      await replyEphemeral(interaction, t.disabled);
-    }
-    return;
-  }
-
-  if (!ticketType) {
-    await replyEphemeral(interaction, t.categoryUnpublished);
-    return;
-  }
-
-  const thread = interaction.channel;
-  if (!thread?.isThread()) {
-    await replyEphemeral(interaction, t.threadContextRequired);
-    return;
-  }
-
-  if (parsed.threadId !== thread.id) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
-
+  const { ticketType, thread, t } = guarded.ctx;
   const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
 
   if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {

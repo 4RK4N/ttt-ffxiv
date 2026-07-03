@@ -123,3 +123,13 @@ for full examples.
 (`./data:/app/data` in `docker-compose.yml`). Details: [`data/example-module/README.md`](data/example-module/README.md).
 
 The namespace in `createModuleConfig('…')` must match the folder name under `data/`.
+
+## Debugging
+
+During local dev, log loaded config from `init()` (remove before shipping):
+
+```typescript
+console.log(`[${NAMESPACE}]`, config());
+```
+
+Use `console.warn` / `console.error` with a `[${NAMESPACE}]` prefix for misconfiguration and runtime failures — see `index.ts` `initExample`.

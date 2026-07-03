@@ -7,7 +7,7 @@
 import { format, isModuleEnabled } from '../../core/texts.js';
 import { memberHasAnyRole, replyEphemeral } from '../../core/discordInteractions.js';
 import type { Message } from 'discord.js';
-import { config, NAMESPACE, targetChannelId, texts } from './config-io.js';
+import { NAMESPACE, targetChannelId, texts } from './config-io.js';
 
 // Optional core imports (uncomment when needed):
 // import { tryAssignRole } from '../../core/discordRoles.js';
@@ -115,10 +115,4 @@ export async function replyDisabledEphemeral(
   interaction: Parameters<typeof replyEphemeral>[0]
 ): Promise<void> {
   await replyEphemeral(interaction, disabledReply());
-}
-
-/** Dev-only — remove before shipping or guard behind env check. */
-export function logConfigSnapshot(): void {
-  const cfg = config();
-  console.log(`[${NAMESPACE}] channelId=${cfg.channelId || '(unset)'}`);
 }

@@ -1,17 +1,11 @@
 import { type ButtonInteraction } from 'discord.js';
-import { isModuleEnabled } from '../../core/texts.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
 import { tryAssignRole, tryRemoveRole } from '../../core/discordRoles.js';
 import { isOnCooldown, touchCooldown } from './cooldown.js';
+import { guardPublishedPanel } from './guards.js';
 import { formatEphemeralMessage } from './respond.js';
 import { BTN_PREFIX } from './panel.js';
-import { isActivePanelMessage } from './guards.js';
-import {
-  resolveOption,
-  resolvePanel,
-  texts,
-  NAMESPACE,
-} from './config-io.js';
+import { resolveOption, texts } from './config-io.js';
 import type { ResolvedRolePanel } from './types.js';
 
 function parseButtonCustomId(customId: string): { panelId: string; optionId: string } | null {
@@ -40,40 +34,19 @@ async function replySuccess(
 }
 
 export async function handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
-  const t = texts();
-
-  if (!isModuleEnabled(NAMESPACE)) {
-    await replyEphemeral(interaction, t.disabled);
-    return;
-  }
-
   const parsed = parseButtonCustomId(interaction.customId);
   if (!parsed) {
-    await replyEphemeral(interaction, t.invalidInteraction);
+    await replyEphemeral(interaction, texts().invalidInteraction);
     return;
   }
 
-  const panel = resolvePanel(parsed.panelId);
-  if (!panel || !panel.published) {
-    await replyEphemeral(interaction, t.panelUnpublished);
-    return;
-  }
+  const guarded = await guardPublishedPanel(interaction, parsed.panelId, {
+    reactionType: 'button',
+    requireGuild: true,
+  });
+  if (!guarded.ok) return;
 
-  if (panel.reactionType !== 'button') {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
-
-  if (
-    !isActivePanelMessage(
-      panel,
-      interaction.channelId,
-      interaction.message.id
-    )
-  ) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
+  const { panel, t } = guarded;
 
   const option = resolveOption(panel, parsed.optionId);
   if (!option || !option.roleId.trim()) {
@@ -81,17 +54,12 @@ export async function handleButtonInteraction(interaction: ButtonInteraction): P
     return;
   }
 
-  if (!interaction.guild) {
-    await replyEphemeral(interaction, t.roleError);
-    return;
-  }
-
   if (isOnCooldown(interaction.user.id, panel.id)) return;
   touchCooldown(interaction.user.id, panel.id);
 
-  const guildMember = await interaction.guild.members.fetch(interaction.user.id);
+  const guildMember = await interaction.guild!.members.fetch(interaction.user.id);
   const hasRole = guildMember.roles.cache.has(option.roleId);
-  const roleName = interaction.guild.roles.cache.get(option.roleId)?.name ?? 'role';
+  const roleName = interaction.guild!.roles.cache.get(option.roleId)?.name ?? 'role';
 
   await interaction.deferUpdate();
 
