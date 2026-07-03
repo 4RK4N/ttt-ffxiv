@@ -1,0 +1,53 @@
+---
+import type { Lang } from '../data/nav';
+
+interface Props {
+  lang: Lang;
+  /** Unix timestamp (seconds) the countdown targets. */
+  timestamp: number;
+}
+
+const { lang, timestamp } = Astro.props;
+
+const labels =
+  lang === 'de'
+    ? ['Tage', 'Stunden', 'Minuten', 'Sekunden']
+    : ['Days', 'Hours', 'Minutes', 'Seconds'];
+---
+
+<div
+  id="event-timer"
+  data-timestamp={timestamp}
+  class="flex w-full max-w-[36rem] items-stretch justify-center font-oswald"
+>
+  {labels.map((label, i) => (
+    <>
+      {i > 0 && <div class="mx-4 w-px self-stretch bg-white/40 sm:mx-8" />}
+      <div class="flex flex-col items-center py-4">
+        <span data-digit class="text-[2.5em] leading-none text-[#FF9242]">0</span>
+        <span class="mt-3 text-[0.625rem] uppercase tracking-[0.225rem] text-white">
+          {label}
+        </span>
+      </div>
+    </>
+  ))}
+</div>
+
+<script>
+  const timer = document.getElementById('event-timer')!;
+  const target = Number(timer.dataset.timestamp) * 1000;
+  const digits = timer.querySelectorAll('[data-digit]');
+  const units = [86_400_000, 3_600_000, 60_000, 1000];
+
+  function tick() {
+    let remaining = Math.max(0, target - Date.now());
+    units.forEach((unit, i) => {
+      const value = Math.floor(remaining / unit);
+      remaining -= value * unit;
+      digits[i].textContent = String(value).padStart(2, '0');
+    });
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>

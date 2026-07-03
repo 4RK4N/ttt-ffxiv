@@ -1,0 +1,30 @@
+---
+import ContentPage from '../../../components/ContentPage.astro';
+import Gallery from '../../../components/Gallery.astro';
+---
+
+<ContentPage
+  title="Guestbook | Tiny Temptation Tubs"
+  lang="en"
+  path="/en/guestbook/"
+  heading="Guestbook"
+  icon="/assets/images/image21.png"
+>
+  <p class="hand-text">
+    <em><strong>They say words can remain…<br /> Leave a piece of yourself,<br /> a few
+    thoughts or memories<br /> so your journey here never truly fades.</strong></em> ღ
+  </p>
+  <Gallery
+    aspect="landscape"
+    images={[
+      '/assets/images/gallery08/b04b2349.jpg',
+      '/assets/images/gallery08/fb0b75e8.jpg',
+      '/assets/images/gallery08/228b4f2a.jpg',
+      '/assets/images/gallery08/ca8d23e8.jpg',
+      '/assets/images/gallery08/ab7b15ef.jpg',
+      '/assets/images/gallery08/4422e621.jpg',
+      '/assets/images/gallery08/ca8cef1a.jpg',
+      '/assets/images/gallery08/895a9878.jpg',
+    ]}
+  />
+</ContentPage>

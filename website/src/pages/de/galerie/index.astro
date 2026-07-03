@@ -1,0 +1,60 @@
+---
+import ContentPage from '../../../components/ContentPage.astro';
+import Gallery from '../../../components/Gallery.astro';
+---
+
+<ContentPage
+  title="Galerie | Tiny Temptation Tubs"
+  lang="de"
+  path="/de/galerie/"
+  heading="Galerie"
+  icon="/assets/images/image06.png"
+>
+  <div class="hand-text flex flex-col gap-6">
+    <p><em><strong>Ein Blick in unser Haus…</strong></em></p>
+    <p>
+      <em><strong>Warme Räume, stille Ecken,<br /> sanftes Licht und Orte,<br /> an denen
+      Erinnerungen entstehen.</strong></em>
+    </p>
+  </div>
+  <img src="/assets/images/image09.jpg" alt="" loading="lazy" class="w-full rounded-md" />
+  <Gallery
+    images={[
+      '/assets/images/gallery23/9c352b69.jpg',
+      '/assets/images/gallery23/fcd8f85d.jpg',
+      '/assets/images/gallery23/81a2a56a.jpg',
+    ]}
+  />
+  <Gallery
+    images={[
+      '/assets/images/gallery18/c2cde289.jpg',
+      '/assets/images/gallery18/09600657.jpg',
+      '/assets/images/gallery18/009cce14.jpg',
+      '/assets/images/gallery18/736c6a9a.jpg',
+      '/assets/images/gallery18/7b549343.jpg',
+    ]}
+  />
+  <Gallery
+    images={[
+      '/assets/images/gallery19/d7414f9a.jpg',
+      '/assets/images/gallery19/cac149e2.jpg',
+      '/assets/images/gallery19/ac774d7a.jpg',
+      '/assets/images/gallery19/068c47f1.jpg',
+      '/assets/images/gallery19/eb706e6d.jpg',
+      '/assets/images/gallery19/dfbe594f.jpg',
+    ]}
+  />
+  <p class="subtitle-text">Zimmer 2</p>
+  <Gallery
+    images={[
+      '/assets/images/gallery11/716cf24b.jpg',
+      '/assets/images/gallery11/ab4e17c6.jpg',
+      '/assets/images/gallery11/dddae266.jpg',
+      '/assets/images/gallery11/f3f31675.jpg',
+      '/assets/images/gallery11/88a002bb.jpg',
+      '/assets/images/gallery11/3ec6e4af.jpg',
+      '/assets/images/gallery11/03ac8647.jpg',
+      '/assets/images/gallery11/e83b206b.jpg',
+    ]}
+  />
+</ContentPage>

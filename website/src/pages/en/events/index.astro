@@ -1,0 +1,30 @@
+---
+import ContentPage from '../../../components/ContentPage.astro';
+import Gallery from '../../../components/Gallery.astro';
+---
+
+<ContentPage
+  title="Events | Tiny Temptation Tubs"
+  lang="en"
+  path="/en/events/"
+  heading="Events"
+  icon="/assets/images/image02.png"
+>
+  <img
+    src="/assets/images/image04.jpg"
+    alt=""
+    loading="lazy"
+    class="w-full max-w-[24rem] rounded-md"
+  />
+  <p class="hand-text">★<em><strong>Archive</strong></em>★</p>
+  <Gallery
+    aspect="portrait"
+    images={[
+      '/assets/images/gallery03/b38bdd4c.jpg',
+      '/assets/images/gallery03/895354f2.jpg',
+      '/assets/images/gallery03/68509e48.jpg',
+      '/assets/images/gallery03/33482412.jpg',
+      '/assets/images/gallery03/e17c546b.jpg',
+    ]}
+  />
+</ContentPage>

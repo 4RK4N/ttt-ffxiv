@@ -1,11 +1,14 @@
 node_modules/
 dist/
-
+.astro/
 # Runtime config holds secrets (token, OAuth, channel IDs). Keep the *.example.json
 # templates tracked, but never commit the real config.json files.
 data/config.json
 data/*/config.json
 data/*/texts.json
+
+# Astro build output (web entry directory); sources live in website/files/ and website/src/.
+website/public/
 
 *.log
 npm-debug.log*

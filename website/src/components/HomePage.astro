@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import Timer from './Timer.astro';
+import DiscordButton from './DiscordButton.astro';
+import type { Lang } from '../data/nav';
+
+interface Props {
+  title: string;
+  lang: Lang;
+  path: string;
+  tagline: string;
+}
+
+const { title, lang, path, tagline } = Astro.props;
+
+// Countdown target carried over from the old Carrd timer config.
+const EVENT_TIMESTAMP = 1783188000;
+
+const timerLabel = 'Event Timer';
+---
+
+<Base title={title} lang={lang} path={path}>
+  <section class="mx-auto flex w-full max-w-[45rem] flex-col items-center gap-7 px-6 py-14">
+    <img src="/assets/images/image22.png" alt="" class="w-72 max-w-full" />
+    <h1 class="bg-gradient-to-b from-[#FF5CBE] to-[#FC0000] bg-clip-text font-caveat text-[3.625em] font-bold leading-[1.2] text-transparent">
+      Tiny Temptation Tubs
+    </h1>
+    <p class="subtitle-text">{timerLabel}</p>
+    <Timer lang={lang} timestamp={EVENT_TIMESTAMP} />
+    <p class="subtitle-text">{tagline}</p>
+    <p class="subtitle-text">Light, Alpha, Lavender Beds, W2, P51</p>
+    <DiscordButton href="https://discord.gg/JjWMxjAPBe" />
+  </section>
+</Base>

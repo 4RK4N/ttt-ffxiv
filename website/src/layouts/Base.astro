@@ -1,0 +1,165 @@
+---
+import '../styles/global.css';
+import { siteName, navItems, homePath, pathMap, type Lang } from '../data/nav';
+
+interface Props {
+  title: string;
+  lang: Lang;
+  /** Site-absolute path of this page, e.g. "/de/regeln/" or "/de.html". */
+  path: string;
+}
+
+const { title, lang, path } = Astro.props;
+
+const nav = navItems[lang];
+const alt = pathMap[path] ?? { de: '/de/', en: '/en/' };
+// Old export used canonicals without trailing slash ("/de/regeln"); keep that.
+const canonical =
+  'https://ttt-ffxiv.eu' + (path === '/' ? '' : path.replace(/\/$/, ''));
+
+const fontsHref =
+  'https://fonts.googleapis.com/css2?display=swap' +
+  '&family=Caveat:ital,wght@0,700;1,700' +
+  '&family=Patua+One' +
+  '&family=Pacifico' +
+  '&family=Averia+Serif+Libre:ital,wght@0,400;0,700;1,400;1,700' +
+  '&family=Gloock' +
+  '&family=Rock+Salt' +
+  '&family=Send+Flowers' +
+  '&family=Oswald:wght@400;700' +
+  '&family=Gochi+Hand';
+
+const isActive = (itemPath: string) => itemPath === path;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <title>{title}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light only" />
+    <meta name="description" content="tiny-temptation-tubs" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={siteName} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="tiny-temptation-tubs" />
+    <meta property="og:image" content="https://ttt-ffxiv.eu/assets/images/share.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="440" />
+    <meta property="og:url" content={canonical} />
+    <meta property="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+    <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={fontsHref} />
+  </head>
+
+  <body class="pt-[68px]">
+    <header
+      class="fixed inset-x-0 top-0 z-50 flex h-[68px] items-center gap-4 border-b border-bar-border bg-bar-bg px-4 font-averia text-[15px] backdrop-blur-sm lg:px-6"
+    >
+      <a href={homePath[lang]} class="flex h-full shrink-0 items-center py-1.5">
+        <img src="/assets/custom/logo.png" alt={siteName} class="block h-full w-auto" />
+      </a>
+
+      <nav class="hidden flex-1 md:block" aria-label={lang === 'de' ? 'Hauptmenü' : 'Main menu'}>
+        <ul class="flex flex-wrap justify-center gap-x-4 gap-y-1">
+          {nav.map((item) => (
+            <li>
+              <a
+                href={item.path}
+                class:list={[
+                  'whitespace-nowrap px-0.5 py-1 transition-colors hover:text-bar-accent',
+                  isActive(item.path) ? 'text-bar-accent' : 'text-bar-text',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="ml-auto flex items-center gap-2">
+        <label for="lang-select" class="sr-only">Language</label>
+        <select
+          id="lang-select"
+          aria-label="Language"
+          data-de={alt.de}
+          data-en={alt.en}
+          class="cursor-pointer appearance-none rounded border border-bar-border bg-black/35 bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2712%27%20height=%278%27%20viewBox=%270%200%2012%208%27%3E%3Cpath%20fill=%27%23d4af78%27%20d=%27M1%201l5%205%205-5%27/%3E%3C/svg%3E')] bg-[right_0.5rem_center] bg-no-repeat py-1 pl-2.5 pr-7 text-[13px] text-bar-text"
+        >
+          <option value="de" selected={lang === 'de'}>Deutsch</option>
+          <option value="en" selected={lang === 'en'}>English</option>
+        </select>
+
+        <button
+          type="button"
+          id="menu-toggle"
+          aria-expanded="false"
+          aria-controls="mobile-drawer"
+          aria-label={lang === 'de' ? 'Menü' : 'Menu'}
+          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded border border-bar-border bg-black/35 text-xl leading-none text-bar-text transition-colors hover:border-bar-accent hover:text-bar-accent md:hidden"
+        >
+          ☰
+        </button>
+      </div>
+    </header>
+
+    <nav
+      id="mobile-drawer"
+      aria-label={lang === 'de' ? 'Mobilmenü' : 'Mobile menu'}
+      class="fixed inset-x-0 top-[68px] z-40 hidden max-h-[calc(100vh-68px)] overflow-y-auto border-b border-bar-border bg-bar-bg px-4 pb-4 pt-3 text-left font-averia text-[15px] md:hidden!"
+    >
+      <ul>
+        {nav.map((item) => (
+          <li class="border-b border-bar-border/50 last:border-b-0">
+            <a
+              href={item.path}
+              class:list={[
+                'block px-1 py-2.5 transition-colors hover:text-bar-accent',
+                isActive(item.path) ? 'text-bar-accent' : 'text-bar-text',
+              ]}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <main>
+      <slot />
+    </main>
+
+    <script>
+      const toggle = document.getElementById('menu-toggle')!;
+      const drawer = document.getElementById('mobile-drawer')!;
+
+      function setDrawer(open: boolean) {
+        drawer.classList.toggle('hidden', !open);
+        document.body.classList.toggle('overflow-hidden', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      }
+
+      toggle.addEventListener('click', () => {
+        setDrawer(drawer.classList.contains('hidden'));
+      });
+      drawer.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).tagName === 'A') setDrawer(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setDrawer(false);
+      });
+
+      const langSelect = document.getElementById('lang-select') as HTMLSelectElement;
+      langSelect.addEventListener('change', () => {
+        const target = langSelect.dataset[langSelect.value];
+        if (target) window.location.href = target;
+      });
+    </script>
+  </body>
+</html>

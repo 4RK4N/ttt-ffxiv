@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  --font-caveat: "Caveat", cursive;
+  --font-patua: "Patua One", serif;
+  --font-averia: "Averia Serif Libre", serif;
+  --font-gochi: "Gochi Hand", cursive;
+  --font-gloock: "Gloock", serif;
+  --font-oswald: "Oswald", sans-serif;
+  --font-pacifico: "Pacifico", cursive;
+  --font-rock-salt: "Rock Salt", cursive;
+  --font-send-flowers: "Send Flowers", cursive;
+
+  /* Topbar palette (carried over from the old custom topbar) */
+  --color-bar-bg: rgba(26, 20, 16, 0.94);
+  --color-bar-border: rgba(212, 175, 120, 0.25);
+  --color-bar-text: #f5e6d0;
+  --color-bar-accent: #d4af78;
+}
+
+@layer base {
+  /* The old Carrd export used an 18pt (24px) root font size; keep the scale. */
+  html {
+    font-size: 24px;
+    background-color: #000;
+  }
+
+  @media (max-width: 1280px) {
+    html {
+      font-size: 22px;
+    }
+  }
+
+  @media (max-width: 736px) {
+    html {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  body {
+    min-height: 100vh;
+    min-width: 320px;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    color: #fff;
+    text-align: center;
+  }
+
+  /* Fixed page background: bg.jpg under a heavy dark overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to top, rgba(0, 0, 0, 0.859), rgba(0, 0, 0, 0.859)),
+      url('/assets/images/bg.jpg');
+    background-position: 0% 0%, center;
+    background-repeat: repeat, no-repeat;
+    background-size: auto, cover;
+  }
+}
+
+@layer components {
+  /* Section heading (h2 on content pages) */
+  .page-heading {
+    font-family: var(--font-averia);
+    font-size: 2.375em;
+    line-height: 1.75;
+    font-style: italic;
+    font-weight: 700;
+    color: rgba(250, 129, 252, 0.71);
+    text-shadow: -0.075rem 0.1rem 0.125rem #ffffff;
+  }
+
+  /* Handwritten body text used on most content pages */
+  .hand-text {
+    font-family: var(--font-gochi);
+    font-size: 1.25em;
+    line-height: 1.625;
+    letter-spacing: 0.2rem;
+    color: rgba(255, 255, 255, 0.71);
+    text-shadow: 0.073rem 0.101rem 0.125rem #a80000;
+  }
+
+  /* Serif body text used on the rules pages */
+  .rules-text {
+    font-family: var(--font-gloock);
+    font-size: 1.25em;
+    line-height: 1.625;
+    letter-spacing: 0.2rem;
+    color: rgba(255, 255, 255, 0.71);
+    text-shadow: 0 0 0.125rem #a80000;
+  }
+
+  /* Pink-on-black subtitle (home pages, Patua One) */
+  .subtitle-text {
+    font-family: var(--font-patua);
+    font-size: 1.5em;
+    line-height: 1.75;
+    color: rgba(235, 152, 152, 0.71);
+  }
+}

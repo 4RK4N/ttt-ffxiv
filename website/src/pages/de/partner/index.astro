@@ -1,0 +1,49 @@
+---
+import ContentPage from '../../../components/ContentPage.astro';
+import Gallery from '../../../components/Gallery.astro';
+import DiscordButton from '../../../components/DiscordButton.astro';
+---
+
+<ContentPage
+  title="Partner | Tiny Temptation Tubs"
+  lang="de"
+  path="/de/partner/"
+  heading="Partner"
+  icon="/assets/images/image03.png"
+>
+  <div class="hand-text flex flex-col gap-6">
+    <p>
+      <em><strong>Auch außerhalb unserer Mauern gibt es Orte,<br /> die uns verbunden
+      sind.</strong></em>
+    </p>
+    <p>
+      <em><strong>Freunde, Häuser und Gemeinschaften,<br /> mit denen wir Geschichten
+      teilen.</strong></em>
+    </p>
+    <p><em><strong>Gemeinsam erschaffen wir eine größere Welt.</strong></em></p>
+  </div>
+  <img
+    src="/assets/images/gallery16/0d103a87.png"
+    alt=""
+    loading="lazy"
+    class="w-48 max-w-full"
+  />
+  <p class="hand-text"><u><em><strong>MO'BATH LOFT</strong></em></u></p>
+  <p class="hand-text">
+    <em><strong>MO'BATH LOFT Das Badehaus ist ein entspannter Ort, der Gäste aller Herkunft,
+    Geschlechter und Identitäten willkommen heißt. Genieße heiße Bäder, freundliche Gespräche,
+    kleine Spiele und eine schöne Aussicht in einer gemütlichen und inklusiven Atmosphäre.<br />
+    Das Badehaus ist freitags und sonntags geöffnet. Du kannst jedoch auch außerhalb der
+    offiziellen Öffnungszeiten vorbeikommen und dort Zeit verbringen.</strong></em>
+  </p>
+  <p class="hand-text"><u><em><strong>Chaos, Cerberus, Goblet, W28, P4.</strong></em></u></p>
+  <DiscordButton href="https://discord.gg/y7CUTNfVB9" />
+  <p class="hand-text"><em><strong>♫ Musikband ♫</strong></em></p>
+  <Gallery
+    aspect="landscape"
+    images={[
+      '/assets/images/gallery02/29745391.png',
+      '/assets/images/gallery02/e17de711.png',
+    ]}
+  />
+</ContentPage>

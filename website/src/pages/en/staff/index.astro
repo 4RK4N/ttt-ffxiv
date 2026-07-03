@@ -1,0 +1,36 @@
+---
+import ContentPage from '../../../components/ContentPage.astro';
+import Gallery from '../../../components/Gallery.astro';
+---
+
+<ContentPage
+  title="Staff | Tiny Temptation Tubs"
+  lang="en"
+  path="/en/staff/"
+  heading="Staff"
+  icon="/assets/images/image16.png"
+>
+  <div class="hand-text flex flex-col gap-6">
+    <p>
+      <em><strong>Behind every warm welcome stand those<br /> who care for the
+      house.</strong></em>
+    </p>
+    <p>
+      <em><strong>Our hosts, helpers, and guardians<br /> ensure every moment remains
+      pleasant.</strong></em>
+    </p>
+    <p>
+      <em><strong>They keep the balance<br /> so everyone feels safe and welcome.</strong></em> ღ
+    </p>
+  </div>
+  <Gallery
+    aspect="portrait"
+    images={[
+      '/assets/images/gallery14/20657f8a.jpg',
+      '/assets/images/gallery14/1ff201fe.jpg',
+      '/assets/images/gallery14/e5fc5b6d.jpg',
+      '/assets/images/gallery14/32b7ed66.jpg',
+      '/assets/images/gallery14/926948ff.jpg',
+    ]}
+  />
+</ContentPage>
