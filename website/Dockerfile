@@ -9,12 +9,13 @@ COPY astro.config.mjs tsconfig.json ./
 COPY files ./files
 COPY src ./src
 
-# The host caps processes/threads per container tightly (fork EAGAIN, Go
-# "failed to create new OS thread"). Node and esbuild spawn one thread per
-# visible CPU by default; pin the whole toolchain to (near) single-threaded
-# and invoke astro directly to skip the npm/sh wrapper processes.
-# Costs a few seconds on a site this small.
+# The host caps processes/threads per container tightly (fork EAGAIN, Go/Rust
+# "failed to create new OS thread"). Node, esbuild (Go) and Tailwind's oxide/
+# lightningcss (Rust/Rayon) all spawn one thread per visible CPU by default;
+# pin the whole toolchain to (near) single-threaded and invoke astro directly
+# to skip the npm/sh wrapper processes. Costs a few seconds on a site this small.
 ENV GOMAXPROCS=1 \
+    RAYON_NUM_THREADS=1 \
     UV_THREADPOOL_SIZE=2 \
     NODE_OPTIONS="--v8-pool-size=2" \
     ASTRO_TELEMETRY_DISABLED=1
