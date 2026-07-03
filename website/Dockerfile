@@ -8,7 +8,17 @@ RUN npm ci
 COPY astro.config.mjs tsconfig.json ./
 COPY files ./files
 COPY src ./src
-RUN npm run build
+
+# The host caps processes/threads per container tightly (fork EAGAIN, Go
+# "failed to create new OS thread"). Node and esbuild spawn one thread per
+# visible CPU by default; pin the whole toolchain to (near) single-threaded
+# and invoke astro directly to skip the npm/sh wrapper processes.
+# Costs a few seconds on a site this small.
+ENV GOMAXPROCS=1 \
+    UV_THREADPOOL_SIZE=2 \
+    NODE_OPTIONS="--v8-pool-size=2" \
+    ASTRO_TELEMETRY_DISABLED=1
+RUN node ./node_modules/astro/astro.js build
 
 # Stage 2: serve the generated files with nginx.
 # The build writes the complete site into public/ (see astro.config.mjs),
