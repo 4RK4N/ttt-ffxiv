@@ -1,3 +1,10 @@
 ﻿# Runtime config holds secrets; templates (*.example.json) stay visible.
 data/config.json
 data/*/config.json
+data/*/texts.json
+
+# Astro build output; sources live in website/src/ and website/files/.
+website/public/
+
+/dist
+

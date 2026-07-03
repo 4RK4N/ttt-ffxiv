@@ -5,7 +5,7 @@ system so new features can be added without refactoring the core.
 
 **Module catalog and data layout:** [MODULES.md](MODULES.md)
 **Hosting, Docker, and config reference:** [INSTALL.md](INSTALL.md)
-**Public venue website:** [INSTALL.md § Part 7](INSTALL.md#part-7---public-website-ttt-ffxiveu) — static files in `website/public/`
+**Public venue website:** [INSTALL.md § Part 7](INSTALL.md#part-7---public-website-ttt-ffxiveu) — Astro + Tailwind, sources in `website/src/`
 
 ## How to add a new module
 

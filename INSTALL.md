@@ -346,23 +346,28 @@ Now go to your Discord server and try `/pic` or `/post`.
 
 ## Part 7 - Public website (`ttt-ffxiv.eu`)
 
-Static multi-page site served by **`ttt-website`** (nginx). All content and assets
-live in **`website/public/`** — edit HTML, CSS, JS, and images there directly.
+Static multi-page site built with **Astro + Tailwind CSS** and served by
+**`ttt-website`** (nginx). The site is generated at image build time
+(`website/Dockerfile`); edit the sources and rebuild to deploy changes.
 
 | Path | Purpose |
 | ---- | ------- |
-| `website/public/` | Site root (HTML pages, `assets/`, `sitemap.xml`, `robots.txt`) |
-| `website/public/assets/custom/` | Top bar (`topbar.css`, `topbar.js`, `nav.json`) |
-| `website/nginx.conf` | nginx config (clean URLs, gzip); `listen 8089` |
+| `website/src/pages/` | One `.astro` file per page (DE + EN) |
+| `website/src/layouts/`, `website/src/components/` | Shared layout (topbar, drawer) and components (gallery, timer) |
+| `website/src/data/nav.ts` | Navigation labels and DE↔EN path mapping |
+| `website/src/styles/global.css` | Tailwind theme + shared text styles |
+| `website/files/` | Static assets copied verbatim (images, `robots.txt`, `sitemap.xml`) |
+| `website/public/` | **Build output** (gitignored) — never edit by hand |
+| `website/nginx.conf` | nginx config (clean URLs, gzip, caching); `listen 8089` |
 
-Deploy or refresh:
+Deploy or refresh after editing sources:
 
 ```bash
-docker compose up -d ttt-website
+docker compose up -d --build ttt-website
 ```
 
-File changes under `website/public/` are picked up immediately via the bind mount
-(restart only if `nginx.conf` changed).
+For local preview, run the dev server in `website/` (`npm install` once, then
+`npm run dev`).
 
 ### How traffic reaches the site (nginx + Caddy + SSL)
 
@@ -377,7 +382,7 @@ Browser ──HTTPS──► Caddy (caddy-docker-proxy, ports 80/443 on host)
 | Layer | Role |
 | ----- | ---- |
 | **Caddy** | Public entrypoint. Terminates TLS (Let's Encrypt cert for `ttt-ffxiv.eu`), redirects HTTP→HTTPS, proxies to the container. |
-| **nginx** | Serves static files from `website/public/` on **port 8089 inside the container only**. Plain HTTP — no certificates here. |
+| **nginx** | Serves the built site (baked into the image at build time) on **port 8089 inside the container only**. Plain HTTP — no certificates here. |
 
 The `caddy:` and `caddy.reverse_proxy: "{{upstreams 8089}}"` labels on `ttt-website`
 tell Caddy which hostname and which internal port to use. Keep `website/nginx.conf`
@@ -405,7 +410,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Restart the bot                | `docker compose restart ttt-discord-bot` |
 | Rebuild after code changes     | `docker compose up -d --build`           |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy` |
-| Restart website container      | `docker compose restart ttt-website`                     |
+| Rebuild website after edits    | `docker compose up -d --build ttt-website`               |
 
 ### Updating to new code
 
