@@ -1,4 +1,4 @@
-import { getConfig, getTexts } from '../../core/texts.js';
+import { createModuleConfig, resolveKeyedItem } from '../../core/moduleConfig.js';
 
 export const NAMESPACE = 'reaction-roles';
 
@@ -63,25 +63,25 @@ export const CONFIG_DEFAULTS: ReactionRolesConfig = {
   panels: [],
 };
 
-export function config(): ReactionRolesConfig {
-  return getConfig(NAMESPACE, CONFIG_DEFAULTS);
-}
+const module = createModuleConfig(NAMESPACE, CONFIG_DEFAULTS, TEXT_DEFAULTS);
 
-export function texts(): ReactionRolesTexts {
-  return getTexts(NAMESPACE, TEXT_DEFAULTS);
-}
+export const config = module.config;
+export const texts = module.texts;
 
 export function resolvePanel(id: string): ResolvedRolePanel | undefined {
-  const row = config().panels.find((p) => p.id === id);
-  if (!row) return undefined;
-  const copy = texts().panels[id] ?? DEFAULT_PANEL_TEXTS;
-  return {
-    ...row,
-    ...copy,
-    reactionType: row.reactionType ?? 'button',
-    toggleable: row.toggleable !== false,
-    roleOptions: Array.isArray(row.roleOptions) ? row.roleOptions : [],
-  };
+  return resolveKeyedItem(
+    config().panels,
+    id,
+    texts().panels,
+    DEFAULT_PANEL_TEXTS,
+    (row, copy) => ({
+      ...row,
+      ...copy,
+      reactionType: row.reactionType ?? 'button',
+      toggleable: row.toggleable !== false,
+      roleOptions: Array.isArray(row.roleOptions) ? row.roleOptions : [],
+    })
+  );
 }
 
 export function findPanelByMessageId(messageId: string): ResolvedRolePanel | undefined {

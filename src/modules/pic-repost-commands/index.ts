@@ -10,55 +10,13 @@ import {
 import type { CommandModule } from '../../core/moduleLoader.js';
 import {
   buildThreadName,
-  DEFAULT_THREAD_FIRST_MESSAGE,
   THREAD_AUTO_ARCHIVE_MINUTES,
 } from '../../core/threads.js';
-import { format, getTexts, isModuleEnabled } from '../../core/texts.js';
+import { format, isModuleEnabled } from '../../core/texts.js';
+import { NAMESPACE, texts } from './types.js';
 
-const NAMESPACE = 'pic-repost-commands';
+const MAX_IMAGES = 10;
 
-const MAX_IMAGES = 10; // Discord allows up to 10 attachments per message.
-
-interface PicTexts {
-  disabled: string;
-  noImages: string;
-  notImages: string;
-  downloadFailed: string;
-  cannotPost: string;
-  postFailed: string;
-  attribution: string;
-  postedSuccess: string;
-  threadNote: string;
-  threadFirstMessage: string;
-}
-
-// Code defaults; data/pic-repost-commands/texts.json overrides these.
-const DEFAULTS: PicTexts = {
-  disabled: 'This command is currently disabled.',
-  noImages: 'You need to attach at least one image.',
-  notImages: 'These attachments are not images: {names}. Please attach image files only.',
-  downloadFailed:
-    'Could not download one of your images. Please try again with a smaller or different file.',
-  cannotPost: 'I cannot post in this channel.',
-  postFailed:
-    'I could not post in this channel. This is usually a file size limit or missing ' +
-    '"Send Messages"/"Attach Files" permission.',
-  attribution: '{message}\n\nby {mention}',
-  postedSuccess: 'Posted {count} {images} to this channel.',
-  threadNote:
-    '\n\nNote: I could not create the comments thread. I may be missing the ' +
-    '"Create Public Threads" / "Send Messages in Threads" permission in this channel.',
-  threadFirstMessage: DEFAULT_THREAD_FIRST_MESSAGE,
-};
-
-function texts(): PicTexts {
-  return getTexts(NAMESPACE, DEFAULTS);
-}
-
-/**
- * Builds a slash command with a required `message` and image1..image10 options.
- * Used to create both `/pic` and its `/post` alias from one definition.
- */
 function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
   const builder = new SlashCommandBuilder()
     .setName(name)
@@ -79,16 +37,11 @@ function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
   return builder;
 }
 
-/**
- * Shared handler for `/pic` and `/post`. Downloads the provided image attachments
- * and re-uploads them as the bot in the same channel, attributed to the author.
- */
 async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const t = texts();
 
-  // Master switch (web editor toggle); disabled means reply and stop.
   if (!isModuleEnabled(NAMESPACE)) {
     await interaction.editReply(t.disabled);
     return;
@@ -96,14 +49,11 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
 
   const message = interaction.options.getString('message', true);
 
-  // Prefer the user's server nickname, then their global display name, then the
-  // raw username only as a last resort.
   const displayName =
     (interaction.member instanceof GuildMember ? interaction.member.displayName : undefined) ??
     interaction.user.displayName ??
     interaction.user.username;
 
-  // Collect provided attachments in order (image1..image10).
   const attachments: Attachment[] = [];
   for (let i = 1; i <= MAX_IMAGES; i++) {
     const attachment = interaction.options.getAttachment(`image${i}`);
@@ -115,7 +65,6 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     return;
   }
 
-  // Validate everything is an image before uploading anything.
   const nonImages = attachments.filter(
     (a) => !(a.contentType && a.contentType.startsWith('image/'))
   );
@@ -126,8 +75,6 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     return;
   }
 
-  // Re-upload the bytes. Original attachment URLs are signed and expire, so we
-  // must download and send fresh files rather than linking the originals.
   let files: AttachmentBuilder[];
   try {
     files = await Promise.all(
@@ -146,8 +93,6 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     return;
   }
 
-  // The mention renders as the author's server display name (nickname) and is
-  // clickable; allowedMentions suppresses the ping.
   const content = format(t.attribution, { message, mention: `<@${interaction.user.id}>` });
 
   if (!interaction.channel || !interaction.channel.isSendable()) {
@@ -168,9 +113,6 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
     return;
   }
 
-  // Start a comments thread on the post. Non-fatal: the images are already
-  // posted, so a thread failure (e.g. missing thread permissions) shouldn't
-  // fail the whole command.
   let threadFailed = false;
   try {
     const thread = await sent.startThread({
@@ -181,8 +123,6 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
       autoArchiveDuration: THREAD_AUTO_ARCHIVE_MINUTES,
     });
 
-    // Add the command author to the thread first so they follow the discussion.
-    // Isolated so a failure here doesn't flag the (already created) thread as failed.
     try {
       await thread.members.add(interaction.user.id);
     } catch (err) {
@@ -203,10 +143,10 @@ async function execute(interaction: ChatInputCommandInteraction): Promise<void> 
 }
 
 const picRepostModule: CommandModule = {
-  name: 'pic-repost-commands',
+  name: NAMESPACE,
   commands: [
     { data: buildCommand('pic'), execute },
-    { data: buildCommand('post'), execute }, // alias of /pic
+    { data: buildCommand('post'), execute },
   ],
 };
 

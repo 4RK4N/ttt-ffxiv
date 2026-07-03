@@ -1,5 +1,6 @@
 import { emojiMatchKey } from '../../core/discordEmoji.js';
 import { MAX_PANEL_OPTIONS } from '../../core/limits.js';
+import { parsePanelBaseFields } from '../../core/panelFields.js';
 import type { ReactionType, ResolvedRolePanel, RoleOption } from './types.js';
 
 const MAX_OPTIONS = MAX_PANEL_OPTIONS;
@@ -53,16 +54,12 @@ export function validateRolePanelRow(
   textRow: Record<string, unknown>
 ): void {
   const reactionType = (configRow.reactionType as ReactionType) ?? 'button';
+  const base = parsePanelBaseFields(configRow, textRow);
   const panel: ResolvedRolePanel = {
-    id: typeof configRow.id === 'string' ? configRow.id : '',
-    published: configRow.published === true,
-    panelMessageId: typeof configRow.panelMessageId === 'string' ? configRow.panelMessageId : '',
-    channelId: typeof configRow.channelId === 'string' ? configRow.channelId : '',
+    ...base,
     reactionType,
     toggleable: configRow.toggleable !== false,
     roleOptions: normalizeRoleOptions(configRow.roleOptions),
-    panelTitle: typeof textRow.panelTitle === 'string' ? textRow.panelTitle : '',
-    panelDescription: typeof textRow.panelDescription === 'string' ? textRow.panelDescription : '',
     ephemeralMessage: typeof textRow.ephemeralMessage === 'string' ? textRow.ephemeralMessage : '',
   };
   validateRolePanel(panel);

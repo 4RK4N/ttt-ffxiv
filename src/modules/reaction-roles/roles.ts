@@ -4,6 +4,7 @@ import {
   type GuildMember,
   type Role,
 } from 'discord.js';
+import { memberHasAnyRole } from '../../core/discordInteractions.js';
 
 export interface RoleChangeResult {
   ok: boolean;
@@ -66,5 +67,5 @@ export async function tryRemoveRole(member: GuildMember, roleId: string): Promis
 }
 
 export function memberHasPanelRole(member: GuildMember, roleIds: string[]): boolean {
-  return roleIds.some((id) => member.roles.cache.has(id));
+  return memberHasAnyRole(member, roleIds);
 }

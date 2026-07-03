@@ -1,4 +1,4 @@
-import { getConfig, getTexts } from '../../core/texts.js';
+import { createModuleConfig, resolveKeyedItem } from '../../core/moduleConfig.js';
 
 export const NAMESPACE = 'tickets';
 
@@ -113,23 +113,23 @@ export const CONFIG_DEFAULTS: TicketsConfig = {
   ticketTypes: [],
 };
 
-export function config(): TicketsConfig {
-  return getConfig(NAMESPACE, CONFIG_DEFAULTS);
-}
+const module = createModuleConfig(NAMESPACE, CONFIG_DEFAULTS, TEXT_DEFAULTS);
 
-export function texts(): TicketsTexts {
-  return getTexts(NAMESPACE, TEXT_DEFAULTS);
-}
+export const config = module.config;
+export const texts = module.texts;
 
 export function resolveTicketType(id: string): ResolvedTicketType | undefined {
-  const row = config().ticketTypes.find((t) => t.id === id);
-  if (!row) return undefined;
-  const copy = texts().types[id] ?? DEFAULT_TYPE_TEXTS;
-  return {
-    ...row,
-    ...copy,
-    staffRoleIds: row.staffRoleIds ?? [],
-    deniedRoleIds: row.deniedRoleIds ?? [],
-    roleActionRoleId: row.roleActionRoleId?.trim() || undefined,
-  };
+  return resolveKeyedItem(
+    config().ticketTypes,
+    id,
+    texts().types,
+    DEFAULT_TYPE_TEXTS,
+    (row, copy) => ({
+      ...row,
+      ...copy,
+      staffRoleIds: row.staffRoleIds ?? [],
+      deniedRoleIds: row.deniedRoleIds ?? [],
+      roleActionRoleId: row.roleActionRoleId?.trim() || undefined,
+    })
+  );
 }

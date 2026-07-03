@@ -2,51 +2,17 @@ import { Events, GuildMember, type Client, type Message } from 'discord.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
 import {
   buildThreadName,
-  DEFAULT_THREAD_FIRST_MESSAGE,
   THREAD_AUTO_ARCHIVE_MINUTES,
 } from '../../core/threads.js';
-import { getConfig, getTexts, isModuleEnabled } from '../../core/texts.js';
+import { isModuleEnabled } from '../../core/texts.js';
+import { NAMESPACE, channelIds, texts } from './types.js';
 
-const NAMESPACE = 'links-pics-vids-autothread';
-
-interface AutoThreadTexts {
-  threadFirstMessage: string;
-}
-
-// Code defaults; data/links-pics-vids-autothread/texts.json overrides these.
-const TEXT_DEFAULTS: AutoThreadTexts = {
-  threadFirstMessage: DEFAULT_THREAD_FIRST_MESSAGE,
-};
-
-function texts(): AutoThreadTexts {
-  return getTexts(NAMESPACE, TEXT_DEFAULTS);
-}
-
-interface AutoThreadConfig {
-  // Channel IDs where the bot auto-creates a comments thread on qualifying posts.
-  channelIds: string[];
-}
-
-const CONFIG_DEFAULTS: AutoThreadConfig = {
-  channelIds: [],
-};
-
-function channelIds(): string[] {
-  return getConfig(NAMESPACE, CONFIG_DEFAULTS).channelIds;
-}
-
-// Matches http(s) URLs in free-form message text. We then parse each match with
-// the URL API and apply per-site post-detection rules below.
 const URL_REGEX = /https?:\/\/[^\s<>]+/gi;
 
 function normalizeHost(host: string): string {
   return host.replace(/^www\./i, '').toLowerCase();
 }
 
-/**
- * Returns true when the URL points to a single post (not a profile, group, or
- * site root) on one of the supported sites. Unknown sites return false.
- */
 function isSupportedPostUrl(raw: string): boolean {
   let url: URL;
   try {
@@ -56,22 +22,16 @@ function isSupportedPostUrl(raw: string): boolean {
   }
 
   const host = normalizeHost(url.hostname);
-  // Trailing punctuation (e.g. a period ending a sentence) can be captured by the
-  // URL regex; drop it before matching path segments.
   const path = url.pathname.replace(/[).,]+$/, '');
 
-  // X / Twitter: a post lives at /<user>/status/<id> (also /i/web/status/<id>).
   if (['x.com', 'twitter.com', 'mobile.twitter.com'].includes(host)) {
     return /\/status(?:es)?\/\d+/.test(path);
   }
 
-  // Bluesky: a post lives at /profile/<handle>/post/<rkey>.
   if (host === 'bsky.app') {
     return /^\/profile\/[^/]+\/post\/[^/]+/.test(path);
   }
 
-  // Aethy (Mastodon): /@user/<statusId> or /users/<user>/statuses/<id>.
-  // A bare /@user is a profile and must not trigger.
   if (host === 'aethy.com') {
     return /^\/@[^/]+\/\d+/.test(path) || /^\/users\/[^/]+\/statuses\/\d+/.test(path);
   }
@@ -86,7 +46,6 @@ function hasImageOrVideoAttachment(message: Message): boolean {
   });
 }
 
-/** Removes all URLs from the message text, leaving the caption (if any). */
 function stripUrls(content: string): string {
   return content.replace(URL_REGEX, ' ').replace(/\s+/g, ' ').trim();
 }
@@ -97,17 +56,9 @@ function displayNameFor(message: Message): string {
 }
 
 async function handleMessage(message: Message): Promise<void> {
-  // Ignore bots/webhooks (incl. our own /pic reposts, which thread themselves)
-  // and system messages.
   if (message.author.bot || message.system) return;
-
-  // Master switch (web editor toggle); disabled means do nothing.
   if (!isModuleEnabled(NAMESPACE)) return;
-
-  // Only the configured pics channels.
   if (!channelIds().includes(message.channelId)) return;
-
-  // Don't act on messages already inside a thread, or that already have one.
   if (message.channel.isThread() || message.hasThread) return;
 
   const content = message.content ?? '';
@@ -129,8 +80,6 @@ async function handleMessage(message: Message): Promise<void> {
       autoArchiveDuration: THREAD_AUTO_ARCHIVE_MINUTES,
     });
 
-    // Add the poster to the thread first so they follow the discussion.
-    // Isolated so a failure here doesn't abort the (already created) thread.
     try {
       await thread.members.add(message.author.id);
     } catch (err) {
@@ -139,8 +88,6 @@ async function handleMessage(message: Message): Promise<void> {
 
     await thread.send(texts().threadFirstMessage);
   } catch (err) {
-    // Non-fatal: usually missing "Create Public Threads" / "Send Messages in
-    // Threads" permission. The post itself is unaffected.
     console.error('Failed to create auto comments thread:', err);
   }
 }

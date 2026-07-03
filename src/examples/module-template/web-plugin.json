@@ -1,0 +1,27 @@
+{
+  "namespace": "example-module",
+  "label": "Example module",
+  "description": "Template manifest — copy and edit field keys to match types.ts / data files.",
+  "fields": [
+    {
+      "key": "greeting",
+      "label": "Greeting message",
+      "type": "textarea",
+      "store": "texts",
+      "help": "Supports {mention} tokens via format() in handlers."
+    },
+    {
+      "key": "disabled",
+      "label": "Disabled message",
+      "type": "text",
+      "store": "texts"
+    },
+    {
+      "key": "channelId",
+      "label": "Target channel",
+      "type": "channel",
+      "store": "config",
+      "help": "Empty disables the module's channel-specific behavior."
+    }
+  ]
+}

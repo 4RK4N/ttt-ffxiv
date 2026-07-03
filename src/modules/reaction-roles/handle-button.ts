@@ -1,7 +1,8 @@
-import { MessageFlags, type ButtonInteraction } from 'discord.js';
+import { type ButtonInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
+import { replyEphemeral } from '../../core/discordInteractions.js';
 import { isOnCooldown, touchCooldown } from './cooldown.js';
-import { formatEphemeralMessage, replyEphemeral } from './respond.js';
+import { formatEphemeralMessage } from './respond.js';
 import { tryAssignRole, tryRemoveRole } from './roles.js';
 import { BTN_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
@@ -28,7 +29,7 @@ async function replySuccess(
     role: roleName,
   });
   if (message) {
-    await interaction.followUp({ flags: MessageFlags.Ephemeral, content: message });
+    await replyEphemeral(interaction, message);
   }
 }
 

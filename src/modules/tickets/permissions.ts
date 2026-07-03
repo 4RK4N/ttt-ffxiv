@@ -1,9 +1,7 @@
 import { PermissionFlagsBits, type GuildMember } from 'discord.js';
+import { memberHasAnyRole } from '../../core/discordInteractions.js';
 
-/** True when the member holds at least one of the given role IDs. */
-export function memberHasAnyRole(member: GuildMember, roleIds: string[]): boolean {
-  return roleIds.some((roleId) => member.roles.cache.has(roleId));
-}
+export { memberHasAnyRole };
 
 /** Configured staff roles or guild Administrator. */
 export function canStaffOrAdmin(member: GuildMember, staffRoleIds: string[]): boolean {

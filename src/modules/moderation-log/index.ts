@@ -11,55 +11,20 @@ import {
   type TextChannel,
 } from 'discord.js';
 import type { CommandModule } from '../../core/moduleLoader.js';
-import { getConfig, getTexts, isModuleEnabled } from '../../core/texts.js';
+import { isModuleEnabled } from '../../core/texts.js';
 import { findRecentBan, findRecentKick, findRecentUnban } from './audit.js';
 import {
-  TEXT_DEFAULTS,
   buildMemberBannedEmbed,
   buildMemberKickedEmbed,
   buildMemberLeftEmbed,
   buildMemberUnbannedEmbed,
   buildMessageDeletedEmbed,
   resolveDeleteAuthor,
-  type ModLogTexts,
 } from './embeds.js';
+import { NAMESPACE, config, logChannelId, texts } from './types.js';
 
-const NAMESPACE = 'moderation-log';
-
-interface ModLogConfig {
-  channelId: string;
-  logMessageDeleted: boolean;
-  logMemberLeft: boolean;
-  logMemberKicked: boolean;
-  logMemberBanned: boolean;
-  logMemberUnbanned: boolean;
-}
-
-const CONFIG_DEFAULTS: ModLogConfig = {
-  channelId: '',
-  logMessageDeleted: true,
-  logMemberLeft: true,
-  logMemberKicked: true,
-  logMemberBanned: true,
-  logMemberUnbanned: true,
-};
-
-/** User IDs recently banned — suppresses duplicate leave/kick logs. */
 const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;
-
-function config(): ModLogConfig {
-  return getConfig(NAMESPACE, CONFIG_DEFAULTS);
-}
-
-function texts(): ModLogTexts {
-  return getTexts(NAMESPACE, TEXT_DEFAULTS);
-}
-
-function logChannelId(): string | undefined {
-  const id = config().channelId.trim();
-  return id === '' ? undefined : id;
-}
 
 function markRecentBan(userId: string): void {
   recentBans.add(userId);

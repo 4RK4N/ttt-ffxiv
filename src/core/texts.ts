@@ -67,6 +67,12 @@ function loadJson<T extends object>(file: string, defaults: T): T {
   }
 }
 
+/** Clears cached reads for a module's config.json and texts.json after a write. */
+export function invalidateModuleCache(namespace: string): void {
+  cache.delete(moduleDataPath(namespace, 'config.json'));
+  cache.delete(moduleDataPath(namespace, 'texts.json'));
+}
+
 /** Loads a module's editable texts from data/<namespace>/texts.json. */
 export function getTexts<T extends object>(namespace: string, defaults: T): T {
   return loadJson(moduleDataPath(namespace, 'texts.json'), defaults);

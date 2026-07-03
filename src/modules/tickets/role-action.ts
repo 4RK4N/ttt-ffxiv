@@ -1,9 +1,9 @@
 import {
-  MessageFlags,
   type ButtonInteraction,
   type GuildMember,
   type ThreadChannel,
 } from 'discord.js';
+import { replyEphemeral } from '../../core/discordInteractions.js';
 import { format, isModuleEnabled } from '../../core/texts.js';
 import { tryAssignRole } from '../reaction-roles/roles.js';
 import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
@@ -35,40 +35,28 @@ export async function handleRoleAction(interaction: ButtonInteraction): Promise<
   const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    await interaction.reply({ content: t.disabled, flags: MessageFlags.Ephemeral });
+    await replyEphemeral(interaction, t.disabled);
     return;
   }
 
   if (!ticketType || !ticketType.roleActionRoleId) {
-    await interaction.reply({
-      content: t.categoryUnpublished,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.categoryUnpublished);
     return;
   }
 
   const thread = interaction.channel;
   if (!thread?.isThread()) {
-    await interaction.reply({
-      content: t.threadContextRequired,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.threadContextRequired);
     return;
   }
 
   if (parsed.threadId !== thread.id) {
-    await interaction.reply({
-      content: t.invalidInteraction,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   if (isClosedTicketThread(thread.name, thread.locked === true)) {
-    await interaction.reply({
-      content: t.invalidInteraction,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
@@ -80,20 +68,14 @@ export async function handleRoleAction(interaction: ButtonInteraction): Promise<
 
   const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
   if (!openerUserId) {
-    await interaction.reply({
-      content: t.roleActionOpenerMissing,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.roleActionOpenerMissing);
     return;
   }
 
   const guild = thread.guild;
   const openerMember = await guild.members.fetch(openerUserId).catch(() => null);
   if (!openerMember) {
-    await interaction.reply({
-      content: t.roleActionOpenerMissing,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.roleActionOpenerMissing);
     return;
   }
 
@@ -104,7 +86,7 @@ export async function handleRoleAction(interaction: ButtonInteraction): Promise<
   if (!result.ok) {
     const message =
       result.reason === 'hierarchy' ? t.roleActionHierarchyError : t.roleActionError;
-    await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
+    await replyEphemeral(interaction, message);
     return;
   }
 
@@ -118,9 +100,6 @@ export async function handleRoleAction(interaction: ButtonInteraction): Promise<
     await finalizeTicketClose(thread as ThreadChannel, parsed.typeId, ticketType, confirmation);
   } catch (err) {
     console.error('[tickets] Failed to complete role action:', err);
-    await interaction.followUp({
-      content: t.closeError,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.closeError);
   }
 }

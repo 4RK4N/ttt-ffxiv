@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { moduleDataPath } from './texts.js';
+import { invalidateModuleCache, moduleDataPath } from './texts.js';
 import { writeJsonAtomic } from './jsonWrite.js';
 
 export interface ConfigIo<T extends { id: string }> {
@@ -40,6 +40,7 @@ export function createConfigIo<T extends { id: string }>(
       ...current,
       [listKey]: nextList,
     });
+    invalidateModuleCache(namespace);
 
     return updated;
   }

@@ -1,7 +1,8 @@
-import { MessageFlags, type GuildMember, type StringSelectMenuInteraction } from 'discord.js';
+import { type GuildMember, type StringSelectMenuInteraction } from 'discord.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { isOnCooldown, touchCooldown } from './cooldown.js';
-import { formatEphemeralMessage, replyEphemeral } from './respond.js';
+import { replyEphemeral } from '../../core/discordInteractions.js';
+import { formatEphemeralMessage } from './respond.js';
 import { memberHasPanelRole, tryAssignRole, tryRemoveRole } from './roles.js';
 import { SEL_PREFIX } from './panel.js';
 import { isActivePanelMessage } from './guards.js';
@@ -134,6 +135,6 @@ export async function handleSelectInteraction(
     role: changedRoleNames.join(', '),
   });
   if (message) {
-    await interaction.followUp({ flags: MessageFlags.Ephemeral, content: message });
+    await replyEphemeral(interaction, message);
   }
 }

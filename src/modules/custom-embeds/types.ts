@@ -1,4 +1,4 @@
-import { getConfig, getTexts } from '../../core/texts.js';
+import { createModuleConfig, resolveKeyedItem } from '../../core/moduleConfig.js';
 
 export const NAMESPACE = 'custom-embeds';
 
@@ -46,21 +46,21 @@ export const CONFIG_DEFAULTS: CustomEmbedsConfig = {
   panels: [],
 };
 
-export function config(): CustomEmbedsConfig {
-  return getConfig(NAMESPACE, CONFIG_DEFAULTS);
-}
+const module = createModuleConfig(NAMESPACE, CONFIG_DEFAULTS, TEXT_DEFAULTS);
 
-export function texts(): CustomEmbedsTexts {
-  return getTexts(NAMESPACE, TEXT_DEFAULTS);
-}
+export const config = module.config;
+export const texts = module.texts;
 
 export function resolveEmbedPanel(id: string): ResolvedEmbedPanel | undefined {
-  const row = config().panels.find((p) => p.id === id);
-  if (!row) return undefined;
-  const copy = texts().panels[id] ?? DEFAULT_PANEL_TEXTS;
-  return {
-    ...row,
-    ...copy,
-    showTimestamp: row.showTimestamp === true,
-  };
+  return resolveKeyedItem(
+    config().panels,
+    id,
+    texts().panels,
+    DEFAULT_PANEL_TEXTS,
+    (row, copy) => ({
+      ...row,
+      ...copy,
+      showTimestamp: row.showTimestamp === true,
+    })
+  );
 }

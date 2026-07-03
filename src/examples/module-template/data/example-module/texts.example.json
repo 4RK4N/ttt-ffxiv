@@ -1,0 +1,4 @@
+{
+  "disabled": "This feature is currently disabled.",
+  "greeting": "Hello {mention}!"
+}

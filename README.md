@@ -159,6 +159,11 @@ src/
     limits.ts           # shared caps (e.g. max panel options)
     threads.ts          # shared thread title helpers
     texts.ts            # loads per-module texts/assets from data/
+    moduleConfig.ts     # createModuleConfig + resolveKeyedItem helpers
+    panelFields.ts      # shared panel row field parsing
+    discordInteractions.ts  # replyEphemeral, memberHasAnyRole
+  examples/
+    module-template/    # reference module layout (not loaded by bot)
   modules/
     welcome-message/
       index.ts          # welcome card + rules on member join
@@ -220,9 +225,11 @@ scripts/
 To add a new feature later, create `src/modules/<name>/index.ts` that exports
 either `{ name, commands: [{ data, execute }] }` for slash commands, or
 `{ name, init(client) }` to register event listeners (or both). The loader and
-deploy script pick it up automatically - no core changes needed. To make its
-texts or config editable in the web editor, drop a `web-plugin.json` in the same
-folder (see [Web editor](#web-editor)); the editor discovers it automatically.
+deploy script pick it up automatically - no core changes needed. See
+`src/examples/module-template/` for a documented starting layout (`types.ts`,
+`config-io.ts`, optional `web-plugin.json`). To make its texts or config editable
+in the web editor, drop a `web-plugin.json` in the same folder (see
+[Web editor](#web-editor)); the editor discovers it automatically.
 
 ### Editing texts and assets
 

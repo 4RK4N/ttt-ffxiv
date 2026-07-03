@@ -1,3 +1,4 @@
+import { parsePanelBaseFields } from '../../core/panelFields.js';
 import type { ResolvedEmbedPanel } from './types.js';
 
 function isHttpUrl(value: string): boolean {
@@ -30,14 +31,10 @@ export function validateEmbedPanelRow(
   configRow: Record<string, unknown>,
   textRow: Record<string, unknown>
 ): void {
+  const base = parsePanelBaseFields(configRow, textRow);
   const panel: ResolvedEmbedPanel = {
-    id: typeof configRow.id === 'string' ? configRow.id : '',
-    published: configRow.published === true,
-    panelMessageId: typeof configRow.panelMessageId === 'string' ? configRow.panelMessageId : '',
-    channelId: typeof configRow.channelId === 'string' ? configRow.channelId : '',
+    ...base,
     showTimestamp: configRow.showTimestamp === true,
-    panelTitle: typeof textRow.panelTitle === 'string' ? textRow.panelTitle : '',
-    panelDescription: typeof textRow.panelDescription === 'string' ? textRow.panelDescription : '',
     authorName: typeof textRow.authorName === 'string' ? textRow.authorName : '',
     authorIconUrl: typeof textRow.authorIconUrl === 'string' ? textRow.authorIconUrl : '',
     footer: typeof textRow.footer === 'string' ? textRow.footer : '',

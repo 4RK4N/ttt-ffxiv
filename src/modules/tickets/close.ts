@@ -2,10 +2,10 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  MessageFlags,
   type ButtonInteraction,
   type GuildMember,
 } from 'discord.js';
+import { replyEphemeral } from '../../core/discordInteractions.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
 import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
@@ -57,43 +57,31 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply(t.disabled);
     } else {
-      await interaction.reply({ content: t.disabled, flags: MessageFlags.Ephemeral });
+      await replyEphemeral(interaction, t.disabled);
     }
     return;
   }
 
   if (!ticketType) {
-    await interaction.reply({
-      content: t.categoryUnpublished,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.categoryUnpublished);
     return;
   }
 
   const thread = interaction.channel;
   if (!thread?.isThread()) {
-    await interaction.reply({
-      content: t.threadContextRequired,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.threadContextRequired);
     return;
   }
 
   if (parsed.threadId !== thread.id) {
-    await interaction.reply({
-      content: t.invalidInteraction,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   const openerUserId = await resolveOpenerUserId(thread, parsed.openerUserId);
 
   if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
-    await interaction.reply({
-      content: t.noPermission,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.noPermission);
     return;
   }
 
@@ -114,19 +102,15 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(yes, no);
 
-    await interaction.reply({
+    await replyEphemeral(interaction, {
       content: ticketType.confirmClosePrompt,
       components: [row],
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
   if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
-    await interaction.reply({
-      content: t.noPermission,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.noPermission);
     return;
   }
 
@@ -136,10 +120,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     await finalizeTicketClose(thread, parsed.typeId, ticketType, ticketType.ticketClosed);
   } catch (err) {
     console.error('[tickets] Failed to close ticket:', err);
-    await interaction.followUp({
-      content: t.closeError,
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyEphemeral(interaction, t.closeError);
   }
 }
 
