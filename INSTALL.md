@@ -293,7 +293,7 @@ posting.
 docker compose build
 ```
 
-This produces an image named `ttt-discord-bot` using the included `Dockerfile`. The
+This produces an image named `ttt-discord-bot:1.0.0` using the included `Dockerfile`. The
 `Dockerfile` is a multi-stage build: the first stage compiles the TypeScript
 sources to plain JavaScript (`npm run build` -> `dist/`), and the final runtime
 image ships only the compiled output plus production dependencies.
