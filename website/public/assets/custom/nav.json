@@ -1,50 +1,179 @@
 {
   "siteName": "Tiny Temptation Tubs",
   "languages": [
-    { "code": "de", "label": "Deutsch" },
-    { "code": "en", "label": "English" }
+    {
+      "code": "de",
+      "label": "Deutsch"
+    },
+    {
+      "code": "en",
+      "label": "English"
+    }
   ],
   "de": [
-    { "label": "Start", "path": "/de/", "enPath": "/en/" },
-    { "label": "Über unser Haus", "path": "/de/uber-uns/", "enPath": "/en/about/" },
-    { "label": "Hausregeln", "path": "/de/regeln/", "enPath": "/en/rules/" },
-    { "label": "Events", "path": "/de/events/", "enPath": "/en/events/" },
-    { "label": "Staff", "path": "/de/staff/", "enPath": "/en/staff/" },
-    { "label": "Partner", "path": "/de/partner/", "enPath": "/en/partner/" },
-    { "label": "Mitwirken", "path": "/de/mitwirken/", "enPath": "/en/join/" },
-    { "label": "Galerie", "path": "/de/galerie/", "enPath": "/en/gallery/" },
-    { "label": "Gästebuch", "path": "/de/gaestebuch/", "enPath": "/en/guestbook/" }
+    {
+      "label": "Über Uns",
+      "path": "/de/uber-uns/",
+      "enPath": "/en/about/"
+    },
+    {
+      "label": "Hausregeln",
+      "path": "/de/regeln/",
+      "enPath": "/en/rules/"
+    },
+    {
+      "label": "Events",
+      "path": "/de/events/",
+      "enPath": "/en/events/"
+    },
+    {
+      "label": "Staff",
+      "path": "/de/staff/",
+      "enPath": "/en/staff/"
+    },
+    {
+      "label": "Partner",
+      "path": "/de/partner/",
+      "enPath": "/en/partner/"
+    },
+    {
+      "label": "Mitwirken",
+      "path": "/de/mitwirken/",
+      "enPath": "/en/join/"
+    },
+    {
+      "label": "Galerie",
+      "path": "/de/galerie/",
+      "enPath": "/en/gallery/"
+    },
+    {
+      "label": "Gästebuch",
+      "path": "/de/gaestebuch/",
+      "enPath": "/en/guestbook/"
+    }
   ],
   "en": [
-    { "label": "Home", "path": "/en/", "dePath": "/de/" },
-    { "label": "About", "path": "/en/about/", "dePath": "/de/uber-uns/" },
-    { "label": "Rules", "path": "/en/rules/", "dePath": "/de/regeln/" },
-    { "label": "Events", "path": "/en/events/", "dePath": "/de/events/" },
-    { "label": "Staff", "path": "/en/staff/", "dePath": "/de/staff/" },
-    { "label": "Partner", "path": "/en/partner/", "dePath": "/de/partner/" },
-    { "label": "Join us", "path": "/en/join/", "dePath": "/de/mitwirken/" },
-    { "label": "Gallery", "path": "/en/gallery/", "dePath": "/de/galerie/" },
-    { "label": "Guestbook", "path": "/en/guestbook/", "dePath": "/de/gaestebuch/" }
+    {
+      "label": "About",
+      "path": "/en/about/",
+      "dePath": "/de/uber-uns/"
+    },
+    {
+      "label": "Rules",
+      "path": "/en/rules/",
+      "dePath": "/de/regeln/"
+    },
+    {
+      "label": "Events",
+      "path": "/en/events/",
+      "dePath": "/de/events/"
+    },
+    {
+      "label": "Staff",
+      "path": "/en/staff/",
+      "dePath": "/de/staff/"
+    },
+    {
+      "label": "Partner",
+      "path": "/en/partner/",
+      "dePath": "/de/partner/"
+    },
+    {
+      "label": "Join us",
+      "path": "/en/join/",
+      "dePath": "/de/mitwirken/"
+    },
+    {
+      "label": "Gallery",
+      "path": "/en/gallery/",
+      "dePath": "/de/galerie/"
+    },
+    {
+      "label": "Guestbook",
+      "path": "/en/guestbook/",
+      "dePath": "/de/gaestebuch/"
+    }
   ],
   "pathMap": {
-    "/": { "de": "/de/", "en": "/en/" },
-    "/de/": { "de": "/de/", "en": "/en/" },
-    "/de/uber-uns/": { "de": "/de/uber-uns/", "en": "/en/about/" },
-    "/de/regeln/": { "de": "/de/regeln/", "en": "/en/rules/" },
-    "/de/events/": { "de": "/de/events/", "en": "/en/events/" },
-    "/de/staff/": { "de": "/de/staff/", "en": "/en/staff/" },
-    "/de/partner/": { "de": "/de/partner/", "en": "/en/partner/" },
-    "/de/mitwirken/": { "de": "/de/mitwirken/", "en": "/en/join/" },
-    "/de/galerie/": { "de": "/de/galerie/", "en": "/en/gallery/" },
-    "/de/gaestebuch/": { "de": "/de/gaestebuch/", "en": "/en/guestbook/" },
-    "/en/": { "de": "/de/", "en": "/en/" },
-    "/en/about/": { "de": "/de/uber-uns/", "en": "/en/about/" },
-    "/en/rules/": { "de": "/de/regeln/", "en": "/en/rules/" },
-    "/en/events/": { "de": "/de/events/", "en": "/en/events/" },
-    "/en/staff/": { "de": "/de/staff/", "en": "/en/staff/" },
-    "/en/partner/": { "de": "/de/partner/", "en": "/en/partner/" },
-    "/en/join/": { "de": "/de/mitwirken/", "en": "/en/join/" },
-    "/en/gallery/": { "de": "/de/galerie/", "en": "/en/gallery/" },
-    "/en/guestbook/": { "de": "/de/gaestebuch/", "en": "/en/guestbook/" }
+    "/": {
+      "de": "/de.html",
+      "en": "/"
+    },
+    "/de.html": {
+      "de": "/de.html",
+      "en": "/"
+    },
+    "/de/": {
+      "de": "/de/",
+      "en": "/en/"
+    },
+    "/de/uber-uns/": {
+      "de": "/de/uber-uns/",
+      "en": "/en/about/"
+    },
+    "/de/regeln/": {
+      "de": "/de/regeln/",
+      "en": "/en/rules/"
+    },
+    "/de/events/": {
+      "de": "/de/events/",
+      "en": "/en/events/"
+    },
+    "/de/staff/": {
+      "de": "/de/staff/",
+      "en": "/en/staff/"
+    },
+    "/de/partner/": {
+      "de": "/de/partner/",
+      "en": "/en/partner/"
+    },
+    "/de/mitwirken/": {
+      "de": "/de/mitwirken/",
+      "en": "/en/join/"
+    },
+    "/de/galerie/": {
+      "de": "/de/galerie/",
+      "en": "/en/gallery/"
+    },
+    "/de/gaestebuch/": {
+      "de": "/de/gaestebuch/",
+      "en": "/en/guestbook/"
+    },
+    "/en/": {
+      "de": "/de/",
+      "en": "/en/"
+    },
+    "/en/about/": {
+      "de": "/de/uber-uns/",
+      "en": "/en/about/"
+    },
+    "/en/rules/": {
+      "de": "/de/regeln/",
+      "en": "/en/rules/"
+    },
+    "/en/events/": {
+      "de": "/de/events/",
+      "en": "/en/events/"
+    },
+    "/en/staff/": {
+      "de": "/de/staff/",
+      "en": "/en/staff/"
+    },
+    "/en/partner/": {
+      "de": "/de/partner/",
+      "en": "/en/partner/"
+    },
+    "/en/join/": {
+      "de": "/de/mitwirken/",
+      "en": "/en/join/"
+    },
+    "/en/gallery/": {
+      "de": "/de/galerie/",
+      "en": "/en/gallery/"
+    },
+    "/en/guestbook/": {
+      "de": "/de/gaestebuch/",
+      "en": "/en/guestbook/"
+    }
   }
 }

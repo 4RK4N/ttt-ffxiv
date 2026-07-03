@@ -5,7 +5,7 @@
   --ttt-bar-text: #f5e6d0;
   --ttt-bar-muted: #c4a574;
   --ttt-bar-accent: #d4af78;
-  --ttt-bar-height: 3.25rem;
+  --ttt-bar-height: 4.25rem;
 }
 
 body.ttt-has-topbar {
@@ -42,10 +42,16 @@ body.ttt-has-topbar {
 
 .ttt-topbar-brand {
   flex-shrink: 0;
-  font-family: 'Patua One', Georgia, serif;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0.375rem 0;
+}
+
+.ttt-topbar-brand img {
+  height: 100%;
+  width: auto;
+  display: block;
 }
 
 .ttt-topbar-nav {
@@ -149,13 +155,6 @@ body.ttt-has-topbar {
 
 body.ttt-menu-open {
   overflow: hidden;
-}
-
-/* Hide legacy Carrd language / nav / back button rows */
-#buttons01,
-ul.buttons-component:has(a[href='#deutsch']:only-of-type),
-ul.buttons-component:has(a[href='#english']:only-of-type) {
-  display: none !important;
 }
 
 @media (min-width: 768px) {

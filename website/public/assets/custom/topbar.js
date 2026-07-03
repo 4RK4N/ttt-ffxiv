@@ -12,6 +12,7 @@
 
   function normalizePath(path) {
     if (!path || path === '/') return '/';
+    if (path.indexOf('.') !== -1) return path;
     return path.endsWith('/') ? path : path + '/';
   }
 
@@ -48,7 +49,7 @@
       var targetLang = langSelect.value;
       try {
         localStorage.setItem('ttt-lang', targetLang);
-      } catch (_) {}
+      } catch (_) { }
       fetch('/assets/custom/nav.json')
         .then(function (r) {
           return r.json();
