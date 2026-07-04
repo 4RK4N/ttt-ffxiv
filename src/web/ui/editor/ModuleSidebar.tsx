@@ -1,5 +1,23 @@
 import type { WebPlugin } from '../../plugin-types.js';
 
+export function StatusDot({
+  namespace,
+  enabled,
+  oob,
+}: {
+  namespace: string;
+  enabled: boolean;
+  oob?: boolean;
+}) {
+  return (
+    <span
+      id={`status-dot-${namespace}`}
+      class={`status-dot ${enabled ? 'status-green' : 'status-muted'}`}
+      {...(oob ? { 'hx-swap-oob': 'true' } : {})}
+    />
+  );
+}
+
 export function ModuleSidebar({
   plugins,
   activeNamespace,
@@ -23,7 +41,7 @@ export function ModuleSidebar({
                 hx-swap="innerHTML"
                 hx-on:click="this.closest('.navbar-nav').querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); this.classList.add('active')"
               >
-                <span class={`status-dot ${enabled ? 'status-green' : 'status-muted'}`} />
+                <StatusDot namespace={p.namespace} enabled={enabled} />
                 <span>{p.title}</span>
               </button>
             );
@@ -50,20 +68,42 @@ export function EnabledToggle({
   namespace: string;
   enabled: boolean;
 }) {
+  const on = enabled !== false;
+  const toggleId = `enabled-toggle-${namespace}`;
   return (
-    <label class="form-check form-switch">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        name="enabled"
-        value="true"
-        checked={enabled !== false}
-        hx-put={`/htmx/modules/${namespace}/enabled`}
-        hx-trigger="change"
-        hx-swap="none"
-        hx-include="this"
-      />
-      <span class="form-check-label">{enabled !== false ? 'On' : 'Off'}</span>
-    </label>
+    <div id={toggleId}>
+      <label class="form-check form-switch mb-0">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="enabled"
+          value="true"
+          checked={on}
+          hx-put={`/htmx/modules/${namespace}/enabled`}
+          hx-trigger="change"
+          hx-target={`#${toggleId}`}
+          hx-swap="outerHTML"
+          hx-include="this"
+        />
+        <span class="form-check-label">{on ? 'On' : 'Off'}</span>
+      </label>
+    </div>
+  );
+}
+
+/** HTMX response fragment: re-render toggle + OOB sidebar status dot. */
+export function EnabledToggleResponse({
+  namespace,
+  enabled,
+}: {
+  namespace: string;
+  enabled: boolean;
+}) {
+  const on = enabled === true;
+  return (
+    <>
+      <EnabledToggle namespace={namespace} enabled={on} />
+      <StatusDot namespace={namespace} enabled={on} oob />
+    </>
   );
 }

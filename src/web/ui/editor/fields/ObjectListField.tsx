@@ -71,7 +71,9 @@ export function ObjectListRow({
             {cardTitle(field, row, row as Record<string, unknown>)}
           </h3>
         </div>
-        <span class={`badge ${row.published ? 'bg-success' : 'bg-secondary-lt'}`}>
+        <span
+          class={`badge ${row.published ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary'}`}
+        >
           {row.published ? 'Published' : 'Unpublished'}
         </span>
       </div>

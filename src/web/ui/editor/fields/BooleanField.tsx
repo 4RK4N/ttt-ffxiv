@@ -15,6 +15,7 @@ export function BooleanField({ f, value, name, disabled }: SubFieldProps) {
           value="true"
           checked={checked}
           disabled={disabled}
+          onchange="this.closest('label').querySelector('.form-check-label').textContent = this.checked ? 'On' : 'Off'"
         />
         <span class="form-check-label">{checked ? 'On' : 'Off'}</span>
       </label>

@@ -26,6 +26,7 @@ import {
   valuesFromForm,
 } from './htmx-handlers.js';
 import { isHtmxMigrated } from './migrated.js';
+import { EnabledToggleResponse } from './ModuleSidebar.js';
 import { ModulePanel } from './ModulePanel.js';
 import { ObjectListRow } from './Field.js';
 import { ObjectListRowsOnly } from './fields/ObjectListField.js';
@@ -143,7 +144,7 @@ export function registerHtmxRoutes(htmx: import('hono').Hono<Env>, deps: HtmxDep
       console.log(
         `[web] ${c.get('user').username} ${enabled ? 'enabled' : 'disabled'} module "${namespace}".`,
       );
-      return c.body(null, 204);
+      return c.html(<EnabledToggleResponse namespace={namespace} enabled={enabled} />);
     } catch (err) {
       console.error(`[web] Failed to set enabled for "${namespace}":`, err);
       return c.text('Failed to save changes.', 500);
