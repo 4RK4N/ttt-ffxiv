@@ -15,12 +15,10 @@ import {
   verifyFormCsrf,
   type SessionUser,
 } from './auth.js';
-import { loadWebPlugins, hasPublishableField, type WebPlugin } from './plugins.js';
-import { readEnabled, readValues, DataReadError, ValidationError, writeEnabled, writeValues } from './store.js';
-import { listGuildChannels } from './channels.js';
-import { listGuildRoles } from './roles.js';
-import { getPublishHandlers } from './publishHandlers.js';
-import { editorPage, loginPage } from './ui.js';
+import { loadWebPlugins, type WebPlugin } from './plugins.js';
+import { loginPage } from './ui.js';
+import { EditorPage } from './ui/editor-page.js';
+import { registerHtmxRoutes } from './ui/editor/routes.js';
 
 type Env = { Variables: { user: SessionUser } };
 
@@ -110,154 +108,24 @@ async function main(): Promise<void> {
     const user = await getSessionUser(c, cfg);
     if (!user) return c.html(loginPage(cfg.botName));
     const csrfToken = await ensureCsrfToken(c, cfg);
-    return c.html(editorPage(cfg.botName, user, csrfToken));
+    const active = c.req.query('module') ?? plugins[0]?.namespace;
+    return c.html(
+      await EditorPage({
+        cfg,
+        user,
+        csrfToken,
+        plugins,
+        activeNamespace: active,
+      }),
+    );
   });
 
-  // --- API (auth required) ----------------------------------------------------
-  const api = new Hono<Env>();
-  api.use('*', requireAuth(cfg));
-  api.use('*', requireCsrf(cfg));
+  const htmx = new Hono<Env>();
+  htmx.use('*', requireAuth(cfg));
+  htmx.use('*', requireCsrf(cfg));
+  registerHtmxRoutes(htmx, { cfg, byNamespace });
 
-  api.get('/modules', (c) => {
-    try {
-      const payload = plugins.map((p) => ({
-        namespace: p.namespace,
-        title: p.title,
-        description: p.description,
-        fields: p.fields,
-        values: readValues(p),
-        enabled: readEnabled(p.namespace),
-      }));
-      return c.json(payload);
-    } catch (err) {
-      if (err instanceof DataReadError) {
-        return c.json({ error: err.message }, 502);
-      }
-      throw err;
-    }
-  });
-
-  api.get('/channels', async (c) => {
-    try {
-      const channels = await listGuildChannels(cfg);
-      return c.json(channels);
-    } catch (err) {
-      console.error('[web] Failed to list guild channels:', err);
-      return c.json({ error: 'Could not load channels from Discord.' }, 502);
-    }
-  });
-
-  api.get('/roles', async (c) => {
-    try {
-      const roles = await listGuildRoles(cfg);
-      return c.json(roles);
-    } catch (err) {
-      console.error('[web] Failed to list guild roles:', err);
-      return c.json({ error: 'Could not load roles from Discord.' }, 502);
-    }
-  });
-
-  api.post('/modules/:namespace/publish/:itemId', async (c) => {
-    const namespace = c.req.param('namespace');
-    const itemId = c.req.param('itemId');
-    const plugin = byNamespace.get(namespace);
-    if (!plugin || !hasPublishableField(plugin)) {
-      return c.json({ error: `Module "${namespace}" does not support publishing.` }, 404);
-    }
-    const handlers = getPublishHandlers(namespace);
-    if (!handlers) {
-      return c.json({ error: `No publish handler registered for "${namespace}".` }, 501);
-    }
-    try {
-      await handlers.publish({ botToken: cfg.botToken }, itemId);
-      console.log(`[web] ${c.get('user').username} published ${namespace} panel "${itemId}".`);
-      return c.json({ ok: true });
-    } catch (err) {
-      console.error(`[web] Publish failed for "${namespace}/${itemId}":`, err);
-      return c.json({ error: 'Failed to publish panel.' }, 400);
-    }
-  });
-
-  api.post('/modules/:namespace/unpublish/:itemId', async (c) => {
-    const namespace = c.req.param('namespace');
-    const itemId = c.req.param('itemId');
-    const plugin = byNamespace.get(namespace);
-    if (!plugin || !hasPublishableField(plugin)) {
-      return c.json({ error: `Module "${namespace}" does not support unpublishing.` }, 404);
-    }
-    const handlers = getPublishHandlers(namespace);
-    if (!handlers) {
-      return c.json({ error: `No unpublish handler registered for "${namespace}".` }, 501);
-    }
-    try {
-      await handlers.unpublish(itemId);
-      console.log(`[web] ${c.get('user').username} unpublished ${namespace} panel "${itemId}".`);
-      return c.json({ ok: true });
-    } catch (err) {
-      console.error(`[web] Unpublish failed for "${namespace}/${itemId}":`, err);
-      return c.json({ error: 'Failed to unpublish panel.' }, 400);
-    }
-  });
-
-  api.put('/modules/:namespace', async (c) => {
-    const namespace = c.req.param('namespace');
-    const plugin = byNamespace.get(namespace);
-    if (!plugin) return c.json({ error: `Unknown module "${namespace}".` }, 404);
-
-    let body: unknown;
-    try {
-      body = await c.req.json();
-    } catch {
-      return c.json({ error: 'Request body must be valid JSON.' }, 400);
-    }
-
-    try {
-      const saved = await writeValues(plugin, body);
-      console.log(`[web] ${c.get('user').username} updated settings for "${namespace}".`);
-      return c.json({ ok: true, values: saved });
-    } catch (err) {
-      if (err instanceof ValidationError) {
-        return c.json({ error: err.message }, 400);
-      }
-      if (err instanceof DataReadError) {
-        return c.json({ error: err.message }, 502);
-      }
-      console.error(`[web] Failed to write settings for "${namespace}":`, err);
-      return c.json({ error: 'Failed to save changes.' }, 500);
-    }
-  });
-
-  api.put('/modules/:namespace/enabled', async (c) => {
-    const namespace = c.req.param('namespace');
-    if (!byNamespace.has(namespace)) {
-      return c.json({ error: `Unknown module "${namespace}".` }, 404);
-    }
-
-    let body: unknown;
-    try {
-      body = await c.req.json();
-    } catch {
-      return c.json({ error: 'Request body must be valid JSON.' }, 400);
-    }
-
-    const enabled = (body as { enabled?: unknown })?.enabled;
-    if (typeof enabled !== 'boolean') {
-      return c.json({ error: 'Field "enabled" must be a boolean.' }, 400);
-    }
-
-    try {
-      const saved = await writeEnabled(namespace, enabled);
-      console.log(
-        `[web] ${c.get('user').username} ${saved ? 'enabled' : 'disabled'} module "${namespace}".`
-      );
-      return c.json({ ok: true, enabled: saved });
-    } catch (err) {
-      console.error(`[web] Failed to set enabled for "${namespace}":`, err);
-      return c.json({ error: 'Failed to save changes.' }, 500);
-    }
-  });
-
-  app.route('/api', api);
+  app.route('/htmx', htmx);
 
   // Binds 0.0.0.0 for the Caddy-proxied deployment: docker-compose publishes no
   // host port and only exposes this via the internal caddy network (TLS + auth in

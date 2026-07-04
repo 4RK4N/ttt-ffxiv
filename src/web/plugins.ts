@@ -3,69 +3,28 @@ import { readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type {
+  WebFieldStore,
+  WebFieldType,
+  WebPlugin,
+  WebPluginField,
+  WebPluginSelectOption,
+  WebPluginSubField,
+  WebPluginVisibleWhen,
+} from './plugin-types.js';
+
+export type {
+  WebFieldType,
+  WebFieldStore,
+  WebPluginSelectOption,
+  WebPluginVisibleWhen,
+  WebPluginSubField,
+  WebPluginField,
+  WebPlugin,
+} from './plugin-types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, '..', 'modules');
-
-export type WebFieldType =
-  | 'text'
-  | 'textarea'
-  | 'channel'
-  | 'channel-multi'
-  | 'role'
-  | 'role-multi'
-  | 'boolean'
-  | 'select'
-  | 'option-list'
-  | 'object-list';
-
-export type WebFieldStore = 'texts' | 'config';
-
-export interface WebPluginSelectOption {
-  value: string;
-  label: string;
-}
-
-export type WebPluginVisibleWhen = Record<string, string[]>;
-
-export interface WebPluginSubField {
-  key: string;
-  label: string;
-  type: Exclude<WebFieldType, 'object-list'>;
-  store?: WebFieldStore;
-  help?: string;
-  options?: WebPluginSelectOption[];
-  optionFields?: WebPluginSubField[];
-  /** Show only when sibling select values match one of the listed values. */
-  visibleWhen?: WebPluginVisibleWhen;
-  /** When hidden via visibleWhen, clear the value in UI and on save. */
-  clearWhenHidden?: boolean;
-}
-
-export interface WebPluginField {
-  key: string;
-  label: string;
-  type: WebFieldType;
-  store: WebFieldStore;
-  help?: string;
-  itemLabel?: string;
-  /** When true, object-list cards get Publish/Unpublish actions. */
-  publishable?: boolean;
-  /** When true, object-list cards collapse to title + published badge. */
-  collapsible?: boolean;
-  /** Nested map key in texts.json for object-list text fields (e.g. "types"). */
-  textsKey?: string;
-  itemFields?: WebPluginSubField[];
-  /** Default row object when adding a new object-list item. */
-  defaultItem?: Record<string, unknown>;
-}
-
-export interface WebPlugin {
-  namespace: string;
-  title: string;
-  description?: string;
-  fields: WebPluginField[];
-}
 
 const VALID_SCALAR_TYPES: WebPluginSubField['type'][] = [
   'text',
