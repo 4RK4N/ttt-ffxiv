@@ -1,7 +1,8 @@
 ---
-import { Image } from 'astro:assets';
 import ContentPage from '../../../components/ContentPage.astro';
+import ContentImage from '../../../components/ContentImage.astro';
 import Gallery from '../../../components/Gallery.astro';
+import { CARD_IMAGE_PX, NARROW_CONTENT_BP_PX } from '../../../data/layout';
 import { pageIcons, resolveGalleryList } from '../../../data/images';
 ---
 
@@ -12,12 +13,10 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
   heading="Events"
   icon={pageIcons.image14}
 >
-  <Image
+  <ContentImage
     src={pageIcons.image15}
-    alt=""
-    widths={[384, 768]}
-    sizes="(max-width: 720px) 100vw, 384px"
-    loading="lazy"
+    width={CARD_IMAGE_PX}
+    sizes={`(max-width: ${NARROW_CONTENT_BP_PX}px) 100vw, ${CARD_IMAGE_PX}px`}
     class="w-full max-w-[24rem] rounded-md"
   />
   <p class="hand-text">★<em><strong>Archive</strong></em>★</p>

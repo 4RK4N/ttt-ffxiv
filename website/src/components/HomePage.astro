@@ -3,6 +3,7 @@ import { Image, getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Timer from './Timer.astro';
 import DiscordButton from './DiscordButton.astro';
+import { HERO_CIRCLE_PX } from '../data/layout';
 import type { Lang } from '../data/nav';
 import { homeCircle } from '../data/images';
 
@@ -16,7 +17,7 @@ interface Props {
 const { title, lang, path, tagline } = Astro.props;
 
 const EVENT_TIMESTAMP = 1783188000;
-const lcpSrc = (await getImage({ src: homeCircle, width: 864, format: 'webp' })).src;
+const lcpSrc = (await getImage({ src: homeCircle, width: HERO_CIRCLE_PX * 2, format: 'webp' })).src;
 ---
 
 <Base title={title} lang={lang} path={path} heroLcp lcpPreload={lcpSrc}>
@@ -26,9 +27,10 @@ const lcpSrc = (await getImage({ src: homeCircle, width: 864, format: 'webp' }))
     <Image
       src={homeCircle}
       alt=""
-      width={432}
-      height={432}
+      width={HERO_CIRCLE_PX}
+      height={HERO_CIRCLE_PX}
       densities={[1, 2]}
+      sizes={`${HERO_CIRCLE_PX}px`}
       loading="eager"
       fetchpriority="high"
       class="w-72 max-w-full"

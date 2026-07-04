@@ -1,7 +1,8 @@
 ---
-import { Image } from 'astro:assets';
 import ContentPage from '../../../components/ContentPage.astro';
+import ContentImage from '../../../components/ContentImage.astro';
 import Gallery from '../../../components/Gallery.astro';
+import { CONTENT_COLUMN_PX } from '../../../data/layout';
 import { pageIcons, resolveGalleryList } from '../../../data/images';
 ---
 
@@ -19,12 +20,10 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
       memories are made.</strong></em>
     </p>
   </div>
-  <Image
+  <ContentImage
     src={pageIcons.image20}
-    alt=""
-    widths={[768, 1536]}
-    sizes="100vw"
-    loading="lazy"
+    width={CONTENT_COLUMN_PX}
+    sizes={`${CONTENT_COLUMN_PX}px`}
     class="w-full rounded-md"
   />
   <Gallery

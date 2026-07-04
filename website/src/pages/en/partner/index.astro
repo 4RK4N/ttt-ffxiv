@@ -1,8 +1,9 @@
 ---
-import { Image } from 'astro:assets';
 import ContentPage from '../../../components/ContentPage.astro';
+import ContentImage from '../../../components/ContentImage.astro';
 import Gallery from '../../../components/Gallery.astro';
 import DiscordButton from '../../../components/DiscordButton.astro';
+import { PARTNER_LOGO_PX } from '../../../data/layout';
 import { pageIcons, resolveGallery, resolveGalleryList } from '../../../data/images';
 ---
 
@@ -24,12 +25,10 @@ import { pageIcons, resolveGallery, resolveGalleryList } from '../../../data/ima
     </p>
     <p><em><strong>Together, we create a greater world.</strong></em></p>
   </div>
-  <Image
+  <ContentImage
     src={resolveGallery('gallery20/0d103a87.png')}
-    alt=""
-    widths={[192, 384]}
-    sizes="192px"
-    loading="lazy"
+    width={PARTNER_LOGO_PX}
+    sizes={`${PARTNER_LOGO_PX}px`}
     class="w-48 max-w-full"
   />
   <p class="hand-text"><u><em><strong>MO'BATH LOFT</strong></em></u></p>

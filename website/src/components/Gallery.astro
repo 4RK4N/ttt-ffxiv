@@ -1,6 +1,12 @@
 ---
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
+import {
+  CONTENT_COLUMN_PX,
+  LANDSCAPE_CELL_PX,
+  PORTRAIT_CELL_LG_PX,
+  PORTRAIT_CELL_MD_PX,
+} from '../data/layout';
 
 interface Props {
   images: ImageMetadata[];
@@ -25,10 +31,28 @@ const colsClass = cols
 
 const imageSizes =
   aspect === 'portrait'
-    ? '(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 180px'
-    : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px';
+    ? `(max-width: 640px) 45vw, (max-width: 1024px) ${PORTRAIT_CELL_MD_PX}px, ${PORTRAIT_CELL_LG_PX}px`
+    : `(max-width: 640px) calc(100vw - 3rem), ${LANDSCAPE_CELL_PX}px`;
 
-const imageWidths = aspect === 'portrait' ? [120, 200, 360] : [360, 720];
+const imageWidths =
+  aspect === 'portrait'
+    ? [
+        PORTRAIT_CELL_LG_PX,
+        PORTRAIT_CELL_LG_PX * 2,
+        PORTRAIT_CELL_MD_PX,
+        PORTRAIT_CELL_MD_PX * 2,
+      ]
+    : [LANDSCAPE_CELL_PX, LANDSCAPE_CELL_PX * 2, CONTENT_COLUMN_PX, CONTENT_COLUMN_PX * 2];
+
+const imageWidth =
+  aspect === 'portrait' || aspect === 'square' ? PORTRAIT_CELL_LG_PX : LANDSCAPE_CELL_PX;
+
+const imageHeight =
+  aspect === 'portrait'
+    ? Math.round((PORTRAIT_CELL_LG_PX * 3) / 2)
+    : aspect === 'square'
+      ? PORTRAIT_CELL_LG_PX
+      : Math.round((LANDSCAPE_CELL_PX * 9) / 16);
 ---
 
 <div class:list={['grid w-full gap-3', colsClass, className]}>
@@ -36,6 +60,8 @@ const imageWidths = aspect === 'portrait' ? [120, 200, 360] : [360, 720];
     <Image
       src={src}
       alt=""
+      width={imageWidth}
+      height={imageHeight}
       widths={imageWidths}
       sizes={imageSizes}
       loading="lazy"

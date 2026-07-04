@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { Font, Image, getImage } from 'astro:assets';
 import { siteName, siteDescription, navItems, homePath, pathMap, type Lang } from '../data/nav';
+import { HEADER_LOGO_HEIGHT_PX, HEADER_LOGO_WIDTH_PX } from '../data/layout';
 import { logo, bg } from '../data/images';
 
 interface Props {
@@ -62,11 +63,7 @@ const isActive = (itemPath: string) => itemPath === path;
     )}
     <Font cssVariable="--font-averia-face" preload />
     <Font cssVariable="--font-gochi-face" />
-    {heroLcp ? (
-      <Font cssVariable="--font-caveat-face" preload />
-    ) : (
-      <Font cssVariable="--font-caveat-face" />
-    )}
+    <Font cssVariable="--font-caveat-face" preload={heroLcp} />
   </head>
 
   <body class="pt-[68px]">
@@ -77,10 +74,12 @@ const isActive = (itemPath: string) => itemPath === path;
         <Image
           src={logo}
           alt={siteName}
-          width={145}
-          densities={[1, 2]}
+          width={HEADER_LOGO_WIDTH_PX}
+          height={HEADER_LOGO_HEIGHT_PX}
+          widths={[HEADER_LOGO_WIDTH_PX, HEADER_LOGO_WIDTH_PX * 2]}
+          sizes={`${HEADER_LOGO_WIDTH_PX}px`}
           loading="eager"
-          fetchpriority={heroLcp ? undefined : 'high'}
+          fetchpriority={heroLcp || lcpPreload ? undefined : 'high'}
           class="block h-full w-auto"
         />
       </a>
