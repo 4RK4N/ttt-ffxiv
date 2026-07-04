@@ -29,7 +29,7 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
         hx-swap="outerHTML"
       >
         <input type="hidden" name="_csrf" value={ctx.csrfToken} />
-        <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="mb-0">{mod.title}</h2>
           <EnabledToggle namespace={mod.namespace} enabled={mod.enabled !== false} />
         </div>

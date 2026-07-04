@@ -76,26 +76,32 @@ export function EditorBody({
   panel: unknown;
 }) {
   return (
-    <div class="d-flex flex-fill w-100">
-      <aside class="navbar navbar-vertical navbar-expand-lg">
+    <>
+      <aside class="navbar navbar-vertical">
         <div class="container-fluid">
-          <div class="navbar-nav pt-lg-3">
-            <div class="text-secondary text-uppercase small px-3 py-2">Modules</div>
-            {plugins.map((p) => (
-              <button
-                type="button"
-                class={`nav-link w-100 text-start${p.namespace === activeNamespace ? ' active' : ''}`}
-                hx-get={`/htmx/modules/${p.namespace}/panel`}
-                hx-target="#module-content"
-                hx-swap="innerHTML"
-                hx-on:click="this.closest('.navbar-nav').querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); this.classList.add('active')"
-              >
-                <span
-                  class={`status-dot ${p.enabled === false ? 'status-muted' : 'status-green'}`}
-                />
-                <span>{p.title}</span>
-              </button>
-            ))}
+          <div class="collapse navbar-collapse show" id="sidebar-menu">
+            <ul class="navbar-nav pt-lg-3">
+              <li class="nav-item">
+                <span class="text-secondary text-uppercase small px-3 py-2 d-block">Modules</span>
+              </li>
+              {plugins.map((p) => (
+                <li class="nav-item w-100">
+                  <button
+                    type="button"
+                    class={`nav-link w-100 text-start${p.namespace === activeNamespace ? ' active' : ''}`}
+                    hx-get={`/htmx/modules/${p.namespace}/panel`}
+                    hx-target="#module-content"
+                    hx-swap="innerHTML"
+                    hx-on:click="this.closest('.navbar-nav').querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); this.classList.add('active')"
+                  >
+                    <span
+                      class={`status-dot ${p.enabled === false ? 'status-muted' : 'status-green'}`}
+                    />
+                    <span>{p.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </aside>
@@ -104,6 +110,6 @@ export function EditorBody({
           {panel}
         </div>
       </div>
-    </div>
+    </>
   );
 }

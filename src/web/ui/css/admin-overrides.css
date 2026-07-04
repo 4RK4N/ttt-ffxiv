@@ -1,5 +1,11 @@
 /* TTT admin editor — small tweaks on top of Tabler */
 
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .checklist-scroll {
   max-height: 240px;
   overflow-y: auto;
@@ -47,12 +53,44 @@
 
 .navbar-vertical {
   width: 15rem;
+  min-width: 15rem;
+  max-width: 15rem;
   flex-shrink: 0;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  align-self: stretch;
+  justify-content: flex-start !important;
+}
+
+.navbar-vertical .container-fluid {
+  flex: 1 1 auto;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: 100%;
+  height: auto;
+}
+
+.navbar-vertical .navbar-nav {
+  width: 100%;
+}
+
+.navbar-vertical .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.navbar-vertical .nav-link .status-dot {
+  margin-right: 0;
 }
 
 .page-wrapper {
   display: flex;
+  flex-direction: row;
   flex: 1;
+  align-items: stretch;
 }
 
 .page-body {
@@ -67,5 +105,7 @@
 
   .navbar-vertical {
     width: 100%;
+    min-width: 0;
+    max-width: none;
   }
 }
