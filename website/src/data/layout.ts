@@ -54,9 +54,15 @@ const BUILD_WIDTHS = {
   landscapeGallery: [400, 800, 1200],
 } as const;
 
+type BuildWidthProfile = keyof typeof BUILD_WIDTHS;
+
+function buildWidths(profile: BuildWidthProfile): number[] {
+  return [...BUILD_WIDTHS[profile]];
+}
+
 /** srcset widths for header logo. */
 export function headerLogoWidths(): number[] {
-  return [...BUILD_WIDTHS.headerLogo];
+  return buildWidths('headerLogo');
 }
 
 const GRID_GAP_REM = 0.75; // gap-3
@@ -71,11 +77,18 @@ export function remScaledSizes(rem: number): string {
   return `(max-width: 480px) ${remPx(rem, 18)}px, (max-width: 736px) ${remPx(rem, 20)}px, (max-width: 1280px) ${remPx(rem, 22)}px, ${remPx(rem, 24)}px`;
 }
 
+const REM_WIDTH_PROFILES: Partial<Record<number, BuildWidthProfile>> = {
+  [HERO_REM]: 'hero',
+  [PARTNER_REM]: 'partner',
+};
+
 /** srcset widths for a rem-width element (hero circle or partner logo). */
 export function remScaledWidths(rem: number): number[] {
-  if (rem === HERO_REM) return [...BUILD_WIDTHS.hero];
-  if (rem === PARTNER_REM) return [...BUILD_WIDTHS.partner];
-  throw new Error(`No build widths configured for ${rem}rem element`);
+  const profile = REM_WIDTH_PROFILES[rem];
+  if (!profile) {
+    throw new Error(`No build widths configured for ${rem}rem element`);
+  }
+  return buildWidths(profile);
 }
 
 /** Portrait gallery sizes — calc() tracks rem scaling and column max-width. */
@@ -86,7 +99,7 @@ export const PORTRAIT_GALLERY_SIZES =
 
 /** srcset widths for portrait gallery cells. */
 export function portraitGalleryWidths(): number[] {
-  return [...BUILD_WIDTHS.portraitGallery];
+  return buildWidths('portraitGallery');
 }
 
 /** Full content column — w-full images inside max-w-[36rem] px-6 sections. */
@@ -94,7 +107,7 @@ export const CONTENT_COLUMN_SIZES = 'calc(min(100vw, 36rem) - 3rem)';
 
 /** srcset widths for full-width content column images. */
 export function contentColumnWidths(): number[] {
-  return [...BUILD_WIDTHS.contentColumn];
+  return buildWidths('contentColumn');
 }
 
 /** Landscape gallery sizes — 1 col below sm, 2 cols at sm+. */
@@ -104,7 +117,7 @@ export const LANDSCAPE_GALLERY_SIZES =
 
 /** srcset widths for landscape gallery cells. */
 export function landscapeGalleryWidths(): number[] {
-  return [...BUILD_WIDTHS.landscapeGallery];
+  return buildWidths('landscapeGallery');
 }
 
 /** Events card: full column below NARROW_CONTENT_BP, max-w-[24rem] above. */
@@ -114,7 +127,7 @@ export function cardImageSizes(): string {
 
 /** srcset widths for events card image. */
 export function cardImageWidths(): number[] {
-  return [...BUILD_WIDTHS.cardImage];
+  return buildWidths('cardImage');
 }
 
 const GRID_GAP_PX = remPx(GRID_GAP_REM);

@@ -64,7 +64,7 @@ bot/src/          index.ts, moduleLoader.ts, modules/ (handlers + index.ts), exa
 web-admin/src/    web editor server + UI
 website/          Astro public site (see INSTALL.md § Part 7)
 data/             config.json, per-module config + texts (gitignored secrets)
-scripts/          deploy-commands, copy-web-plugins
+scripts/          deploy-commands, copy-web-plugins, build.sh
 ```
 
 ## Web editor

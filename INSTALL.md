@@ -294,8 +294,13 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 `nproc` ulimits in `docker-compose.yml` take effect. `COMPOSE_PARALLEL_LIMIT=1`
 builds one service at a time.
 
+Use [`scripts/build.sh`](scripts/build.sh) for full-stack deploy builds. It builds images
+**one at a time**, always passes **`--no-cache`**, and uses **`--progress plain`** for
+uncollapsed build logs.
+
 ```bash
-docker compose build --no-cache && docker compose up -d --force-recreate
+chmod +x scripts/build.sh   # once, on Linux/macOS
+./scripts/build.sh
 ```
 
 This builds and recreates:
@@ -384,10 +389,10 @@ After **website** source changes, rebuild and restart the website service:
 docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website
 ```
 
-For a full stack deploy (bot + web editor + website), use the same command as Part 4:
+For a full stack deploy (bot + web editor + website), use `./scripts/build.sh` (same as Part 4).
 
 ```bash
-docker compose build --no-cache && docker compose up -d --force-recreate
+./scripts/build.sh
 ```
 
 For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
@@ -431,7 +436,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Stop the bot                   | `docker compose down`                    |
 | Start the bot                  | `docker compose up -d`                   |
 | Restart the bot                | `docker compose restart ttt-discord-bot` |
-| Rebuild after code changes     | `docker compose build --no-cache && docker compose up -d --force-recreate` |
+| Rebuild after code changes     | `./scripts/build.sh` |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy` |
 | Rebuild web editor after edits | `docker compose build --no-cache ttt-web-editor && docker compose up -d --force-recreate ttt-web-editor` |
 | Rebuild website after edits    | `docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website` |
@@ -440,7 +445,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 
 ```bash
 git pull
-docker compose build --no-cache && docker compose up -d --force-recreate
+./scripts/build.sh
 # only if commands changed:
 docker compose run --rm ttt-discord-bot npm run deploy
 ```
