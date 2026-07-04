@@ -291,7 +291,8 @@ posting.
 
 Run from the repo root (where `docker-compose.yml` lives). The committed `.env` sets
 `COMPOSE_BAKE=true` — keep that enabled so builds go through Bake/Buildx and the
-`nproc` ulimits in `docker-compose.yml` take effect.
+`nproc` ulimits in `docker-compose.yml` take effect. `COMPOSE_PARALLEL_LIMIT=1`
+builds one service at a time.
 
 ```bash
 docker compose build --no-cache && docker compose up -d --force-recreate

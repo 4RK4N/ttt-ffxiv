@@ -43,21 +43,23 @@ export function headerLogoSizes(): string {
   return `(max-width: 480px) ${headerLogoDisplayPx(18)}px, (max-width: 736px) ${headerLogoDisplayPx(20)}px, (max-width: 1280px) ${headerLogoDisplayPx(22)}px, ${headerLogoDisplayPx(24)}px`;
 }
 
-/** srcset widths for header logo across root scales. */
+/** Fixed srcset widths for build — sizes attrs still drive browser selection. */
+const BUILD_WIDTHS = {
+  headerLogo: [130, 195, 260],
+  hero: [432, 648, 864],
+  partner: [288, 432, 576],
+  contentColumn: [400, 792, 1200, 1584],
+  cardImage: [400, 576, 792, 1200],
+  portraitGallery: [320, 640, 960],
+  landscapeGallery: [400, 800, 1200],
+} as const;
+
+/** srcset widths for header logo. */
 export function headerLogoWidths(): number[] {
-  const roots = [18, 20, 22, 24] as const;
-  const widths = new Set<number>();
-  for (const root of roots) {
-    const w = headerLogoDisplayPx(root);
-    widths.add(w);
-    widths.add(w * 2);
-  }
-  return [...widths].sort((a, b) => a - b);
+  return [...BUILD_WIDTHS.headerLogo];
 }
 
 const GRID_GAP_REM = 0.75; // gap-3
-const CONTENT_MAX_REM = 36;
-const CONTENT_PAD_REM = 3; // px-6 horizontal
 
 /** Rem length at a given root font size (px). */
 export function remPx(rem: number, rootPx: number = ROOT_FONT_PX): number {
@@ -69,29 +71,11 @@ export function remScaledSizes(rem: number): string {
   return `(max-width: 480px) ${remPx(rem, 18)}px, (max-width: 736px) ${remPx(rem, 20)}px, (max-width: 1280px) ${remPx(rem, 22)}px, ${remPx(rem, 24)}px`;
 }
 
-/** srcset widths (1× and 2×) for a rem-width element at each root scale. */
+/** srcset widths for a rem-width element (hero circle or partner logo). */
 export function remScaledWidths(rem: number): number[] {
-  const roots = [18, 20, 22, 24] as const;
-  const widths = new Set<number>();
-  for (const root of roots) {
-    const w = remPx(rem, root);
-    widths.add(w);
-    widths.add(w * 2);
-  }
-  return [...widths].sort((a, b) => a - b);
-}
-
-function contentColumnPx(rootPx: number, viewportPx?: number): number {
-  const maxCol = remPx(CONTENT_MAX_REM - CONTENT_PAD_REM, rootPx);
-  if (viewportPx === undefined) return maxCol;
-  const padded = viewportPx - remPx(CONTENT_PAD_REM, rootPx);
-  return Math.min(maxCol, padded);
-}
-
-function gridCellPx(cols: number, rootPx: number, viewportPx?: number): number {
-  const column = contentColumnPx(rootPx, viewportPx);
-  const gap = remPx(GRID_GAP_REM, rootPx);
-  return Math.floor((column - (cols - 1) * gap) / cols);
+  if (rem === HERO_REM) return [...BUILD_WIDTHS.hero];
+  if (rem === PARTNER_REM) return [...BUILD_WIDTHS.partner];
+  throw new Error(`No build widths configured for ${rem}rem element`);
 }
 
 /** Portrait gallery sizes — calc() tracks rem scaling and column max-width. */
@@ -100,9 +84,9 @@ export const PORTRAIT_GALLERY_SIZES =
   '(max-width: 1024px) calc((min(100vw, 36rem) - 3rem - 1.5rem) / 3), ' +
   'calc((min(100vw, 36rem) - 3rem - 3rem) / 5)';
 
-/** srcset widths for portrait gallery cells across root scales and a narrow viewport. */
+/** srcset widths for portrait gallery cells. */
 export function portraitGalleryWidths(): number[] {
-  return galleryCellWidths([2, 3, 5]);
+  return [...BUILD_WIDTHS.portraitGallery];
 }
 
 /** Full content column — w-full images inside max-w-[36rem] px-6 sections. */
@@ -110,16 +94,7 @@ export const CONTENT_COLUMN_SIZES = 'calc(min(100vw, 36rem) - 3rem)';
 
 /** srcset widths for full-width content column images. */
 export function contentColumnWidths(): number[] {
-  const roots = [18, 20, 22, 24] as const;
-  const widths = new Set<number>();
-  for (const root of roots) {
-    for (const vw of [undefined, 412] as const) {
-      const w = contentColumnPx(root, vw);
-      widths.add(w);
-      widths.add(w * 2);
-    }
-  }
-  return [...widths].sort((a, b) => a - b);
+  return [...BUILD_WIDTHS.contentColumn];
 }
 
 /** Landscape gallery sizes — 1 col below sm, 2 cols at sm+. */
@@ -129,7 +104,7 @@ export const LANDSCAPE_GALLERY_SIZES =
 
 /** srcset widths for landscape gallery cells. */
 export function landscapeGalleryWidths(): number[] {
-  return galleryCellWidths([1, 2]);
+  return [...BUILD_WIDTHS.landscapeGallery];
 }
 
 /** Events card: full column below NARROW_CONTENT_BP, max-w-[24rem] above. */
@@ -137,36 +112,9 @@ export function cardImageSizes(): string {
   return `(max-width: ${NARROW_CONTENT_BP_PX}px) calc(100vw - 3rem), (max-width: 480px) ${remPx(CARD_REM, 18)}px, (max-width: 736px) ${remPx(CARD_REM, 20)}px, (max-width: 1280px) ${remPx(CARD_REM, 22)}px, ${remPx(CARD_REM, 24)}px`;
 }
 
-/** srcset widths for events card image (narrow column + rem-scaled card). */
+/** srcset widths for events card image. */
 export function cardImageWidths(): number[] {
-  const roots = [18, 20, 22, 24] as const;
-  const widths = new Set<number>();
-  for (const root of roots) {
-    for (const vw of [undefined, 412] as const) {
-      const col = contentColumnPx(root, vw);
-      widths.add(col);
-      widths.add(col * 2);
-    }
-    const card = remPx(CARD_REM, root);
-    widths.add(card);
-    widths.add(card * 2);
-  }
-  return [...widths].sort((a, b) => a - b);
-}
-
-function galleryCellWidths(colsList: readonly number[]): number[] {
-  const roots = [18, 20, 22, 24] as const;
-  const widths = new Set<number>();
-  for (const root of roots) {
-    for (const cols of colsList) {
-      for (const vw of [undefined, 412] as const) {
-        const cell = gridCellPx(cols, root, vw);
-        widths.add(cell);
-        widths.add(cell * 2);
-      }
-    }
-  }
-  return [...widths].sort((a, b) => a - b);
+  return [...BUILD_WIDTHS.cardImage];
 }
 
 const GRID_GAP_PX = remPx(GRID_GAP_REM);
