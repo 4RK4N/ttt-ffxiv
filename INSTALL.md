@@ -293,20 +293,22 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 `COMPOSE_BAKE=true` — keep that enabled so builds go through Bake/Buildx and the
 `nproc` ulimits in `docker-compose.yml` take effect.
 
+Use [`scripts/build.sh`](scripts/build.sh) for deploy builds. It builds images **one at a
+time** (avoids OOM on small hosts), always passes **`--no-cache`** (guarantees fresh
+HTML/CSS/JS), and relies on BuildKit cache mounts in the Dockerfiles for npm downloads
+and Astro processed-image reuse.
+
 ```bash
-docker compose build
+chmod +x scripts/build.sh   # once, on Linux/macOS
+./scripts/build.sh
 ```
 
 This builds:
 
-- **`ttt-discord-bot:1.0.0`** — multi-stage Node 24: compile TypeScript (`npm run build` → `dist/`), runtime image with production dependencies only.
+- **`ttt-discord-bot:1.0.0`** — multi-stage Node 24: compile TypeScript (`npm run build` → `dist/`), runtime image with production dependencies only. Also used by `ttt-web-editor`.
 - **`ttt-website:1.0.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
-Rebuild everything after code changes:
-
-```bash
-docker compose build --no-cache && docker compose up -d
-```
+Then recreates all running containers (`docker compose up -d --force-recreate`).
 
 ---
 
@@ -383,8 +385,10 @@ Static multi-page site built with **Astro 7 + Tailwind CSS**. The site is **buil
 After **website** source changes, rebuild and restart the website service:
 
 ```bash
-docker compose up -d --build ttt-website
+docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website
 ```
+
+For a full stack deploy (bot + website), use `./scripts/build.sh` instead.
 
 For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
 
@@ -427,15 +431,15 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Stop the bot                   | `docker compose down`                    |
 | Start the bot                  | `docker compose up -d`                   |
 | Restart the bot                | `docker compose restart ttt-discord-bot` |
-| Rebuild after code changes     | `docker compose build --no-cache && docker compose up -d` |
+| Rebuild after code changes     | `./scripts/build.sh` |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy` |
-| Rebuild website after edits    | `docker compose up -d --build ttt-website` |
+| Rebuild website after edits    | `docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website` |
 
 ### Updating to new code
 
 ```bash
 git pull
-docker compose build --no-cache && docker compose up -d
+./scripts/build.sh
 # only if commands changed:
 docker compose run --rm ttt-discord-bot npm run deploy
 ```

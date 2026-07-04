@@ -1,9 +1,11 @@
+# syntax=docker/dockerfile:1
 # Stage 1: compile TypeScript
 FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm,sharing=locked,mode=0755 \
+    npm ci
 
 COPY tsconfig.json ./
 COPY src ./src
