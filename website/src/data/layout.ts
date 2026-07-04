@@ -12,8 +12,8 @@ export const ROOT_FONT_SCALES = [
 /** Card images go full-width below this (matches narrow content layout). */
 export const NARROW_CONTENT_BP_PX = 720;
 
-/** Inner content width: max-w-[45rem] section minus px-6 (1.5rem × 2). */
-export const CONTENT_COLUMN_PX = 42 * ROOT_FONT_PX;
+/** Inner content width: max-w-[36rem] section minus px-6 (1.5rem × 2). */
+export const CONTENT_COLUMN_PX = 33 * ROOT_FONT_PX;
 
 /** w-56 = 14rem — ContentPage icon */
 export const ICON_REM = 14;
@@ -68,7 +68,7 @@ export function headerLogoWidths(): number[] {
 }
 
 const GRID_GAP_REM = 0.75; // gap-3
-const CONTENT_MAX_REM = 45;
+const CONTENT_MAX_REM = 36;
 const CONTENT_PAD_REM = 3; // px-6 horizontal
 
 /** Rem length at a given root font size (px). */
@@ -108,17 +108,17 @@ function gridCellPx(cols: number, rootPx: number, viewportPx?: number): number {
 
 /** Portrait gallery sizes — calc() tracks rem scaling and column max-width. */
 export const PORTRAIT_GALLERY_SIZES =
-  '(max-width: 640px) calc((min(100vw, 45rem) - 3rem - 0.75rem) / 2), ' +
-  '(max-width: 1024px) calc((min(100vw, 45rem) - 3rem - 1.5rem) / 3), ' +
-  'calc((min(100vw, 45rem) - 3rem - 3rem) / 5)';
+  '(max-width: 640px) calc((min(100vw, 36rem) - 3rem - 0.75rem) / 2), ' +
+  '(max-width: 1024px) calc((min(100vw, 36rem) - 3rem - 1.5rem) / 3), ' +
+  'calc((min(100vw, 36rem) - 3rem - 3rem) / 5)';
 
 /** srcset widths for portrait gallery cells across root scales and a narrow viewport. */
 export function portraitGalleryWidths(): number[] {
   return galleryCellWidths([2, 3, 5]);
 }
 
-/** Full content column — w-full images inside max-w-[45rem] px-6 sections. */
-export const CONTENT_COLUMN_SIZES = 'calc(min(100vw, 45rem) - 3rem)';
+/** Full content column — w-full images inside max-w-[36rem] px-6 sections. */
+export const CONTENT_COLUMN_SIZES = 'calc(min(100vw, 36rem) - 3rem)';
 
 /** srcset widths for full-width content column images. */
 export function contentColumnWidths(): number[] {
@@ -136,8 +136,8 @@ export function contentColumnWidths(): number[] {
 
 /** Landscape gallery sizes — 1 col below sm, 2 cols at sm+. */
 export const LANDSCAPE_GALLERY_SIZES =
-  '(max-width: 640px) calc(min(100vw, 45rem) - 3rem), ' +
-  'calc((min(100vw, 45rem) - 3rem - 0.75rem) / 2)';
+  '(max-width: 640px) calc(min(100vw, 36rem) - 3rem), ' +
+  'calc((min(100vw, 36rem) - 3rem - 0.75rem) / 2)';
 
 /** srcset widths for landscape gallery cells. */
 export function landscapeGalleryWidths(): number[] {

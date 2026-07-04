@@ -83,7 +83,11 @@
 @layer components {
 
   .content-section {
-    @apply mx-auto flex w-full max-w-[45rem] flex-col items-center gap-7 px-6 py-14;
+    @apply mx-auto flex w-full max-w-[36rem] flex-col items-center gap-7 px-6 py-14;
+  }
+
+  .content-section--wide {
+    @apply max-w-[45rem];
   }
 
   /* Page title (h1) — layered mask gradient; flex-shrink:0 prevents tail clipping */

@@ -17,9 +17,11 @@ interface Props {
   path: string;
   heading: string;
   icon?: ImageMetadata;
+  /** Rules pages use the wider column (45rem); default is 36rem. */
+  wide?: boolean;
 }
 
-const { title, lang, path, heading, icon } = Astro.props;
+const { title, lang, path, heading, icon, wide = false } = Astro.props;
 
 const iconSizes = remScaledSizes(ICON_REM);
 const iconWidths = icon ? remScaledWidths(ICON_REM) : [];
@@ -29,7 +31,7 @@ const lcpPreload = icon
 ---
 
 <Base title={title} lang={lang} path={path} lcpPreload={lcpPreload}>
-  <section class="content-section">
+  <section class:list={["content-section", wide && "content-section--wide"]}>
     <h1 class="page-heading">
       <span class="page-heading__text" data-text={heading}>{heading}</span>
     </h1>
