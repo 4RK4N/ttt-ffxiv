@@ -10,6 +10,7 @@ COPY src ./src
 COPY scripts ./scripts
 RUN npm run build
 RUN test -f dist/src/web/ui/css/tabler.min.css
+RUN test -f dist/src/web/ui/js/htmx.min.js
 RUN npm prune --omit=dev
 
 # Stage 2: runtime

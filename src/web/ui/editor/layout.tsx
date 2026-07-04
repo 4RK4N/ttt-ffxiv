@@ -1,15 +1,9 @@
-import { FAVICON_HREF, OVERRIDES_CSS } from '../css-urls.js';
-
-const HTMX_CDN = 'https://unpkg.com/htmx.org@2.0.4';
+import { FAVICON_HREF, HTMX_JS, OVERRIDES_CSS, TABLER_CSS } from '../css-urls.js';
 
 export function HtmxScripts() {
   return (
     <>
-      <script
-        src={HTMX_CDN}
-        integrity="sha384-HGfjtofwFaDaV805/TYRJCbkA2XP+/TuTyc0tk6Sts8h/1uFH124R5X1Fd7St/X"
-        crossorigin="anonymous"
-      />
+      <script src={HTMX_JS} />
       <script
         dangerouslySetInnerHTML={{
           __html: `document.body.addEventListener('htmx:configRequest', function (evt) {
@@ -26,16 +20,13 @@ export function EditorLayout({
   title,
   username,
   csrfToken,
-  tablerCssUrl,
   children,
 }: {
   title: string;
   username: string;
   csrfToken: string;
-  tablerCssUrl: string;
   children: unknown;
 }) {
-  const tablerCdn = tablerCssUrl.startsWith('http');
   return (
     <html lang="en" data-bs-theme="dark">
       <head>
@@ -43,14 +34,9 @@ export function EditorLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
         <link rel="icon" href={FAVICON_HREF} />
-        <link
-          rel="stylesheet"
-          href={tablerCssUrl}
-          {...(tablerCdn ? { crossorigin: 'anonymous' } : {})}
-        />
+        <link rel="stylesheet" href={TABLER_CSS} />
         <link rel="stylesheet" href={OVERRIDES_CSS} />
         <meta name="csrf-token" content={csrfToken} />
-        <HtmxScripts />
       </head>
       <body class="d-flex flex-column">
         <div class="page">
@@ -74,6 +60,7 @@ export function EditorLayout({
           </header>
           <div class="page-wrapper flex-fill">{children}</div>
         </div>
+        <HtmxScripts />
       </body>
     </html>
   );

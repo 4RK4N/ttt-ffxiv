@@ -2,7 +2,7 @@
 // dist/src/modules/*/ folder. `tsc` does not emit .json files, and the Docker
 // runtime image only ships dist/, so the web editor needs these manifests there.
 // Dev (tsx) reads them straight from src/ and never runs this script.
-import { cpSync, existsSync, readdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -57,6 +57,20 @@ if (existsSync(adminCssSrc)) {
   }
 } else {
   console.error('[copy-web-plugins] Missing src/web/ui/css/.');
+  process.exit(1);
+}
+
+const adminJsDest = join(root, 'dist', 'src', 'web', 'ui', 'js');
+mkdirSync(adminJsDest, { recursive: true });
+const htmxSrc = join(root, 'node_modules', 'htmx.org', 'dist', 'htmx.min.js');
+if (!existsSync(htmxSrc)) {
+  console.error('[copy-web-plugins] Missing htmx.org. Run npm install.');
+  process.exit(1);
+}
+cpSync(htmxSrc, join(adminJsDest, 'htmx.min.js'));
+console.log('[copy-web-plugins] Copied htmx.min.js into dist.');
+if (!existsSync(join(adminJsDest, 'htmx.min.js'))) {
+  console.error('[copy-web-plugins] htmx.min.js missing after copy.');
   process.exit(1);
 }
 

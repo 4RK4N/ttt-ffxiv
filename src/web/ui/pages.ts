@@ -1,4 +1,4 @@
-import { FAVICON_HREF, OVERRIDES_CSS } from './css-urls.js';
+import { FAVICON_HREF, OVERRIDES_CSS, TABLER_CSS } from './css-urls.js';
 
 export function escapeHtml(value: string): string {
   return value
@@ -9,18 +9,16 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
-export function loginPage(botName: string, tablerCssUrl: string, message?: string): string {
+export function loginPage(botName: string, message?: string): string {
   const title = escapeHtml(`${botName} Admin Interface`);
   const note = message ? `<div class="alert alert-danger">${escapeHtml(message)}</div>` : '';
-  const tablerCdn = tablerCssUrl.startsWith('http');
-  const tablerCrossorigin = tablerCdn ? ' crossorigin="anonymous"' : '';
   return `<!doctype html>
 <html lang="en" data-bs-theme="dark"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${title}</title>
 <link rel="icon" href="${FAVICON_HREF}" />
-<link rel="stylesheet" href="${escapeHtml(tablerCssUrl)}"${tablerCrossorigin} />
+<link rel="stylesheet" href="${TABLER_CSS}" />
 <link rel="stylesheet" href="${OVERRIDES_CSS}" />
 </head><body class="d-flex flex-column">
   <div class="page page-center">

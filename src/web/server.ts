@@ -19,7 +19,6 @@ import { loadWebPlugins, type WebPlugin } from './plugins.js';
 import { loginPage } from './ui.js';
 import { EditorPage } from './ui/editor-page.js';
 import { registerHtmxRoutes } from './ui/editor/routes.js';
-import { getTablerCssUrl } from './ui/css-urls.js';
 
 type Env = { Variables: { user: SessionUser } };
 
@@ -33,6 +32,7 @@ async function main(): Promise<void> {
   const app = new Hono<Env>();
 
   const cssDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'css');
+  const jsDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'js');
 
   function findProjectRoot(start: string): string {
     let dir = start;
@@ -60,11 +60,25 @@ async function main(): Promise<void> {
     return existsSync(tabler) ? tabler : null;
   }
 
-  const tablerCssUrl = getTablerCssUrl(resolveCssFile('tabler.min.css') !== null);
-  if (tablerCssUrl.startsWith('http')) {
-    console.warn(
-      '[web] tabler.min.css not available locally; using CDN. Rebuild with npm run build.',
+  function resolveJsFile(file: string): string | null {
+    const local = resolve(jsDir, file);
+    if (local.startsWith(resolve(jsDir)) && existsSync(local)) return local;
+    if (file !== 'htmx.min.js') return null;
+    const htmx = join(
+      findProjectRoot(dirname(fileURLToPath(import.meta.url))),
+      'node_modules',
+      'htmx.org',
+      'dist',
+      'htmx.min.js',
     );
+    return existsSync(htmx) ? htmx : null;
+  }
+
+  if (!resolveCssFile('tabler.min.css')) {
+    console.warn('[web] tabler.min.css missing; rebuild with npm run build.');
+  }
+  if (!resolveJsFile('htmx.min.js')) {
+    console.warn('[web] htmx.min.js missing; rebuild with npm run build.');
   }
 
   app.get('/assets/css/:file', (c) => {
@@ -87,13 +101,33 @@ async function main(): Promise<void> {
     }
   });
 
+  app.get('/assets/js/:file', (c) => {
+    const file = c.req.param('file');
+    if (!file || !/^[\w.-]+\.js$/.test(file)) {
+      return c.text('Not found', 404);
+    }
+    const filePath = resolveJsFile(file);
+    if (!filePath) {
+      return c.text('Not found', 404);
+    }
+    try {
+      const body = readFileSync(filePath, 'utf8');
+      return c.body(body, 200, {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      });
+    } catch {
+      return c.text('Not found', 404);
+    }
+  });
+
   // --- Auth routes (public) ---------------------------------------------------
   app.get('/login', (c) => startLogin(c, cfg));
 
   app.get('/callback', async (c) => {
     const result = await handleCallback(c, cfg);
     if (result.ok) return c.redirect('/');
-    return c.html(loginPage(cfg.botName, tablerCssUrl, result.message), result.status as 400 | 403 | 502);
+    return c.html(loginPage(cfg.botName, result.message), result.status as 400 | 403 | 502);
   });
 
   app.get('/logout', (c) => {
@@ -114,7 +148,7 @@ async function main(): Promise<void> {
   // --- Editor page ------------------------------------------------------------
   app.get('/', async (c) => {
     const user = await getSessionUser(c, cfg);
-    if (!user) return c.html(loginPage(cfg.botName, tablerCssUrl));
+    if (!user) return c.html(loginPage(cfg.botName));
     const csrfToken = await ensureCsrfToken(c, cfg);
     const active = c.req.query('module') ?? plugins[0]?.namespace;
     return c.html(
@@ -122,7 +156,6 @@ async function main(): Promise<void> {
         cfg,
         user,
         csrfToken,
-        tablerCssUrl,
         plugins,
         activeNamespace: active,
       }),
