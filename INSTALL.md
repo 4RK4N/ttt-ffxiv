@@ -377,8 +377,12 @@ Static multi-page site built with **Astro 7 + Tailwind CSS**. The site is **buil
 After **website** source changes, rebuild and restart the website service:
 
 ```bash
-docker compose build --no-cache ttt-website && docker compose up -d ttt-website
+docker compose up -d --build ttt-website
 ```
+
+If the browser still shows old styling after a rebuild, hard-refresh once (HTML was
+previously cacheable; nginx now sends `no-cache` on pages). Use `--no-cache` only if
+a normal rebuild still looks wrong.
 
 For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
 
@@ -423,7 +427,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Restart the bot                | `docker compose restart ttt-discord-bot` |
 | Rebuild after code changes     | `docker compose build --no-cache && docker compose up -d` |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy` |
-| Rebuild website after edits    | `docker compose build --no-cache ttt-website && docker compose up -d ttt-website` |
+| Rebuild website after edits    | `docker compose up -d --build ttt-website` |
 
 ### Updating to new code
 

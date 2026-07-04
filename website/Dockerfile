@@ -6,8 +6,7 @@ RUN npm ci
 COPY astro.config.mjs tsconfig.json ./
 COPY public ./public
 COPY src ./src
-RUN --mount=type=cache,target=/site/node_modules/.astro,id=ttt-website-astro \
-    sh -c "ulimit -c 0 && npm run build"
+RUN sh -c "ulimit -c 0 && npm run build"
 
 FROM nginx:alpine
 COPY --from=builder /site/dist /usr/share/nginx/html
