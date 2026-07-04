@@ -42,6 +42,13 @@ const adminCssSrc = join(root, 'src', 'web', 'ui', 'css');
 const adminCssDest = join(root, 'dist', 'src', 'web', 'ui', 'css');
 if (existsSync(adminCssSrc)) {
   cpSync(adminCssSrc, adminCssDest, { recursive: true });
+  const tablerSrc = join(root, 'node_modules', '@tabler', 'core', 'dist', 'css', 'tabler.min.css');
+  if (existsSync(tablerSrc)) {
+    cpSync(tablerSrc, join(adminCssDest, 'tabler.min.css'));
+  } else {
+    console.error('[copy-web-plugins] Missing @tabler/core. Run npm install.');
+    process.exit(1);
+  }
   console.log('[copy-web-plugins] Copied admin CSS into dist.');
 } else {
   console.error('[copy-web-plugins] Missing src/web/ui/css/.');

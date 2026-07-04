@@ -25,6 +25,12 @@ export const CLIENT_JS = `
     return node;
   }
 
+  function formControl(node) {
+    if (node.tagName === 'SELECT') node.classList.add('form-select');
+    else if (node.tagName === 'TEXTAREA' || node.tagName === 'INPUT') node.classList.add('form-control');
+    return node;
+  }
+
   function channelLabel(ch) {
     return '#' + ch.name;
   }
@@ -39,7 +45,7 @@ export const CLIENT_JS = `
 
   function buildRoleSelect(wrap, value) {
     if (rolesError) return textFallback(wrap, { type: 'text' }, value, true);
-    var select = el('select');
+    var select = formControl(el('select'));
     var none = el('option');
     none.value = '';
     none.textContent = '\u2014 none \u2014';
@@ -63,7 +69,7 @@ export const CLIENT_JS = `
   }
 
   function buildSelectControl(wrap, f, value) {
-    var select = el('select');
+    var select = formControl(el('select'));
     (f.options || []).forEach(function (opt) {
       var option = el('option');
       option.value = opt.value;
@@ -77,18 +83,16 @@ export const CLIENT_JS = `
 
   function buildToggleSwitch(checked, onChange) {
     var on = checked === true;
-    var label = el('label', 'switch');
-    var input = el('input');
+    var label = el('label', 'form-check form-switch');
+    var input = el('input', 'form-check-input');
     input.type = 'checkbox';
     input.checked = on;
-    var track = el('span', 'track');
-    var text = el('span', 'switch-label');
+    var text = el('span', 'form-check-label');
     function reflect(isOn) {
       text.textContent = isOn ? 'On' : 'Off';
     }
     reflect(on);
     label.appendChild(input);
-    label.appendChild(track);
     label.appendChild(text);
     input.addEventListener('change', function () {
       reflect(input.checked);
@@ -109,7 +113,7 @@ export const CLIENT_JS = `
   }
 
   function buildOptionList(wrap, f, value) {
-    var list = el('div', 'object-list');
+    var list = el('div', 'vstack gap-3');
     wrap.appendChild(list);
     var items = Array.isArray(value) ? value.slice() : [];
     var rows = [];
@@ -118,21 +122,23 @@ export const CLIENT_JS = `
       list.innerHTML = '';
       rows = [];
       items.forEach(function (item, index) {
-        var card = el('div', 'object-card');
+        var card = el('div', 'card');
+        var cardBody = el('div', 'card-body');
         var subFields = [];
         (f.optionFields || []).forEach(function (sub) {
           var built = buildSubField(sub, item[sub.key]);
-          card.appendChild(built.node);
+          cardBody.appendChild(built.node);
           subFields.push({ key: sub.key, getValue: built.getValue });
         });
-        var removeBtn = el('button', 'secondary danger');
+        var removeBtn = el('button', 'btn btn-outline-danger mt-2');
         removeBtn.type = 'button';
         removeBtn.textContent = 'Remove';
         removeBtn.addEventListener('click', function () {
           items.splice(index, 1);
           renderOptions();
         });
-        card.appendChild(removeBtn);
+        cardBody.appendChild(removeBtn);
+        card.appendChild(cardBody);
         rows.push({
           getValue: function () {
             var out = { id: item.id || '' };
@@ -146,7 +152,7 @@ export const CLIENT_JS = `
     }
 
     renderOptions();
-    var addBtn = el('button', 'secondary add-row');
+    var addBtn = el('button', 'btn mt-2');
     addBtn.type = 'button';
     addBtn.textContent = 'Add option';
     addBtn.addEventListener('click', function () {
@@ -163,16 +169,16 @@ export const CLIENT_JS = `
   function buildMultiChecklist(wrap, f, value, items, labelFn, emptyText, fallbackNote) {
     if (fallbackNote) return textFallback(wrap, f, value, true);
     var selected = Array.isArray(value) ? value.slice() : [];
-    var list = el('div', 'checklist');
+    var list = el('div', 'border rounded p-2 checklist-scroll');
     var boxes = [];
     items.forEach(function (item) {
-      var row = el('label');
-      var cb = el('input');
+      var row = el('label', 'form-check');
+      var cb = el('input', 'form-check-input');
       cb.type = 'checkbox';
       cb.value = item.id;
       if (selected.indexOf(item.id) !== -1) cb.checked = true;
       boxes.push(cb);
-      var span = el('span');
+      var span = el('span', 'form-check-label');
       span.textContent = labelFn(item);
       row.appendChild(cb);
       row.appendChild(span);
@@ -180,20 +186,20 @@ export const CLIENT_JS = `
     });
     selected.forEach(function (id) {
       if (items.some(function (item) { return item.id === id; })) return;
-      var row = el('label');
-      var cb = el('input');
+      var row = el('label', 'form-check');
+      var cb = el('input', 'form-check-input');
       cb.type = 'checkbox';
       cb.value = id;
       cb.checked = true;
       boxes.push(cb);
-      var span = el('span');
+      var span = el('span', 'form-check-label');
       span.textContent = id + ' (not found)';
       row.appendChild(cb);
       row.appendChild(span);
       list.appendChild(row);
     });
     if (!items.length) {
-      var empty = el('div', 'help');
+      var empty = el('div', 'form-text text-secondary');
       empty.textContent = emptyText;
       list.appendChild(empty);
     }
@@ -212,19 +218,19 @@ export const CLIENT_JS = `
       return buildObjectList(ns, f, value, saveModule);
     }
 
-    var wrap = el('div', 'field');
-    var label = el('label');
+    var wrap = el('div', 'mb-3 field');
+    var label = el('label', 'form-label');
     label.textContent = f.label;
     wrap.appendChild(label);
     if (f.help) {
-      var help = el('div', 'help');
+      var help = el('div', 'form-text text-secondary');
       help.textContent = f.help;
       wrap.appendChild(help);
     }
 
     if (f.type === 'channel') {
       if (channelsError) return textFallback(wrap, f, value, true);
-      var select = el('select');
+      var select = formControl(el('select'));
       var none = el('option');
       none.value = '';
       none.textContent = '\u2014 none \u2014';
@@ -276,19 +282,19 @@ export const CLIENT_JS = `
   }
 
   function buildSubField(f, value) {
-    var wrap = el('div', 'field');
-    var label = el('label');
+    var wrap = el('div', 'mb-3 field');
+    var label = el('label', 'form-label');
     label.textContent = f.label;
     wrap.appendChild(label);
     if (f.help) {
-      var help = el('div', 'help');
+      var help = el('div', 'form-text text-secondary');
       help.textContent = f.help;
       wrap.appendChild(help);
     }
 
     if (f.type === 'channel') {
       if (channelsError) return textFallback(wrap, f, value, true);
-      var select = el('select');
+      var select = formControl(el('select'));
       var none = el('option');
       none.value = '';
       none.textContent = '\u2014 none \u2014';
@@ -375,7 +381,7 @@ export const CLIENT_JS = `
         sf.node.classList.toggle('disabled', !visible);
         if (!visible) {
           if (!hiddenNote) {
-            hiddenNote = el('div', 'help-disabled');
+            hiddenNote = el('div', 'form-text text-secondary');
             hiddenNote.textContent = 'Not available for this configuration.';
             sf.node.appendChild(hiddenNote);
           }
@@ -406,17 +412,17 @@ export const CLIENT_JS = `
   }
 
   function buildObjectList(ns, f, value, saveModule) {
-    var wrap = el('div', 'field');
-    var topLabel = el('label');
+    var wrap = el('div', 'mb-3 field');
+    var topLabel = el('label', 'form-label');
     topLabel.textContent = f.label;
     wrap.appendChild(topLabel);
     if (f.help) {
-      var topHelp = el('div', 'help');
+      var topHelp = el('div', 'form-text text-secondary');
       topHelp.textContent = f.help;
       wrap.appendChild(topHelp);
     }
 
-    var list = el('div', 'object-list');
+    var list = el('div', 'vstack gap-3');
     wrap.appendChild(list);
 
     var rows = [];
@@ -441,30 +447,30 @@ export const CLIENT_JS = `
       list.innerHTML = '';
       rows = [];
       items.forEach(function (item, index) {
-        var card = el('div', 'object-card');
-        if (isRowCollapsed(item, index)) card.classList.add('collapsed');
+        var card = el('div', 'card');
+        if (isRowCollapsed(item, index)) card.classList.add('is-collapsed');
 
-        var head = el('div', 'object-card-head');
-        if (f.collapsible) head.classList.add('object-card-head-toggle');
+        var head = el('div', 'card-header d-flex align-items-center justify-content-between gap-2');
+        if (f.collapsible) head.classList.add('is-toggle');
 
-        var headLeft = el('div', 'object-card-head-left');
+        var headLeft = el('div', 'd-flex align-items-center gap-2 flex-fill overflow-hidden');
         if (f.collapsible) {
-          var chevron = el('span', 'collapse-chevron');
+          var chevron = el('span', 'text-secondary');
           chevron.textContent = isRowCollapsed(item, index) ? '\\u25B6' : '\\u25BC';
           chevron.setAttribute('aria-hidden', 'true');
           headLeft.appendChild(chevron);
         }
-        var title = el('h3');
+        var title = el('h3', 'card-title mb-0 text-truncate');
         title.textContent = cardTitle(item);
         headLeft.appendChild(title);
         head.appendChild(headLeft);
 
-        var badge = el('span', 'badge' + (item.published ? ' on' : ''));
+        var badge = el('span', 'badge ' + (item.published ? 'bg-success' : 'bg-secondary-lt'));
         badge.textContent = item.published ? 'Published' : 'Unpublished';
         head.appendChild(badge);
         card.appendChild(head);
 
-        var body = el('div', 'object-card-body');
+        var body = el('div', 'card-body');
 
         var subFields = [];
         (f.itemFields || []).forEach(function (sub) {
@@ -487,25 +493,25 @@ export const CLIENT_JS = `
         if (f.collapsible) {
           head.addEventListener('click', function () {
             var key = rowKey(item, index);
-            if (card.classList.contains('collapsed')) {
+            if (card.classList.contains('is-collapsed')) {
               expandedRowKeys.add(key);
-              card.classList.remove('collapsed');
+              card.classList.remove('is-collapsed');
               chevron.textContent = '\\u25BC';
             } else {
               expandedRowKeys.delete(key);
-              card.classList.add('collapsed');
+              card.classList.add('is-collapsed');
               chevron.textContent = '\\u25B6';
             }
           });
         }
 
-        var cardActions = el('div', 'object-actions');
+        var cardActions = el('div', 'd-flex flex-wrap gap-2 mt-3');
 
         if (f.publishable) {
-          var pubBtn = el('button', 'publish');
+          var pubBtn = el('button', 'btn btn-success');
           pubBtn.type = 'button';
           pubBtn.textContent = 'Publish panel';
-          var unpubBtn = el('button', 'secondary');
+          var unpubBtn = el('button', 'btn');
           unpubBtn.type = 'button';
           unpubBtn.textContent = 'Unpublish';
           unpubBtn.disabled = !item.published;
@@ -579,7 +585,7 @@ export const CLIENT_JS = `
           cardActions.appendChild(unpubBtn);
         }
 
-        var removeBtn = el('button', 'secondary danger');
+        var removeBtn = el('button', 'btn btn-outline-danger');
         removeBtn.type = 'button';
         removeBtn.textContent = 'DELETE';
         removeBtn.addEventListener('click', function () {
@@ -602,7 +608,7 @@ export const CLIENT_JS = `
 
     renderRows();
 
-    var addBtn = el('button', 'secondary add-row');
+    var addBtn = el('button', 'btn mt-2');
     addBtn.type = 'button';
     addBtn.textContent = 'Add ' + (f.itemLabel || 'item').toLowerCase();
     addBtn.addEventListener('click', function () {
@@ -631,13 +637,13 @@ export const CLIENT_JS = `
   // Plain text/textarea input. Also used as the fallback for channel fields when
   // the channel list could not be loaded.
   function textFallback(wrap, f, value, channelFallback) {
-    var input = f.type === 'textarea' ? el('textarea') : el('input');
+    var input = f.type === 'textarea' ? formControl(el('textarea')) : formControl(el('input'));
     if (input.tagName === 'INPUT') input.type = 'text';
     var isMulti = f.type === 'channel-multi' || f.type === 'role-multi';
     input.value = isMulti ? (Array.isArray(value) ? value.join(', ') : '') : (value || '');
     wrap.appendChild(input);
     if (channelFallback) {
-      var note = el('div', 'channel-note');
+      var note = el('div', 'form-text text-danger');
       var errMsg = channelsError || rolesError || 'Could not load list.';
       note.textContent = errMsg + ' Enter id(s) manually' + (isMulti ? ' (comma-separated).' : '.');
       wrap.appendChild(note);
@@ -662,8 +668,13 @@ export const CLIENT_JS = `
 
     input.addEventListener('change', async function () {
       var on = input.checked;
-      tab.classList.toggle('off', !on);
-      label.classList.add('busy');
+      tab.classList.toggle('text-secondary', !on);
+      var dot = tab.querySelector('.status-dot');
+      if (dot) {
+        dot.classList.toggle('status-green', on);
+        dot.classList.toggle('status-muted', !on);
+      }
+      label.classList.add('opacity-50');
       input.disabled = true;
       try {
         var res = await fetch('/api/modules/' + encodeURIComponent(mod.namespace) + '/enabled', {
@@ -677,10 +688,15 @@ export const CLIENT_JS = `
         }
       } catch (e) {
         toggle.setChecked(!on);
-        tab.classList.toggle('off', on);
+        tab.classList.toggle('text-secondary', on);
+        var dot = tab.querySelector('.status-dot');
+        if (dot) {
+          dot.classList.toggle('status-green', !on);
+          dot.classList.toggle('status-muted', on);
+        }
         alert('Could not change module state: ' + e.message);
       } finally {
-        label.classList.remove('busy');
+        label.classList.remove('opacity-50');
         input.disabled = false;
       }
     });
@@ -689,17 +705,17 @@ export const CLIENT_JS = `
   }
 
   function buildPanel(mod, tab) {
-    var panel = el('section', 'panel');
+    var panel = el('section', 'module-panel d-none');
     panel.dataset.ns = mod.namespace;
-    var inner = el('div', 'module');
-    var head = el('div', 'module-head');
-    var h = el('h2');
+    var inner = el('div');
+    var head = el('div', 'd-flex justify-content-between align-items-start mb-3');
+    var h = el('h2', 'mb-0');
     h.textContent = mod.title;
     head.appendChild(h);
     head.appendChild(buildSwitch(mod, tab));
     inner.appendChild(head);
     if (mod.description) {
-      var d = el('p', 'desc');
+      var d = el('p', 'text-secondary mb-3');
       d.textContent = mod.description;
       inner.appendChild(d);
     }
@@ -727,10 +743,10 @@ export const CLIENT_JS = `
       fields.push({ key: f.key, getValue: built.getValue, applySavedValues: built.applySavedValues });
     });
 
-    var actions = el('div', 'actions');
-    var btn = el('button', 'save');
+    var actions = el('div', 'd-flex align-items-center gap-2 mt-3');
+    var btn = el('button', 'btn btn-primary');
     btn.textContent = 'Save';
-    var status = el('span', 'status');
+    var status = el('span', 'text-secondary');
     actions.appendChild(btn);
     actions.appendChild(status);
     inner.appendChild(actions);
@@ -738,7 +754,7 @@ export const CLIENT_JS = `
 
     btn.addEventListener('click', async function () {
       btn.disabled = true;
-      status.className = 'status';
+      status.className = 'text-secondary';
       status.textContent = 'Saving...';
       try {
         var values = await saveModule();
@@ -747,10 +763,10 @@ export const CLIENT_JS = `
             fld.applySavedValues(values[fld.key]);
           }
         });
-        status.className = 'status ok';
+        status.className = 'text-success';
         status.textContent = 'Saved';
       } catch (e) {
-        status.className = 'status err';
+        status.className = 'text-danger';
         status.textContent = 'Error: ' + e.message;
       } finally {
         btn.disabled = false;
@@ -763,45 +779,55 @@ export const CLIENT_JS = `
   function render(mods) {
     app.innerHTML = '';
     if (!mods.length) {
-      var e = el('div', 'empty');
+      var e = el('div', 'text-secondary text-center py-5');
       e.textContent = 'No editable modules found.';
       app.appendChild(e);
       return;
     }
 
-    var layout = el('div', 'layout');
-    var sidebar = el('nav', 'sidebar');
-    var navTitle = el('div', 'nav-title');
+    var layout = el('div', 'd-flex flex-fill w-100');
+    var sidebar = el('aside', 'navbar navbar-vertical navbar-expand-lg');
+    var sidebarInner = el('div', 'container-fluid');
+    var nav = el('div', 'navbar-nav pt-lg-3');
+    var navTitle = el('div', 'text-secondary text-uppercase small px-3 py-2');
     navTitle.textContent = 'Modules';
-    sidebar.appendChild(navTitle);
-    var content = el('div', 'content');
+    nav.appendChild(navTitle);
+    var content = el('div', 'page-body');
+    var container = el('div', 'container-xl py-4');
 
     var tabs = [];
     var panels = [];
 
     function activate(i) {
-      tabs.forEach(function (t, j) { t.classList.toggle('active', i === j); });
-      panels.forEach(function (p, j) { p.classList.toggle('active', i === j); });
+      tabs.forEach(function (t, j) {
+        t.classList.toggle('active', i === j);
+      });
+      panels.forEach(function (p, j) {
+        p.classList.toggle('d-none', i !== j);
+      });
     }
 
     mods.forEach(function (mod, i) {
-      var tab = el('button', 'tab');
+      var tab = el('button', 'nav-link w-100 text-start');
       tab.type = 'button';
-      var dot = el('span', 'tab-dot');
-      var text = el('span', 'tab-text');
+      var dot = el('span', 'status-dot ' + (mod.enabled === false ? 'status-muted' : 'status-green'));
+      var text = el('span');
       text.textContent = mod.title;
       tab.appendChild(dot);
       tab.appendChild(text);
-      if (mod.enabled === false) tab.classList.add('off');
+      if (mod.enabled === false) tab.classList.add('text-secondary');
       tab.addEventListener('click', function () { activate(i); });
-      sidebar.appendChild(tab);
+      nav.appendChild(tab);
       tabs.push(tab);
 
       var panel = buildPanel(mod, tab);
-      content.appendChild(panel);
+      container.appendChild(panel);
       panels.push(panel);
     });
 
+    sidebarInner.appendChild(nav);
+    sidebar.appendChild(sidebarInner);
+    content.appendChild(container);
     layout.appendChild(sidebar);
     layout.appendChild(content);
     app.appendChild(layout);
@@ -842,7 +868,7 @@ export const CLIENT_JS = `
     .catch(function (e) {
       if (e.message === 'unauthorized') return;
       app.innerHTML = '';
-      var d = el('div', 'empty');
+      var d = el('div', 'text-secondary text-center py-5');
       d.textContent = 'Failed to load modules: ' + e.message;
       app.appendChild(d);
     });

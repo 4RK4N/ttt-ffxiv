@@ -1,0 +1,71 @@
+/* TTT admin editor — small tweaks on top of Tabler */
+
+.checklist-scroll {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.card.is-collapsed .card-body {
+  display: none;
+}
+
+.card-header.is-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-header.is-toggle:hover {
+  background-color: var(--tblr-bg-surface-secondary);
+}
+
+.field.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.module-panel textarea.form-control {
+  min-height: 110px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.status-dot.status-green {
+  background: var(--tblr-success);
+}
+
+.status-dot.status-muted {
+  background: var(--tblr-secondary);
+}
+
+.navbar-vertical {
+  width: 15rem;
+  flex-shrink: 0;
+}
+
+.page-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+.page-body {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .page-wrapper {
+    flex-direction: column;
+  }
+
+  .navbar-vertical {
+    width: 100%;
+  }
+}

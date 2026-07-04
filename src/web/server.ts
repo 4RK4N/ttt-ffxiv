@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { serve } from '@hono/node-server';
@@ -35,13 +35,39 @@ async function main(): Promise<void> {
 
   const cssDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'css');
 
+  function findProjectRoot(start: string): string {
+    let dir = start;
+    for (; ;) {
+      if (existsSync(join(dir, 'package.json'))) return dir;
+      const parent = dirname(dir);
+      if (parent === dir) return start;
+      dir = parent;
+    }
+  }
+
+  function resolveCssFile(file: string): string | null {
+    const local = resolve(cssDir, file);
+    if (local.startsWith(resolve(cssDir)) && existsSync(local)) return local;
+    if (file !== 'tabler.min.css') return null;
+    const tabler = join(
+      findProjectRoot(dirname(fileURLToPath(import.meta.url))),
+      'node_modules',
+      '@tabler',
+      'core',
+      'dist',
+      'css',
+      'tabler.min.css',
+    );
+    return existsSync(tabler) ? tabler : null;
+  }
+
   app.get('/assets/css/:file', (c) => {
     const file = c.req.param('file');
     if (!file || !/^[\w-]+\.css$/.test(file)) {
       return c.text('Not found', 404);
     }
-    const filePath = resolve(cssDir, file);
-    if (!filePath.startsWith(resolve(cssDir))) {
+    const filePath = resolveCssFile(file);
+    if (!filePath) {
       return c.text('Not found', 404);
     }
     try {

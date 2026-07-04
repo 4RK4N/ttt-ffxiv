@@ -1,7 +1,8 @@
 import type { SessionUser } from '../auth.js';
 import { CLIENT_JS } from './client-script.js';
 
-const ADMIN_CSS = '/assets/css/admin.css';
+const TABLER_CSS = '/assets/css/tabler.min.css';
+const OVERRIDES_CSS = '/assets/css/admin-overrides.css';
 
 export function escapeHtml(value: string): string {
   return value
@@ -16,23 +17,33 @@ function appTitle(botName: string): string {
   return `${botName} Admin Interface`;
 }
 
+function adminHead(title: string, extra = ''): string {
+  return `<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${title}</title>
+<link rel="stylesheet" href="${TABLER_CSS}" />
+<link rel="stylesheet" href="${OVERRIDES_CSS}" />
+${extra}`;
+}
+
 /** Login / access-denied page. `message` shows an error (e.g. not an admin). */
 export function loginPage(botName: string, message?: string): string {
   const title = escapeHtml(appTitle(botName));
-  const note = message ? `<p class="note">${escapeHtml(message)}</p>` : '';
+  const note = message ? `<div class="alert alert-danger">${escapeHtml(message)}</div>` : '';
   return `<!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>${title}</title>
-<link rel="stylesheet" href="${ADMIN_CSS}" />
-</head><body>
-  <div class="login-wrap">
-    <div class="login-card">
-      <h1>${title}</h1>
-      <p>Sign in with Discord. Server administrators only.</p>
-      ${note}
-      <a class="btn" href="/login">Login with Discord</a>
+<html lang="en" data-bs-theme="dark"><head>
+${adminHead(title)}
+</head><body class="d-flex flex-column">
+  <div class="page page-center">
+    <div class="container container-tight py-4">
+      <div class="card card-md">
+        <div class="card-body">
+          <h1 class="card-title text-center mb-2">${title}</h1>
+          <p class="text-secondary text-center mb-4">Sign in with Discord. Server administrators only.</p>
+          ${note}
+          <a class="btn btn-primary w-100" href="/login">Login with Discord</a>
+        </div>
+      </div>
     </div>
   </div>
 </body></html>`;
@@ -43,24 +54,30 @@ export function editorPage(botName: string, user: SessionUser, csrfToken: string
   const title = escapeHtml(appTitle(botName));
   const csrf = escapeHtml(csrfToken);
   return `<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="csrf-token" content="${csrf}" />
-<title>${title}</title>
-<link rel="stylesheet" href="${ADMIN_CSS}" />
-</head><body>
-  <header>
-    <h1>${title}</h1>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <span class="who">Signed in as ${escapeHtml(user.username)}</span>
-      <form method="post" action="/logout" style="margin:0;display:inline;">
-        <input type="hidden" name="_csrf" value="${csrf}" />
-        <button type="submit" class="logout">Log out</button>
-      </form>
+<html lang="en" data-bs-theme="dark"><head>
+${adminHead(title, `<meta name="csrf-token" content="${csrf}" />`)}
+</head><body class="d-flex flex-column">
+  <div class="page">
+    <header class="navbar navbar-expand-md d-print-none">
+      <div class="container-xl">
+        <h1 class="navbar-brand navbar-brand-autodark pe-0 pe-md-3 mb-0">
+          <span class="navbar-brand-text">${title}</span>
+        </h1>
+        <div class="navbar-nav flex-row order-md-last ms-auto align-items-center">
+          <div class="nav-item d-none d-md-flex me-3">
+            <span class="text-secondary">Signed in as ${escapeHtml(user.username)}</span>
+          </div>
+          <form method="post" action="/logout" class="nav-item">
+            <input type="hidden" name="_csrf" value="${csrf}" />
+            <button type="submit" class="btn btn-outline-secondary">Log out</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div id="app" class="page-wrapper flex-fill">
+      <div class="text-secondary text-center py-5 w-100">Loading modules…</div>
     </div>
-  </header>
-  <div id="app"><div class="loading">Loading modules...</div></div>
+  </div>
   <script>${CLIENT_JS}</script>
 </body></html>`;
 }
