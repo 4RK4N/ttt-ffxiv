@@ -1,4 +1,4 @@
-import { OVERRIDES_CSS, TABLER_CSS_CDN, TABLER_CSS_LOCAL } from '../css-urls.js';
+import { FAVICON_HREF, OVERRIDES_CSS } from '../css-urls.js';
 
 const HTMX_CDN = 'https://unpkg.com/htmx.org@2.0.4';
 
@@ -26,21 +26,28 @@ export function EditorLayout({
   title,
   username,
   csrfToken,
+  tablerCssUrl,
   children,
 }: {
   title: string;
   username: string;
   csrfToken: string;
+  tablerCssUrl: string;
   children: unknown;
 }) {
+  const tablerCdn = tablerCssUrl.startsWith('http');
   return (
     <html lang="en" data-bs-theme="dark">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
-        <link rel="stylesheet" href={TABLER_CSS_LOCAL} />
-        <link rel="stylesheet" href={TABLER_CSS_CDN} crossorigin="anonymous" />
+        <link rel="icon" href={FAVICON_HREF} />
+        <link
+          rel="stylesheet"
+          href={tablerCssUrl}
+          {...(tablerCdn ? { crossorigin: 'anonymous' } : {})}
+        />
         <link rel="stylesheet" href={OVERRIDES_CSS} />
         <meta name="csrf-token" content={csrfToken} />
         <HtmxScripts />

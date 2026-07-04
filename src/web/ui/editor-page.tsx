@@ -10,12 +10,14 @@ export async function EditorPage({
   cfg,
   user,
   csrfToken,
+  tablerCssUrl,
   plugins,
   activeNamespace,
 }: {
   cfg: WebConfig;
   user: SessionUser;
   csrfToken: string;
+  tablerCssUrl: string;
   plugins: WebPlugin[];
   activeNamespace?: string;
 }) {
@@ -37,6 +39,7 @@ export async function EditorPage({
       title={`${cfg.botName} Admin Interface`}
       username={user.username}
       csrfToken={csrfToken}
+      tablerCssUrl={tablerCssUrl}
     >
       <EditorBody
         plugins={pluginList}

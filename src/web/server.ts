@@ -19,6 +19,7 @@ import { loadWebPlugins, type WebPlugin } from './plugins.js';
 import { loginPage } from './ui.js';
 import { EditorPage } from './ui/editor-page.js';
 import { registerHtmxRoutes } from './ui/editor/routes.js';
+import { getTablerCssUrl } from './ui/css-urls.js';
 
 type Env = { Variables: { user: SessionUser } };
 
@@ -32,12 +33,6 @@ async function main(): Promise<void> {
   const app = new Hono<Env>();
 
   const cssDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'css');
-
-  if (!existsSync(join(cssDir, 'tabler.min.css'))) {
-    console.warn(
-      '[web] tabler.min.css missing from dist; editor will rely on CDN fallback. Rebuild with npm run build.',
-    );
-  }
 
   function findProjectRoot(start: string): string {
     let dir = start;
@@ -63,6 +58,13 @@ async function main(): Promise<void> {
       'tabler.min.css',
     );
     return existsSync(tabler) ? tabler : null;
+  }
+
+  const tablerCssUrl = getTablerCssUrl(resolveCssFile('tabler.min.css') !== null);
+  if (tablerCssUrl.startsWith('http')) {
+    console.warn(
+      '[web] tabler.min.css not available locally; using CDN. Rebuild with npm run build.',
+    );
   }
 
   app.get('/assets/css/:file', (c) => {
@@ -91,7 +93,7 @@ async function main(): Promise<void> {
   app.get('/callback', async (c) => {
     const result = await handleCallback(c, cfg);
     if (result.ok) return c.redirect('/');
-    return c.html(loginPage(cfg.botName, result.message), result.status as 400 | 403 | 502);
+    return c.html(loginPage(cfg.botName, tablerCssUrl, result.message), result.status as 400 | 403 | 502);
   });
 
   app.get('/logout', (c) => {
@@ -112,7 +114,7 @@ async function main(): Promise<void> {
   // --- Editor page ------------------------------------------------------------
   app.get('/', async (c) => {
     const user = await getSessionUser(c, cfg);
-    if (!user) return c.html(loginPage(cfg.botName));
+    if (!user) return c.html(loginPage(cfg.botName, tablerCssUrl));
     const csrfToken = await ensureCsrfToken(c, cfg);
     const active = c.req.query('module') ?? plugins[0]?.namespace;
     return c.html(
@@ -120,6 +122,7 @@ async function main(): Promise<void> {
         cfg,
         user,
         csrfToken,
+        tablerCssUrl,
         plugins,
         activeNamespace: active,
       }),
