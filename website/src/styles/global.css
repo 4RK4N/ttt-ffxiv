@@ -77,17 +77,13 @@
 
   /* Page title (h1) */
   .page-heading {
-    font-size: 2.375em;
+    font-size: 3.625em;
     line-height: 1.2;
     font-weight: 700;
     background-image: linear-gradient(to bottom, #ff5cbe, #fc0000);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-  }
-
-  .page-heading--hero {
-    font-size: 3.625em;
   }
 
   /* In-content section headings */
