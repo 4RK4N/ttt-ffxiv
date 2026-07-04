@@ -83,7 +83,7 @@ async function main(): Promise<void> {
 
   app.get('/assets/css/:file', (c) => {
     const file = c.req.param('file');
-    if (!file || !/^[\w-]+\.css$/.test(file)) {
+    if (!file || !/^[\w.-]+\.css$/.test(file)) {
       return c.text('Not found', 404);
     }
     const filePath = resolveCssFile(file);
