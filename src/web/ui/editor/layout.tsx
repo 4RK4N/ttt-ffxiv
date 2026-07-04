@@ -1,3 +1,5 @@
+import { OVERRIDES_CSS, TABLER_CSS_CDN, TABLER_CSS_LOCAL } from '../css-urls.js';
+
 const HTMX_CDN = 'https://unpkg.com/htmx.org@2.0.4';
 
 export function HtmxScripts() {
@@ -37,8 +39,9 @@ export function EditorLayout({
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
-        <link rel="stylesheet" href="/assets/css/tabler.min.css" />
-        <link rel="stylesheet" href="/assets/css/admin-overrides.css" />
+        <link rel="stylesheet" href={TABLER_CSS_LOCAL} />
+        <link rel="stylesheet" href={TABLER_CSS_CDN} crossorigin="anonymous" />
+        <link rel="stylesheet" href={OVERRIDES_CSS} />
         <meta name="csrf-token" content={csrfToken} />
         <HtmxScripts />
       </head>

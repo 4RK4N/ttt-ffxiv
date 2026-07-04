@@ -9,6 +9,7 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY scripts ./scripts
 RUN npm run build
+RUN test -f dist/src/web/ui/css/tabler.min.css
 RUN npm prune --omit=dev
 
 # Stage 2: runtime

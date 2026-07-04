@@ -1,5 +1,4 @@
-const TABLER_CSS = '/assets/css/tabler.min.css';
-const OVERRIDES_CSS = '/assets/css/admin-overrides.css';
+import { OVERRIDES_CSS, TABLER_CSS_CDN, TABLER_CSS_LOCAL } from './css-urls.js';
 
 export function escapeHtml(value: string): string {
   return value
@@ -18,7 +17,8 @@ export function loginPage(botName: string, message?: string): string {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${title}</title>
-<link rel="stylesheet" href="${TABLER_CSS}" />
+<link rel="stylesheet" href="${TABLER_CSS_LOCAL}" />
+<link rel="stylesheet" href="${TABLER_CSS_CDN}" crossorigin="anonymous" />
 <link rel="stylesheet" href="${OVERRIDES_CSS}" />
 </head><body class="d-flex flex-column">
   <div class="page page-center">

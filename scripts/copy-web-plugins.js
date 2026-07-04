@@ -50,6 +50,11 @@ if (existsSync(adminCssSrc)) {
     process.exit(1);
   }
   console.log('[copy-web-plugins] Copied admin CSS into dist.');
+  const tablerDest = join(adminCssDest, 'tabler.min.css');
+  if (!existsSync(tablerDest)) {
+    console.error('[copy-web-plugins] tabler.min.css missing after copy.');
+    process.exit(1);
+  }
 } else {
   console.error('[copy-web-plugins] Missing src/web/ui/css/.');
   process.exit(1);

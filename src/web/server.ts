@@ -33,6 +33,12 @@ async function main(): Promise<void> {
 
   const cssDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'css');
 
+  if (!existsSync(join(cssDir, 'tabler.min.css'))) {
+    console.warn(
+      '[web] tabler.min.css missing from dist; editor will rely on CDN fallback. Rebuild with npm run build.',
+    );
+  }
+
   function findProjectRoot(start: string): string {
     let dir = start;
     for (; ;) {
