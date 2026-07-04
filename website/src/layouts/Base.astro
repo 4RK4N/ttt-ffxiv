@@ -16,6 +16,7 @@ import {
   headerLogoSizes,
   headerLogoWidths,
 } from "../data/layout";
+import { SITE_URL } from "../data/site";
 import { logo, bg } from "../data/images";
 
 interface Props {
@@ -25,22 +26,21 @@ interface Props {
   path: string;
   /** Overrides the language default for meta description and social previews. */
   description?: string;
-  /** Home page: hero image is LCP; defer logo fetch priority and preload hero font. */
+  /** Home page: hero image is LCP; defer logo fetch priority. */
   heroLcp?: boolean;
-  /** Preload URL for the home hero image (webp), or responsive srcset for content icons. */
-  lcpPreload?: string | { srcset: string; sizes: string };
+  /** Responsive preload for the home hero image. */
+  lcpPreload?: { srcset: string; sizes: string };
 }
 
 const { title, lang, path, description, heroLcp, lcpPreload } = Astro.props;
 
 const metaDescription = description ?? siteDescription[lang];
-const shareImage = "https://ttt-ffxiv.eu/assets/images/share.jpg";
+const shareImage = `${SITE_URL}/assets/images/share.jpg`;
 
 const nav = navItems[lang];
 const legal = footerLinks[lang];
 const alt = pathMap[path] ?? { de: "/de.html", en: "/" };
-const canonical =
-  "https://ttt-ffxiv.eu" + (path === "/" ? "" : path.replace(/\/$/, ""));
+const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
 
 const bgOptimized = await getImage({ src: bg, width: 1920, format: "webp" });
 
@@ -73,12 +73,7 @@ const isActive = (itemPath: string) => itemPath === path;
     <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
     <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
     {
-      lcpPreload && typeof lcpPreload === "string" && (
-        <link rel="preload" as="image" href={lcpPreload} fetchpriority="high" />
-      )
-    }
-    {
-      lcpPreload && typeof lcpPreload === "object" && (
+      lcpPreload && (
         <link
           rel="preload"
           as="image"

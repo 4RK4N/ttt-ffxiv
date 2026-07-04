@@ -44,6 +44,22 @@ services:
     labels:
       caddy: bot.ttt-ffxiv.eu
 
+      caddy.encode: "gzip zstd"
+
+      caddy.header.Strict-Transport-Security: "max-age=31536000; includeSubDomains; preload"
+
+      caddy.header.X-Content-Type-Options: "nosniff"
+
+      caddy.header.X-Frame-Options: "SAMEORIGIN"
+
+      caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
+
+      caddy.header.Cross-Origin-Opener-Policy: "same-origin"
+
+      caddy.header.Permissions-Policy: "camera=(), microphone=(), geolocation=()"
+
+      caddy.header.Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.discordapp.com; connect-src 'self' https://discord.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+
       caddy.reverse_proxy: "{{upstreams 8088}}"
 
     restart: unless-stopped

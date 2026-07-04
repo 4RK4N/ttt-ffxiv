@@ -5,8 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 import { rename, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { SITE_URL } from './src/data/site.ts';
 
-const site = 'https://ttt-ffxiv.eu';
+const site = SITE_URL;
 
 /** Old welcome-hub URLs → language homepages (mirrored in nginx.conf for production). */
 const legacyRedirects = {

@@ -10,8 +10,9 @@ data/*/texts.json
 
 *.log
 npm-debug.log*
-core
-core.*
+# OS core dumps at repo root only (do not use bare "core" — that would ignore src/core/)
+/core
+/core.*
 .DS_Store
 .cursor/
 .vscode/

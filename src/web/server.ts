@@ -9,10 +9,11 @@ import {
   requireAuth,
   requireCsrf,
   startLogin,
+  verifyFormCsrf,
   type SessionUser,
 } from './auth.js';
 import { loadWebPlugins, hasPublishableField, type WebPlugin } from './plugins.js';
-import { readEnabled, readValues, ValidationError, writeEnabled, writeValues } from './store.js';
+import { readEnabled, readValues, DataReadError, ValidationError, writeEnabled, writeValues } from './store.js';
 import { listGuildChannels } from './channels.js';
 import { listGuildRoles } from './roles.js';
 import { getPublishHandlers } from './publishHandlers.js';
@@ -43,6 +44,16 @@ async function main(): Promise<void> {
     return c.redirect('/login');
   });
 
+  app.post('/logout', async (c) => {
+    const body = await c.req.parseBody();
+    const formToken = typeof body._csrf === 'string' ? body._csrf : '';
+    if (!(await verifyFormCsrf(c, cfg, formToken))) {
+      return c.text('Invalid CSRF token.', 403);
+    }
+    logout(c);
+    return c.redirect('/login');
+  });
+
   // --- Editor page ------------------------------------------------------------
   app.get('/', async (c) => {
     const user = await getSessionUser(c, cfg);
@@ -57,15 +68,22 @@ async function main(): Promise<void> {
   api.use('*', requireCsrf(cfg));
 
   api.get('/modules', (c) => {
-    const payload = plugins.map((p) => ({
-      namespace: p.namespace,
-      title: p.title,
-      description: p.description,
-      fields: p.fields,
-      values: readValues(p),
-      enabled: readEnabled(p.namespace),
-    }));
-    return c.json(payload);
+    try {
+      const payload = plugins.map((p) => ({
+        namespace: p.namespace,
+        title: p.title,
+        description: p.description,
+        fields: p.fields,
+        values: readValues(p),
+        enabled: readEnabled(p.namespace),
+      }));
+      return c.json(payload);
+    } catch (err) {
+      if (err instanceof DataReadError) {
+        return c.json({ error: err.message }, 502);
+      }
+      throw err;
+    }
   });
 
   api.get('/channels', async (c) => {
@@ -149,6 +167,9 @@ async function main(): Promise<void> {
     } catch (err) {
       if (err instanceof ValidationError) {
         return c.json({ error: err.message }, 400);
+      }
+      if (err instanceof DataReadError) {
+        return c.json({ error: err.message }, 502);
       }
       console.error(`[web] Failed to write settings for "${namespace}":`, err);
       return c.json({ error: 'Failed to save changes.' }, 500);

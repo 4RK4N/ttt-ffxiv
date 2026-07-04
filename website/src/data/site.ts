@@ -1,3 +1,6 @@
+/** Canonical public site URL (no trailing slash). */
+export const SITE_URL = 'https://ttt-ffxiv.eu';
+
 /** Next scheduled event — Unix timestamp (seconds). */
 export const EVENT_TIMESTAMP = 1783188000;
 

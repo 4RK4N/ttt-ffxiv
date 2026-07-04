@@ -1,5 +1,5 @@
 import type { MessageComponentInteraction } from 'discord.js';
-import type { CommandModule, ComponentRoute } from '../../core/moduleLoader.js';
+import type { CommandModule } from '../../core/moduleLoader.js';
 import { createPanelPublisher } from '../../core/panelPublisher.js';
 import { getPanelConfig, updatePanel } from './config-io.js';
 import { handleButtonInteraction } from './handle-button.js';

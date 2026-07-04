@@ -1,8 +1,14 @@
 import type { ButtonInteraction, ThreadChannel } from 'discord.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
 import { isModuleEnabled } from '../../core/texts.js';
+import { isClosedTicketThread } from './names.js';
 import { NAMESPACE, resolveTicketType, texts } from './config-io.js';
 import type { ResolvedTicketType } from './types.js';
+
+export interface TicketThreadGuardOptions {
+  /** When true, reject closed/locked ticket threads. */
+  requireOpen?: boolean;
+}
 
 export interface TicketThreadContext {
   ticketType: ResolvedTicketType;
@@ -14,11 +20,12 @@ export type TicketThreadGuardResult =
   | { ok: true; ctx: TicketThreadContext }
   | { ok: false };
 
-/** Shared preamble for close/delete actions inside a ticket thread. */
+/** Shared preamble for ticket thread button actions (close/delete/role-action). */
 export async function guardTicketThreadAction(
   interaction: ButtonInteraction,
   typeId: string,
-  expectedThreadId: string
+  expectedThreadId: string,
+  options?: TicketThreadGuardOptions
 ): Promise<TicketThreadGuardResult> {
   const t = texts();
 
@@ -44,6 +51,11 @@ export async function guardTicketThreadAction(
   }
 
   if (expectedThreadId !== channel.id) {
+    await replyEphemeral(interaction, t.invalidInteraction);
+    return { ok: false };
+  }
+
+  if (options?.requireOpen && isClosedTicketThread(channel.name, channel.locked === true)) {
     await replyEphemeral(interaction, t.invalidInteraction);
     return { ok: false };
   }

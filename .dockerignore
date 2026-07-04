@@ -3,6 +3,7 @@ dist
 npm-debug.log*
 data/config.json
 data/*/config.json
+data/*/texts.json
 .git
 .gitignore
 *.log

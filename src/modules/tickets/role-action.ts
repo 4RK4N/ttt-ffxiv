@@ -4,13 +4,12 @@ import {
   type ThreadChannel,
 } from 'discord.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
-import { format, isModuleEnabled } from '../../core/texts.js';
+import { format } from '../../core/texts.js';
 import { tryAssignRole } from '../../core/discordRoles.js';
 import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
-import { isClosedTicketThread } from './names.js';
+import { guardTicketThreadAction } from './guards.js';
 import { ROLE_ACTION_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
-import { resolveTicketType, texts, NAMESPACE } from './config-io.js';
 
 interface ParsedRoleActionCustomId {
   threadId: string;
@@ -31,38 +30,24 @@ export async function handleRoleAction(interaction: ButtonInteraction): Promise<
   const parsed = parseRoleActionCustomId(interaction.customId);
   if (!parsed) return;
 
-  const ticketType = resolveTicketType(parsed.typeId);
-  const t = texts();
+  const guarded = await guardTicketThreadAction(
+    interaction,
+    parsed.typeId,
+    parsed.threadId,
+    { requireOpen: true }
+  );
+  if (!guarded.ok) return;
 
-  if (!isModuleEnabled(NAMESPACE)) {
-    await replyEphemeral(interaction, t.disabled);
-    return;
-  }
+  const { ticketType, thread, t } = guarded.ctx;
 
-  if (!ticketType || !ticketType.roleActionRoleId) {
+  if (!ticketType.roleActionRoleId) {
     await replyEphemeral(interaction, t.categoryUnpublished);
-    return;
-  }
-
-  const thread = interaction.channel;
-  if (!thread?.isThread()) {
-    await replyEphemeral(interaction, t.threadContextRequired);
-    return;
-  }
-
-  if (parsed.threadId !== thread.id) {
-    await replyEphemeral(interaction, t.invalidInteraction);
-    return;
-  }
-
-  if (isClosedTicketThread(thread.name, thread.locked === true)) {
-    await replyEphemeral(interaction, t.invalidInteraction);
     return;
   }
 
   const member = interaction.member as GuildMember | null;
   if (!member || !canStaffOrAdmin(member, ticketType.staffRoleIds)) {
-    await interaction.deferUpdate();
+    await replyEphemeral(interaction, t.noPermission);
     return;
   }
 

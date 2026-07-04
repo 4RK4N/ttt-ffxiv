@@ -25,6 +25,12 @@ import { NAMESPACE, config, logChannelId, texts } from './config-io.js';
 
 const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;
+const BULK_DELETE_BATCH = 5;
+const BULK_DELETE_DELAY_MS = 1_000;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function markRecentBan(userId: string): void {
   recentBans.add(userId);
@@ -87,8 +93,13 @@ async function handleMessageDeleteBulk(
   messages: ReadonlyMap<string, Message | PartialMessage>,
   channel: TextBasedChannel
 ): Promise<void> {
-  for (const message of messages.values()) {
-    await handleMessageDelete(message, channel);
+  const items = [...messages.values()];
+  for (let i = 0; i < items.length; i += BULK_DELETE_BATCH) {
+    const batch = items.slice(i, i + BULK_DELETE_BATCH);
+    await Promise.all(batch.map((message) => handleMessageDelete(message, channel)));
+    if (i + BULK_DELETE_BATCH < items.length) {
+      await delay(BULK_DELETE_DELAY_MS);
+    }
   }
 }
 

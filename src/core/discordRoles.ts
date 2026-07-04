@@ -1,5 +1,6 @@
 import {
   PermissionFlagsBits,
+  DiscordAPIError,
   type Guild,
   type GuildMember,
   type Role,
@@ -23,6 +24,14 @@ function canManageRole(guild: Guild, role: Role): RoleChangeResult {
   return { ok: true };
 }
 
+function mapRoleApiError(err: unknown): RoleChangeResult {
+  if (err instanceof DiscordAPIError) {
+    if (err.code === 50013) return { ok: false, reason: 'permission' };
+    if (err.code === 50001 || err.code === 10011) return { ok: false, reason: 'missing' };
+  }
+  return { ok: false, reason: 'hierarchy' };
+}
+
 export async function tryAssignRole(
   member: GuildMember,
   roleId: string,
@@ -41,7 +50,7 @@ export async function tryAssignRole(
     return { ok: true };
   } catch (err) {
     console.error(`${logPrefix} Failed to assign role ${roleId} to ${member.id}:`, err);
-    return { ok: false, reason: 'hierarchy' };
+    return mapRoleApiError(err);
   }
 }
 
@@ -63,6 +72,6 @@ export async function tryRemoveRole(
     return { ok: true };
   } catch (err) {
     console.error(`${logPrefix} Failed to remove role ${roleId} from ${member.id}:`, err);
-    return { ok: false, reason: 'hierarchy' };
+    return mapRoleApiError(err);
   }
 }

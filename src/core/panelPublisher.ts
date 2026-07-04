@@ -1,6 +1,6 @@
 import type { DiscordApiContext } from './panelPublish.js';
 
-export interface PanelPublisher<T extends { channelId: string; panelMessageId: string; published: boolean }> {
+export interface PanelPublisher {
   publish: (ctx: DiscordApiContext, id: string) => Promise<void>;
   unpublish: (id: string) => Promise<void>;
 }
@@ -18,7 +18,7 @@ export function createPanelPublisher<
     existingMessageId?: string
   ) => Promise<string>;
   entityLabel: string;
-}): PanelPublisher<T> {
+}): PanelPublisher {
   async function publish(ctx: DiscordApiContext, id: string): Promise<void> {
     const item = opts.resolve(id);
     if (!item) throw new Error(`Unknown ${opts.entityLabel} "${id}".`);

@@ -1,14 +1,6 @@
 /** Desktop root; global.css scales html font-size at breakpoints (see remScaledSizes). */
 export const ROOT_FONT_PX = 24;
 
-/** Root font sizes at global.css breakpoints (max-width in px). */
-export const ROOT_FONT_SCALES = [
-  { maxWidth: 480, rootPx: 18 },
-  { maxWidth: 736, rootPx: 20 },
-  { maxWidth: 1280, rootPx: 22 },
-  { maxWidth: Infinity, rootPx: ROOT_FONT_PX },
-] as const;
-
 /** Card images go full-width below this (matches narrow content layout). */
 export const NARROW_CONTENT_BP_PX = 720;
 
@@ -185,9 +177,4 @@ export const LANDSCAPE_CELL_PX = Math.round((CONTENT_COLUMN_PX - GRID_GAP_PX) / 
 /** 5-col portrait grid cell at lg */
 export const PORTRAIT_CELL_LG_PX = Math.floor(
   (CONTENT_COLUMN_PX - 4 * GRID_GAP_PX) / 5,
-);
-
-/** 3-col portrait grid cell at sm–lg */
-export const PORTRAIT_CELL_MD_PX = Math.floor(
-  (CONTENT_COLUMN_PX - 2 * GRID_GAP_PX) / 3,
 );

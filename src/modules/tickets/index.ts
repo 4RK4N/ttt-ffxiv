@@ -1,5 +1,5 @@
 import { type ButtonInteraction, type MessageComponentInteraction } from 'discord.js';
-import type { CommandModule, ComponentRoute } from '../../core/moduleLoader.js';
+import type { CommandModule } from '../../core/moduleLoader.js';
 import { createPanelPublisher } from '../../core/panelPublisher.js';
 import { getTicketTypeConfig, updateTicketType } from './config-io.js';
 import { handleCloseCancel, handleCloseTicket } from './close.js';

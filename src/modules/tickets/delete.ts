@@ -1,7 +1,4 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   type ButtonInteraction,
   type GuildMember,
   type ThreadChannel,
@@ -9,7 +6,7 @@ import {
 import { replyEphemeral } from '../../core/discordInteractions.js';
 import { guardTicketThreadAction } from './guards.js';
 import { isClosedTicketThread } from './names.js';
-import { DELETE_CONFIRM_PREFIX, DELETE_PREFIX } from './panel.js';
+import { buildConfirmRow, DELETE_CONFIRM_PREFIX, DELETE_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
 import { texts } from './config-io.js';
 
@@ -58,17 +55,12 @@ export async function handleDeleteTicket(interaction: ButtonInteraction): Promis
   const deletePayload = `${parsed.threadId}:${parsed.typeId}`;
 
   if (!isConfirm) {
-    const yes = new ButtonBuilder()
-      .setCustomId(`${DELETE_CONFIRM_PREFIX}${deletePayload}`)
-      .setLabel(ticketType.confirmDeleteYes.slice(0, 80))
-      .setStyle(ButtonStyle.Danger);
-
-    const no = new ButtonBuilder()
-      .setCustomId(`tickets:delete-cancel:${parsed.threadId}`)
-      .setLabel(ticketType.confirmDeleteNo.slice(0, 80))
-      .setStyle(ButtonStyle.Secondary);
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(yes, no);
+    const row = buildConfirmRow(
+      `${DELETE_CONFIRM_PREFIX}${deletePayload}`,
+      `tickets:delete-cancel:${parsed.threadId}`,
+      ticketType.confirmDeleteYes,
+      ticketType.confirmDeleteNo
+    );
 
     await replyEphemeral(interaction, {
       content: ticketType.confirmDeletePrompt,

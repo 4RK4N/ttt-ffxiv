@@ -54,7 +54,7 @@ function resolveUserMentions(content: string, ctx: ThreadCaptionContext): string
  * server display names, strips custom emoji, and collapses whitespace.
  */
 export function prepareThreadCaptionText(content: string, ctx?: ThreadCaptionContext): string {
-  let text = ctx ? resolveUserMentions(content, ctx) : content;
+  const text = ctx ? resolveUserMentions(content, ctx) : content;
   return text.replace(CUSTOM_EMOJI_REGEX, '').replace(/\s+/g, ' ').trim();
 }
 

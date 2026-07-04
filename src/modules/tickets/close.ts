@@ -1,14 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   type ButtonInteraction,
   type GuildMember,
 } from 'discord.js';
 import { replyEphemeral } from '../../core/discordInteractions.js';
 import { finalizeTicketClose, resolveOpenerUserId } from './finalize-close.js';
 import { guardTicketThreadAction } from './guards.js';
-import { CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
+import { buildConfirmRow, CLOSE_CONFIRM_PREFIX, CLOSE_PREFIX } from './panel.js';
 import { canStaffOrAdmin } from './permissions.js';
 import { texts } from './config-io.js';
 
@@ -66,17 +63,12 @@ export async function handleCloseTicket(interaction: ButtonInteraction): Promise
     : `${parsed.threadId}:${parsed.typeId}:${openerUserId ?? ''}`;
 
   if (!isConfirm) {
-    const yes = new ButtonBuilder()
-      .setCustomId(`${CLOSE_CONFIRM_PREFIX}${closePayload}`)
-      .setLabel(ticketType.confirmCloseYes.slice(0, 80))
-      .setStyle(ButtonStyle.Danger);
-
-    const no = new ButtonBuilder()
-      .setCustomId(`tickets:close-cancel:${parsed.threadId}`)
-      .setLabel(ticketType.confirmCloseNo.slice(0, 80))
-      .setStyle(ButtonStyle.Secondary);
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(yes, no);
+    const row = buildConfirmRow(
+      `${CLOSE_CONFIRM_PREFIX}${closePayload}`,
+      `tickets:close-cancel:${parsed.threadId}`,
+      ticketType.confirmCloseYes,
+      ticketType.confirmCloseNo
+    );
 
     await replyEphemeral(interaction, {
       content: ticketType.confirmClosePrompt,

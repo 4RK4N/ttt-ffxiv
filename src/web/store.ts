@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { MAX_PANEL_OPTIONS } from '../core/limits.js';
+import { slugify, toStringArray } from '../core/strings.js';
 import { invalidateModuleCache, moduleDataPath } from '../core/texts.js';
 import { writeJsonAtomic } from '../core/jsonWrite.js';
 import { validateEmbedPanelRow } from '../modules/custom-embeds/validate.js';
@@ -60,24 +61,23 @@ function readDataJson(namespace: string, store: WebFieldStore): Record<string, u
   const file = moduleDataPath(namespace, STORE_FILES[store]);
   try {
     return JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
-  } catch {
-    return {};
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') {
+      return {};
+    }
+    console.warn(`[web] Failed to read "${file}"; refusing to use corrupt or unreadable data.`, err);
+    throw new DataReadError(
+      `Cannot read ${STORE_FILES[store]} for "${namespace}": file is missing, unreadable, or corrupt. Fix it on disk before saving.`
+    );
   }
 }
 
-function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is string => typeof v === 'string');
-}
-
-function slugify(value: string): string {
-  return (
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 32) || 'item'
-  );
+export class DataReadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DataReadError';
+  }
 }
 
 function uniqueId(base: string, used: Set<string>): string {

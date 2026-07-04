@@ -1,10 +1,6 @@
 import { parsePanelBaseFields } from '../../core/panelFields.js';
+import { toStringArray } from '../../core/strings.js';
 import type { ResolvedTicketType } from './types.js';
-
-function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is string => typeof v === 'string');
-}
 
 export function validateTicketType(ticketType: ResolvedTicketType): void {
   if (!ticketType.openButtonLabel.trim()) {

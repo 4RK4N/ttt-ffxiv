@@ -10,6 +10,7 @@ import type {
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
+import { isModuleEnabled } from './texts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, '..', 'modules');
@@ -41,6 +42,11 @@ export interface CommandModule {
   componentRoutes?: ComponentRoute[];
 }
 
+export interface LoadModulesOptions {
+  /** When true, omit slash commands from modules with enabled: false in config. Used by deploy. */
+  skipDisabledCommands?: boolean;
+}
+
 export interface LoadedModules {
   commandData: RESTPostAPIApplicationCommandsJSONBody[];
   handlers: Map<string, CommandExecutor>;
@@ -57,7 +63,7 @@ export interface LoadedModules {
  * Adding a new feature later means dropping in a new folder here - no changes to
  * the core are required.
  */
-export async function loadModules(): Promise<LoadedModules> {
+export async function loadModules(options?: LoadModulesOptions): Promise<LoadedModules> {
   const commandData: RESTPostAPIApplicationCommandsJSONBody[] = [];
   const handlers = new Map<string, CommandExecutor>();
   const inits: ModuleInit[] = [];
@@ -79,6 +85,7 @@ export async function loadModules(): Promise<LoadedModules> {
 
     const imported = await import(pathToFileURL(modulePath).href);
     const mod: CommandModule = imported.default ?? imported.module ?? imported;
+    const namespace = mod.name ?? entry.name;
 
     const hasCommands = Array.isArray(mod?.commands);
     const hasInit = typeof mod?.init === 'function';
@@ -86,12 +93,19 @@ export async function loadModules(): Promise<LoadedModules> {
 
     if (!hasCommands && !hasInit && !hasComponents) {
       console.warn(
-        `[moduleLoader] Module "${entry.name}" exports no commands, init, or componentRoutes; skipping.`
+        `[moduleLoader] Module "${namespace}" exports no commands, init, or componentRoutes; skipping.`
       );
       continue;
     }
 
-    if (hasCommands) {
+    const skipCommands =
+      options?.skipDisabledCommands === true && hasCommands && !isModuleEnabled(namespace);
+
+    if (skipCommands) {
+      console.log(`[moduleLoader] Module "${namespace}" is disabled; skipping command deploy.`);
+    }
+
+    if (hasCommands && !skipCommands) {
       for (const command of mod.commands!) {
         if (!command?.data?.name || typeof command.execute !== 'function') {
           console.warn(`[moduleLoader] Invalid command in module "${entry.name}"; skipping.`);
@@ -100,7 +114,7 @@ export async function loadModules(): Promise<LoadedModules> {
 
         if (handlers.has(command.data.name)) {
           console.warn(
-            `[moduleLoader] Duplicate command name "${command.data.name}" found in module "${entry.name}"; skipping duplicate.`
+            `[moduleLoader] Duplicate command name "${command.data.name}" found in module "${namespace}"; skipping duplicate.`
           );
           continue;
         }

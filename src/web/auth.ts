@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
 import type { WebConfig } from './config.js';
-import { discordBotFetch } from '../core/discordApi.js';
+import { DISCORD_API, discordBotFetch } from '../core/discordApi.js';
 
 const AUTHORIZE_URL = 'https://discord.com/oauth2/authorize';
 const OAUTH_SCOPES = 'identify guilds';
@@ -143,8 +143,6 @@ interface DiscordRole {
 // Per-user cache of positive bot-token admin re-checks only.
 const adminCache = new Map<string, { at: number }>();
 
-const DISCORD_API = 'https://discord.com/api/v10';
-
 async function discordBotGet<T>(cfg: WebConfig, path: string): Promise<T | null> {
   const res = await discordBotFetch(cfg.botToken, path);
   if (res.status === 404) return null;
@@ -221,6 +219,11 @@ export interface CallbackResult {
  * turns into a redirect or an error page.
  */
 export async function handleCallback(c: Context, cfg: WebConfig): Promise<CallbackResult> {
+  const oauthError = c.req.query('error');
+  if (oauthError === 'access_denied') {
+    return { ok: false, status: 400, message: 'Login was cancelled. Try again when you are ready.' };
+  }
+
   const code = c.req.query('code');
   const state = c.req.query('state');
   const expectedState = await getSignedCookie(c, cfg.sessionSecret, STATE_COOKIE);
@@ -324,6 +327,12 @@ export function requireAuth(cfg: WebConfig): MiddlewareHandler {
     c.set('user', user);
     await next();
   };
+}
+
+/** Validates a CSRF token from a form field against the signed CSRF cookie. */
+export async function verifyFormCsrf(c: Context, cfg: WebConfig, formToken: string): Promise<boolean> {
+  const cookieToken = await getSignedCookie(c, cfg.sessionSecret, CSRF_COOKIE);
+  return typeof cookieToken === 'string' && formToken !== '' && cookieToken === formToken;
 }
 
 /** Validates X-CSRF-Token header against the signed CSRF cookie on mutating requests. */

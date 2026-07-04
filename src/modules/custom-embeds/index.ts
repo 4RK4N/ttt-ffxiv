@@ -22,7 +22,6 @@ export async function unpublishEmbedPanel(panelId: string): Promise<void> {
 
 const customEmbedsModule: CommandModule = {
   name: NAMESPACE,
-  init: () => { },
 };
 
 export default customEmbedsModule;

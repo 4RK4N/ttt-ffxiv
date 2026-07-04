@@ -1,6 +1,6 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { Image } from 'astro:assets';
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
 import {
   LANDSCAPE_CELL_PX,
   LANDSCAPE_GALLERY_SIZES,
@@ -8,57 +8,56 @@ import {
   PORTRAIT_GALLERY_SIZES,
   landscapeGalleryWidths,
   portraitGalleryWidths,
-} from '../data/layout';
+} from "../data/layout";
 
 interface Props {
   images: ImageMetadata[];
-  aspect?: 'portrait' | 'landscape' | 'square';
-  cols?: 2 | 3;
+  aspect?: "portrait" | "landscape";
+  cols?: 2;
   class?: string;
 }
 
-const { images, aspect = 'landscape', cols, class: className } = Astro.props;
+const { images, aspect = "landscape", cols, class: className } = Astro.props;
 
 const aspectClass = {
-  portrait: 'aspect-[2/3]',
-  landscape: 'aspect-[16/9]',
-  square: 'aspect-square',
+  portrait: "aspect-[2/3]",
+  landscape: "aspect-[16/9]",
 }[aspect];
 
 const colsClass = cols
-  ? { 2: 'grid-cols-2', 3: 'grid-cols-3' }[cols]
-  : aspect === 'portrait'
-    ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
-    : 'grid-cols-1 sm:grid-cols-2';
+  ? "grid-cols-2"
+  : aspect === "portrait"
+    ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+    : "grid-cols-1 sm:grid-cols-2";
 
 const imageSizes =
-  aspect === 'portrait' ? PORTRAIT_GALLERY_SIZES : LANDSCAPE_GALLERY_SIZES;
+  aspect === "portrait" ? PORTRAIT_GALLERY_SIZES : LANDSCAPE_GALLERY_SIZES;
 
 const imageWidths =
-  aspect === 'portrait' ? portraitGalleryWidths() : landscapeGalleryWidths();
+  aspect === "portrait" ? portraitGalleryWidths() : landscapeGalleryWidths();
 
 const imageWidth =
-  aspect === 'portrait' || aspect === 'square' ? PORTRAIT_CELL_LG_PX : LANDSCAPE_CELL_PX;
+  aspect === "portrait" ? PORTRAIT_CELL_LG_PX : LANDSCAPE_CELL_PX;
 
 const imageHeight =
-  aspect === 'portrait'
+  aspect === "portrait"
     ? Math.round((PORTRAIT_CELL_LG_PX * 3) / 2)
-    : aspect === 'square'
-      ? PORTRAIT_CELL_LG_PX
-      : Math.round((LANDSCAPE_CELL_PX * 9) / 16);
+    : Math.round((LANDSCAPE_CELL_PX * 9) / 16);
 ---
 
-<div class:list={['grid w-full gap-3', colsClass, className]}>
-  {images.map((src) => (
-    <Image
-      src={src}
-      alt=""
-      width={imageWidth}
-      height={imageHeight}
-      widths={imageWidths}
-      sizes={imageSizes}
-      loading="lazy"
-      class:list={['h-full w-full rounded-md object-cover', aspectClass]}
-    />
-  ))}
+<div class:list={["grid w-full gap-3", colsClass, className]}>
+  {
+    images.map((src, index) => (
+      <Image
+        src={src}
+        alt={`Gallery image ${index + 1}`}
+        width={imageWidth}
+        height={imageHeight}
+        widths={imageWidths}
+        sizes={imageSizes}
+        loading="lazy"
+        class:list={["h-full w-full rounded-md object-cover", aspectClass]}
+      />
+    ))
+  }
 </div>

@@ -3,7 +3,7 @@ import { config } from '../src/config.js';
 import { loadModules } from '../src/core/moduleLoader.js';
 
 async function main(): Promise<void> {
-  const { commandData } = await loadModules();
+  const { commandData } = await loadModules({ skipDisabledCommands: true });
 
   if (commandData.length === 0) {
     console.log('No commands found to deploy.');

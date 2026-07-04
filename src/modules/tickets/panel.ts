@@ -17,6 +17,25 @@ export const DELETE_PREFIX = 'tickets:delete:';
 export const DELETE_CONFIRM_PREFIX = 'tickets:delete-confirm:';
 export const ROLE_ACTION_PREFIX = 'tickets:role-action:';
 
+export function buildConfirmRow(
+  yesCustomId: string,
+  noCustomId: string,
+  yesLabel: string,
+  noLabel: string
+): ActionRowBuilder<ButtonBuilder> {
+  const yes = new ButtonBuilder()
+    .setCustomId(yesCustomId)
+    .setLabel(yesLabel.slice(0, 80))
+    .setStyle(ButtonStyle.Danger);
+
+  const no = new ButtonBuilder()
+    .setCustomId(noCustomId)
+    .setLabel(noLabel.slice(0, 80))
+    .setStyle(ButtonStyle.Secondary);
+
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(yes, no);
+}
+
 export function buildPanelPayload(typeId: string) {
   const ticketType = resolveTicketType(typeId);
   if (!ticketType) throw new Error(`Unknown ticket type "${typeId}".`);

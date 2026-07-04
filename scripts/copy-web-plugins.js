@@ -16,6 +16,7 @@ if (!existsSync(srcModules)) {
 }
 
 let copied = 0;
+let skipped = 0;
 for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
 
@@ -27,6 +28,7 @@ for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
     console.warn(
       `[copy-web-plugins] Skipping "${entry.name}": no compiled output at ${destDir}.`
     );
+    skipped += 1;
     continue;
   }
 
@@ -35,3 +37,10 @@ for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
 }
 
 console.log(`[copy-web-plugins] Copied ${copied} web-plugin.json manifest(s) into dist.`);
+
+if (skipped > 0) {
+  console.error(
+    `[copy-web-plugins] ${skipped} manifest(s) skipped because dist output was missing. Run "npm run build" first.`
+  );
+  process.exit(1);
+}

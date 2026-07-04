@@ -51,19 +51,25 @@ async function handleMemberAdd(member: GuildMember): Promise<void> {
     return;
   }
 
-  const avatarUrl = member.displayAvatarURL({ extension: 'png', size: 256 });
-  const card = await renderWelcomeCard({ avatarUrl, displayName: member.displayName });
-  const attachment = new AttachmentBuilder(card, { name: 'welcome.png' });
-
   const mention = `<@${member.id}>`;
+  const t = texts();
+  const welcomeContent = format(t.welcomeContent, { mention });
+
+  let files: AttachmentBuilder[] | undefined;
+  try {
+    const avatarUrl = member.displayAvatarURL({ extension: 'png', size: 256 });
+    const card = await renderWelcomeCard({ avatarUrl, displayName: member.displayName });
+    files = [new AttachmentBuilder(card, { name: 'welcome.png' })];
+  } catch (err) {
+    console.warn('[welcome-message] Welcome card render failed; sending text-only welcome:', err);
+  }
 
   await channel.send({
-    content: format(texts().welcomeContent, { mention }),
-    files: [attachment],
+    content: welcomeContent,
+    files,
     allowedMentions: { users: [member.id] },
   });
 
-  const t = texts();
   const rulesChannel = rulesChannelLink(member.guild.id);
   const rulesMessage = format(t.rulesMessage, { rulesChannel });
   try {

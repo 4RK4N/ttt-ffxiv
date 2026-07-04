@@ -324,6 +324,12 @@ docker compose run --rm ttt-discord-bot npm run deploy
   seconds.
 - Without it, they register globally and can take up to ~1 hour to show up.
 
+**Module `enabled` toggle vs deploy:** The web editor's per-module **enabled** switch
+only affects runtime behavior (handlers reply "disabled" when off). Deploy registers
+slash commands from code; modules with `enabled: false` in `data/<module>/config.json`
+are **omitted** on deploy so they disappear from Discord. Re-run deploy after toggling
+enabled if you want slash commands to match.
+
 You only need to repeat this when you add or change commands - not on every restart.
 
 ---

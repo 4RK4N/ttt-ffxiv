@@ -6,38 +6,9 @@ import {
 } from '../../core/threads.js';
 import { isModuleEnabled } from '../../core/texts.js';
 import { NAMESPACE, channelIds, texts } from './config-io.js';
+import { extractSupportedPostUrls } from './urls.js';
 
 const URL_REGEX = /https?:\/\/[^\s<>]+/gi;
-
-function normalizeHost(host: string): string {
-  return host.replace(/^www\./i, '').toLowerCase();
-}
-
-function isSupportedPostUrl(raw: string): boolean {
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    return false;
-  }
-
-  const host = normalizeHost(url.hostname);
-  const path = url.pathname.replace(/[).,]+$/, '');
-
-  if (['x.com', 'twitter.com', 'mobile.twitter.com'].includes(host)) {
-    return /\/status(?:es)?\/\d+/.test(path);
-  }
-
-  if (host === 'bsky.app') {
-    return /^\/profile\/[^/]+\/post\/[^/]+/.test(path);
-  }
-
-  if (host === 'aethy.com') {
-    return /^\/@[^/]+\/\d+/.test(path) || /^\/users\/[^/]+\/statuses\/\d+/.test(path);
-  }
-
-  return false;
-}
 
 function hasImageOrVideoAttachment(message: Message): boolean {
   return message.attachments.some((a) => {
@@ -62,8 +33,7 @@ async function handleMessage(message: Message): Promise<void> {
   if (message.channel.isThread() || message.hasThread) return;
 
   const content = message.content ?? '';
-  const urls = content.match(URL_REGEX) ?? [];
-  const hasPostLink = urls.some(isSupportedPostUrl);
+  const hasPostLink = extractSupportedPostUrls(content).length > 0;
   const hasMedia = hasImageOrVideoAttachment(message);
 
   if (!hasPostLink && !hasMedia) return;
