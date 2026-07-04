@@ -1,5 +1,5 @@
 import { FAVICON_HREF, HTMX_JS, OVERRIDES_CSS, TABLER_CSS } from '../css-urls.js';
-import { StatusDot } from './ModuleSidebar.js';
+import { StatusDot } from './enabled-ui.js';
 
 export function HtmxScripts() {
   return (
@@ -93,7 +93,7 @@ export function EditorBody({
                     hx-swap="innerHTML"
                     hx-on:click="this.closest('.navbar-nav').querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); this.classList.add('active')"
                   >
-                    <StatusDot namespace={p.namespace} enabled={p.enabled !== false} />
+                    <StatusDot namespace={p.namespace} enabled={p.enabled} />
                     <span>{p.title}</span>
                   </button>
                 </li>

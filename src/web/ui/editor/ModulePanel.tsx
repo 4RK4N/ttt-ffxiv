@@ -1,19 +1,9 @@
 import type { EditorModule } from '../../plugin-types.js';
 import type { PanelProps } from './context.js';
 import { Field } from './Field.js';
-import { EnabledToggle } from './ModuleSidebar.js';
-import { isHtmxMigrated } from './migrated.js';
+import { EnabledToggle } from './enabled-ui.js';
 
 export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
-  if (!isHtmxMigrated(mod.namespace)) {
-    return (
-      <section class="module-panel" id={`htmx-panel-${mod.namespace}`}>
-        <h2 class="mb-3">{mod.title}</h2>
-        <p class="text-secondary">This module has not been migrated to the HTMX editor yet.</p>
-      </section>
-    );
-  }
-
   const statusHtml = status ? (
     <span class={status.ok ? 'text-success' : 'text-danger'}>{status.message}</span>
   ) : (
@@ -31,7 +21,7 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
         <input type="hidden" name="_csrf" value={ctx.csrfToken} />
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="mb-0">{mod.title}</h2>
-          <EnabledToggle namespace={mod.namespace} enabled={mod.enabled !== false} />
+          <EnabledToggle namespace={mod.namespace} enabled={mod.enabled} />
         </div>
         {mod.description ? <p class="text-secondary mb-3">{mod.description}</p> : null}
         {mod.fields.map((f) => (

@@ -25,8 +25,7 @@ import {
   toggleExpanded,
   valuesFromForm,
 } from './htmx-handlers.js';
-import { isHtmxMigrated } from './migrated.js';
-import { EnabledToggleResponse } from './ModuleSidebar.js';
+import { EnabledToggleResponse } from './enabled-ui.js';
 import { ModulePanel } from './ModulePanel.js';
 import { ObjectListRow } from './Field.js';
 import { ObjectListRowsOnly } from './fields/ObjectListField.js';
@@ -68,14 +67,6 @@ export async function renderPanel(
 ) {
   const data = await ctxAndMod(c, deps, namespace);
   if (!data) return c.text(`Unknown module "${namespace}".`, 404);
-  if (!isHtmxMigrated(namespace)) {
-    return c.html(
-      <section class="module-panel">
-        <h2 class="mb-3">{data.mod.title}</h2>
-        <p class="text-secondary">This module has not been migrated to the HTMX editor yet.</p>
-      </section>,
-    );
-  }
   return c.html(<ModulePanel {...panelProps(data.mod, data.ctx, expanded, status)} />);
 }
 
@@ -88,9 +79,6 @@ export function registerHtmxRoutes(htmx: import('hono').Hono<Env>, deps: HtmxDep
 
   htmx.put('/modules/:namespace', async (c) => {
     const namespace = c.req.param('namespace');
-    if (!isHtmxMigrated(namespace)) {
-      return c.text(`HTMX editing is not enabled for "${namespace}".`, 404);
-    }
     const plugin = deps.byNamespace.get(namespace);
     if (!plugin) return c.text(`Unknown module "${namespace}".`, 404);
 
