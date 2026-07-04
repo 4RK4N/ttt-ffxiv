@@ -38,6 +38,16 @@ for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
 
 console.log(`[copy-web-plugins] Copied ${copied} web-plugin.json manifest(s) into dist.`);
 
+const adminCssSrc = join(root, 'src', 'web', 'ui', 'css');
+const adminCssDest = join(root, 'dist', 'src', 'web', 'ui', 'css');
+if (existsSync(adminCssSrc)) {
+  cpSync(adminCssSrc, adminCssDest, { recursive: true });
+  console.log('[copy-web-plugins] Copied admin CSS into dist.');
+} else {
+  console.error('[copy-web-plugins] Missing src/web/ui/css/.');
+  process.exit(1);
+}
+
 if (skipped > 0) {
   console.error(
     `[copy-web-plugins] ${skipped} manifest(s) skipped because dist output was missing. Run "npm run build" first.`

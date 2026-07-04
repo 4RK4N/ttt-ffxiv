@@ -1,0 +1,18 @@
+.status {
+  font-size: 13px;
+}
+
+.status.ok {
+  color: var(--ok);
+}
+
+.status.err {
+  color: var(--err);
+}
+
+.empty,
+.loading {
+  color: var(--muted);
+  text-align: center;
+  padding: 40px;
+}

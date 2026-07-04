@@ -1,0 +1,95 @@
+@layer components {
+  .content-section {
+    @apply mx-auto flex w-full max-w-[36rem] flex-col items-center gap-7 px-6 py-14;
+  }
+
+  .content-section--wide {
+    @apply max-w-[45rem];
+  }
+
+  .content-section--center-body .hand-text {
+    text-align: center;
+  }
+
+  .content-section--center-body h3 {
+    text-align: center;
+  }
+
+  /* Page title (h1) — layered mask gradient; flex-shrink:0 prevents tail clipping */
+  .page-heading {
+    flex-shrink: 0;
+    width: max-content;
+    max-width: 100%;
+    overflow: visible;
+    font-size: 3.625em;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .page-heading__text {
+    position: relative;
+    display: inline-block;
+    padding-inline: 0.05em 0.12em;
+    color: var(--color-page-heading-bottom);
+  }
+
+  .page-heading__text::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--color-page-heading-top);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* 2.1875rem = 1.75 × hand-text (1.25em) — rem avoids em compounding inside .hand-text */
+  main h2 {
+    width: 100%;
+    font-size: 2.1875rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--color-heading-h2);
+    text-shadow: -0.075rem 0.1rem 0.125rem #fff;
+    text-align: center;
+  }
+
+  main h3 {
+    width: 100%;
+    font-size: 1.375em;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--color-heading-h3);
+    text-align: left;
+  }
+
+  .hand-text {
+    width: 100%;
+    font-family: var(--font-gochi);
+    font-size: 1.25em;
+    line-height: 1.625;
+    letter-spacing: 0.2rem;
+    color: var(--color-body-text);
+    text-align: left;
+    hyphens: auto;
+  }
+
+  .hand-text--home {
+    text-align: center;
+  }
+
+  .highlight {
+    color: var(--color-highlight);
+  }
+
+  .subtitle-text {
+    font-family: var(--font-gochi);
+    font-size: 1.5em;
+    line-height: 1.75;
+    color: var(--color-subtitle);
+  }
+}

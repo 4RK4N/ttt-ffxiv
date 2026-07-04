@@ -1,6 +1,7 @@
 import type { SessionUser } from '../auth.js';
 import { CLIENT_JS } from './client-script.js';
-import { STYLES } from './styles.js';
+
+const ADMIN_CSS = '/assets/css/admin.css';
 
 export function escapeHtml(value: string): string {
   return value
@@ -24,7 +25,7 @@ export function loginPage(botName: string, message?: string): string {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${title}</title>
-<style>${STYLES}</style>
+<link rel="stylesheet" href="${ADMIN_CSS}" />
 </head><body>
   <div class="login-wrap">
     <div class="login-card">
@@ -47,7 +48,7 @@ export function editorPage(botName: string, user: SessionUser, csrfToken: string
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="csrf-token" content="${csrf}" />
 <title>${title}</title>
-<style>${STYLES}</style>
+<link rel="stylesheet" href="${ADMIN_CSS}" />
 </head><body>
   <header>
     <h1>${title}</h1>
@@ -55,7 +56,7 @@ export function editorPage(botName: string, user: SessionUser, csrfToken: string
       <span class="who">Signed in as ${escapeHtml(user.username)}</span>
       <form method="post" action="/logout" style="margin:0;display:inline;">
         <input type="hidden" name="_csrf" value="${csrf}" />
-        <button type="submit" class="logout" style="background:none;border:1px solid var(--border);cursor:pointer;font:inherit;">Log out</button>
+        <button type="submit" class="logout">Log out</button>
       </form>
     </div>
   </header>

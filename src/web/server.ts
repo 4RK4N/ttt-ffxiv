@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { loadWebConfig } from './config.js';
@@ -29,6 +32,28 @@ async function main(): Promise<void> {
   console.log(`[web] Loaded ${plugins.length} editable module(s).`);
 
   const app = new Hono<Env>();
+
+  const cssDir = join(dirname(fileURLToPath(import.meta.url)), 'ui', 'css');
+
+  app.get('/assets/css/:file', (c) => {
+    const file = c.req.param('file');
+    if (!file || !/^[\w-]+\.css$/.test(file)) {
+      return c.text('Not found', 404);
+    }
+    const filePath = resolve(cssDir, file);
+    if (!filePath.startsWith(resolve(cssDir))) {
+      return c.text('Not found', 404);
+    }
+    try {
+      const body = readFileSync(filePath, 'utf8');
+      return c.body(body, 200, {
+        'Content-Type': 'text/css; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      });
+    } catch {
+      return c.text('Not found', 404);
+    }
+  });
 
   // --- Auth routes (public) ---------------------------------------------------
   app.get('/login', (c) => startLogin(c, cfg));

@@ -1,0 +1,74 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+button.save {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.save:hover {
+  background: var(--accent-hover);
+}
+
+button.save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.publish {
+  background: var(--ok);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.publish:hover {
+  filter: brightness(0.92);
+}
+
+button.publish:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.secondary:hover {
+  border-color: var(--accent);
+}
+
+button.secondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.danger {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+button.secondary.danger:hover {
+  border-color: var(--err);
+  color: var(--err);
+}

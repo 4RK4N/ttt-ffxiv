@@ -1,0 +1,19 @@
+@theme inline {
+  --font-averia: var(--font-averia-face), serif;
+  --font-gochi: var(--font-gochi-face), cursive;
+  --font-caveat: var(--font-caveat-face), cursive;
+
+  --color-bar-bg: rgba(26, 20, 16, 0.94);
+  --color-bar-border: rgba(212, 175, 120, 0.25);
+  --color-bar-text: #f5e6d0;
+  --color-bar-accent: #d4af78;
+
+  --color-page-overlay: rgb(0 0 0 / 0.86);
+  --color-body-text: rgb(255 255 255 / 0.71);
+  --color-heading-h2: rgb(250 129 252 / 0.71);
+  --color-heading-h3: rgb(235 152 152 / 0.71);
+  --color-subtitle: rgb(235 152 152 / 0.71);
+  --color-page-heading-bottom: #fc0000;
+  --color-page-heading-top: #ff5cbe;
+  --color-highlight: #fc0000;
+}

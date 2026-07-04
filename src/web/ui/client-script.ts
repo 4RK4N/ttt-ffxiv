@@ -502,10 +502,10 @@ export const CLIENT_JS = `
         var cardActions = el('div', 'object-actions');
 
         if (f.publishable) {
-          var pubBtn = el('button', 'secondary');
+          var pubBtn = el('button', 'publish');
           pubBtn.type = 'button';
           pubBtn.textContent = 'Publish panel';
-          var unpubBtn = el('button', 'secondary danger');
+          var unpubBtn = el('button', 'secondary');
           unpubBtn.type = 'button';
           unpubBtn.textContent = 'Unpublish';
           unpubBtn.disabled = !item.published;

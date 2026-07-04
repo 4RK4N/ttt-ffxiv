@@ -1,0 +1,154 @@
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  flex: 0 0 auto;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .track {
+  width: 42px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.15s;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.switch .track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.switch input:checked+.track {
+  background: var(--ok);
+}
+
+.switch input:checked+.track::after {
+  transform: translateX(18px);
+}
+
+.switch input:focus-visible+.track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.switch .switch-label {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 24px;
+}
+
+.switch.busy {
+  opacity: 0.6;
+}
+
+.switch-err {
+  color: var(--err);
+  font-size: 12px;
+  margin: -8px 0 16px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field>label:not(.switch) {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.field .help {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.field input[type='text'],
+.field textarea,
+.field select {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  resize: vertical;
+}
+
+.field label.switch {
+  margin-bottom: 0;
+  font-weight: 400;
+}
+
+.field textarea {
+  min-height: 110px;
+}
+
+.field input[type='text']:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field.disabled input[type='text'],
+.field.disabled textarea,
+.field.disabled select {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.field.disabled .help-disabled {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.checklist {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.checklist label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  margin: 0;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.checklist input {
+  width: auto;
+}
+
+.channel-note {
+  color: var(--err);
+  font-size: 12px;
+  margin-top: 6px;
+}

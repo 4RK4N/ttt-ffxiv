@@ -1,0 +1,60 @@
+@layer base {
+
+  /* Responsive root scale — 24px desktop; layout.ts tracks the same breakpoints. */
+  html {
+    font-size: 24px;
+    background-color: #000;
+  }
+
+  @media (max-width: 1280px) {
+    html {
+      font-size: 22px;
+    }
+  }
+
+  @media (max-width: 736px) {
+    html {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  body {
+    min-height: 100vh;
+    min-width: 320px;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    font-family: var(--font-gochi);
+    color: #fff;
+    text-align: center;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-caveat);
+  }
+
+  /* Fixed page background (--page-bg-image set in Base.astro) */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--color-page-overlay), var(--color-page-overlay)),
+      var(--page-bg-image);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
