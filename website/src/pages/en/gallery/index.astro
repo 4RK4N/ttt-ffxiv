@@ -1,9 +1,13 @@
 ---
-import ContentPage from '../../../components/ContentPage.astro';
-import ContentImage from '../../../components/ContentImage.astro';
-import Gallery from '../../../components/Gallery.astro';
-import { CONTENT_COLUMN_SIZES, CONTENT_COLUMN_PX, contentColumnWidths } from '../../../data/layout';
-import { pageIcons, resolveGalleryList } from '../../../data/images';
+import ContentPage from "../../../components/ContentPage.astro";
+import ContentImage from "../../../components/ContentImage.astro";
+import Gallery from "../../../components/Gallery.astro";
+import {
+  CONTENT_COLUMN_SIZES,
+  CONTENT_COLUMN_PX,
+  contentColumnWidths,
+} from "../../../data/layout";
+import { pageIcons, resolveGalleryList } from "../../../data/images";
 ---
 
 <ContentPage
@@ -16,8 +20,12 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
   <div class="hand-text flex flex-col gap-6">
     <p><em><strong>A glimpse into our home…</strong></em></p>
     <p>
-      <em><strong>Warm rooms, quiet corners,<br /> soft lights, and places<br /> where
-      memories are made.</strong></em>
+      <em
+        ><strong
+          >Warm rooms, quiet corners,<br /> soft lights, and places<br /> where memories
+          are made.</strong
+        ></em
+      >
     </p>
   </div>
   <ContentImage
@@ -29,41 +37,41 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
   />
   <Gallery
     images={resolveGalleryList([
-      'gallery07/9c352b69.jpg',
-      'gallery07/fcd8f85d.jpg',
-      'gallery07/81a2a56a.jpg',
+      "gallery07/9c352b69.jpg",
+      "gallery07/fcd8f85d.jpg",
+      "gallery07/81a2a56a.jpg",
     ])}
   />
   <Gallery
     images={resolveGalleryList([
-      'gallery09/c2cde289.jpg',
-      'gallery09/09600657.jpg',
-      'gallery09/009cce14.jpg',
-      'gallery09/736c6a9a.jpg',
-      'gallery09/7b549343.jpg',
+      "gallery09/c2cde289.jpg",
+      "gallery09/09600657.jpg",
+      "gallery09/009cce14.jpg",
+      "gallery09/736c6a9a.jpg",
+      "gallery09/7b549343.jpg",
     ])}
   />
   <Gallery
     images={resolveGalleryList([
-      'gallery10/d7414f9a.jpg',
-      'gallery10/cac149e2.jpg',
-      'gallery10/ac774d7a.jpg',
-      'gallery10/068c47f1.jpg',
-      'gallery10/eb706e6d.jpg',
-      'gallery10/dfbe594f.jpg',
+      "gallery10/d7414f9a.jpg",
+      "gallery10/cac149e2.jpg",
+      "gallery10/ac774d7a.jpg",
+      "gallery10/068c47f1.jpg",
+      "gallery10/eb706e6d.jpg",
+      "gallery10/dfbe594f.jpg",
     ])}
   />
-  <p class="subtitle-text">Room 2</p>
+  <p class="section-heading">Room 2</p>
   <Gallery
     images={resolveGalleryList([
-      'gallery21/716cf24b.jpg',
-      'gallery21/ab4e17c6.jpg',
-      'gallery21/dddae266.jpg',
-      'gallery21/f3f31675.jpg',
-      'gallery21/88a002bb.jpg',
-      'gallery21/3ec6e4af.jpg',
-      'gallery21/03ac8647.jpg',
-      'gallery21/e83b206b.jpg',
+      "gallery21/716cf24b.jpg",
+      "gallery21/ab4e17c6.jpg",
+      "gallery21/dddae266.jpg",
+      "gallery21/f3f31675.jpg",
+      "gallery21/88a002bb.jpg",
+      "gallery21/3ec6e4af.jpg",
+      "gallery21/03ac8647.jpg",
+      "gallery21/e83b206b.jpg",
     ])}
   />
 </ContentPage>

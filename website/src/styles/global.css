@@ -13,6 +13,7 @@
 }
 
 @layer base {
+
   /* The old Carrd export used an 18pt (24px) root font size; keep the scale. */
   html {
     font-size: 24px;
@@ -42,8 +43,18 @@
     min-width: 320px;
     overflow-x: hidden;
     word-wrap: break-word;
+    font-family: var(--font-gochi);
     color: #fff;
     text-align: center;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-caveat);
   }
 
   /* Fixed page background: bg.webp under a heavy dark overlay (--page-bg-image set in Base.astro) */
@@ -63,15 +74,24 @@
 }
 
 @layer components {
+
   /* Section heading (h2 on content pages) */
   .page-heading {
-    font-family: var(--font-averia);
+    font-family: var(--font-caveat);
     font-size: 2.375em;
-    line-height: 1.75;
-    font-style: italic;
+    line-height: 1.2;
     font-weight: 700;
     color: rgba(250, 129, 252, 0.71);
     text-shadow: -0.075rem 0.1rem 0.125rem #ffffff;
+  }
+
+  /* Inline section title (e.g. gallery room labels) */
+  .section-heading {
+    font-family: var(--font-caveat);
+    font-size: 1.75em;
+    line-height: 1.2;
+    font-weight: 700;
+    color: rgba(235, 152, 152, 0.71);
   }
 
   /* Handwritten body text used on most content pages */
@@ -85,9 +105,9 @@
     text-shadow: 0.073rem 0.101rem 0.125rem #a80000;
   }
 
-  /* Pink-on-black subtitle (home pages) */
+  /* Supporting body copy (home taglines, captions) */
   .subtitle-text {
-    font-family: var(--font-averia);
+    font-family: var(--font-gochi);
     font-size: 1.5em;
     line-height: 1.75;
     color: rgba(235, 152, 152, 0.71);
