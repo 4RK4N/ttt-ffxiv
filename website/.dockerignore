@@ -1,6 +1,7 @@
 node_modules
 dist
 .astro
+.astro-cache
 npm-debug.log*
 .git
 .gitignore
