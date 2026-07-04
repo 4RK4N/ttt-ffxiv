@@ -1,6 +1,6 @@
 ---
 import type { ImageMetadata } from "astro";
-import { Image, getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import {
   ICON_LAYOUT_PX,
@@ -8,6 +8,7 @@ import {
   remScaledSizes,
   remScaledWidths,
 } from "../data/layout";
+import { buildResponsivePreload } from "../data/preload";
 import type { Lang } from "../data/nav";
 
 interface Props {
@@ -23,26 +24,15 @@ const { title, lang, path, heading, icon } = Astro.props;
 const iconSizes = remScaledSizes(ICON_REM);
 const iconWidths = icon ? remScaledWidths(ICON_REM) : [];
 const lcpPreload = icon
-  ? {
-      srcset: (
-        await Promise.all(
-          iconWidths.map((w) =>
-            getImage({ src: icon, width: w, format: "webp" }),
-          ),
-        )
-      )
-        .map((img, i) => `${img.src} ${iconWidths[i]}w`)
-        .join(", "),
-      sizes: iconSizes,
-    }
+  ? await buildResponsivePreload(icon, iconWidths, iconSizes)
   : undefined;
 ---
 
 <Base title={title} lang={lang} path={path} lcpPreload={lcpPreload}>
-  <section
-    class="mx-auto flex w-full max-w-[45rem] flex-col items-center gap-7 px-6 py-14"
-  >
-    <h1 class="page-heading">{heading}</h1>
+  <section class="content-section">
+    <h1 class="page-heading">
+      <span class="page-heading__text" data-text={heading}>{heading}</span>
+    </h1>
     {
       icon && (
         <Image

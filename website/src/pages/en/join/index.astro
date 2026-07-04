@@ -3,6 +3,7 @@ import ContentPage from '../../../components/ContentPage.astro';
 import Gallery from '../../../components/Gallery.astro';
 import DiscordButton from '../../../components/DiscordButton.astro';
 import { pageIcons, resolveGalleryList } from '../../../data/images';
+import { DISCORD_TTT } from '../../../data/site';
 ---
 
 <ContentPage
@@ -19,7 +20,7 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
       greater</strong>
     </p>
     <p>
-      <em><strong>Then we invite you<br /> to become part of our story.</strong></em> ღ
+      <em><strong>Then we invite you<br /> to become part of our story.</strong></em>
     </p>
   </div>
   <Gallery
@@ -31,5 +32,5 @@ import { pageIcons, resolveGalleryList } from '../../../data/images';
       'gallery17/7a80e7c4.jpg',
     ])}
   />
-  <DiscordButton href="https://discord.gg/JjWMxjAPBe" />
+  <DiscordButton href={DISCORD_TTT} />
 </ContentPage>

@@ -1,13 +1,7 @@
 ---
-// DE homepage, served at the legacy URL /de.html. It is built here under
-// /de-home/ to avoid an Astro route collision with /de/ (the welcome page)
-// and moved to de.html by the legacy-de-html integration in astro.config.mjs.
-import HomePage from "../../components/HomePage.astro";
+// DE homepage at the legacy URL /de.html. Authored under /de-home/ and moved to
+// de.html at build time by the legacy-de-html integration in astro.config.mjs.
+import HomePage from '../../components/HomePage.astro';
 ---
 
-<HomePage
-  title="Tiny Temptation Tubs"
-  lang="de"
-  path="/de.html"
-  tagline="Wähle deinen Pfad"
-/>
+<HomePage title="Tiny Temptation Tubs" lang="de" path="/de.html" />

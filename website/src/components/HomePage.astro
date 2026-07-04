@@ -1,5 +1,5 @@
 ---
-import { Image, getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Timer from "./Timer.astro";
 import DiscordButton from "./DiscordButton.astro";
@@ -9,6 +9,9 @@ import {
   remScaledSizes,
   remScaledWidths,
 } from "../data/layout";
+import { homeCopy } from "../data/home";
+import { buildResponsivePreload } from "../data/preload";
+import { DISCORD_TTT, EVENT_TIMESTAMP, SERVER_LINE } from "../data/site";
 import type { Lang } from "../data/nav";
 import { homeCircle } from "../data/images";
 
@@ -16,32 +19,22 @@ interface Props {
   title: string;
   lang: Lang;
   path: string;
-  tagline: string;
 }
 
-const { title, lang, path, tagline } = Astro.props;
+const { title, lang, path } = Astro.props;
 
-const EVENT_TIMESTAMP = 1783188000;
+const copy = homeCopy[lang];
 const heroSizes = remScaledSizes(HERO_REM);
 const heroWidths = remScaledWidths(HERO_REM);
-const lcpPreload = {
-  srcset: (
-    await Promise.all(
-      heroWidths.map((w) =>
-        getImage({ src: homeCircle, width: w, format: "webp" }),
-      ),
-    )
-  )
-    .map((img, i) => `${img.src} ${heroWidths[i]}w`)
-    .join(", "),
-  sizes: heroSizes,
-};
+const lcpPreload = await buildResponsivePreload(
+  homeCircle,
+  heroWidths,
+  heroSizes,
+);
 ---
 
 <Base title={title} lang={lang} path={path} heroLcp lcpPreload={lcpPreload}>
-  <section
-    class="mx-auto flex w-full max-w-[45rem] flex-col items-center gap-7 px-6 py-14"
-  >
+  <section class="content-section">
     <Image
       src={homeCircle}
       alt=""
@@ -53,11 +46,24 @@ const lcpPreload = {
       fetchpriority="high"
       class="w-72 max-w-full"
     />
-    <h1 class="page-heading">Tiny Temptation Tubs</h1>
-    <p class="subtitle-text">Event Timer</p>
+    <h1 class="page-heading">
+      <span class="page-heading__text" data-text="Tiny Temptation Tubs"
+        >Tiny Temptation Tubs</span
+      >
+    </h1>
+    <h2>{copy.openingHeading}</h2>
     <Timer lang={lang} timestamp={EVENT_TIMESTAMP} />
-    <p class="subtitle-text">{tagline}</p>
-    <p class="subtitle-text">Light, Alpha, Lavender Beds, W2, P51</p>
-    <DiscordButton href="https://discord.gg/JjWMxjAPBe" />
+    <p class="hand-text hand-text--home">
+      {
+        copy.introLines.map((line, i) => (
+          <>
+            {i > 0 && <br />}
+            {line}
+          </>
+        ))
+      }
+    </p>
+    <p class="subtitle-text">{SERVER_LINE}</p>
+    <DiscordButton href={DISCORD_TTT} />
   </section>
 </Base>

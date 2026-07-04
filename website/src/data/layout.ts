@@ -12,7 +12,7 @@ export const ROOT_FONT_SCALES = [
 /** Card images go full-width below this (matches narrow content layout). */
 export const NARROW_CONTENT_BP_PX = 720;
 
-/** max-w-[45rem] column minus px-6 (1.5rem × 2) padding */
+/** Inner content width: max-w-[45rem] section minus px-6 (1.5rem × 2). */
 export const CONTENT_COLUMN_PX = 42 * ROOT_FONT_PX;
 
 /** w-56 = 14rem — ContentPage icon */

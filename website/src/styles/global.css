@@ -5,16 +5,23 @@
   --font-gochi: var(--font-gochi-face), cursive;
   --font-caveat: var(--font-caveat-face), cursive;
 
-  /* Topbar palette (carried over from the old custom topbar) */
   --color-bar-bg: rgba(26, 20, 16, 0.94);
   --color-bar-border: rgba(212, 175, 120, 0.25);
   --color-bar-text: #f5e6d0;
   --color-bar-accent: #d4af78;
+
+  --color-page-overlay: rgb(0 0 0 / 0.86);
+  --color-body-text: rgb(255 255 255 / 0.71);
+  --color-heading-h2: rgb(250 129 252 / 0.71);
+  --color-heading-h3: rgb(235 152 152 / 0.71);
+  --color-subtitle: rgb(235 152 152 / 0.71);
+  --color-page-heading-bottom: #fc0000;
+  --color-page-heading-top: #ff5cbe;
 }
 
 @layer base {
 
-  /* The old Carrd export used an 18pt (24px) root font size; keep the scale. */
+  /* Responsive root scale — 24px desktop; layout.ts tracks the same breakpoints. */
   html {
     font-size: 24px;
     background-color: #000;
@@ -57,7 +64,7 @@
     font-family: var(--font-caveat);
   }
 
-  /* Fixed page background: bg.webp under a heavy dark overlay (--page-bg-image set in Base.astro) */
+  /* Fixed page background (--page-bg-image set in Base.astro) */
   body::before {
     content: '';
     position: fixed;
@@ -65,36 +72,59 @@
     z-index: -1;
     pointer-events: none;
     background-image:
-      linear-gradient(to top, rgba(0, 0, 0, 0.859), rgba(0, 0, 0, 0.859)),
+      linear-gradient(var(--color-page-overlay), var(--color-page-overlay)),
       var(--page-bg-image);
-    background-position: 0% 0%, center;
-    background-repeat: repeat, no-repeat;
-    background-size: auto, cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 }
 
 @layer components {
 
-  /* Page title (h1) */
+  .content-section {
+    @apply mx-auto flex w-full max-w-[45rem] flex-col items-center gap-7 px-6 py-14;
+  }
+
+  /* Page title (h1) — layered mask gradient; flex-shrink:0 prevents tail clipping */
   .page-heading {
+    flex-shrink: 0;
+    width: max-content;
+    max-width: 100%;
+    overflow: visible;
     font-size: 3.625em;
     line-height: 1.2;
     font-weight: 700;
-    background-image: linear-gradient(to bottom, #ff5cbe, #fc0000);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
   }
 
-  /* In-content section headings */
+  .page-heading__text {
+    position: relative;
+    display: inline-block;
+    padding-inline: 0.05em 0.12em;
+    color: var(--color-page-heading-bottom);
+  }
+
+  .page-heading__text::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--color-page-heading-top);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* 2.1875rem = 1.75 × hand-text (1.25em) — rem avoids em compounding inside .hand-text */
   main h2 {
     width: 100%;
-    font-size: 1.75em;
+    font-size: 2.1875rem;
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: normal;
-    color: rgba(250, 129, 252, 0.71);
-    text-shadow: -0.075rem 0.1rem 0.125rem #ffffff;
+    color: var(--color-heading-h2);
+    text-shadow: -0.075rem 0.1rem 0.125rem #fff;
     text-align: center;
   }
 
@@ -104,34 +134,29 @@
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: normal;
-    color: rgba(235, 152, 152, 0.71);
+    color: var(--color-heading-h3);
     text-align: left;
   }
 
-  /* Handwritten body text used on most content pages */
-  .hand-text,
-  .rules-text {
+  .hand-text {
     width: 100%;
     font-family: var(--font-gochi);
     font-size: 1.25em;
     line-height: 1.625;
     letter-spacing: 0.2rem;
-    color: rgba(255, 255, 255, 0.71);
+    color: var(--color-body-text);
     text-align: left;
     hyphens: auto;
   }
 
-  .hand-text--welcome {
-    font-size: 1.875em;
-    line-height: 1.75;
-    color: rgba(0, 0, 0, 0.7);
+  .hand-text--home {
+    text-align: center;
   }
 
-  /* Supporting body copy (home taglines, captions) */
   .subtitle-text {
     font-family: var(--font-gochi);
     font-size: 1.5em;
     line-height: 1.75;
-    color: rgba(235, 152, 152, 0.71);
+    color: var(--color-subtitle);
   }
 }

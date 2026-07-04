@@ -1,11 +1,13 @@
+import { SERVER_LINE } from './site';
+
 export type Lang = 'de' | 'en';
 
 export const siteName = 'Tiny Temptation Tubs';
 
 /** Default meta / Open Graph description per language. */
 export const siteDescription: Record<Lang, string> = {
-  en: 'Step inside, leave your worries behind. A cozy FFXIV roleplay bathhouse on Light, Alpha, Lavender Beds, W2, P51.',
-  de: 'Tritt ein und lege die Last des Alltags ab. Ein gemütliches FFXIV-RP-Badehaus auf Light, Alpha, Lavender Beds, W2, P51.',
+  en: `Step inside, leave your worries behind. A cozy FFXIV roleplay bathhouse on ${SERVER_LINE}.`,
+  de: `Tritt ein und lege die Last des Alltags ab. Ein gemütliches FFXIV-RP-Badehaus auf ${SERVER_LINE}.`,
 };
 
 export interface NavItem {
@@ -47,8 +49,6 @@ export const homePath: Record<Lang, string> = {
 export const pathMap: Record<string, Record<Lang, string>> = {
   '/': { de: '/de.html', en: '/' },
   '/de.html': { de: '/de.html', en: '/' },
-  '/de/': { de: '/de/', en: '/en/' },
-  '/en/': { de: '/de/', en: '/en/' },
   '/de/uber-uns/': { de: '/de/uber-uns/', en: '/en/about/' },
   '/en/about/': { de: '/de/uber-uns/', en: '/en/about/' },
   '/de/regeln/': { de: '/de/regeln/', en: '/en/rules/' },

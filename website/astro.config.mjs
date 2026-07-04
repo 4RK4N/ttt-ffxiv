@@ -8,19 +8,37 @@ import path from 'node:path';
 
 const site = 'https://ttt-ffxiv.eu';
 
+/** Old welcome-hub URLs → language homepages (mirrored in nginx.conf for production). */
+const legacyRedirects = {
+  '/de/': '/de.html',
+  '/en/': '/',
+};
+
 /**
- * The DE homepage lives at the legacy URL /de.html, but a page file at
- * src/pages/de.astro would collide with src/pages/de/index.astro (both claim
- * the "/de" route). So the page is authored at src/pages/de-home/ and this
- * integration moves the built file to de.html; in dev, /de.html is rewritten
- * to /de-home/ so the URL works there too.
+ * The DE homepage is served at the legacy URL /de.html. It is authored at
+ * src/pages/de-home/ and moved to de.html at build time; in dev, /de.html is
+ * rewritten to /de-home/ so the URL works there too.
  */
 const legacyDeHtml = {
   name: 'legacy-de-html',
   hooks: {
     'astro:server:setup': ({ server }) => {
-      server.middlewares.use((req, _res, next) => {
-        if (req.url === '/de.html') req.url = '/de-home/';
+      server.middlewares.use((req, res, next) => {
+        if (req.url === '/de.html') {
+          req.url = '/de-home/';
+          next();
+          return;
+        }
+        if (req.url === '/de/' || req.url === '/de') {
+          res.writeHead(301, { Location: legacyRedirects['/de/'] });
+          res.end();
+          return;
+        }
+        if (req.url === '/en/' || req.url === '/en') {
+          res.writeHead(301, { Location: legacyRedirects['/en/'] });
+          res.end();
+          return;
+        }
         next();
       });
     },
@@ -35,6 +53,7 @@ const legacyDeHtml = {
 export default defineConfig({
   site,
   build: { format: 'preserve' },
+  redirects: legacyRedirects,
   prefetch: {
     defaultStrategy: 'hover',
     prefetchAll: false,

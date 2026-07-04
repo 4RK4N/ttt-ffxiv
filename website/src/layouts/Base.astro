@@ -36,7 +36,7 @@ const metaDescription = description ?? siteDescription[lang];
 const shareImage = "https://ttt-ffxiv.eu/assets/images/share.jpg";
 
 const nav = navItems[lang];
-const alt = pathMap[path] ?? { de: "/de/", en: "/en/" };
+const alt = pathMap[path] ?? { de: "/de.html", en: "/" };
 const canonical =
   "https://ttt-ffxiv.eu" + (path === "/" ? "" : path.replace(/\/$/, ""));
 
@@ -51,7 +51,7 @@ const isActive = (itemPath: string) => itemPath === path;
     <title>{title}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="color-scheme" content="light only" />
+    <meta name="color-scheme" content="dark" />
     <meta name="description" content={metaDescription} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />

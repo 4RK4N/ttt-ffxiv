@@ -10,6 +10,8 @@ data/*/texts.json
 
 *.log
 npm-debug.log*
+core
+core.*
 .DS_Store
 .cursor/
 .vscode/
