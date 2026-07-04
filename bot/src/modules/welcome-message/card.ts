@@ -1,5 +1,5 @@
 import { createCanvas, GlobalFonts, loadImage, type SKRSContext2D } from '@napi-rs/canvas';
-import { moduleDataPath } from '../../core/texts.js';
+import { moduleDataPath } from '../../../../shared/core/texts.js';
 
 // Assets live in the runtime data dir (data/welcome-message/), so they can be
 // swapped without a rebuild and are not tied to the compiled output.

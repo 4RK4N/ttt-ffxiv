@@ -293,23 +293,17 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 `COMPOSE_BAKE=true` — keep that enabled so builds go through Bake/Buildx and the
 `nproc` ulimits in `docker-compose.yml` take effect.
 
-Use [`scripts/build.sh`](scripts/build.sh) for deploy builds. It builds images **one at a
-time** (avoids OOM on small hosts), always passes **`--no-cache`** (guarantees fresh
-HTML/CSS/JS), and relies on BuildKit cache mounts in the Dockerfiles for npm downloads
-and Astro processed-image reuse.
-
 ```bash
-chmod +x scripts/build.sh   # once, on Linux/macOS
-./scripts/build.sh
+docker compose build --no-cache && docker compose up -d --force-recreate
 ```
 
-This builds:
+This builds and recreates:
 
-- **`ttt-discord-bot:1.0.0`** — multi-stage Node 24: compile TypeScript (`npm run build` → `dist/`), runtime image with production dependencies only.
-- **`ttt-web-editor:1.0.0`** — same compile step, separate runtime image (`node dist/src/web/server.js`). Shares the builder stage with the bot in one compose build.
+- **`ttt-discord-bot:1.0.0`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only (`bot/Dockerfile`).
+- **`ttt-web-editor:1.0.0`** — separate compile + runtime image (`npm run build:web-admin` → `dist/web-admin/`, `node dist/web-admin/src/server.js`; `web-admin/Dockerfile`).
 - **`ttt-website:1.0.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
-Then recreates all running containers (`docker compose up -d --force-recreate`).
+Use **`--no-cache`** on deploy builds so HTML/CSS/JS are not served from stale image layers.
 
 ---
 
@@ -389,7 +383,11 @@ After **website** source changes, rebuild and restart the website service:
 docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website
 ```
 
-For a full stack deploy (bot + website), use `./scripts/build.sh` instead.
+For a full stack deploy (bot + web editor + website), use the same command as Part 4:
+
+```bash
+docker compose build --no-cache && docker compose up -d --force-recreate
+```
 
 For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
 
@@ -432,7 +430,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Stop the bot                   | `docker compose down`                    |
 | Start the bot                  | `docker compose up -d`                   |
 | Restart the bot                | `docker compose restart ttt-discord-bot` |
-| Rebuild after code changes     | `./scripts/build.sh` |
+| Rebuild after code changes     | `docker compose build --no-cache && docker compose up -d --force-recreate` |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy` |
 | Rebuild web editor after edits | `docker compose build --no-cache ttt-web-editor && docker compose up -d --force-recreate ttt-web-editor` |
 | Rebuild website after edits    | `docker compose build --no-cache ttt-website && docker compose up -d --force-recreate ttt-website` |
@@ -441,7 +439,7 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 
 ```bash
 git pull
-./scripts/build.sh
+docker compose build --no-cache && docker compose up -d --force-recreate
 # only if commands changed:
 docker compose run --rm ttt-discord-bot npm run deploy
 ```
@@ -453,11 +451,14 @@ docker compose run --rm ttt-discord-bot npm run deploy
 If you prefer not to use Compose:
 
 ```bash
-# Build (bot is the default Dockerfile target)
-docker build -t ttt-discord-bot .
+# Bot
+docker build -f bot/Dockerfile -t ttt-discord-bot:1.0.0 .
 
-# Web editor (optional separate image)
-docker build --target ttt-web-editor -t ttt-web-editor .
+# Web editor
+docker build -f web-admin/Dockerfile -t ttt-web-editor:1.0.0 .
+
+# Website
+docker build -f website/Dockerfile -t ttt-website:1.0.0 website/
 
 # Register commands (one-off). The -v mount provides data/config.json.
 docker run --rm -v "$(pwd)/data:/app/data" ttt-discord-bot npm run deploy

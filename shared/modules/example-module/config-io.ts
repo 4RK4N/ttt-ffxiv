@@ -6,7 +6,7 @@
  *
  * ## Simple modules (default)
  *
- * Re-export reads from types.ts. Writes go through web editor → src/web/store.ts
+ * Re-export reads from types.ts. Writes go through web editor → web-admin/src/store.ts
  * (which calls invalidateModuleCache so config() / texts() hot-reload).
  *
  * ## Panel modules

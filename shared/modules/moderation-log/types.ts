@@ -1,5 +1,30 @@
 import { createModuleConfig } from '../../core/moduleConfig.js';
-import { TEXT_DEFAULTS as EMBED_TEXT_DEFAULTS, type ModLogTexts } from './embeds.js';
+
+export interface ModLogTexts {
+  messageDeleted: string;
+  messageDeletedEmpty: string;
+  authorUnknown: string;
+  memberLeft: string;
+  memberKicked: string;
+  memberBanned: string;
+  memberUnbanned: string;
+  executorUnknown: string;
+  footerMessageId: string;
+  footerUserId: string;
+}
+
+export const TEXT_DEFAULTS: ModLogTexts = {
+  messageDeleted: '🗑️ Message sent by {author} deleted in {channel}',
+  messageDeletedEmpty: '[no text content]',
+  authorUnknown: 'Unknown user',
+  memberLeft: '📤 {mention} has left the server',
+  memberKicked: '👮 {mention} has been kicked by {executorId}',
+  memberBanned: '👮 🔒 {mention} has been banned by {executorId}',
+  memberUnbanned: '🔓 {mention} has been unbanned by {executorId}',
+  executorUnknown: 'Unknown',
+  footerMessageId: 'Message ID: {messageId}',
+  footerUserId: 'ID: {userId}',
+};
 
 export interface ModLogConfig {
   channelId: string;
@@ -18,8 +43,6 @@ export const CONFIG_DEFAULTS: ModLogConfig = {
   logMemberBanned: true,
   logMemberUnbanned: true,
 };
-
-export const TEXT_DEFAULTS: ModLogTexts = EMBED_TEXT_DEFAULTS;
 
 const module = createModuleConfig('moderation-log', CONFIG_DEFAULTS, TEXT_DEFAULTS);
 

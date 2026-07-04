@@ -1,36 +1,38 @@
 # Module template
 
 Reference layout for a new bot module. **This folder is not loaded by the bot** — the module
-loader only discovers `src/modules/<name>/index.js`. Copy this folder to
-`src/modules/<your-module-name>/` when adding a feature.
+loader only discovers `bot/src/modules/<name>/index.js`. Copy bot + shared template files when
+adding a feature.
 
-Also see [MODULES.md](../../../MODULES.md) (catalog + data layout) and
-[`.cursor/rules/module-template.mdc`](../../.cursor/rules/module-template.mdc).
+Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
+[`.cursor/rules/module-template.mdc`](../../../../.cursor/rules/module-template.mdc).
 
 ## Quick start
 
-1. Copy `src/examples/module-template/` → `src/modules/<name>/` (kebab-case namespace).
-2. In `types.ts`: set `NAMESPACE` via `createModuleConfig('<name>', …)` to match the folder name.
+1. Copy `bot/src/examples/module-template/` → `bot/src/modules/<name>/` and
+   `shared/modules/example-module/` → `shared/modules/<name>/` (kebab-case namespace).
+2. In `shared/modules/<name>/types.ts`: set `NAMESPACE` via `createModuleConfig('<name>', …)` to match the folder name.
 3. Copy `data/example-module/` → project **`data/<namespace>/`** (Docker volume). Rename
    `*.example.json` → `config.json` / `texts.json`.
-4. Wire `index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
-5. Add `web-plugin.json` if the module should appear in the web editor.
-6. **Panel modules only:** wire `validate.ts` in `src/web/store.ts` and register publish routes in
-   `src/web/publishHandlers.ts`.
+4. Wire `bot/src/modules/<name>/index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
+5. Add `shared/modules/<name>/web-plugin.json` if the module should appear in the web editor.
+6. **Panel modules only:** wire `validate.ts` in `web-admin/src/store.ts` and register publish routes in
+   `web-admin/src/publishHandlers.ts`.
 7. Run `npm run deploy` after adding or changing slash commands.
 
 ## File map
 
-| File | Purpose |
-|------|---------|
-| [`types.ts`](types.ts) | Interfaces, defaults, `createModuleConfig`, `config()`, `texts()`, `resolve*()` |
-| [`config-io.ts`](config-io.ts) | IO boundary — **handlers import from here**, not `types.ts` |
-| [`handlers.ts`](handlers.ts) | Example patterns: guards, config/text reads, interactions |
-| [`index.ts`](index.ts) | `CommandModule` export only |
-| [`web-plugin.json`](web-plugin.json) | Web editor manifest (`title`, `description`, `fields`) |
-| [`validate.ts`](validate.ts) | Panel/list row validation (web editor save) — optional |
-| [`panel.ts`](panel.ts) | Panel publish payload — panel modules only |
-| [`data/example-module/`](data/example-module/) | Seed JSON for `data/<namespace>/` |
+| Location | File | Purpose |
+|----------|------|---------|
+| `shared/modules/<name>/` | `types.ts` | Interfaces, defaults, `createModuleConfig`, `config()`, `texts()`, `resolve*()` |
+| `shared/modules/<name>/` | `config-io.ts` | IO boundary — **handlers import from here**, not `types.ts` |
+| `bot/src/modules/<name>/` | `handlers.ts` | Example patterns: guards, config/text reads, interactions |
+| `bot/src/modules/<name>/` | `index.ts` | `CommandModule` export only |
+| `shared/modules/<name>/` | `web-plugin.json` | Web editor manifest (`title`, `description`, `fields`) |
+| `shared/modules/<name>/` | `validate.ts` | Panel/list row validation (web editor save) — optional |
+| `shared/modules/<name>/` | `panel.ts` | Panel publish payload — panel modules only |
+| `shared/modules/<name>/` | `publisher.ts` | Publish/unpublish for web editor — panel modules only |
+| `data/example-module/` | (under this folder) | Seed JSON for `data/<namespace>/` |
 
 ## Import rule
 
@@ -48,7 +50,7 @@ data/<namespace>/texts.json   ──►  texts()   in types.ts  ──►  re-ex
 ```
 
 - **Defaults** in `types.ts` are fallbacks; JSON overrides at runtime.
-- Reads are **mtime-cached** in `src/core/texts.ts` — web editor writes call
+- Reads are **mtime-cached** in `shared/core/texts.ts` — web editor writes call
   `invalidateModuleCache(namespace)` so the bot sees edits without restart.
 - **`isModuleEnabled(NAMESPACE)`** checks `config.enabled !== false` (web editor toggle).
 - **No `text-io.ts`** — texts are edited via web editor or hand; only config list items use
@@ -77,21 +79,21 @@ Reuse these instead of duplicating logic:
 
 | Module | Use for |
 |--------|---------|
-| [`src/core/moduleConfig.ts`](../../core/moduleConfig.ts) | `createModuleConfig`, `resolveKeyedItem` |
-| [`src/core/texts.ts`](../../core/texts.ts) | `format`, `isModuleEnabled`, `getConfig`/`getTexts` (via factory) |
-| [`src/core/discordInteractions.ts`](../../core/discordInteractions.ts) | `replyEphemeral`, `memberHasAnyRole` |
-| [`src/core/discordRoles.ts`](../../core/discordRoles.ts) | `tryAssignRole`, `tryRemoveRole` |
-| [`src/core/threads.ts`](../../core/threads.ts) | `buildThreadName`, `startAndPopulateCommentsThread` |
-| [`src/core/panelFields.ts`](../../core/panelFields.ts) | `parsePanelBaseFields` (validators) |
-| [`src/core/panelPublisher.ts`](../../core/panelPublisher.ts) | Publish/unpublish orchestration |
+| [`shared/core/moduleConfig.ts`](../../../../shared/core/moduleConfig.ts) | `createModuleConfig`, `resolveKeyedItem` |
+| [`shared/core/texts.ts`](../../../../shared/core/texts.ts) | `format`, `isModuleEnabled`, `getConfig`/`getTexts` (via factory) |
+| [`shared/core/discordInteractions.ts`](../../../../shared/core/discordInteractions.ts) | `replyEphemeral`, `memberHasAnyRole` |
+| [`shared/core/discordRoles.ts`](../../../../shared/core/discordRoles.ts) | `tryAssignRole`, `tryRemoveRole` |
+| [`shared/core/threads.ts`](../../../../shared/core/threads.ts) | `buildThreadName`, `startAndPopulateCommentsThread` |
+| [`shared/core/panelFields.ts`](../../../../shared/core/panelFields.ts) | `parsePanelBaseFields` (validators) |
+| [`shared/core/panelPublisher.ts`](../../../../shared/core/panelPublisher.ts) | Publish/unpublish orchestration |
 
 ## Web editor validation
 
 **Discord IDs (snowflakes):** `channel`, `role`, `channel-multi`, and `role-multi` fields are
-validated on save in `src/web/store.ts` (17–20 digits; empty = unset). See
+validated on save in `web-admin/src/store.ts` (17–20 digits; empty = unset). See
 [`web-plugin.json`](web-plugin.json) `channelId` field.
 
-**Panel / list rows:** add `validate.ts` and wire it in `src/web/store.ts` inside the
+**Panel / list rows:** add `validate.ts` and wire it in `web-admin/src/store.ts` inside the
 `writeValues()` object-list loop (same pattern as `custom-embeds`, `reaction-roles`, `tickets`):
 
 ```typescript
@@ -105,7 +107,7 @@ if (plugin.namespace === '<your-namespace>' && field.key === '<listKey>') {
 }
 ```
 
-See [`validate.ts`](validate.ts) and [`src/modules/tickets/validate.ts`](../../modules/tickets/validate.ts)
+See [`validate.ts`](validate.ts) and [`shared/modules/tickets/validate.ts`](../../../../shared/modules/tickets/validate.ts)
 for full examples.
 
 ## Module loader patterns (`index.ts`)
@@ -115,7 +117,7 @@ for full examples.
 | `init(client)` | `client.on(Events.…)` listeners |
 | `commands[]` | Slash commands — requires `npm run deploy` |
 | `componentRoutes[]` | `{ prefix: '<namespace>:', handle }` for buttons/selects |
-| `publish*()` | Panel modules — register in `src/web/publishHandlers.ts` |
+| `publish*()` | Panel modules — register in `web-admin/src/publishHandlers.ts` |
 
 ## Data folder
 

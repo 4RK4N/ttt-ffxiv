@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
-import { MAX_PANEL_OPTIONS } from '../core/limits.js';
-import { slugify, toStringArray } from '../core/strings.js';
-import { invalidateModuleCache, moduleDataPath } from '../core/texts.js';
-import { writeJsonAtomic } from '../core/jsonWrite.js';
-import { validateEmbedPanelRow } from '../modules/custom-embeds/validate.js';
-import { validateRolePanelRow } from '../modules/reaction-roles/validate.js';
-import { validateTicketTypeRow } from '../modules/tickets/validate.js';
+import { MAX_PANEL_OPTIONS } from '../../shared/core/limits.js';
+import { slugify, toStringArray } from '../../shared/core/strings.js';
+import { invalidateModuleCache, moduleDataPath } from '../../shared/core/texts.js';
+import { writeJsonAtomic } from '../../shared/core/jsonWrite.js';
+import { validateEmbedPanelRow } from '../../shared/modules/custom-embeds/validate.js';
+import { validateRolePanelRow } from '../../shared/modules/reaction-roles/validate.js';
+import { validateTicketTypeRow } from '../../shared/modules/tickets/validate.js';
 import type { WebPlugin, WebPluginField, WebPluginSubField, WebFieldStore } from './plugins.js';
 import {
   isBooleanField,

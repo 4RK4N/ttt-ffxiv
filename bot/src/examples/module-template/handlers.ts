@@ -4,10 +4,10 @@
  * Import runtime config/texts from config-io.ts (not types.ts).
  * Import types from types.ts only when you need interfaces.
  */
-import { format, isModuleEnabled } from '../../core/texts.js';
-import { memberHasAnyRole, replyEphemeral } from '../../core/discordInteractions.js';
+import { format, isModuleEnabled } from '../../../../shared/core/texts.js';
+import { memberHasAnyRole, replyEphemeral } from '../../../../shared/core/discordInteractions.js';
 import type { Message } from 'discord.js';
-import { NAMESPACE, targetChannelId, texts } from './config-io.js';
+import { NAMESPACE, targetChannelId, texts } from '../../../../shared/modules/example-module/config-io.js';
 
 // Optional core imports (uncomment when needed):
 // import { tryAssignRole } from '../../core/discordRoles.js';

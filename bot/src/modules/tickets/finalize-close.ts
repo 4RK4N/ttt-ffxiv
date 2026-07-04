@@ -5,8 +5,8 @@ import {
   type ThreadChannel,
 } from 'discord.js';
 import { buildClosedThreadName } from './names.js';
-import { DELETE_PREFIX } from './panel.js';
-import type { ResolvedTicketType } from './types.js';
+import { DELETE_PREFIX } from '../../../../shared/modules/tickets/panel.js';
+import type { ResolvedTicketType } from '../../../../shared/modules/tickets/types.js';
 
 /** Bot-created private threads have the bot as owner, not the opener. */
 export async function resolveOpenerUserId(

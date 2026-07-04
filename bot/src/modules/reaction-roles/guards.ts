@@ -1,8 +1,8 @@
 import type { MessageComponentInteraction } from 'discord.js';
-import { replyEphemeral } from '../../core/discordInteractions.js';
-import { isModuleEnabled } from '../../core/texts.js';
-import { NAMESPACE, resolvePanel, texts } from './config-io.js';
-import type { ReactionType, ResolvedRolePanel } from './types.js';
+import { replyEphemeral } from '../../../../shared/core/discordInteractions.js';
+import { isModuleEnabled } from '../../../../shared/core/texts.js';
+import { NAMESPACE, resolvePanel, texts } from '../../../../shared/modules/reaction-roles/config-io.js';
+import type { ReactionType, ResolvedRolePanel } from '../../../../shared/modules/reaction-roles/types.js';
 
 export type PanelGuardResult =
   | { ok: true; panel: ResolvedRolePanel; t: ReturnType<typeof texts> }

@@ -1,4 +1,4 @@
-import { slugify } from '../core/strings.js';
+import { slugify } from '../../shared/core/strings.js';
 import type { WebPluginField, WebPluginSubField, WebPluginVisibleWhen } from './plugin-types.js';
 
 export interface SubFieldReader {

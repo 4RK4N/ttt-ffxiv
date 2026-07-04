@@ -10,8 +10,8 @@ import {
   type TextBasedChannel,
   type TextChannel,
 } from 'discord.js';
-import type { CommandModule } from '../../core/moduleLoader.js';
-import { isModuleEnabled } from '../../core/texts.js';
+import type { CommandModule } from '../../moduleLoader.js';
+import { isModuleEnabled } from '../../../../shared/core/texts.js';
 import { findRecentBan, findRecentKick, findRecentUnban } from './audit.js';
 import {
   buildMemberBannedEmbed,
@@ -21,7 +21,7 @@ import {
   buildMessageDeletedEmbed,
   resolveDeleteAuthor,
 } from './embeds.js';
-import { NAMESPACE, config, logChannelId, texts } from './config-io.js';
+import { NAMESPACE, config, logChannelId, texts } from '../../../../shared/modules/moderation-log/config-io.js';
 
 const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;

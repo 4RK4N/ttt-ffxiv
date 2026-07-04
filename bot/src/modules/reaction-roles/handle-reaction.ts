@@ -5,11 +5,11 @@ import {
   type PartialMessageReaction,
   type User,
 } from 'discord.js';
-import { isModuleEnabled } from '../../core/texts.js';
+import { isModuleEnabled } from '../../../../shared/core/texts.js';
 import { isOnCooldown, touchCooldown } from './cooldown.js';
-import { matchOptionByReaction } from './panel.js';
-import { tryAssignRole, tryRemoveRole } from '../../core/discordRoles.js';
-import { findPanelByMessageId, NAMESPACE } from './config-io.js';
+import { matchOptionByReaction } from '../../../../shared/modules/reaction-roles/panel.js';
+import { tryAssignRole, tryRemoveRole } from '../../../../shared/core/discordRoles.js';
+import { findPanelByMessageId, NAMESPACE } from '../../../../shared/modules/reaction-roles/config-io.js';
 
 async function handleReaction(
   reaction: MessageReaction | PartialMessageReaction,

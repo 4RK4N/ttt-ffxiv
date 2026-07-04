@@ -1,7 +1,7 @@
 /**
  * Web editor row validation (panel / object-list modules).
  *
- * Called from src/web/store.ts when saving object-list fields. Wire your validator
+ * Called from web-admin/src/store.ts when saving object-list fields. Wire your validator
  * in the writeValues() loop — see README.md "Web editor validation".
  */
 import { parsePanelBaseFields } from '../../core/panelFields.js';
@@ -28,4 +28,4 @@ export function validateExamplePanelRow(
   validateExamplePanel(base);
 }
 
-// Richer list validation: see src/modules/tickets/validate.ts
+// Richer list validation: see shared/modules/tickets/validate.ts

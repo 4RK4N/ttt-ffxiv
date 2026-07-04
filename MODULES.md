@@ -1,6 +1,7 @@
 # Modules
 
-Bot features live under `src/modules/<name>/` and runtime config under `data/<name>/`.
+Bot features live under `bot/src/modules/<name>/` (handlers) and `shared/modules/<name>/`
+(types, config-io, panels). Runtime config under `data/<name>/`.
 The [web editor](README.md#web-editor) edits `config.json` / `texts.json` per module;
 changes hot-reload without restart.
 
@@ -90,27 +91,29 @@ Channel and role fields in the web editor are validated as Discord IDs (numeric 
 
 Every production module follows the same shape:
 
-| File | Role |
-|------|------|
-| `types.ts` | `createModuleConfig`, defaults, `config()`, `texts()`, `resolve*()` |
-| `config-io.ts` | IO boundary — **handlers import from here** |
-| `index.ts` | `CommandModule` export only |
-| `web-plugin.json` | Web editor fields (optional) |
-| `validate.ts` | Row validation for object-lists (panel modules) |
-| `panel.ts` | Publish payload (panel modules) |
+| Location | File | Role |
+|----------|------|------|
+| `shared/modules/<name>/` | `types.ts` | `createModuleConfig`, defaults, `config()`, `texts()`, `resolve*()` |
+| `shared/modules/<name>/` | `config-io.ts` | IO boundary — **handlers import from here** |
+| `shared/modules/<name>/` | `web-plugin.json` | Web editor fields (optional) |
+| `shared/modules/<name>/` | `validate.ts` | Row validation for object-lists (panel modules) |
+| `shared/modules/<name>/` | `panel.ts` | Publish payload (panel modules) |
+| `bot/src/modules/<name>/` | `index.ts` | `CommandModule` export only |
+| `bot/src/modules/<name>/` | `handlers.ts` | Event/command handlers (recommended) |
 
-**Simple modules:** `config-io.ts` re-exports reads.  
+**Simple modules:** `config-io.ts` re-exports reads.
 **Panel modules:** add `createConfigIo` for publish-time config patches (`published`, `panelMessageId`, …).
 
-**Adding a module:** copy [`src/examples/module-template/`](src/examples/module-template/) →
-`src/modules/<name>/`. The loader picks up any folder with `index.ts` automatically.
-Panel modules also register publish routes in `src/web/publishHandlers.ts` and validators in
-`src/web/store.ts`.
+**Adding a module:** copy [`bot/src/examples/module-template/`](bot/src/examples/module-template/) →
+`bot/src/modules/<name>/` and `shared/modules/example-module/` → `shared/modules/<name>/`.
+The loader picks up any folder with `index.ts` automatically.
+Panel modules also register publish routes in `web-admin/src/publishHandlers.ts` and validators in
+`web-admin/src/store.ts`.
 
-Shared helpers: `src/core/moduleConfig.ts`, `discordInteractions.ts`, `discordRoles.ts`,
+Shared helpers: `shared/core/moduleConfig.ts`, `discordInteractions.ts`, `discordRoles.ts`,
 `threads.ts`, `panelFields.ts`, `panelPublisher.ts`.
 
-See the [module template README](src/examples/module-template/README.md) for full patterns.
+See the [module template README](bot/src/examples/module-template/README.md) for full patterns.
 
 ---
 

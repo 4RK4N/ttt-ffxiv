@@ -7,13 +7,13 @@ import {
   type Attachment,
   type SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
-import type { CommandModule } from '../../core/moduleLoader.js';
+import type { CommandModule } from '../../moduleLoader.js';
 import {
   buildThreadName,
   startAndPopulateCommentsThread,
-} from '../../core/threads.js';
-import { format, isModuleEnabled } from '../../core/texts.js';
-import { NAMESPACE, texts } from './config-io.js';
+} from '../../../../shared/core/threads.js';
+import { format, isModuleEnabled } from '../../../../shared/core/texts.js';
+import { NAMESPACE, texts } from '../../../../shared/modules/pic-repost-commands/config-io.js';
 
 const MAX_IMAGES = 10;
 

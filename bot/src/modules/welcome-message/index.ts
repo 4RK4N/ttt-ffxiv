@@ -5,15 +5,15 @@ import {
   type Client,
   type GuildMember,
 } from 'discord.js';
-import type { CommandModule } from '../../core/moduleLoader.js';
-import { format, isModuleEnabled } from '../../core/texts.js';
+import type { CommandModule } from '../../moduleLoader.js';
+import { format, isModuleEnabled } from '../../../../shared/core/texts.js';
 import { renderWelcomeCard } from './card.js';
 import {
   NAMESPACE,
   rulesChannelLink,
   texts,
   welcomeChannelId,
-} from './config-io.js';
+} from '../../../../shared/modules/welcome-message/config-io.js';
 
 // Discord error code returned when a user's DMs are closed to the bot.
 const CANNOT_SEND_DM = 50007;

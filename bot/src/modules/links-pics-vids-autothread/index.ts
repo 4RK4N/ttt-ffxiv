@@ -1,11 +1,11 @@
 import { Events, GuildMember, type Client, type Message } from 'discord.js';
-import type { CommandModule } from '../../core/moduleLoader.js';
+import type { CommandModule } from '../../moduleLoader.js';
 import {
   buildThreadName,
   startAndPopulateCommentsThread,
-} from '../../core/threads.js';
-import { isModuleEnabled } from '../../core/texts.js';
-import { NAMESPACE, channelIds, texts } from './config-io.js';
+} from '../../../../shared/core/threads.js';
+import { isModuleEnabled } from '../../../../shared/core/texts.js';
+import { NAMESPACE, channelIds, texts } from '../../../../shared/modules/links-pics-vids-autothread/config-io.js';
 import { extractSupportedPostUrls } from './urls.js';
 
 const URL_REGEX = /https?:\/\/[^\s<>]+/gi;

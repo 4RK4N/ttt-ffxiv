@@ -9,17 +9,18 @@ system so new features can be added without refactoring the core.
 
 ## How to add a new module
 
-Copy the reference template — it is **not loaded by the bot** (only `src/modules/*/index.ts` is).
+Copy the reference template — it is **not loaded by the bot** (only `bot/src/modules/*/index.ts` is).
 
 1. **Copy source files**
    ```text
-   src/examples/module-template/  →  src/modules/<name>/
+   bot/src/examples/module-template/  →  bot/src/modules/<name>/   (handlers, index.ts)
+   shared/modules/example-module/     →  shared/modules/<name>/     (types, config-io, web-plugin.json, …)
    ```
    Use kebab-case for `<name>` (e.g. `my-feature`). Delete unused files (`panel.ts`, `validate.ts` for simple modules).
 
-2. **Set the namespace** in `types.ts` — `createModuleConfig('<name>', …)` must match the folder name and data path.
+2. **Set the namespace** in `shared/modules/<name>/types.ts` — `createModuleConfig('<name>', …)` must match the folder name and data path.
 
-3. **Seed runtime data** — copy `src/examples/module-template/data/example-module/` to `data/<name>/` on the host (Docker volume `./data:/app/data`). Rename `*.example.json` → `config.json` / `texts.json`.
+3. **Seed runtime data** — copy `bot/src/examples/module-template/data/example-module/` to `data/<name>/` on the host (Docker volume `./data:/app/data`). Rename `*.example.json` → `config.json` / `texts.json`.
 
 4. **Wire `index.ts`** — export a `CommandModule` with at least one of:
    - `init(client)` — event listeners
@@ -28,9 +29,9 @@ Copy the reference template — it is **not loaded by the bot** (only `src/modul
 
 5. **Web editor (optional)** — keep/adapt `web-plugin.json`; rebuild so `copy-web-plugins.js` copies it to `dist/`.
 
-6. **Panel modules only** — uncomment panel blocks in `types.ts` / `config-io.ts`, add `validate.ts` wiring in `src/web/store.ts`, register publish in `src/web/publishHandlers.ts`.
+6. **Panel modules only** — uncomment panel blocks in `types.ts` / `config-io.ts`, add `validate.ts` wiring in `web-admin/src/store.ts`, register publish in `web-admin/src/publishHandlers.ts`.
 
-Handlers import config/texts from **`config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`src/examples/module-template/README.md`](src/examples/module-template/README.md).
+Handlers import config/texts from **`config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
 
 ```bash
 npm run build
@@ -38,7 +39,7 @@ npm run deploy    # if you added slash commands
 npm start
 ```
 
-No core changes needed — [`moduleLoader.ts`](src/core/moduleLoader.ts) discovers the new folder automatically.
+No core changes needed — [`moduleLoader.ts`](bot/src/moduleLoader.ts) discovers the new folder automatically.
 
 ## Modules (summary)
 
@@ -58,14 +59,12 @@ the bot hot-reloads on the next event.
 ## Project layout
 
 ```
-src/
-  index.ts, config.ts
-  core/           # loader, texts, panels, discord helpers
-  modules/        # one folder per feature (see MODULES.md)
-  examples/module-template/   # reference layout (not loaded)
-  web/            # web editor (separate process)
-data/             # config.json, per-module config + texts (gitignored secrets)
-scripts/          # deploy-commands, copy-web-plugins
+shared/           core/, config.ts, modules/ (types, config-io, validate, panel, publisher)
+bot/src/          index.ts, moduleLoader.ts, modules/ (handlers + index.ts), examples/
+web-admin/src/    web editor server + UI
+website/          Astro public site (see INSTALL.md § Part 7)
+data/             config.json, per-module config + texts (gitignored secrets)
+scripts/          deploy-commands, copy-web-plugins
 ```
 
 ## Web editor

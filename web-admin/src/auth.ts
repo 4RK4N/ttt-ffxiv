@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
 import type { WebConfig } from './config.js';
-import { DISCORD_API, discordBotFetch } from '../core/discordApi.js';
+import { DISCORD_API, discordBotFetch } from '../../shared/core/discordApi.js';
 
 const AUTHORIZE_URL = 'https://discord.com/oauth2/authorize';
 const OAUTH_SCOPES = 'identify guilds';

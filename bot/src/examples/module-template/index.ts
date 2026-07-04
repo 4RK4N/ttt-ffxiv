@@ -1,6 +1,6 @@
 /**
- * Module entry point — discovered by src/core/moduleLoader.ts at
- * src/modules/<name>/index.ts (compiled to index.js).
+ * Module entry point — discovered by bot/src/moduleLoader.ts at
+ * bot/src/modules/<name>/index.ts (compiled to index.js).
  */
 import {
   Events,
@@ -10,9 +10,9 @@ import {
   type Client,
   type MessageComponentInteraction,
 } from 'discord.js';
-import type { CommandModule, ComponentRoute } from '../../core/moduleLoader.js';
-import { replyEphemeral } from '../../core/discordInteractions.js';
-import { NAMESPACE, targetChannelId } from './config-io.js';
+import type { CommandModule, ComponentRoute } from '../../moduleLoader.js';
+import { replyEphemeral } from '../../../../shared/core/discordInteractions.js';
+import { NAMESPACE, targetChannelId } from '../../../../shared/modules/example-module/config-io.js';
 import {
   disabledReply,
   greetingForUser,
@@ -119,7 +119,7 @@ export async function unpublishExamplePanel(panelId: string): Promise<void> {
   return panelPublisher.unpublish(panelId);
 }
 
-// Also register in src/web/publishHandlers.ts and wire validate.ts in store.ts.
+// Also register in web-admin/src/publishHandlers.ts and wire validate.ts in store.ts.
 */
 
 // =============================================================================

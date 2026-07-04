@@ -10,7 +10,7 @@ import type {
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
-import { isModuleEnabled } from './texts.js';
+import { isModuleEnabled } from '../../shared/core/texts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, '..', 'modules');
@@ -55,7 +55,7 @@ export interface LoadedModules {
 }
 
 /**
- * Discovers every module under src/modules/*\/index.js and aggregates the slash
+ * Discovers every module under bot/src/modules (each folder's index.js) and aggregates the slash
  * commands they export.
  *
  * Each module's default export (or named `module`) should match `CommandModule`.

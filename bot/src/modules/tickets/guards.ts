@@ -1,9 +1,9 @@
 import type { ButtonInteraction, ThreadChannel } from 'discord.js';
-import { replyEphemeral } from '../../core/discordInteractions.js';
-import { isModuleEnabled } from '../../core/texts.js';
+import { replyEphemeral } from '../../../../shared/core/discordInteractions.js';
+import { isModuleEnabled } from '../../../../shared/core/texts.js';
 import { isClosedTicketThread } from './names.js';
-import { NAMESPACE, resolveTicketType, texts } from './config-io.js';
-import type { ResolvedTicketType } from './types.js';
+import { NAMESPACE, resolveTicketType, texts } from '../../../../shared/modules/tickets/config-io.js';
+import type { ResolvedTicketType } from '../../../../shared/modules/tickets/types.js';
 
 export interface TicketThreadGuardOptions {
   /** When true, reject closed/locked ticket threads. */

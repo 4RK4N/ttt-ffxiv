@@ -1,7 +1,6 @@
 node_modules/
 dist/
 .astro/
-.astro-cache/
 # Runtime config holds secrets (token, OAuth, channel IDs). Keep the *.example.json
 # templates tracked, but never commit the real config.json files.
 data/config.json

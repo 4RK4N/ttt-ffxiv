@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isFieldVisible, liveRowValues } from '../src/web/editor-logic.js';
+import { isFieldVisible, liveRowValues } from '../web-admin/src/editor-logic.js';
 
 describe('liveRowValues', () => {
   it('preserves existing id', () => {

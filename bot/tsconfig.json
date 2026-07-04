@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "../dist/bot/src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../shared"
+    }
+  ]
+}

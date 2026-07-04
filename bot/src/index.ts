@@ -1,6 +1,6 @@
 import { Client, Events, GatewayIntentBits, MessageFlags, Partials, type Interaction } from 'discord.js';
-import { config } from './config.js';
-import { loadModules } from './core/moduleLoader.js';
+import { config } from '../../shared/config.js';
+import { loadModules } from './moduleLoader.js';
 
 // Generic fallback shown when a command handler throws. Not module-specific, so
 // it stays in code rather than a module's texts.json.

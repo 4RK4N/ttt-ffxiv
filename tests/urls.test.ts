@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSupportedPostUrl } from '../src/modules/links-pics-vids-autothread/urls.js';
+import { isSupportedPostUrl } from '../bot/src/modules/links-pics-vids-autothread/urls.js';
 
 describe('isSupportedPostUrl', () => {
   it('accepts x.com status links', () => {

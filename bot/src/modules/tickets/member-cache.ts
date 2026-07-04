@@ -4,11 +4,11 @@ import {
   type Client,
   type GuildMember,
 } from 'discord.js';
-import { config } from '../../config.js';
+import { config } from '../../../../shared/config.js';
 import {
   removeMemberDisplayName,
   setMemberDisplayName,
-} from '../../core/memberDisplayNames.js';
+} from '../../../../shared/core/memberDisplayNames.js';
 import { warmGuildMemberCache } from './thread-members.js';
 
 export interface CachedMember {

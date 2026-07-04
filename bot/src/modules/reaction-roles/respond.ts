@@ -1,5 +1,5 @@
-import { format } from '../../core/texts.js';
-import type { ResolvedRolePanel } from './types.js';
+import { format } from '../../../../shared/core/texts.js';
+import type { ResolvedRolePanel } from '../../../../shared/modules/reaction-roles/types.js';
 
 export interface EphemeralContext {
   mention: string;

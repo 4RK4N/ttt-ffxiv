@@ -1,34 +1,9 @@
 import type { EmbedBuilder } from 'discord.js';
-import { buildEmbed } from '../../core/embedBuilder.js';
-import { format } from '../../core/texts.js';
+import { buildEmbed } from '../../../../shared/core/embedBuilder.js';
+import { format } from '../../../../shared/core/texts.js';
+import type { ModLogTexts } from '../../../../shared/modules/moderation-log/types.js';
 
 const MAX_CONTENT_LENGTH = 1_000;
-
-export interface ModLogTexts {
-  messageDeleted: string;
-  messageDeletedEmpty: string;
-  authorUnknown: string;
-  memberLeft: string;
-  memberKicked: string;
-  memberBanned: string;
-  memberUnbanned: string;
-  executorUnknown: string;
-  footerMessageId: string;
-  footerUserId: string;
-}
-
-export const TEXT_DEFAULTS: ModLogTexts = {
-  messageDeleted: '🗑️ Message sent by {author} deleted in {channel}',
-  messageDeletedEmpty: '[no text content]',
-  authorUnknown: 'Unknown user',
-  memberLeft: '📤 {mention} has left the server',
-  memberKicked: '👮 {mention} has been kicked by {executorId}',
-  memberBanned: '👮 🔒 {mention} has been banned by {executorId}',
-  memberUnbanned: '🔓 {mention} has been unbanned by {executorId}',
-  executorUnknown: 'Unknown',
-  footerMessageId: 'Message ID: {messageId}',
-  footerUserId: 'ID: {userId}',
-};
 
 /** Resolved author for a deleted message — works with full or partial API payloads. */
 export interface ResolvedDeleteAuthor {

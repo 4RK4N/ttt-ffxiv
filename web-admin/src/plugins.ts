@@ -24,7 +24,7 @@ export type {
 } from './plugin-types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const MODULES_DIR = join(__dirname, '..', 'modules');
+const MODULES_DIR = join(__dirname, '../../shared/modules');
 
 const VALID_SCALAR_TYPES: WebPluginSubField['type'][] = [
   'text',

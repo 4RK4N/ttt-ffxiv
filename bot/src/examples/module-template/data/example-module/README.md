@@ -23,7 +23,7 @@ host — bind-mounted to `/app/data` inside the bot and web-editor containers
    texts.example.json   →  texts.json
    ```
 
-3. Edit via the web editor (once `web-plugin.json` is in `src/modules/<name>/`) or by hand.
+3. Edit via the web editor (once `web-plugin.json` is in `shared/modules/<name>/`) or by hand.
 
 ## Config vs texts
 
@@ -43,4 +43,4 @@ $DATA_DIR/example-module/
 ```
 
 Edits invalidate the bot's in-memory cache automatically (`invalidateModuleCache` in
-`src/web/store.ts`) — no restart required.
+`web-admin/src/store.ts`) — no restart required.

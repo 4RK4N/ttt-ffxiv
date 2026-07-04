@@ -8,8 +8,7 @@ services:
   ttt-discord-bot:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: ttt-discord-bot
+      dockerfile: bot/Dockerfile
       ulimits:
         nproc: 65535
 
@@ -27,8 +26,7 @@ services:
   ttt-web-editor:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: ttt-web-editor
+      dockerfile: web-admin/Dockerfile
       ulimits:
         nproc: 65535
 

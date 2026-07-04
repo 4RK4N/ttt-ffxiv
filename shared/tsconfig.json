@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../dist/shared",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

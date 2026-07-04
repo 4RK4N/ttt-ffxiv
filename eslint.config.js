@@ -6,7 +6,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['dist/', 'node_modules/', 'website/', '.astro/', '.astro-cache/', 'src/examples/'],
+    ignores: ['dist/', 'node_modules/', 'website/', '.astro/', 'bot/src/examples/'],
   },
   {
     files: ['scripts/**/*.js'],

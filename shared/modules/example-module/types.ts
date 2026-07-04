@@ -61,7 +61,7 @@ export function targetChannelId(): string | undefined {
 // per-item copy in texts.json (e.g. texts.panels[id]). Use resolveKeyedItem()
 // to merge config row + text row into one object for handlers and publish.
 //
-// Also add validate.ts and wire validateExamplePanelRow in src/web/store.ts.
+// Also add validate.ts and wire validateExamplePanelRow in web-admin/src/store.ts.
 //
 /*
 export interface ExamplePanelConfig {

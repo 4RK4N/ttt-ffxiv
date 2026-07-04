@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { formBodyToValues, parseBracketForm } from '../src/web/ui/editor/form-parse.js';
-import type { WebPlugin } from '../src/web/plugin-types.js';
+import { formBodyToValues, parseBracketForm } from '../web-admin/src/ui/editor/form-parse.js';
+import type { WebPlugin } from '../web-admin/src/plugin-types.js';
 
 describe('parseBracketForm', () => {
   it('parses flat scalar keys', () => {

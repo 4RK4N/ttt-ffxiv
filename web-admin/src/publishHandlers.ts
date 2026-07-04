@@ -1,7 +1,7 @@
-import { publishEmbedPanel, unpublishEmbedPanel } from '../modules/custom-embeds/index.js';
-import { publishRolePanel, unpublishRolePanel } from '../modules/reaction-roles/index.js';
-import { publishTicketPanel, unpublishTicketPanel } from '../modules/tickets/index.js';
-import type { DiscordApiContext } from '../core/panelPublish.js';
+import { publishEmbedPanel, unpublishEmbedPanel } from '../../shared/modules/custom-embeds/publisher.js';
+import { publishRolePanel, unpublishRolePanel } from '../../shared/modules/reaction-roles/publisher.js';
+import { publishTicketPanel, unpublishTicketPanel } from '../../shared/modules/tickets/publisher.js';
+import type { DiscordApiContext } from '../../shared/core/panelPublish.js';
 
 export interface PublishHandlers {
   publish: (ctx: DiscordApiContext, itemId: string) => Promise<void>;

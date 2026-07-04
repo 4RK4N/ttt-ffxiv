@@ -1,28 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "rootDir": ".",
-    "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": false,
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
-  },
-  "include": [
-    "src",
-    "scripts",
-    "tests"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests"
+  "files": [],
+  "references": [
+    {
+      "path": "./shared"
+    },
+    {
+      "path": "./bot"
+    },
+    {
+      "path": "./web-admin"
+    },
+    {
+      "path": "./scripts"
+    }
   ]
 }

@@ -1,6 +1,6 @@
 import { REST, Routes } from 'discord.js';
-import { config } from '../src/config.js';
-import { loadModules } from '../src/core/moduleLoader.js';
+import { config } from '../shared/config.js';
+import { loadModules } from '../bot/src/moduleLoader.js';
 
 async function main(): Promise<void> {
   const { commandData } = await loadModules({ skipDisabledCommands: true });

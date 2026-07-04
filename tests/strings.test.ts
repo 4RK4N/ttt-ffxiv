@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { slugify, toStringArray } from '../src/core/strings.js';
+import { slugify, toStringArray } from '../shared/core/strings.js';
 
 describe('toStringArray', () => {
   it('returns string elements only', () => {

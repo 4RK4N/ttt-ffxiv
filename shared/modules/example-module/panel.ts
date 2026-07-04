@@ -29,4 +29,4 @@ export async function publishPanel(ctx: DiscordApiContext, panel: ResolvedExampl
 }
 
 // createPanelPublisher expects: publishPanel(ctx, resolvedPanel) — pass the merged
-// resolve*() result. Register publish/unpublish in src/web/publishHandlers.ts.
+// resolve*() result. Register publish/unpublish in web-admin/src/publishHandlers.ts.
