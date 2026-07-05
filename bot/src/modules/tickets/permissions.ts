@@ -1,5 +1,5 @@
 import { PermissionFlagsBits, type GuildMember } from "discord.js";
-import { memberHasAnyRole } from "../../../../shared/core/discordInteractions.js";
+import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
 
 /** Configured staff roles or guild Administrator. */
 export function canStaffOrAdmin(

@@ -3,16 +3,16 @@ import {
   type GuildMember,
   type ThreadChannel,
 } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { guardTicketThreadAction } from "./guards.js";
 import { isClosedTicketThread } from "./names.js";
 import {
   buildConfirmRow,
   DELETE_CONFIRM_PREFIX,
   DELETE_PREFIX,
-} from "../../../../shared/modules/tickets/panel.js";
+} from "../../lib/modules/tickets/panel.js";
 import { canStaffOrAdmin } from "./permissions.js";
-import { texts } from "../../../../shared/modules/tickets/config-io.js";
+import { texts } from "../../lib/modules/tickets/config-io.js";
 
 interface ParsedDeleteCustomId {
   threadId: string;

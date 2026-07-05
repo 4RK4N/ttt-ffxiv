@@ -3,14 +3,14 @@ import {
   type GuildMember,
   type ThreadChannel,
 } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { format } from "../../../../shared/core/texts.js";
-import { tryAssignRole } from "../../../../shared/core/discordRoles.js";
+import { tryAssignRole } from "../../lib/core/discordRoles.js";
 import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
 import { guardTicketThreadAction } from "./guards.js";
-import { ROLE_ACTION_PREFIX } from "../../../../shared/modules/tickets/panel.js";
+import { ROLE_ACTION_PREFIX } from "../../lib/modules/tickets/panel.js";
 import { canStaffOrAdmin } from "./permissions.js";
-import { texts } from "../../../../shared/modules/tickets/config-io.js";
+import { texts } from "../../lib/modules/tickets/config-io.js";
 
 interface ParsedRoleActionCustomId {
   threadId: string;

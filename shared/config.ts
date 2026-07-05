@@ -13,6 +13,10 @@ interface RawConfig {
   sessionSecret?: string;
   oauthRedirectUri?: string;
   webPort?: number | string;
+  internalApiPort?: number | string;
+  internalApiSecret?: string;
+  internalApiBind?: string;
+  botInternalApiUrl?: string;
 }
 
 function loadRaw(): RawConfig {
@@ -21,8 +25,8 @@ function loadRaw(): RawConfig {
   } catch (err) {
     throw new Error(
       `Could not read configuration from "${CONFIG_FILE}". ` +
-        'Copy "data/config.example.json" to "data/config.json" and fill in the values. ' +
-        `(${(err as Error).message})`,
+      'Copy "data/config.example.json" to "data/config.json" and fill in the values. ' +
+      `(${(err as Error).message})`,
     );
   }
 }
@@ -40,7 +44,7 @@ function required(key: keyof RawConfig): string {
   if (!value) {
     throw new Error(
       `Missing required config value "${key}" in "${CONFIG_FILE}". ` +
-        'See "data/config.example.json" for the expected shape.',
+      'See "data/config.example.json" for the expected shape.',
     );
   }
   return value;
@@ -68,6 +72,10 @@ export interface Config {
   sessionSecret: string | undefined;
   oauthRedirectUri: string | undefined;
   webPort: number;
+  internalApiPort: number;
+  internalApiSecret: string | undefined;
+  internalApiBind: string | undefined;
+  botInternalApiUrl: string | undefined;
 }
 
 export const config: Config = {
@@ -85,4 +93,10 @@ export const config: Config = {
   oauthRedirectUri: trimmedOrUndefined(raw.oauthRedirectUri),
   // Port the web editor listens on.
   webPort: optionalPort(raw.webPort, 8088),
+  internalApiPort: optionalPort(raw.internalApiPort, 8087),
+  internalApiSecret: trimmedOrUndefined(raw.internalApiSecret),
+  internalApiBind: trimmedOrUndefined(raw.internalApiBind),
+  botInternalApiUrl:
+    trimmedOrUndefined(process.env.BOT_INTERNAL_API_URL) ??
+    trimmedOrUndefined(raw.botInternalApiUrl),
 };

@@ -10,15 +10,15 @@ import {
   emojiMatchKey,
   parseEmoji,
   reactionMatchKey,
-} from "../../core/discordEmoji.js";
+} from "../../../../../shared/core/discordEmoji.js";
 import { syncBotMessageReactions } from "../../core/discordReactions.js";
 import {
   publishDiscordMessage,
   type DiscordApiContext,
 } from "../../core/panelPublish.js";
-import type { ResolvedRolePanel, RoleOption } from "./types.js";
+import type { ResolvedRolePanel, RoleOption } from "../../../../../shared/modules/reaction-roles/types.js";
 import { resolvePanel } from "./config-io.js";
-import { validateRolePanel } from "./validate.js";
+import { validateRolePanel } from "../../../../../shared/modules/reaction-roles/validate.js";
 
 export type { DiscordApiContext };
 

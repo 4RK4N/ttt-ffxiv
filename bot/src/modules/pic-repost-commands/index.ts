@@ -11,13 +11,13 @@ import type { CommandModule } from "../../moduleLoader.js";
 import {
   buildThreadName,
   startAndPopulateCommentsThread,
-} from "../../../../shared/core/threads.js";
+} from "../../lib/core/threads.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
-import { resolveDisplayName } from "../../../../shared/core/memberDisplayNames.js";
+import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
 import {
   NAMESPACE,
   texts,
-} from "../../../../shared/modules/pic-repost-commands/config-io.js";
+} from "../../lib/modules/pic-repost-commands/config-io.js";
 
 const MAX_IMAGES = 10;
 const MAX_MESSAGE_LENGTH = 2000;

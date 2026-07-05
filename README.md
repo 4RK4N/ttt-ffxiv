@@ -15,7 +15,8 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 
    ```text
    bot/src/examples/module-template/  →  bot/src/modules/<name>/   (handlers, index.ts)
-   shared/modules/example-module/     →  shared/modules/<name>/     (types, config-io, web-plugin.json, …)
+   bot/src/lib/modules/example-module/  →  bot/src/lib/modules/<name>/  (config-io, types, panel…)
+   shared/modules/example-module/       →  shared/modules/<name>/     (web-plugin.json; panel: types + validate)
    ```
 
    Use kebab-case for `<name>` (e.g. `my-feature`). Delete unused files (`panel.ts`, `validate.ts` for simple modules).
@@ -31,9 +32,9 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 
 5. **Web editor (optional)** — keep/adapt `web-plugin.json`; rebuild so `copy-web-plugins.js` copies it to `dist/`.
 
-6. **Panel modules only** — uncomment panel blocks in `types.ts` / `config-io.ts`, add `validate.ts` wiring in `web-admin/src/store.ts`, register publish in `web-admin/src/publishHandlers.ts`.
+6. **Panel modules only** — shared `types.ts` + `validate.ts`, bot lib `panel.ts` / `publisher.ts`, wire validate in `web-admin/src/store.ts`, register namespace in `bot/src/internal-api/publishRegistry.ts`.
 
-Handlers import config/texts from **`config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
+Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
 
 ```bash
 npm run build

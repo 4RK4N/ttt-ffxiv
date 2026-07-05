@@ -11,7 +11,7 @@
  * Web editor writes call invalidateModuleCache() — config() / texts() pick up changes
  * without restart.
  */
-import { createModuleConfig } from "../../core/moduleConfig.js";
+import { createModuleConfig } from "../../../../../shared/core/moduleConfig.js";
 
 // =============================================================================
 // SIMPLE MODULE (default — delete panel section below if unused)

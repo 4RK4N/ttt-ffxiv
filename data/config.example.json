@@ -6,5 +6,8 @@
   "clientSecret": "oauth2-client-secret-web-editor-only",
   "sessionSecret": "long-random-string-web-editor-only",
   "oauthRedirectUri": "https://your-host/callback",
-  "webPort": 8088
+  "webPort": 8088,
+  "internalApiPort": 8087,
+  "internalApiSecret": "long-random-string-internal-api",
+  "botInternalApiUrl": "http://127.0.0.1:8087"
 }

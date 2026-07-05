@@ -1,4 +1,4 @@
-import { createModuleConfig } from "../../core/moduleConfig.js";
+import { createModuleConfig } from "../../../../../shared/core/moduleConfig.js";
 
 export interface ModLogTexts {
   messageDeleted: string;

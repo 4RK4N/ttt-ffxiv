@@ -10,28 +10,30 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 ## Quick start
 
 1. Copy `bot/src/examples/module-template/` → `bot/src/modules/<name>/` and
-   `shared/modules/example-module/` → `shared/modules/<name>/` (kebab-case namespace).
-2. In `shared/modules/<name>/types.ts`: set `NAMESPACE` via `createModuleConfig('<name>', …)` to match the folder name.
+   `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/` (kebab-case namespace).
+   Add `shared/modules/<name>/web-plugin.json` (and panel `types.ts` + `validate.ts` if needed).
+2. In `bot/src/lib/modules/<name>/types.ts` (or shared `types.ts` for panels): set namespace via `createModuleConfig('<name>', …)`.
 3. Copy `data/example-module/` → project **`data/<namespace>/`** (Docker volume). Rename
    `*.example.json` → `config.json` / `texts.json`.
 4. Wire `bot/src/modules/<name>/index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
 5. Add `shared/modules/<name>/web-plugin.json` if the module should appear in the web editor.
-6. **Panel modules only:** wire `validate.ts` in `web-admin/src/store.ts` and register publish routes in
-   `web-admin/src/publishHandlers.ts`.
+6. **Panel modules only:** wire `validate.ts` in `web-admin/src/store.ts` and register namespace in
+   `bot/src/internal-api/publishRegistry.ts`.
 7. Run `npm run deploy` after adding or changing slash commands.
 
 ## File map
 
 | Location                  | File                | Purpose                                                                         |
 | ------------------------- | ------------------- | ------------------------------------------------------------------------------- |
-| `shared/modules/<name>/`  | `types.ts`          | Interfaces, defaults, `createModuleConfig`, `config()`, `texts()`, `resolve*()` |
-| `shared/modules/<name>/`  | `config-io.ts`      | IO boundary — **handlers import from here**, not `types.ts`                     |
+| `bot/src/lib/modules/<name>/` | `types.ts`          | Interfaces, defaults, `createModuleConfig`, `config()`, `texts()` (non-panel) |
+| `shared/modules/<name>/`  | `types.ts`          | Panel modules — shared contract with web validators                           |
+| `bot/src/lib/modules/<name>/` | `config-io.ts`      | IO boundary — **handlers import from here**, not `types.ts`                     |
 | `bot/src/modules/<name>/` | `handlers.ts`       | Example patterns: guards, config/text reads, interactions                       |
 | `bot/src/modules/<name>/` | `index.ts`          | `CommandModule` export only                                                     |
 | `shared/modules/<name>/`  | `web-plugin.json`   | Web editor manifest (`title`, `description`, `fields`)                          |
 | `shared/modules/<name>/`  | `validate.ts`       | Panel/list row validation (web editor save) — optional                          |
-| `shared/modules/<name>/`  | `panel.ts`          | Panel publish payload — panel modules only                                      |
-| `shared/modules/<name>/`  | `publisher.ts`      | Publish/unpublish for web editor — panel modules only                           |
+| `bot/src/lib/modules/<name>/`  | `panel.ts`          | Panel publish payload — panel modules only                                      |
+| `bot/src/lib/modules/<name>/`  | `publisher.ts`      | Publish/unpublish — panel modules only                                          |
 | `data/example-module/`    | (under this folder) | Seed JSON for `data/<namespace>/`                                               |
 
 ## Import rule
@@ -81,11 +83,11 @@ Reuse these instead of duplicating logic:
 | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | [`shared/core/moduleConfig.ts`](../../../../shared/core/moduleConfig.ts)               | `createModuleConfig`, `resolveKeyedItem`                          |
 | [`shared/core/texts.ts`](../../../../shared/core/texts.ts)                             | `format`, `isModuleEnabled`, `getConfig`/`getTexts` (via factory) |
-| [`shared/core/discordInteractions.ts`](../../../../shared/core/discordInteractions.ts) | `replyEphemeral`, `memberHasAnyRole`                              |
-| [`shared/core/discordRoles.ts`](../../../../shared/core/discordRoles.ts)               | `tryAssignRole`, `tryRemoveRole`                                  |
-| [`shared/core/threads.ts`](../../../../shared/core/threads.ts)                         | `buildThreadName`, `startAndPopulateCommentsThread`               |
+| [`bot/src/lib/core/discordInteractions.ts`](../../lib/core/discordInteractions.ts) | `replyEphemeral`, `memberHasAnyRole`                              |
+| [`bot/src/lib/core/discordRoles.ts`](../../lib/core/discordRoles.ts)               | `tryAssignRole`, `tryRemoveRole`                                  |
+| [`bot/src/lib/core/threads.ts`](../../lib/core/threads.ts)                         | `buildThreadName`, `startAndPopulateCommentsThread`               |
 | [`shared/core/panelFields.ts`](../../../../shared/core/panelFields.ts)                 | `parsePanelBaseFields` (validators)                               |
-| [`shared/core/panelPublisher.ts`](../../../../shared/core/panelPublisher.ts)           | Publish/unpublish orchestration                                   |
+| [`bot/src/lib/core/panelPublisher.ts`](../../lib/core/panelPublisher.ts)           | Publish/unpublish orchestration                                   |
 
 ## Web editor validation
 
@@ -118,7 +120,7 @@ for full examples.
 | `init(client)`      | `client.on(Events.…)` listeners                                |
 | `commands[]`        | Slash commands — requires `npm run deploy`                     |
 | `componentRoutes[]` | `{ prefix: '<namespace>:', handle }` for buttons/selects       |
-| `publish*()`        | Panel modules — register in `web-admin/src/publishHandlers.ts` |
+| `publish*()`        | Panel modules — register in `bot/src/internal-api/publishRegistry.ts` |
 
 ## Data folder
 

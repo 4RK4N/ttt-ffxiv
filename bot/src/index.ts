@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import { config } from "../../shared/config.js";
 import { loadModules } from "./moduleLoader.js";
+import { startInternalApi } from "./internal-api/server.js";
 
 // Generic fallback shown when a command handler throws. Not module-specific, so
 // it stays in code rather than a module's texts.json.
@@ -147,6 +148,8 @@ async function main(): Promise<void> {
 
   process.once("SIGTERM", () => shutdown("SIGTERM"));
   process.once("SIGINT", () => shutdown("SIGINT"));
+
+  startInternalApi();
 
   await client.login(config.discordToken);
 }

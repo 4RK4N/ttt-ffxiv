@@ -1,5 +1,5 @@
-import { discordBotFetch } from "./discordApi.js";
-import { encodeEmojiForReaction } from "./discordEmoji.js";
+import { discordBotFetch } from "../../../../shared/core/discordApi.js";
+import { encodeEmojiForReaction } from "../../../../shared/core/discordEmoji.js";
 
 const MAX_ATTEMPTS = 5;
 const DEFAULT_DELAY_MS = 350;

@@ -1,6 +1,6 @@
 import { type ButtonInteraction } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
-import type { RoleChangeResult } from "../../../../shared/core/discordRoles.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
+import type { RoleChangeResult } from "../../lib/core/discordRoles.js";
 import { format } from "../../../../shared/core/texts.js";
 import type {
   ReactionRolesTexts,

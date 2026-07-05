@@ -106,7 +106,10 @@ copy it to `config.json` or `texts.json` and edit.
   "clientSecret": "oauth2-client-secret-web-editor-only",
   "sessionSecret": "long-random-string-web-editor-only",
   "oauthRedirectUri": "https://your-host/callback",
-  "webPort": 8088
+  "webPort": 8088,
+  "internalApiPort": 8087,
+  "internalApiSecret": "long-random-string-internal-api",
+  "botInternalApiUrl": "http://127.0.0.1:8087"
 }
 ```
 
@@ -120,11 +123,16 @@ copy it to `config.json` or `texts.json` and edit.
 | `sessionSecret`    | Editor only | Long random string used to sign the editor's session cookies. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.                                                                      |
 | `oauthRedirectUri` | Editor only | OAuth2 redirect URL, added verbatim under Developer Portal -> OAuth2 -> Redirects. Use the editor's public `/callback` URL (https makes the cookie `Secure`). For local dev: `http://localhost:8088/callback`.                   |
 | `webPort`          | No          | Port the editor listens on inside the container. Defaults to `8088`. Caddy proxies to this port (see `docker-compose.yml`), so changing it means updating that label too.                                                        |
+| `internalApiPort`  | No          | Port for the bot's internal publish API. Defaults to `8087`. Not exposed to the public internet — only reachable on the Docker internal network or `127.0.0.1` locally.                                                           |
+| `internalApiSecret`| **Editor + bot** | Shared secret for `X-Internal-Token` on internal API requests. Required when running the web editor (publish/unpublish panels). Generate like `sessionSecret`.                                                              |
+| `botInternalApiUrl`| **Editor**  | Base URL the web editor uses to reach the bot internal API. Local dev: `http://127.0.0.1:8087`. Docker: `http://ttt-discord-bot:8087` (also set via `BOT_INTERNAL_API_URL` env on the web container).                             |
+| `internalApiBind`  | No          | Address the bot internal API listens on. Defaults to `127.0.0.1` in dev and `0.0.0.0` in production (`NODE_ENV=production`).                                                                                                      |
 
 The four editor fields (`clientSecret`, `sessionSecret`, `oauthRedirectUri`,
-`webPort`) plus `guildId` are only needed if you run the browser-based editor;
-the bot process ignores them. The editor also uses `discordToken` (the bot
-token) to list the server's channels for its channel pickers. Session cookies
+`webPort`) plus `guildId`, `internalApiSecret`, and `botInternalApiUrl` are only needed if you run the browser-based editor;
+the bot process ignores OAuth fields. The editor uses `discordToken` (the bot
+token) to list the server's channels and roles. Panel publish/unpublish calls the
+bot internal API (not Discord REST directly). Session cookies
 use `SameSite=Lax` (required for OAuth — `Strict` breaks the Discord callback).
 Mutating API requests require a CSRF token (`X-CSRF-Token` header matching a
 signed cookie set at login). See [Web editor](README.md#web-editor).

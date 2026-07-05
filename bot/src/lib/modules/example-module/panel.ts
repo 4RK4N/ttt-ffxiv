@@ -35,4 +35,4 @@ export async function publishPanel(
 }
 
 // createPanelPublisher expects: publishPanel(ctx, resolvedPanel) — pass the merged
-// resolve*() result. Register publish/unpublish in web-admin/src/publishHandlers.ts.
+// resolve*() result. Register publish/unpublish in bot/src/internal-api/publishRegistry.ts.

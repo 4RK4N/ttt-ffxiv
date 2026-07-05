@@ -11,7 +11,7 @@ import {
   writeEnabled,
   writeValues,
 } from "../../store.js";
-import { getPublishHandlers } from "../../publishHandlers.js";
+import { publishPanel, resolveBotActionError, unpublishPanel } from "../../botClient.js";
 import { buildEditorModule, loadEditorContext, parseExpanded } from "./data.js";
 import { formBodyToValues } from "./form-parse.js";
 import {
@@ -370,16 +370,13 @@ export function registerHtmxRoutes(
     if (!plugin || !hasPublishableField(plugin)) {
       return c.text(`Module "${namespace}" does not support publishing.`, 404);
     }
-    const handlers = getPublishHandlers(namespace);
-    if (!handlers)
-      return c.text(`No publish handler registered for "${namespace}".`, 501);
 
     const body = await c.req.parseBody();
     const expanded = parseExpanded(c.req.query("expanded"));
     try {
       const values = formBodyToValues(plugin, body);
       await writeValues(plugin, values);
-      await handlers.publish({ botToken: deps.cfg.botToken }, itemId);
+      await publishPanel(deps.cfg, namespace, itemId);
       console.log(
         `[web] ${c.get("user").username} published ${namespace} panel "${itemId}".`,
       );
@@ -396,11 +393,14 @@ export function registerHtmxRoutes(
         />,
       );
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to publish panel.";
       const csrfToken = await ensureCsrfToken(c, deps.cfg);
       const ctx = await loadEditorContext(deps.cfg, csrfToken);
       const mod = buildEditorModule(plugin);
+      const message = resolveBotActionError(
+        ctx,
+        err,
+        "Failed to publish panel.",
+      );
       return c.html(
         <ModulePanel
           {...panelProps(mod, ctx, expanded, { ok: false, message })}
@@ -420,13 +420,10 @@ export function registerHtmxRoutes(
         404,
       );
     }
-    const handlers = getPublishHandlers(namespace);
-    if (!handlers)
-      return c.text(`No unpublish handler registered for "${namespace}".`, 501);
 
     const expanded = parseExpanded(c.req.query("expanded"));
     try {
-      await handlers.unpublish(itemId);
+      await unpublishPanel(deps.cfg, namespace, itemId);
       console.log(
         `[web] ${c.get("user").username} unpublished ${namespace} panel "${itemId}".`,
       );
@@ -443,11 +440,14 @@ export function registerHtmxRoutes(
         />,
       );
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to unpublish panel.";
       const csrfToken = await ensureCsrfToken(c, deps.cfg);
       const ctx = await loadEditorContext(deps.cfg, csrfToken);
       const mod = buildEditorModule(plugin);
+      const message = resolveBotActionError(
+        ctx,
+        err,
+        "Failed to unpublish panel.",
+      );
       return c.html(
         <ModulePanel
           {...panelProps(mod, ctx, expanded, { ok: false, message })}

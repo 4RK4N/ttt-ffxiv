@@ -26,7 +26,7 @@ import {
   config,
   logChannelId,
   texts,
-} from "../../../../shared/modules/moderation-log/config-io.js";
+} from "../../lib/modules/moderation-log/config-io.js";
 
 const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;

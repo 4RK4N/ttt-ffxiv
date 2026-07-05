@@ -1,4 +1,4 @@
-import { discordBotFetch } from "./discordApi.js";
+import { discordBotFetch } from "../../../../shared/core/discordApi.js";
 
 export interface DiscordApiContext {
   botToken: string;

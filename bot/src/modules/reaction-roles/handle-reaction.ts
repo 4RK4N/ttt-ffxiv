@@ -7,15 +7,15 @@ import {
 } from "discord.js";
 import { isModuleEnabled } from "../../../../shared/core/texts.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
-import { matchOptionByReaction } from "../../../../shared/modules/reaction-roles/panel.js";
+import { matchOptionByReaction } from "../../lib/modules/reaction-roles/panel.js";
 import {
   tryAssignRole,
   tryRemoveRole,
-} from "../../../../shared/core/discordRoles.js";
+} from "../../lib/core/discordRoles.js";
 import {
   findPanelByMessageId,
   NAMESPACE,
-} from "../../../../shared/modules/reaction-roles/config-io.js";
+} from "../../lib/modules/reaction-roles/config-io.js";
 
 async function handleReaction(
   reaction: MessageReaction | PartialMessageReaction,

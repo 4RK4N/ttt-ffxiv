@@ -1,5 +1,5 @@
 import { createConfigIo } from "../../core/configIo.js";
-import type { RolePanelConfig } from "./types.js";
+import type { RolePanelConfig } from "../../../../../shared/modules/reaction-roles/types.js";
 import {
   CONFIG_DEFAULTS,
   NAMESPACE,
@@ -8,7 +8,7 @@ import {
   resolveOption,
   resolvePanel,
   texts,
-} from "./types.js";
+} from "../../../../../shared/modules/reaction-roles/types.js";
 
 const io = createConfigIo<RolePanelConfig>(
   NAMESPACE,

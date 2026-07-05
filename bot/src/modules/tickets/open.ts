@@ -11,19 +11,19 @@ import {
   type ThreadChannel,
 } from "discord.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
-import { THREAD_AUTO_ARCHIVE_MINUTES } from "../../../../shared/core/threads.js";
+import { THREAD_AUTO_ARCHIVE_MINUTES } from "../../lib/core/threads.js";
 import { buildTicketThreadName, isClosedTicketThread } from "./names.js";
 import {
   CLOSE_PREFIX,
   ROLE_ACTION_PREFIX,
-} from "../../../../shared/modules/tickets/panel.js";
-import { memberHasAnyRole } from "../../../../shared/core/discordInteractions.js";
+} from "../../lib/modules/tickets/panel.js";
+import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
 import { addMembersToThread, collectStaffUserIds } from "./thread-members.js";
 import {
   resolveTicketType,
   texts,
   NAMESPACE,
-} from "../../../../shared/modules/tickets/config-io.js";
+} from "../../lib/modules/tickets/config-io.js";
 
 const openInFlight = new Set<string>();
 

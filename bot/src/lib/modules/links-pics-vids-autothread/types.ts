@@ -1,4 +1,4 @@
-import { createModuleConfig } from "../../core/moduleConfig.js";
+import { createModuleConfig } from "../../../../../shared/core/moduleConfig.js";
 import { DEFAULT_THREAD_FIRST_MESSAGE } from "../../core/threads.js";
 
 export interface AutoThreadTexts {

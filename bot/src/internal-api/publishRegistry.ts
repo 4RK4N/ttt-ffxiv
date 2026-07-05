@@ -1,23 +1,22 @@
 import {
   publishEmbedPanel,
   unpublishEmbedPanel,
-} from "../../shared/modules/custom-embeds/publisher.js";
+} from "../lib/modules/custom-embeds/publisher.js";
 import {
   publishRolePanel,
   unpublishRolePanel,
-} from "../../shared/modules/reaction-roles/publisher.js";
+} from "../lib/modules/reaction-roles/publisher.js";
 import {
   publishTicketPanel,
   unpublishTicketPanel,
-} from "../../shared/modules/tickets/publisher.js";
-import type { DiscordApiContext } from "../../shared/core/panelPublish.js";
+} from "../lib/modules/tickets/publisher.js";
+import type { DiscordApiContext } from "../lib/core/panelPublish.js";
 
 export interface PublishHandlers {
   publish: (ctx: DiscordApiContext, itemId: string) => Promise<void>;
   unpublish: (itemId: string) => Promise<void>;
 }
 
-/** Maps module namespace to publish/unpublish implementations. */
 export const publishHandlersByNamespace: Record<string, PublishHandlers> = {
   "custom-embeds": {
     publish: publishEmbedPanel,

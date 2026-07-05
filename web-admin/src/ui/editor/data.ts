@@ -1,5 +1,6 @@
 import type { WebPlugin } from "../../plugin-types.js";
 import type { WebConfig } from "../../config.js";
+import { BOT_HEALTH_ERROR, checkBotHealth } from "../../botClient.js";
 import { listGuildChannels } from "../../channels.js";
 import { listGuildRoles } from "../../roles.js";
 import { readEnabled, readValues } from "../../store.js";
@@ -14,22 +15,47 @@ export async function loadEditorContext(
   let roles: EditorContext["roles"] = [];
   let channelsError: string | null = null;
   let rolesError: string | null = null;
+  let botHealthError: string | null = null;
 
-  try {
-    channels = await listGuildChannels(cfg);
-  } catch (err) {
-    console.error("[web] Failed to load channels:", err);
+  const [channelsSettled, rolesSettled, botHealthy] = await Promise.all([
+    listGuildChannels(cfg).then(
+      (value) => ({ ok: true as const, value }),
+      (err: unknown) => ({ ok: false as const, err }),
+    ),
+    listGuildRoles(cfg).then(
+      (value) => ({ ok: true as const, value }),
+      (err: unknown) => ({ ok: false as const, err }),
+    ),
+    checkBotHealth(cfg),
+  ]);
+
+  if (channelsSettled.ok) {
+    channels = channelsSettled.value;
+  } else {
+    console.error("[web] Failed to load channels:", channelsSettled.err);
     channelsError = "Could not load channels.";
   }
 
-  try {
-    roles = await listGuildRoles(cfg);
-  } catch (err) {
-    console.error("[web] Failed to load roles:", err);
+  if (rolesSettled.ok) {
+    roles = rolesSettled.value;
+  } else {
+    console.error("[web] Failed to load roles:", rolesSettled.err);
     rolesError = "Could not load roles.";
   }
 
-  return { csrfToken, channels, roles, channelsError, rolesError };
+  if (!botHealthy) {
+    console.error("[web] Bot internal API health check failed.");
+    botHealthError = BOT_HEALTH_ERROR;
+  }
+
+  return {
+    csrfToken,
+    channels,
+    roles,
+    channelsError,
+    rolesError,
+    botHealthError,
+  };
 }
 
 export function buildEditorModule(plugin: WebPlugin) {

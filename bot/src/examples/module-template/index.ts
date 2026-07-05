@@ -11,11 +11,11 @@ import {
   type MessageComponentInteraction,
 } from "discord.js";
 import type { CommandModule, ComponentRoute } from "../../moduleLoader.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import {
   NAMESPACE,
   targetChannelId,
-} from "../../../../shared/modules/example-module/config-io.js";
+} from "../../lib/modules/example-module/config-io.js";
 import {
   disabledReply,
   greetingForUser,
@@ -124,7 +124,7 @@ export async function unpublishExamplePanel(panelId: string): Promise<void> {
   return panelPublisher.unpublish(panelId);
 }
 
-// Also register in web-admin/src/publishHandlers.ts and wire validate.ts in store.ts.
+// Also register in bot/src/internal-api/publishRegistry.ts and wire validate.ts in store.ts.
 */
 
 // =============================================================================

@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { buildEmbed } from "../../core/embedBuilder.js";
-import { parseEmoji } from "../../core/discordEmoji.js";
+import { parseEmoji } from "../../../../../shared/core/discordEmoji.js";
 import {
   publishDiscordMessage,
   type DiscordApiContext,

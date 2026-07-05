@@ -13,7 +13,7 @@ import {
   rulesChannelLink,
   texts,
   welcomeChannelId,
-} from "../../../../shared/modules/welcome-message/config-io.js";
+} from "../../lib/modules/welcome-message/config-io.js";
 
 // Discord error code returned when a user's DMs are closed to the bot.
 const CANNOT_SEND_DM = 50007;

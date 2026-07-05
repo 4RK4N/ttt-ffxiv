@@ -8,7 +8,7 @@ import { config } from "../../../../shared/config.js";
 import {
   removeMemberDisplayName,
   setMemberDisplayName,
-} from "../../../../shared/core/memberDisplayNames.js";
+} from "../../lib/core/memberDisplayNames.js";
 import { warmGuildMemberCache } from "./thread-members.js";
 
 export interface CachedMember {

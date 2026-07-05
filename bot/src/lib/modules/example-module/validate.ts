@@ -4,7 +4,7 @@
  * Called from web-admin/src/store.ts when saving object-list fields. Wire your validator
  * in the writeValues() loop — see README.md "Web editor validation".
  */
-import { parsePanelBaseFields } from "../../core/panelFields.js";
+import { parsePanelBaseFields } from "../../../../../shared/core/panelFields.js";
 
 interface ExamplePanelLike {
   panelTitle: string;

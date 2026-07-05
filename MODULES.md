@@ -1,9 +1,10 @@
 # Modules
 
-Bot features live under `bot/src/modules/<name>/` (handlers) and `shared/modules/<name>/`
-(types, config-io, panels). Runtime config under `data/<name>/`.
+Bot features live under `bot/src/modules/<name>/` (handlers), `bot/src/lib/modules/<name>/`
+(config-io, panels, publishers), and `shared/modules/<name>/` (web contract: types,
+validators, `web-plugin.json`). Runtime config under `data/<name>/`.
 The [web editor](README.md#web-editor) edits `config.json` / `texts.json` per module;
-changes hot-reload without restart.
+changes hot-reload without restart. Panel publish/unpublish goes through the bot internal API.
 
 Setup details and example JSON: [INSTALL.md](INSTALL.md#configuration-reference).
 
@@ -93,25 +94,27 @@ Every production module follows the same shape:
 
 | Location                  | File              | Role                                                                |
 | ------------------------- | ----------------- | ------------------------------------------------------------------- |
-| `shared/modules/<name>/`  | `types.ts`        | `createModuleConfig`, defaults, `config()`, `texts()`, `resolve*()` |
-| `shared/modules/<name>/`  | `config-io.ts`    | IO boundary — **handlers import from here**                         |
-| `shared/modules/<name>/`  | `web-plugin.json` | Web editor fields (optional)                                        |
+| `shared/modules/<name>/`  | `types.ts`        | Panel modules only — shared contract with web validators            |
 | `shared/modules/<name>/`  | `validate.ts`     | Row validation for object-lists (panel modules)                     |
-| `shared/modules/<name>/`  | `panel.ts`        | Publish payload (panel modules)                                     |
+| `shared/modules/<name>/`  | `web-plugin.json` | Web editor fields (optional)                                        |
+| `bot/src/lib/modules/<name>/` | `types.ts`    | Non-panel modules — defaults, `config()`, `texts()`                 |
+| `bot/src/lib/modules/<name>/` | `config-io.ts` | IO boundary — **handlers import from here**                         |
+| `bot/src/lib/modules/<name>/` | `panel.ts`     | Publish payload + custom IDs (panel modules)                        |
+| `bot/src/lib/modules/<name>/` | `publisher.ts` | Publish/unpublish (panel modules)                                   |
 | `bot/src/modules/<name>/` | `index.ts`        | `CommandModule` export only                                         |
 | `bot/src/modules/<name>/` | `handlers.ts`     | Event/command handlers (recommended)                                |
 
-**Simple modules:** `config-io.ts` re-exports reads.
-**Panel modules:** add `createConfigIo` for publish-time config patches (`published`, `panelMessageId`, …).
+**Simple modules:** `config-io.ts` re-exports reads from `bot/src/lib/modules/<name>/types.ts`.
+**Panel modules:** shared `types.ts` + `validate.ts`; bot lib holds `config-io`, `panel`, `publisher`.
 
 **Adding a module:** copy [`bot/src/examples/module-template/`](bot/src/examples/module-template/) →
-`bot/src/modules/<name>/` and `shared/modules/example-module/` → `shared/modules/<name>/`.
+`bot/src/modules/<name>/` and adapt `shared/modules/` + `bot/src/lib/modules/` as needed.
 The loader picks up any folder with `index.ts` automatically.
-Panel modules also register publish routes in `web-admin/src/publishHandlers.ts` and validators in
+Panel modules also register the namespace in `bot/src/internal-api/publishRegistry.ts` and validators in
 `web-admin/src/store.ts`.
 
-Shared helpers: `shared/core/moduleConfig.ts`, `discordInteractions.ts`, `discordRoles.ts`,
-`threads.ts`, `panelFields.ts`, `panelPublisher.ts`.
+Shared contract helpers: `shared/core/moduleConfig.ts`, `panelFields.ts`, `strings.ts`, `texts.ts`.
+Bot runtime helpers: `bot/src/lib/core/discordInteractions.ts`, `discordRoles.ts`, `threads.ts`, `panelPublisher.ts`.
 
 See the [module template README](bot/src/examples/module-template/README.md) for full patterns.
 

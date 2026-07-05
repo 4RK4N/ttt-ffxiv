@@ -2,16 +2,16 @@ import { type GuildMember, type StringSelectMenuInteraction } from "discord.js";
 import {
   memberHasAnyRole,
   replyEphemeral,
-} from "../../../../shared/core/discordInteractions.js";
+} from "../../lib/core/discordInteractions.js";
 import {
   tryAssignRole,
   tryRemoveRole,
-} from "../../../../shared/core/discordRoles.js";
+} from "../../lib/core/discordRoles.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import { guardPublishedPanel } from "./guards.js";
 import { formatEphemeralMessage } from "./respond.js";
-import { SEL_PREFIX } from "../../../../shared/modules/reaction-roles/panel.js";
-import { texts } from "../../../../shared/modules/reaction-roles/config-io.js";
+import { SEL_PREFIX } from "../../lib/modules/reaction-roles/panel.js";
+import { texts } from "../../lib/modules/reaction-roles/config-io.js";
 
 function parseSelectCustomId(customId: string): string | null {
   if (!customId.startsWith(SEL_PREFIX)) return null;

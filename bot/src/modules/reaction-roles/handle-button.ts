@@ -1,17 +1,17 @@
 import { type ButtonInteraction } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import {
   tryAssignRole,
   tryRemoveRole,
-} from "../../../../shared/core/discordRoles.js";
+} from "../../lib/core/discordRoles.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import { guardPublishedPanel } from "./guards.js";
 import { formatEphemeralMessage, replyRoleResult } from "./respond.js";
-import { BTN_PREFIX } from "../../../../shared/modules/reaction-roles/panel.js";
+import { BTN_PREFIX } from "../../lib/modules/reaction-roles/panel.js";
 import {
   resolveOption,
   texts,
-} from "../../../../shared/modules/reaction-roles/config-io.js";
+} from "../../lib/modules/reaction-roles/config-io.js";
 import type { ResolvedRolePanel } from "../../../../shared/modules/reaction-roles/types.js";
 
 function parseButtonCustomId(

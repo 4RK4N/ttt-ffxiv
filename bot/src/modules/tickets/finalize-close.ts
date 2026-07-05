@@ -6,7 +6,7 @@ import {
   type ThreadChannel,
 } from "discord.js";
 import { buildClosedThreadName } from "./names.js";
-import { DELETE_PREFIX } from "../../../../shared/modules/tickets/panel.js";
+import { DELETE_PREFIX } from "../../lib/modules/tickets/panel.js";
 import type { ResolvedTicketType } from "../../../../shared/modules/tickets/types.js";
 
 async function fetchOldestThreadMessage(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stripCustomEmoji } from "../shared/core/threads.js";
+import { stripCustomEmoji } from "../bot/src/lib/core/threads.js";
 
 describe("stripCustomEmoji", () => {
   it("removes custom emoji markup", () => {

@@ -3,14 +3,14 @@ import type { CommandModule } from "../../moduleLoader.js";
 import {
   buildThreadName,
   startAndPopulateCommentsThread,
-} from "../../../../shared/core/threads.js";
+} from "../../lib/core/threads.js";
 import { isModuleEnabled } from "../../../../shared/core/texts.js";
-import { resolveDisplayName } from "../../../../shared/core/memberDisplayNames.js";
+import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
 import {
   NAMESPACE,
   channelIds,
   texts,
-} from "../../../../shared/modules/links-pics-vids-autothread/config-io.js";
+} from "../../lib/modules/links-pics-vids-autothread/config-io.js";
 import { extractSupportedPostUrls, stripUrls } from "./urls.js";
 
 function hasImageOrVideoAttachment(message: Message): boolean {

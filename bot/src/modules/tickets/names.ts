@@ -1,4 +1,4 @@
-import { stripCustomEmoji } from "../../../../shared/core/threads.js";
+import { stripCustomEmoji } from "../../lib/core/threads.js";
 
 const THREAD_NAME_MAX = 100;
 const CLOSED_PREFIX = "[CLOSED] ";

@@ -1,12 +1,12 @@
 import { createConfigIo } from "../../core/configIo.js";
-import type { TicketTypeConfig } from "./types.js";
+import type { TicketTypeConfig } from "../../../../../shared/modules/tickets/types.js";
 import {
   CONFIG_DEFAULTS,
   NAMESPACE,
   config,
   resolveTicketType,
   texts,
-} from "./types.js";
+} from "../../../../../shared/modules/tickets/types.js";
 
 const io = createConfigIo<TicketTypeConfig>(
   NAMESPACE,

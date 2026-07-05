@@ -1,12 +1,12 @@
 import { createConfigIo } from "../../core/configIo.js";
-import type { EmbedPanelConfig } from "./types.js";
+import type { EmbedPanelConfig } from "../../../../../shared/modules/custom-embeds/types.js";
 import {
   CONFIG_DEFAULTS,
   NAMESPACE,
   config,
   resolveEmbedPanel,
   texts,
-} from "./types.js";
+} from "../../../../../shared/modules/custom-embeds/types.js";
 
 const io = createConfigIo<EmbedPanelConfig>(
   NAMESPACE,

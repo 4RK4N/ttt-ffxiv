@@ -1,11 +1,11 @@
 import type { MessageComponentInteraction } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { isModuleEnabled } from "../../../../shared/core/texts.js";
 import {
   NAMESPACE,
   resolvePanel,
   texts,
-} from "../../../../shared/modules/reaction-roles/config-io.js";
+} from "../../lib/modules/reaction-roles/config-io.js";
 import type {
   ReactionType,
   ResolvedRolePanel,

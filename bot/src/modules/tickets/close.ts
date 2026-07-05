@@ -1,14 +1,14 @@
 import { type ButtonInteraction, type GuildMember } from "discord.js";
-import { replyEphemeral } from "../../../../shared/core/discordInteractions.js";
+import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
 import { guardTicketThreadAction } from "./guards.js";
 import {
   buildConfirmRow,
   CLOSE_CONFIRM_PREFIX,
   CLOSE_PREFIX,
-} from "../../../../shared/modules/tickets/panel.js";
+} from "../../lib/modules/tickets/panel.js";
 import { canStaffOrAdmin } from "./permissions.js";
-import { texts } from "../../../../shared/modules/tickets/config-io.js";
+import { texts } from "../../lib/modules/tickets/config-io.js";
 
 interface ParsedCloseCustomId {
   threadId: string;

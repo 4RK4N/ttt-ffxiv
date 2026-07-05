@@ -8,13 +8,13 @@ import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
 import {
   memberHasAnyRole,
   replyEphemeral,
-} from "../../../../shared/core/discordInteractions.js";
+} from "../../lib/core/discordInteractions.js";
 import type { Message } from "discord.js";
 import {
   NAMESPACE,
   targetChannelId,
   texts,
-} from "../../../../shared/modules/example-module/config-io.js";
+} from "../../lib/modules/example-module/config-io.js";
 
 // Optional core imports (uncomment when needed):
 // import { tryAssignRole } from '../../core/discordRoles.js';

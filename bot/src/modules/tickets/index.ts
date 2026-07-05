@@ -3,7 +3,7 @@ import {
   type MessageComponentInteraction,
 } from "discord.js";
 import type { CommandModule } from "../../moduleLoader.js";
-import { NAMESPACE } from "../../../../shared/modules/tickets/config-io.js";
+import { NAMESPACE } from "../../lib/modules/tickets/config-io.js";
 import { handleCloseCancel, handleCloseTicket } from "./close.js";
 import { handleDeleteCancel, handleDeleteTicket } from "./delete.js";
 import { registerMemberCacheWarm } from "./member-cache.js";
