@@ -15,6 +15,15 @@ export interface NavItem {
   path: string;
 }
 
+function pickNavItems(items: NavItem[], paths: readonly string[]): NavItem[] {
+  const byPath = new Map(items.map((item) => [item.path, item]));
+  return paths.map((path) => {
+    const item = byPath.get(path);
+    if (!item) throw new Error(`Nav item not found for path: ${path}`);
+    return item;
+  });
+}
+
 /** Main menu per language (order matters). Used for mobile drawer and lg+ flat nav. */
 export const navItems: Record<Lang, NavItem[]> = {
   de: [
@@ -39,36 +48,40 @@ export const navItems: Record<Lang, NavItem[]> = {
   ],
 };
 
-/** Primary nav links — always visible in grouped desktop nav (md to lg). */
-export const navPrimary: Record<Lang, NavItem[]> = {
+/** Paths shown inline in grouped desktop nav (md to lg). Order matters. */
+const navPrimaryPaths: Record<Lang, readonly string[]> = {
   de: [
-    { label: "Über Uns", path: "/de/uber-uns/" },
-    { label: "Hausregeln", path: "/de/regeln/" },
-    { label: "Events", path: "/de/events/" },
-    { label: "Galerie", path: "/de/galerie/" },
-    { label: "Gästebuch", path: "/de/gaestebuch/" },
+    "/de/uber-uns/",
+    "/de/regeln/",
+    "/de/events/",
+    "/de/galerie/",
+    "/de/gaestebuch/",
   ],
   en: [
-    { label: "About", path: "/en/about/" },
-    { label: "Rules", path: "/en/rules/" },
-    { label: "Events", path: "/en/events/" },
-    { label: "Gallery", path: "/en/gallery/" },
-    { label: "Guestbook", path: "/en/guestbook/" },
+    "/en/about/",
+    "/en/rules/",
+    "/en/events/",
+    "/en/gallery/",
+    "/en/guestbook/",
   ],
+};
+
+/** Paths grouped under the Community dropdown (md to lg). Order matters. */
+const navCommunityPaths: Record<Lang, readonly string[]> = {
+  de: ["/de/staff/", "/de/partner/", "/de/mitwirken/"],
+  en: ["/en/staff/", "/en/partner/", "/en/join/"],
+};
+
+/** Primary nav links — always visible in grouped desktop nav (md to lg). */
+export const navPrimary: Record<Lang, NavItem[]> = {
+  de: pickNavItems(navItems.de, navPrimaryPaths.de),
+  en: pickNavItems(navItems.en, navPrimaryPaths.en),
 };
 
 /** Community subgroup — dropdown on md–lg desktop nav. */
 export const navCommunity: Record<Lang, NavItem[]> = {
-  de: [
-    { label: "Staff", path: "/de/staff/" },
-    { label: "Partner", path: "/de/partner/" },
-    { label: "Mitwirken", path: "/de/mitwirken/" },
-  ],
-  en: [
-    { label: "Staff", path: "/en/staff/" },
-    { label: "Partner", path: "/en/partner/" },
-    { label: "Join us", path: "/en/join/" },
-  ],
+  de: pickNavItems(navItems.de, navCommunityPaths.de),
+  en: pickNavItems(navItems.en, navCommunityPaths.en),
 };
 
 export const navCommunityLabel: Record<Lang, string> = {
