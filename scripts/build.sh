@@ -2,8 +2,6 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-PARALLEL="${COMPOSE_PARALLEL_LIMIT:-1}"
-
 # Uncollapsed build logs (--progress is a global compose flag; forwarded to buildx bake).
 
 # Always --no-cache: layer cache has produced stale HTML/CSS/JS in practice.
@@ -13,7 +11,6 @@ compose=(
   docker compose
   --progress plain
   --ansi never
-  --parallel "$PARALLEL"
 )
 
 compose_build() {
