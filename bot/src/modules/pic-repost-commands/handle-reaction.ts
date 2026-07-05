@@ -16,6 +16,7 @@ import {
   resolveDeleteAuthorLastMention,
   resolveDeleteEmoji,
 } from "../../lib/modules/pic-repost-commands/config-io.js";
+import { deleteCommentsThreadForMessage } from "../../lib/core/threads.js";
 import { resolvePicRepostAuthor } from "../../lib/modules/pic-repost-commands/resolve-author.js";
 
 function matchesDeleteEmoji(
@@ -87,6 +88,7 @@ async function handleDeleteReaction(
   }
 
   try {
+    await deleteCommentsThreadForMessage(message, `[${NAMESPACE}]`);
     await message.delete();
   } catch (err) {
     const code = (err as { code?: number }).code;

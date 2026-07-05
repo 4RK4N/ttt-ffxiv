@@ -22,7 +22,7 @@ Posts a welcome card on join and sends rules by DM (falls back to channel if DMs
 ### pic-repost-commands (`/pic`, `/post`)
 
 Re-posts user images through the bot with attribution; opens a comments thread.
-The author can delete their repost by reacting with the configured delete emoji (bot does not pre-add the reaction).
+The author can delete their repost by reacting with the configured delete emoji (bot does not pre-add the reaction). Author delete removes the comments thread first, then the post.
 
 - **Config:** `enabled` toggle, `deleteEmoji` (default 🗑️), `deleteAuthorLastMention` (default on — last mention is delete author)
 - **Texts:** disabled notice, errors, thread opener, attribution caption

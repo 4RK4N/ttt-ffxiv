@@ -1,4 +1,4 @@
-import type { Client, Guild, Message, ThreadChannel } from "discord.js";
+import type { Client, Guild, Message, PartialMessage, ThreadChannel } from "discord.js";
 import { getMemberDisplayName } from "./memberDisplayNames.js";
 
 const THREAD_NAME_MAX = 100; // Discord's hard limit for thread names.
@@ -143,5 +143,35 @@ export async function startAndPopulateCommentsThread(
       err,
     );
     return false;
+  }
+}
+
+/** Deletes the comments thread started from a channel message, if one exists. */
+export async function deleteCommentsThreadForMessage(
+  message: Message | PartialMessage,
+  logPrefix: string,
+): Promise<void> {
+  if (!message.hasThread) return;
+
+  let thread = message.thread;
+  if (!thread) {
+    try {
+      const fresh = await message.fetch();
+      thread = fresh.thread ?? null;
+    } catch {
+      return;
+    }
+  }
+  if (!thread) return;
+
+  try {
+    await thread.delete();
+  } catch (err) {
+    const code = (err as { code?: number }).code;
+    if (code === 10003) return;
+    console.warn(
+      `${logPrefix} Failed to delete comments thread thread=${thread.id}:`,
+      err,
+    );
   }
 }
