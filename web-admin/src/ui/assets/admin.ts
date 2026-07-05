@@ -7,3 +7,12 @@ document.body.addEventListener("htmx:configRequest", (evt) => {
     headers["X-CSRF-Token"] = meta.getAttribute("content") || "";
   }
 });
+
+document.body.addEventListener("click", (evt) => {
+  const target = evt.target;
+  if (!(target instanceof Element)) return;
+  const moduleBtn = target.closest(".drawer-side .menu button[hx-get]");
+  if (!moduleBtn) return;
+  const toggle = document.getElementById("admin-drawer");
+  if (toggle instanceof HTMLInputElement) toggle.checked = false;
+});

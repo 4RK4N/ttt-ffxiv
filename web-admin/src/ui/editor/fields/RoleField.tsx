@@ -87,32 +87,32 @@ export function RoleMultiField({
           <p class="text-sm text-base-content/60">No roles available.</p>
         ) : (
           ctx.roles.map((role) => (
-            <label class="label cursor-pointer justify-start gap-3 py-1">
+            <label class="flex cursor-pointer items-center gap-3 py-1">
               <input
-                class="checkbox checkbox-primary checkbox-sm"
+                class="checkbox checkbox-primary checkbox-sm shrink-0"
                 type="checkbox"
                 name={`${name}[]`}
                 value={role.id}
                 checked={selected.includes(role.id)}
                 disabled={disabled}
               />
-              <span class="label-text">{role.name}</span>
+              <span class="min-w-0 break-words">{role.name}</span>
             </label>
           ))
         )}
         {selected
           .filter((sid) => !ctx.roles.some((r) => r.id === sid))
           .map((sid) => (
-            <label class="label cursor-pointer justify-start gap-3 py-1">
+            <label class="flex cursor-pointer items-center gap-3 py-1">
               <input
-                class="checkbox checkbox-primary checkbox-sm"
+                class="checkbox checkbox-primary checkbox-sm shrink-0"
                 type="checkbox"
                 name={`${name}[]`}
                 value={sid}
                 checked
                 disabled={disabled}
               />
-              <span class="label-text">{sid} (not found)</span>
+              <span class="min-w-0 break-words">{sid} (not found)</span>
             </label>
           ))}
       </div>

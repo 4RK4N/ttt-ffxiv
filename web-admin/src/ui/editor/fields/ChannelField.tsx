@@ -100,32 +100,32 @@ export function ChannelMultiField({
           <p class="text-sm text-base-content/60">No channels available.</p>
         ) : (
           ctx.channels.map((ch) => (
-            <label class="label cursor-pointer justify-start gap-3 py-1">
+            <label class="flex cursor-pointer items-center gap-3 py-1">
               <input
-                class="checkbox checkbox-primary checkbox-sm"
+                class="checkbox checkbox-primary checkbox-sm shrink-0"
                 type="checkbox"
                 name={`${name}[]`}
                 value={ch.id}
                 checked={selected.includes(ch.id)}
                 disabled={disabled}
               />
-              <span class="label-text">#{ch.name}</span>
+              <span class="min-w-0 break-words">#{ch.name}</span>
             </label>
           ))
         )}
         {selected
           .filter((sid) => !ctx.channels.some((ch) => ch.id === sid))
           .map((sid) => (
-            <label class="label cursor-pointer justify-start gap-3 py-1">
+            <label class="flex cursor-pointer items-center gap-3 py-1">
               <input
-                class="checkbox checkbox-primary checkbox-sm"
+                class="checkbox checkbox-primary checkbox-sm shrink-0"
                 type="checkbox"
                 name={`${name}[]`}
                 value={sid}
                 checked
                 disabled={disabled}
               />
-              <span class="label-text">{sid} (not found)</span>
+              <span class="min-w-0 break-words">{sid} (not found)</span>
             </label>
           ))}
       </div>

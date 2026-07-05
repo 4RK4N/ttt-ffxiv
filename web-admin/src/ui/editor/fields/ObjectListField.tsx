@@ -67,8 +67,18 @@ export function ObjectListRow({
       >
         <div class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
           {field.collapsible ? (
-            <span class="text-base-content/60" aria-hidden="true">
-              {collapsed ? "\u25B6" : "\u25BC"}
+            <span class="collapse-chevron" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </span>
           ) : null}
           <h3 class="truncate font-semibold">
