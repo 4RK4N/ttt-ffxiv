@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
-@plugin "daisyui/theme" {
-  name: "ttt-dark";
-  default: true;
-  prefersdark: true;
-  color-scheme: dark;
-  --color-primary: #2069bc;
-  --color-primary-content: #ffffff;
+@plugin "daisyui" {
+  themes: dark --default --prefersdark;
 }
 
-@plugin "daisyui" {
-  themes: ttt-dark --default;
+/* Extend built-in dark theme — inherits base palette; override brand primary only. */
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: true;
+  prefersdark: true;
+  --color-primary: #2069bc;
+  --color-primary-content: #ffffff;
 }
 
 /* HTMX loading indicators */

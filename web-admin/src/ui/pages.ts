@@ -15,7 +15,7 @@ export function loginPage(botName: string, message?: string): string {
     ? `<div class="alert alert-error mb-4">${escapeHtml(message)}</div>`
     : "";
   return `<!doctype html>
-<html lang="en" data-theme="ttt-dark"><head>
+<html lang="en" data-theme="dark"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${title}</title>
