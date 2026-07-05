@@ -15,6 +15,17 @@ export interface NavItem {
   path: string;
 }
 
+export interface NavCommunityGroup {
+  label: string;
+  items: NavItem[];
+}
+
+/** Primary links plus Community subgroup — single menu definition per language. */
+export interface SiteMenu {
+  primary: NavItem[];
+  community: NavCommunityGroup;
+}
+
 function pickNavItems(items: NavItem[], paths: readonly string[]): NavItem[] {
   const byPath = new Map(items.map((item) => [item.path, item]));
   return paths.map((path) => {
@@ -24,8 +35,8 @@ function pickNavItems(items: NavItem[], paths: readonly string[]): NavItem[] {
   });
 }
 
-/** Main menu per language (order matters). Used for mobile drawer and lg+ flat nav. */
-export const navItems: Record<Lang, NavItem[]> = {
+/** All navigable pages (labels + paths). */
+const navPages: Record<Lang, NavItem[]> = {
   de: [
     { label: "Über Uns", path: "/de/uber-uns/" },
     { label: "Hausregeln", path: "/de/regeln/" },
@@ -48,45 +59,48 @@ export const navItems: Record<Lang, NavItem[]> = {
   ],
 };
 
-/** Paths shown inline in grouped desktop nav (md to lg). Order matters. */
-const navPrimaryPaths: Record<Lang, readonly string[]> = {
-  de: [
-    "/de/uber-uns/",
-    "/de/regeln/",
-    "/de/events/",
-    "/de/galerie/",
-    "/de/gaestebuch/",
-  ],
-  en: [
-    "/en/about/",
-    "/en/rules/",
-    "/en/events/",
-    "/en/gallery/",
-    "/en/guestbook/",
-  ],
+/** Menu layout — primary order and Community membership. Paths must exist in navPages. */
+const siteMenuPaths: Record<
+  Lang,
+  { primary: readonly string[]; community: readonly string[] }
+> = {
+  de: {
+    primary: [
+      "/de/uber-uns/",
+      "/de/regeln/",
+      "/de/events/",
+      "/de/galerie/",
+      "/de/gaestebuch/",
+    ],
+    community: ["/de/staff/", "/de/partner/", "/de/mitwirken/"],
+  },
+  en: {
+    primary: [
+      "/en/about/",
+      "/en/rules/",
+      "/en/events/",
+      "/en/gallery/",
+      "/en/guestbook/",
+    ],
+    community: ["/en/staff/", "/en/partner/", "/en/join/"],
+  },
 };
 
-/** Paths grouped under the Community dropdown (md to lg). Order matters. */
-const navCommunityPaths: Record<Lang, readonly string[]> = {
-  de: ["/de/staff/", "/de/partner/", "/de/mitwirken/"],
-  en: ["/en/staff/", "/en/partner/", "/en/join/"],
-};
+function buildSiteMenu(lang: Lang): SiteMenu {
+  const pages = navPages[lang];
+  const paths = siteMenuPaths[lang];
+  return {
+    primary: pickNavItems(pages, paths.primary),
+    community: {
+      label: "Community",
+      items: pickNavItems(pages, paths.community),
+    },
+  };
+}
 
-/** Primary nav links — always visible in grouped desktop nav (md to lg). */
-export const navPrimary: Record<Lang, NavItem[]> = {
-  de: pickNavItems(navItems.de, navPrimaryPaths.de),
-  en: pickNavItems(navItems.en, navPrimaryPaths.en),
-};
-
-/** Community subgroup — dropdown on md–lg desktop nav. */
-export const navCommunity: Record<Lang, NavItem[]> = {
-  de: pickNavItems(navItems.de, navCommunityPaths.de),
-  en: pickNavItems(navItems.en, navCommunityPaths.en),
-};
-
-export const navCommunityLabel: Record<Lang, string> = {
-  de: "Community",
-  en: "Community",
+export const siteMenu: Record<Lang, SiteMenu> = {
+  de: buildSiteMenu("de"),
+  en: buildSiteMenu("en"),
 };
 
 /** Homepage per language (topbar brand link). */

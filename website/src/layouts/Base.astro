@@ -5,10 +5,7 @@ import { ClientRouter, fade } from "astro:transitions";
 import {
   siteName,
   siteDescription,
-  navItems,
-  navPrimary,
-  navCommunity,
-  navCommunityLabel,
+  siteMenu,
   footerLinks,
   homePath,
   pathMap,
@@ -22,7 +19,7 @@ import {
 } from "../data/layout";
 import { DISCORD_TTT, SITE_URL } from "../data/site";
 import { logo, bg } from "../data/images";
-import NavDropdown from "../components/NavDropdown.astro";
+import SiteNav from "../components/SiteNav.astro";
 import DiscordIcon from "../components/DiscordIcon.astro";
 import LangSwitch from "../components/LangSwitch.astro";
 import Lightbox from "../components/Lightbox.astro";
@@ -58,19 +55,16 @@ const {
 const metaDescription = description ?? siteDescription[lang];
 const shareImage = `${SITE_URL}/assets/images/share.jpg`;
 
-const nav = navItems[lang];
-const primary = navPrimary[lang];
-const community = navCommunity[lang];
+const menu = siteMenu[lang];
 const legal = footerLinks[lang];
 const alt = pathMap[path] ?? { de: "/de.html", en: "/" };
 const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
 
 const bgOptimized = await getImage({ src: bg, width: 1920, format: "webp" });
 
-const isActive = (itemPath: string) => itemPath === path;
-const isCommunityActive = community.some((item) => isActive(item.path));
-
 const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
+const mainMenuLabel = lang === "de" ? "Hauptmenü" : "Main menu";
+const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
 ---
 
 <!doctype html>
@@ -137,63 +131,13 @@ const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
         />
       </a>
 
-      <!-- Grouped nav: md to lg -->
-      <nav
-        class="site-nav hidden flex-1 md:block lg:hidden"
-        aria-label={lang === "de" ? "Hauptmenü" : "Main menu"}
-      >
-        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-          {
-            primary.map((item) => (
-              <li>
-                <a
-                  href={item.path}
-                  data-astro-prefetch
-                  class:list={[
-                    "nav-link",
-                    isActive(item.path) && "nav-link--active",
-                    !isActive(item.path) && "text-bar-text",
-                  ]}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-          <NavDropdown
-            label={navCommunityLabel[lang]}
-            items={community}
-            currentPath={path}
-            isGroupActive={isCommunityActive}
-          />
-        </ul>
-      </nav>
-
-      <!-- Flat nav: lg+ -->
-      <nav
-        class="site-nav hidden flex-1 lg:block"
-        aria-label={lang === "de" ? "Hauptmenü" : "Main menu"}
-      >
-        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-          {
-            nav.map((item) => (
-              <li>
-                <a
-                  href={item.path}
-                  data-astro-prefetch
-                  class:list={[
-                    "nav-link",
-                    isActive(item.path) && "nav-link--active",
-                    !isActive(item.path) && "text-bar-text",
-                  ]}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+      <SiteNav
+        menu={menu}
+        currentPath={path}
+        variant="desktop"
+        ariaLabel={mainMenuLabel}
+        class="site-nav hidden flex-1 md:block"
+      />
 
       <div class="ml-auto flex items-center gap-2">
         <LangSwitch lang={lang} altDe={alt.de} altEn={alt.en} />
@@ -228,31 +172,14 @@ const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
       </div>
     </header>
 
-    <nav
+    <SiteNav
       id="mobile-drawer"
-      aria-label={lang === "de" ? "Mobilmenü" : "Mobile menu"}
+      menu={menu}
+      currentPath={path}
+      variant="mobile"
+      ariaLabel={mobileMenuLabel}
       class="site-bar site-bar--header fixed inset-x-0 top-[length:var(--header-height)] z-40 hidden max-h-[calc(100vh-var(--header-height))] overflow-y-auto px-4 pb-4 pt-3 text-left font-averia text-[15px] md:hidden!"
-    >
-      <ul>
-        {
-          nav.map((item) => (
-            <li class="border-b border-bar-border/50 last:border-b-0">
-              <a
-                href={item.path}
-                data-astro-prefetch
-                class:list={[
-                  "nav-link block px-1 py-2.5",
-                  isActive(item.path) && "nav-link--active",
-                  !isActive(item.path) && "text-bar-text",
-                ]}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    />
 
     <main id="main-content" transition:animate={fade({ duration: "0.2s" })}>
       <slot />
@@ -289,12 +216,23 @@ const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
       const iconOpen = document.getElementById("menu-icon-open")!;
       const iconClose = document.getElementById("menu-icon-close")!;
 
+      function closeAllDropdowns() {
+        document.querySelectorAll(".nav-dropdown.is-open").forEach((el) => {
+          el.classList.remove("is-open");
+          el.querySelector(".nav-dropdown-trigger")?.setAttribute(
+            "aria-expanded",
+            "false",
+          );
+        });
+      }
+
       function setDrawer(open: boolean) {
         drawer.classList.toggle("hidden", !open);
         document.body.classList.toggle("overflow-hidden", open);
         toggle.setAttribute("aria-expanded", String(open));
         iconOpen.classList.toggle("hidden", open);
         iconClose.classList.toggle("hidden", !open);
+        if (!open) closeAllDropdowns();
       }
 
       toggle.addEventListener("click", () => {
@@ -306,16 +244,6 @@ const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") setDrawer(false);
       });
-
-      function closeAllDropdowns() {
-        document.querySelectorAll(".nav-dropdown.is-open").forEach((el) => {
-          el.classList.remove("is-open");
-          el.querySelector(".nav-dropdown-trigger")?.setAttribute(
-            "aria-expanded",
-            "false",
-          );
-        });
-      }
 
       function initNavDropdowns() {
         document.querySelectorAll(".nav-dropdown").forEach((dropdown) => {

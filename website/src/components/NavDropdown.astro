@@ -6,18 +6,34 @@ interface Props {
   items: NavItem[];
   currentPath: string;
   isGroupActive: boolean;
+  variant?: "bar" | "drawer";
 }
 
-const { label, items, currentPath, isGroupActive } = Astro.props;
+const {
+  label,
+  items,
+  currentPath,
+  isGroupActive,
+  variant = "bar",
+} = Astro.props;
 
+const isDrawer = variant === "drawer";
 const isActive = (itemPath: string) => itemPath === currentPath;
 ---
 
-<li class="nav-dropdown relative">
+<li
+  class:list={[
+    "nav-dropdown",
+    isDrawer
+      ? "nav-dropdown--drawer border-b border-bar-border/50"
+      : "relative",
+  ]}
+>
   <button
     type="button"
     class:list={[
       "nav-link nav-dropdown-trigger cursor-pointer gap-1 bg-transparent font-inherit",
+      isDrawer && "block w-full px-1 py-2.5 text-left",
       isGroupActive ? "nav-link--active text-bar-accent" : "text-bar-text",
     ]}
     aria-haspopup="true"
@@ -33,7 +49,11 @@ const isActive = (itemPath: string) => itemPath === currentPath;
     </svg>
   </button>
   <ul
-    class="nav-dropdown-menu site-bar absolute left-1/2 top-full z-50 mt-1 min-w-[10rem] -translate-x-1/2 rounded border py-1 shadow-lg"
+    class:list={[
+      "nav-dropdown-menu",
+      !isDrawer &&
+        "site-bar absolute left-1/2 top-full z-50 mt-1 min-w-[10rem] -translate-x-1/2 rounded border py-1 shadow-lg",
+    ]}
     role="menu"
   >
     {

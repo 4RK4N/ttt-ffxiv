@@ -161,6 +161,24 @@
     display: block;
   }
 
+  .nav-dropdown--drawer .nav-dropdown-menu {
+    position: static;
+    left: auto;
+    transform: none;
+    min-width: 0;
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
+
+  .nav-dropdown--drawer .nav-dropdown-menu .nav-link {
+    border-bottom: none;
+    padding-left: 1.25rem;
+  }
+
   header a[href]:has(img) {
     transition: transform 0.2s ease;
   }
