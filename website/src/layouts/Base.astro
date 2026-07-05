@@ -1,10 +1,14 @@
 ---
 import "../styles/global.css";
 import { Font, Image, getImage } from "astro:assets";
+import { ClientRouter, fade } from "astro:transitions";
 import {
   siteName,
   siteDescription,
   navItems,
+  navPrimary,
+  navCommunity,
+  navCommunityLabel,
   footerLinks,
   homePath,
   pathMap,
@@ -16,8 +20,12 @@ import {
   headerLogoSizes,
   headerLogoWidths,
 } from "../data/layout";
-import { SITE_URL } from "../data/site";
+import { DISCORD_TTT, SITE_URL } from "../data/site";
 import { logo, bg } from "../data/images";
+import NavDropdown from "../components/NavDropdown.astro";
+import DiscordIcon from "../components/DiscordIcon.astro";
+import LangSwitch from "../components/LangSwitch.astro";
+import Lightbox from "../components/Lightbox.astro";
 
 interface Props {
   title: string;
@@ -30,14 +38,29 @@ interface Props {
   heroLcp?: boolean;
   /** Responsive preload for the home hero image. */
   lcpPreload?: { srcset: string; sizes: string };
+  /** Preload Caveat (pages with h1 page-heading). Default true. */
+  preloadCaveat?: boolean;
+  /** Preload Gochi Hand (body copy). Default true. */
+  preloadGochi?: boolean;
 }
 
-const { title, lang, path, description, heroLcp, lcpPreload } = Astro.props;
+const {
+  title,
+  lang,
+  path,
+  description,
+  heroLcp,
+  lcpPreload,
+  preloadCaveat = true,
+  preloadGochi = true,
+} = Astro.props;
 
 const metaDescription = description ?? siteDescription[lang];
 const shareImage = `${SITE_URL}/assets/images/share.jpg`;
 
 const nav = navItems[lang];
+const primary = navPrimary[lang];
+const community = navCommunity[lang];
 const legal = footerLinks[lang];
 const alt = pathMap[path] ?? { de: "/de.html", en: "/" };
 const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
@@ -45,15 +68,18 @@ const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
 const bgOptimized = await getImage({ src: bg, width: 1920, format: "webp" });
 
 const isActive = (itemPath: string) => itemPath === path;
+const isCommunityActive = community.some((item) => isActive(item.path));
+
+const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
 ---
 
 <!doctype html>
 <html lang={lang} style={`--page-bg-image: url(${bgOptimized.src})`}>
   <head>
-    <title>{title}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="color-scheme" content="dark" />
+    <title>{title}</title>
     <meta name="description" content={metaDescription} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
@@ -84,13 +110,18 @@ const isActive = (itemPath: string) => itemPath === path;
       )
     }
     <Font cssVariable="--font-averia-face" preload />
-    <Font cssVariable="--font-gochi-face" preload />
-    <Font cssVariable="--font-caveat-face" preload />
+    {preloadGochi && <Font cssVariable="--font-gochi-face" preload />}
+    {preloadCaveat && <Font cssVariable="--font-caveat-face" preload />}
+    <ClientRouter />
   </head>
 
-  <body class="pt-[68px]">
+  <body class="pt-[length:var(--header-height)]">
+    <a href="#main-content" class="skip-link site-bar site-bar--header"
+      >{skipLabel}</a
+    >
+
     <header
-      class="fixed inset-x-0 top-0 z-50 flex h-[68px] items-center gap-4 border-b border-bar-border bg-bar-bg px-4 font-averia text-[15px] backdrop-blur-sm lg:px-6"
+      class="site-bar site-bar--header fixed inset-x-0 top-0 z-50 flex h-[length:var(--header-height)] items-center gap-4 px-4 font-averia text-[15px] lg:px-6"
     >
       <a href={homePath[lang]} class="flex h-full shrink-0 items-center py-1.5">
         <Image
@@ -106,11 +137,44 @@ const isActive = (itemPath: string) => itemPath === path;
         />
       </a>
 
+      <!-- Grouped nav: md to lg -->
       <nav
-        class="hidden flex-1 md:block"
+        class="site-nav hidden flex-1 md:block lg:hidden"
         aria-label={lang === "de" ? "Hauptmenü" : "Main menu"}
       >
-        <ul class="flex flex-wrap justify-center gap-x-4 gap-y-1">
+        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          {
+            primary.map((item) => (
+              <li>
+                <a
+                  href={item.path}
+                  data-astro-prefetch
+                  class:list={[
+                    "nav-link",
+                    isActive(item.path) && "nav-link--active",
+                    !isActive(item.path) && "text-bar-text",
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+          <NavDropdown
+            label={navCommunityLabel[lang]}
+            items={community}
+            currentPath={path}
+            isGroupActive={isCommunityActive}
+          />
+        </ul>
+      </nav>
+
+      <!-- Flat nav: lg+ -->
+      <nav
+        class="site-nav hidden flex-1 lg:block"
+        aria-label={lang === "de" ? "Hauptmenü" : "Main menu"}
+      >
+        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           {
             nav.map((item) => (
               <li>
@@ -118,8 +182,9 @@ const isActive = (itemPath: string) => itemPath === path;
                   href={item.path}
                   data-astro-prefetch
                   class:list={[
-                    "whitespace-nowrap px-0.5 py-1 transition-colors hover:text-bar-accent",
-                    isActive(item.path) ? "text-bar-accent" : "text-bar-text",
+                    "nav-link",
+                    isActive(item.path) && "nav-link--active",
+                    !isActive(item.path) && "text-bar-text",
                   ]}
                 >
                   {item.label}
@@ -131,17 +196,9 @@ const isActive = (itemPath: string) => itemPath === path;
       </nav>
 
       <div class="ml-auto flex items-center gap-2">
-        <label for="lang-select" class="sr-only">Language</label>
-        <select
-          id="lang-select"
-          aria-label="Language"
-          data-de={alt.de}
-          data-en={alt.en}
-          class="cursor-pointer appearance-none rounded border border-bar-border bg-black/35 bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2712%27%20height=%278%27%20viewBox=%270%200%2012%208%27%3E%3Cpath%20fill=%27%23d4af78%27%20d=%27M1%201l5%205%205-5%27/%3E%3C/svg%3E')] bg-[right_0.5rem_center] bg-no-repeat py-1 pl-2.5 pr-7 text-[13px] text-bar-text"
-        >
-          <option value="de" selected={lang === "de"}>Deutsch</option>
-          <option value="en" selected={lang === "en"}>English</option>
-        </select>
+        <LangSwitch lang={lang} altDe={alt.de} altEn={alt.en} />
+
+        <DiscordIcon href={DISCORD_TTT} label="Discord" />
 
         <button
           type="button"
@@ -149,9 +206,24 @@ const isActive = (itemPath: string) => itemPath === path;
           aria-expanded="false"
           aria-controls="mobile-drawer"
           aria-label={lang === "de" ? "Menü" : "Menu"}
-          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded border border-bar-border bg-black/35 text-xl leading-none text-bar-text transition-colors hover:border-bar-accent hover:text-bar-accent md:hidden"
+          class="site-control flex h-9 w-9 cursor-pointer items-center justify-center hover:border-bar-accent hover:text-bar-accent md:hidden"
         >
-          ☰
+          <svg
+            id="menu-icon-open"
+            viewBox="0 0 24 24"
+            class="h-5 w-5 fill-none stroke-current stroke-2"
+            aria-hidden="true"
+          >
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+          <svg
+            id="menu-icon-close"
+            viewBox="0 0 24 24"
+            class="hidden h-5 w-5 fill-none stroke-current stroke-2"
+            aria-hidden="true"
+          >
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
         </button>
       </div>
     </header>
@@ -159,7 +231,7 @@ const isActive = (itemPath: string) => itemPath === path;
     <nav
       id="mobile-drawer"
       aria-label={lang === "de" ? "Mobilmenü" : "Mobile menu"}
-      class="fixed inset-x-0 top-[68px] z-40 hidden max-h-[calc(100vh-68px)] overflow-y-auto border-b border-bar-border bg-bar-bg px-4 pb-4 pt-3 text-left font-averia text-[15px] md:hidden!"
+      class="site-bar site-bar--header fixed inset-x-0 top-[length:var(--header-height)] z-40 hidden max-h-[calc(100vh-var(--header-height))] overflow-y-auto px-4 pb-4 pt-3 text-left font-averia text-[15px] md:hidden!"
     >
       <ul>
         {
@@ -169,8 +241,9 @@ const isActive = (itemPath: string) => itemPath === path;
                 href={item.path}
                 data-astro-prefetch
                 class:list={[
-                  "block px-1 py-2.5 transition-colors hover:text-bar-accent",
-                  isActive(item.path) ? "text-bar-accent" : "text-bar-text",
+                  "nav-link block px-1 py-2.5",
+                  isActive(item.path) && "nav-link--active",
+                  !isActive(item.path) && "text-bar-text",
                 ]}
               >
                 {item.label}
@@ -181,40 +254,47 @@ const isActive = (itemPath: string) => itemPath === path;
       </ul>
     </nav>
 
-    <main>
+    <main id="main-content" transition:animate={fade({ duration: "0.2s" })}>
       <slot />
     </main>
 
     <footer
-      class="border-t border-bar-border px-4 py-4 text-center font-averia text-[13px] text-bar-text/70"
+      class="site-bar site-bar--footer px-4 py-5 text-center font-averia text-[13px] text-bar-text/70"
     >
-      <nav aria-label={lang === "de" ? "Rechtliches" : "Legal"}>
-        <a
-          href={legal[0].path}
-          data-astro-prefetch
-          class="transition-colors hover:text-bar-accent"
-        >
-          {legal[0].label}
-        </a>
-        <span aria-hidden="true" class="px-1.5 text-bar-text/40">·</span>
-        <a
-          href={legal[1].path}
-          data-astro-prefetch
-          class="transition-colors hover:text-bar-accent"
-        >
-          {legal[1].label}
-        </a>
+      <div class="section-divider mx-auto mb-4 max-w-md" aria-hidden="true">
+      </div>
+      <nav
+        class="flex flex-wrap justify-center gap-x-3"
+        aria-label={lang === "de" ? "Rechtliches" : "Legal"}
+      >
+        {
+          legal.map((item) => (
+            <a
+              href={item.path}
+              data-astro-prefetch
+              class="transition-colors hover:text-bar-accent"
+            >
+              {item.label}
+            </a>
+          ))
+        }
       </nav>
     </footer>
+
+    <Lightbox />
 
     <script>
       const toggle = document.getElementById("menu-toggle")!;
       const drawer = document.getElementById("mobile-drawer")!;
+      const iconOpen = document.getElementById("menu-icon-open")!;
+      const iconClose = document.getElementById("menu-icon-close")!;
 
       function setDrawer(open: boolean) {
         drawer.classList.toggle("hidden", !open);
         document.body.classList.toggle("overflow-hidden", open);
         toggle.setAttribute("aria-expanded", String(open));
+        iconOpen.classList.toggle("hidden", open);
+        iconClose.classList.toggle("hidden", !open);
       }
 
       toggle.addEventListener("click", () => {
@@ -227,12 +307,70 @@ const isActive = (itemPath: string) => itemPath === path;
         if (e.key === "Escape") setDrawer(false);
       });
 
-      const langSelect = document.getElementById(
-        "lang-select",
-      ) as HTMLSelectElement;
-      langSelect.addEventListener("change", () => {
-        const target = langSelect.dataset[langSelect.value];
-        if (target) window.location.href = target;
+      function closeAllDropdowns() {
+        document.querySelectorAll(".nav-dropdown.is-open").forEach((el) => {
+          el.classList.remove("is-open");
+          el.querySelector(".nav-dropdown-trigger")?.setAttribute(
+            "aria-expanded",
+            "false",
+          );
+        });
+      }
+
+      function initNavDropdowns() {
+        document.querySelectorAll(".nav-dropdown").forEach((dropdown) => {
+          const trigger = dropdown.querySelector(
+            ".nav-dropdown-trigger",
+          ) as HTMLButtonElement | null;
+          const menu = dropdown.querySelector(".nav-dropdown-menu");
+          if (!trigger || !menu) return;
+
+          const items = menu.querySelectorAll('[role="menuitem"]');
+
+          trigger.onclick = (e) => {
+            e.stopPropagation();
+            const wasOpen = dropdown.classList.contains("is-open");
+            closeAllDropdowns();
+            if (!wasOpen) {
+              dropdown.classList.add("is-open");
+              trigger.setAttribute("aria-expanded", "true");
+            }
+          };
+
+          trigger.onkeydown = (e) => {
+            if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              dropdown.classList.add("is-open");
+              trigger.setAttribute("aria-expanded", "true");
+              (items[0] as HTMLElement)?.focus();
+            }
+          };
+
+          menu.onmousedown = (e) => e.stopPropagation();
+
+          items.forEach((item, index) => {
+            (item as HTMLElement).onkeydown = (e) => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                (items[index + 1] ?? items[0]).focus();
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                (items[index - 1] ?? items[items.length - 1]).focus();
+              } else if (e.key === "Escape") {
+                closeAllDropdowns();
+                trigger.focus();
+              }
+            };
+          });
+        });
+      }
+
+      initNavDropdowns();
+      document.addEventListener("astro:page-load", initNavDropdowns);
+
+      document.addEventListener("click", closeAllDropdowns);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAllDropdowns();
       });
     </script>
   </body>

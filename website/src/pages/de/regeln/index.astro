@@ -1,5 +1,6 @@
 ---
 import ContentPage from "../../../components/ContentPage.astro";
+import ContentPanel from "../../../components/ContentPanel.astro";
 ---
 
 <ContentPage
@@ -10,87 +11,91 @@ import ContentPage from "../../../components/ContentPage.astro";
   wide
   centerBody={false}
 >
-  <div class="hand-text flex flex-col gap-6">
-    <h2>Venue- &amp; Serverregeln</h2>
-    <p>
-      Um allen Gästen ein sicheres, entspanntes und angenehmes Erlebnis zu
-      ermöglichen, gelten in unserem Badehaus die folgenden Hausregeln.<br />
-      Mit dem Betreten der Venue erklärst du dich damit einverstanden, diese Regeln
-      zu lesen, zu verstehen und einzuhalten.
-    </p>
-    <h3>1. Allgemeines Verhalten</h3>
-    <p>
-      Behandelt alle Gäste respektvoll.<br />
-      Kein Hass, keine Belästigung, kein Mobbing, keine Diskriminierung und kein Drama.
-      Hassrede führt zu einem sofortigen Bann.<br />
-      NEIN heißt NEIN - immer und ohne Ausnahme.
-    </p>
-    <h3>2. Chat- &amp; Community-Regeln</h3>
-    <p>
-      Kein Spam, Flooding oder Ping-Missbrauch.<br />
-      Kein Mic-Spam oder absichtlich laute/störende Geräusche.<br />
-      Bleibt im jeweiligen Channel beim Thema.<br />
-      Keine Werbung ohne Genehmigung des Staffs.<br />
-      Keine illegalen, schädlichen oder störenden Inhalte.<br />
-      Respektiert die Privatsphäre - kein Doxxing oder Teilen persönlicher Informationen.<br
-      />
-      <strong class="highlight"
-        >Von der Verwendung und Bewerbung der Loporrit Sync wird strengstens
-        abgeraten! Als erwachsene(r) Lalafell hast du nichts zu befürchten bei
-        Lightless!</strong
-      >
-    </p>
-    <h3>3. Altersbeschränkung</h3>
-    <p>
-      Dies ist ein 18+ Venue!<br />
-      Zutritt ist nur gestattet, wenn sowohl reales Alter als auch RP-Alter 18+ sind.<br
-      />
-      <strong class="highlight"
-        >Der Kitten Body, sowie alle Variationen davon per C+ und jegliches
-        Darstellen von Minderjährigen ist verboten und führt zu sofortigem Bann
-        sowie zum Lightless-Report!</strong
-      >
-    </p>
-    <h3>4. Rassen &amp; Roleplay</h3>
-    <p>
-      <strong>Alle</strong> Rassen sind willkommen <strong>inklusive</strong> Lalafell.
-      Für alle Gäste gelten die gleichen Regeln.<br />
-      Nacktheit ist erlaubt und wir ermutigen dazu.<br />
-      ERP ist erlaubt, sofern es einvernehmlich ist und die allgemeinen Regeln eingehalten
-      werden.<br />
-      Sexuelle Animationen sind erlaubt, jedoch:<br />
-      – ERP-Chats bitte privat halten.<br />
-      – Keine Einbeziehung anderer ohne deren ausdrückliche Zustimmung.<br />
-      – Keine extremen Inhalte im öffentlichen Bereich.
-    </p>
-    <h3>5. Emotes, Pets &amp; Items</h3>
-    <p>
-      Bitte deaktiviert Emote-Logs.<br />
-      Waffen und Pets nur verwenden, wenn sie zu eurem RP-Charakter passen.
-    </p>
-    <h3>6. Räume &amp; Nutzung</h3>
-    <p>
-      Räume dürfen frei genutzt werden.<br />
-      Wenn der Staff einen Raum für Massagen oder Fotos benötigt, bitte diesen auf
-      Anfrage freigeben.
-    </p>
-    <h3>7. Durchsetzung</h3>
-    <p>
-      Das Team behält sich vor, bei Regelverstößen angemessen zu handeln.<br />
-      Wiederholte oder schwere Verstöße können zu einem dauerhaften Bann führen.<br
-      />
-      Das Staff-Team hat jederzeit das letzte Wort.<br />
-      Entscheidungen des Staffs sind zu respektieren und nicht öffentlich zu diskutieren.
-    </p>
-    <h3>8. NSFW</h3>
-    <p>
-      NSFW-Inhalte sind ausschließlich in den dafür vorgesehenen NSFW-Bereichen
-      erlaubt. Diese Bereiche sind für alle Rassen offen, einschließlich
-      Lalafell. Der Zugang zu NSFW-Bereichen sowie die entsprechende Rolle
-      werden ausschließlich vom Owner oder Co-Owner vergeben. Wir versuchen
-      unser bestmögliches um eine Bann-Welle zu verhindern, sodass ihr frei und
-      ohne Angst eure Kunstwerke teilen könnt<br />
-      NSFW-Inhalte außerhalb dieser Bereiche sind nicht gestattet.
-    </p>
-  </div>
+  <ContentPanel>
+    <div class="hand-text flex flex-col gap-6">
+      <h2>Venue- &amp; Serverregeln</h2>
+      <p>
+        Um allen Gästen ein sicheres, entspanntes und angenehmes Erlebnis zu
+        ermöglichen, gelten in unserem Badehaus die folgenden Hausregeln.<br />
+        Mit dem Betreten der Venue erklärst du dich damit einverstanden, diese Regeln
+        zu lesen, zu verstehen und einzuhalten.
+      </p>
+      <h3>1. Allgemeines Verhalten</h3>
+      <p>
+        Behandelt alle Gäste respektvoll.<br />
+        Kein Hass, keine Belästigung, kein Mobbing, keine Diskriminierung und kein
+        Drama. Hassrede führt zu einem sofortigen Bann.<br />
+        NEIN heißt NEIN - immer und ohne Ausnahme.
+      </p>
+      <h3>2. Chat- &amp; Community-Regeln</h3>
+      <p>
+        Kein Spam, Flooding oder Ping-Missbrauch.<br />
+        Kein Mic-Spam oder absichtlich laute/störende Geräusche.<br />
+        Bleibt im jeweiligen Channel beim Thema.<br />
+        Keine Werbung ohne Genehmigung des Staffs.<br />
+        Keine illegalen, schädlichen oder störenden Inhalte.<br />
+        Respektiert die Privatsphäre - kein Doxxing oder Teilen persönlicher Informationen.<br
+        />
+        <strong class="highlight"
+          >Von der Verwendung und Bewerbung der Loporrit Sync wird strengstens
+          abgeraten! Als erwachsene(r) Lalafell hast du nichts zu befürchten bei
+          Lightless!</strong
+        >
+      </p>
+      <h3>3. Altersbeschränkung</h3>
+      <p>
+        Dies ist ein 18+ Venue!<br />
+        Zutritt ist nur gestattet, wenn sowohl reales Alter als auch RP-Alter 18+
+        sind.<br />
+        <strong class="highlight"
+          >Der Kitten Body, sowie alle Variationen davon per C+ und jegliches
+          Darstellen von Minderjährigen ist verboten und führt zu sofortigem
+          Bann sowie zum Lightless-Report!</strong
+        >
+      </p>
+      <h3>4. Rassen &amp; Roleplay</h3>
+      <p>
+        <strong>Alle</strong> Rassen sind willkommen <strong>inklusive</strong> Lalafell.
+        Für alle Gäste gelten die gleichen Regeln.<br />
+        Nacktheit ist erlaubt und wir ermutigen dazu.<br />
+        ERP ist erlaubt, sofern es einvernehmlich ist und die allgemeinen Regeln eingehalten
+        werden.<br />
+        Sexuelle Animationen sind erlaubt, jedoch:<br />
+        – ERP-Chats bitte privat halten.<br />
+        – Keine Einbeziehung anderer ohne deren ausdrückliche Zustimmung.<br />
+        – Keine extremen Inhalte im öffentlichen Bereich.
+      </p>
+      <h3>5. Emotes, Pets &amp; Items</h3>
+      <p>
+        Bitte deaktiviert Emote-Logs.<br />
+        Waffen und Pets nur verwenden, wenn sie zu eurem RP-Charakter passen.
+      </p>
+      <h3>6. Räume &amp; Nutzung</h3>
+      <p>
+        Räume dürfen frei genutzt werden.<br />
+        Wenn der Staff einen Raum für Massagen oder Fotos benötigt, bitte diesen auf
+        Anfrage freigeben.
+      </p>
+      <h3>7. Durchsetzung</h3>
+      <p>
+        Das Team behält sich vor, bei Regelverstößen angemessen zu handeln.<br
+        />
+        Wiederholte oder schwere Verstöße können zu einem dauerhaften Bann führen.<br
+        />
+        Das Staff-Team hat jederzeit das letzte Wort.<br />
+        Entscheidungen des Staffs sind zu respektieren und nicht öffentlich zu diskutieren.
+      </p>
+      <h3>8. NSFW</h3>
+      <p>
+        NSFW-Inhalte sind ausschließlich in den dafür vorgesehenen
+        NSFW-Bereichen erlaubt. Diese Bereiche sind für alle Rassen offen,
+        einschließlich Lalafell. Der Zugang zu NSFW-Bereichen sowie die
+        entsprechende Rolle werden ausschließlich vom Owner oder Co-Owner
+        vergeben. Wir versuchen unser bestmögliches um eine Bann-Welle zu
+        verhindern, sodass ihr frei und ohne Angst eure Kunstwerke teilen könnt<br
+        />
+        NSFW-Inhalte außerhalb dieser Bereiche sind nicht gestattet.
+      </p>
+    </div>
+  </ContentPanel>
 </ContentPage>

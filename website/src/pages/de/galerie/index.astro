@@ -3,7 +3,7 @@ import ContentPage from "../../../components/ContentPage.astro";
 import ContentImage from "../../../components/ContentImage.astro";
 import Gallery from "../../../components/Gallery.astro";
 import {
-  CONTENT_COLUMN_SIZES,
+  GALLERY_CONTENT_COLUMN_SIZES,
   CONTENT_COLUMN_PX,
   contentColumnWidths,
 } from "../../../data/layout";
@@ -15,26 +15,33 @@ import { pageImages, resolveGalleryList } from "../../../data/images";
   lang="de"
   path="/de/galerie/"
   heading="Galerie"
+  gallery
 >
-  <div class="hand-text flex flex-col gap-6">
-    <p><em><strong>Ein Blick in unser Haus…</strong></em></p>
-    <p>
-      <em
-        ><strong
-          >Warme Räume, stille Ecken,<br /> sanftes Licht und Orte,<br /> an denen
-          Erinnerungen entstehen.</strong
-        ></em
-      >
-    </p>
-  </div>
+  <Fragment slot="intro">
+    <div class="hand-text flex flex-col gap-4">
+      <p><em><strong>Ein Blick in unser Haus…</strong></em></p>
+      <p>
+        <em
+          ><strong
+            >Warme Räume, stille Ecken, sanftes Licht und Orte, an denen
+            Erinnerungen entstehen.</strong
+          ></em
+        >
+      </p>
+    </div>
+  </Fragment>
   <ContentImage
     src={pageImages.image09}
     width={CONTENT_COLUMN_PX}
-    sizes={CONTENT_COLUMN_SIZES}
+    sizes={GALLERY_CONTENT_COLUMN_SIZES}
     widths={contentColumnWidths()}
-    class="w-full rounded-md"
+    class="w-full"
+    alt="Außenansicht des Badehauses bei Nacht"
+    lightbox
   />
   <Gallery
+    wide
+    altPrefix="Badehaus-Screenshot"
     images={resolveGalleryList([
       "gallery23/9c352b69.jpg",
       "gallery23/fcd8f85d.jpg",
@@ -42,6 +49,8 @@ import { pageImages, resolveGalleryList } from "../../../data/images";
     ])}
   />
   <Gallery
+    wide
+    altPrefix="Badehaus-Screenshot"
     images={resolveGalleryList([
       "gallery18/c2cde289.jpg",
       "gallery18/09600657.jpg",
@@ -51,6 +60,8 @@ import { pageImages, resolveGalleryList } from "../../../data/images";
     ])}
   />
   <Gallery
+    wide
+    altPrefix="Badehaus-Screenshot"
     images={resolveGalleryList([
       "gallery19/d7414f9a.jpg",
       "gallery19/cac149e2.jpg",
@@ -60,8 +71,11 @@ import { pageImages, resolveGalleryList } from "../../../data/images";
       "gallery19/dfbe594f.jpg",
     ])}
   />
+  <div class="section-divider" aria-hidden="true"></div>
   <h2>Zimmer 2</h2>
   <Gallery
+    wide
+    altPrefix="Zimmer-2-Screenshot"
     images={resolveGalleryList([
       "gallery11/716cf24b.jpg",
       "gallery11/ab4e17c6.jpg",

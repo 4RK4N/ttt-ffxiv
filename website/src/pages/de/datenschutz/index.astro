@@ -1,5 +1,6 @@
 ---
 import ContentPage from "../../../components/ContentPage.astro";
+import ContentPanel from "../../../components/ContentPanel.astro";
 import PrivacyContent from "../../../components/PrivacyContent.astro";
 ---
 
@@ -10,6 +11,9 @@ import PrivacyContent from "../../../components/PrivacyContent.astro";
   heading="Datenschutz"
   wide
   centerBody={false}
+  preloadGochi={false}
 >
-  <PrivacyContent lang="de" />
+  <ContentPanel>
+    <PrivacyContent lang="de" />
+  </ContentPanel>
 </ContentPage>

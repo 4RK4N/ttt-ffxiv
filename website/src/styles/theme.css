@@ -3,17 +3,37 @@
   --font-gochi: var(--font-gochi-face), cursive;
   --font-caveat: var(--font-caveat-face), cursive;
 
-  --color-bar-bg: rgba(26, 20, 16, 0.94);
-  --color-bar-border: rgba(212, 175, 120, 0.25);
-  --color-bar-text: #f5e6d0;
-  --color-bar-accent: #d4af78;
+  --header-height: 68px;
+
+  /* House palette — logo burgundy + metallic gold */
+  --color-house-red-deep: #1a0606;
+  --color-house-red: #2e0c0c;
+  --color-house-red-mid: #4a1212;
+  --color-house-gold: #e8c872;
+  --color-house-gold-soft: #f5e6d0;
+  --color-house-gold-muted: rgb(232 200 114 / 0.35);
+
+  --color-bar-bg: rgb(46 12 12 / 0.94);
+  --color-bar-border: var(--color-house-gold-muted);
+  --color-bar-text: var(--color-house-gold-soft);
+  --color-bar-accent: var(--color-house-gold);
 
   --color-page-overlay: rgb(0 0 0 / 0.86);
-  --color-body-text: rgb(255 255 255 / 0.71);
+  --color-body-text: rgb(255 255 255 / 0.82);
   --color-heading-h2: rgb(250 129 252 / 0.71);
   --color-heading-h3: rgb(235 152 152 / 0.71);
   --color-subtitle: rgb(235 152 152 / 0.71);
   --color-page-heading-bottom: #fc0000;
   --color-page-heading-top: #ff5cbe;
-  --color-highlight: #fc0000;
+  --color-highlight: #c41e1e;
+  --color-h2-shadow: #fff;
+
+  --color-timer-digit: #ff9242;
+  --color-discord-icon: #0359ff;
+  --color-discord-hover: #e31010;
+
+  --color-surface: rgb(46 12 12 / 0.55);
+  --color-surface-border: var(--color-house-gold-muted);
+
+  --content-max-gallery: 56rem;
 }

@@ -1,4 +1,5 @@
 @layer base {
+
   /* Responsive root scale — 24px desktop; layout.ts tracks the same breakpoints. */
   html {
     font-size: 24px;
@@ -31,6 +32,29 @@
     font-family: var(--font-gochi);
     color: #fff;
     text-align: center;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bar-accent);
+    outline-offset: 2px;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    color: var(--color-bar-text);
+    font-family: var(--font-averia);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transform: translateY(-120%);
+    transition: transform 0.2s ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
   }
 
   h1,

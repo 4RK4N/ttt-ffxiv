@@ -23,8 +23,11 @@ export const PARTNER_LOGO_PX = PARTNER_REM * ROOT_FONT_PX;
 export const HEADER_LOGO_WIDTH_PX = 127;
 export const HEADER_LOGO_HEIGHT_PX = 49;
 
+/** Header bar height — synced with --header-height in theme.css. */
+export const HEADER_HEIGHT_PX = 68;
+
 /** Header bar height and logo vertical padding (py-1.5) — logo scales with rem. */
-const HEADER_BAR_PX = 68;
+const HEADER_BAR_PX = HEADER_HEIGHT_PX;
 const HEADER_LOGO_PAD_REM = 0.375;
 
 /** Display height of header logo at a given root font size. */
@@ -105,6 +108,10 @@ export function portraitGalleryWidths(): number[] {
 /** Full content column — w-full images inside max-w-[36rem] px-6 sections. */
 export const CONTENT_COLUMN_SIZES = "calc(min(100vw, 36rem) - 3rem)";
 
+/** Full content column for 56rem gallery pages. */
+export const GALLERY_CONTENT_COLUMN_SIZES =
+  "calc(min(100vw, 56rem) - 3rem)";
+
 /** srcset widths for full-width content column images. */
 export function contentColumnWidths(): number[] {
   return buildWidths("contentColumn");
@@ -114,6 +121,17 @@ export function contentColumnWidths(): number[] {
 export const LANDSCAPE_GALLERY_SIZES =
   "(max-width: 640px) calc(min(100vw, 36rem) - 3rem), " +
   "calc((min(100vw, 36rem) - 3rem - 0.75rem) / 2)";
+
+/** Landscape gallery sizes for 56rem gallery pages. */
+export const LANDSCAPE_GALLERY_SIZES_WIDE =
+  "(max-width: 640px) calc(min(100vw, 56rem) - 3rem), " +
+  "calc((min(100vw, 56rem) - 3rem - 0.75rem) / 2)";
+
+/** Portrait gallery sizes wide variant. */
+export const PORTRAIT_GALLERY_SIZES_WIDE =
+  "(max-width: 640px) calc((min(100vw, 56rem) - 3rem - 0.75rem) / 2), " +
+  "(max-width: 1024px) calc((min(100vw, 56rem) - 3rem - 1.5rem) / 3), " +
+  "calc((min(100vw, 56rem) - 3rem - 3rem) / 5)";
 
 /** srcset widths for landscape gallery cells. */
 export function landscapeGalleryWidths(): number[] {

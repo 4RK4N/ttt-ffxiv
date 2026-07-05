@@ -9,8 +9,14 @@ interface Props {
   heading: string;
   /** Rules pages use the wider column (45rem); default is 36rem. */
   wide?: boolean;
+  /** Gallery/guestbook pages use the widest column (56rem). */
+  gallery?: boolean;
   /** Long-form pages (about, rules) keep left-aligned body text. */
   centerBody?: boolean;
+  /** Preload Caveat (pages with h1 page-heading). Default true. */
+  preloadCaveat?: boolean;
+  /** Preload Gochi Hand (body copy). Default true. */
+  preloadGochi?: boolean;
 }
 
 const {
@@ -19,21 +25,38 @@ const {
   path,
   heading,
   wide = false,
+  gallery = false,
   centerBody = true,
+  preloadCaveat = true,
+  preloadGochi = true,
 } = Astro.props;
 ---
 
-<Base title={title} lang={lang} path={path}>
+<Base
+  title={title}
+  lang={lang}
+  path={path}
+  preloadCaveat={preloadCaveat}
+  preloadGochi={preloadGochi}
+>
   <section
     class:list={[
       "content-section",
       wide && "content-section--wide",
+      gallery && "content-section--gallery",
       centerBody && "content-section--center-body",
     ]}
   >
     <h1 class="page-heading">
       <span class="page-heading__text" data-text={heading}>{heading}</span>
     </h1>
+    {
+      Astro.slots.has("intro") && (
+        <div class="page-intro">
+          <slot name="intro" />
+        </div>
+      )
+    }
     <slot />
   </section>
 </Base>

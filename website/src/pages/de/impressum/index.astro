@@ -1,5 +1,6 @@
 ---
 import ContentPage from "../../../components/ContentPage.astro";
+import ContentPanel from "../../../components/ContentPanel.astro";
 import ImprintContent from "../../../components/ImprintContent.astro";
 ---
 
@@ -10,6 +11,9 @@ import ImprintContent from "../../../components/ImprintContent.astro";
   heading="Impressum"
   wide
   centerBody={false}
+  preloadGochi={false}
 >
-  <ImprintContent lang="de" />
+  <ContentPanel>
+    <ImprintContent lang="de" />
+  </ContentPanel>
 </ContentPage>

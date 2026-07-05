@@ -15,7 +15,7 @@ export interface NavItem {
   path: string;
 }
 
-/** Main menu per language (order matters). */
+/** Main menu per language (order matters). Used for mobile drawer and lg+ flat nav. */
 export const navItems: Record<Lang, NavItem[]> = {
   de: [
     { label: "Über Uns", path: "/de/uber-uns/" },
@@ -37,6 +37,43 @@ export const navItems: Record<Lang, NavItem[]> = {
     { label: "Gallery", path: "/en/gallery/" },
     { label: "Guestbook", path: "/en/guestbook/" },
   ],
+};
+
+/** Primary nav links — always visible in grouped desktop nav (md to lg). */
+export const navPrimary: Record<Lang, NavItem[]> = {
+  de: [
+    { label: "Über Uns", path: "/de/uber-uns/" },
+    { label: "Hausregeln", path: "/de/regeln/" },
+    { label: "Events", path: "/de/events/" },
+    { label: "Galerie", path: "/de/galerie/" },
+    { label: "Gästebuch", path: "/de/gaestebuch/" },
+  ],
+  en: [
+    { label: "About", path: "/en/about/" },
+    { label: "Rules", path: "/en/rules/" },
+    { label: "Events", path: "/en/events/" },
+    { label: "Gallery", path: "/en/gallery/" },
+    { label: "Guestbook", path: "/en/guestbook/" },
+  ],
+};
+
+/** Community subgroup — dropdown on md–lg desktop nav. */
+export const navCommunity: Record<Lang, NavItem[]> = {
+  de: [
+    { label: "Staff", path: "/de/staff/" },
+    { label: "Partner", path: "/de/partner/" },
+    { label: "Mitwirken", path: "/de/mitwirken/" },
+  ],
+  en: [
+    { label: "Staff", path: "/en/staff/" },
+    { label: "Partner", path: "/en/partner/" },
+    { label: "Join us", path: "/en/join/" },
+  ],
+};
+
+export const navCommunityLabel: Record<Lang, string> = {
+  de: "Community",
+  en: "Community",
 };
 
 /** Homepage per language (topbar brand link). */

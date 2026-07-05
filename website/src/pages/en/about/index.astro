@@ -1,5 +1,6 @@
 ---
 import ContentPage from "../../../components/ContentPage.astro";
+import ContentPanel from "../../../components/ContentPanel.astro";
 ---
 
 <ContentPage
@@ -9,32 +10,35 @@ import ContentPage from "../../../components/ContentPage.astro";
   heading="About our house"
   centerBody={false}
 >
-  <div class="hand-text flex flex-col gap-6">
-    <h2>What is <em><strong>Tiny Temptation Tubs</strong></em>?</h2>
-    <p>
-      Tiny Temptation Tubs is an RP &amp; ERP bathhouse, a place for relaxation,
-      connection, and closeness.<br />
-      <br />
-      We offer our guests a warm and stylish environment where roleplay, conversations,
-      shared evenings, and special moments take center stage.<br />
-      Whether you seek quiet relaxation, deep conversations, or more sensual RP, you
-      are free to express yourself here - as long as everything remains respectful and
-      consensual.
-    </p>
-    <h2>Who is this place for?</h2>
-    <p>
-      Our house is open to everyone who:<br />
-      enjoys RP and community<br />
-      is looking for a safe and respectful space<br />
-      wants to experience relaxed or more intimate interactions<br />
-      <br />
-      All races are welcome, including Lalafell.<br />
-      <br />
-      We take great care to keep this place safe and comfortable for everyone.
-    </p>
-    <p>
-      Tiny Temptation Tubs is more than just a place -<br />
-      it is a space for connection, stories, and shared experiences.
-    </p>
-  </div>
+  <ContentPanel>
+    <div class="hand-text flex flex-col gap-6">
+      <h2>What is <em><strong>Tiny Temptation Tubs</strong></em>?</h2>
+      <p>
+        Tiny Temptation Tubs is an RP &amp; ERP bathhouse, a place for
+        relaxation, connection, and closeness.
+      </p>
+      <p>
+        We offer our guests a warm and stylish environment where roleplay,
+        conversations, shared evenings, and special moments take center stage.
+        Whether you seek quiet relaxation, deep conversations, or more sensual
+        RP, you are free to express yourself here - as long as everything
+        remains respectful and consensual.
+      </p>
+      <h2>Who is this place for?</h2>
+      <p>Our house is open to everyone who:</p>
+      <ul class="hand-text-list">
+        <li>enjoys RP and community</li>
+        <li>is looking for a safe and respectful space</li>
+        <li>wants to experience relaxed or more intimate interactions</li>
+      </ul>
+      <p>
+        All races are welcome, including Lalafell. We take great care to keep
+        this place safe and comfortable for everyone.
+      </p>
+      <p>
+        Tiny Temptation Tubs is more than just a place — it is a space for
+        connection, stories, and shared experiences.
+      </p>
+    </div>
+  </ContentPanel>
 </ContentPage>

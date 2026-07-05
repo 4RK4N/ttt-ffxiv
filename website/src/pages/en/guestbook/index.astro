@@ -9,17 +9,25 @@ import { resolveGalleryList } from "../../../data/images";
   lang="en"
   path="/en/guestbook/"
   heading="Guestbook"
+  gallery
 >
-  <p class="hand-text">
-    <em
-      ><strong
-        >They say words can remain…<br /> Leave a piece of yourself,<br /> a few thoughts
-        or memories<br /> so your journey here never truly fades.</strong
-      ></em
-    >
-  </p>
+  <Fragment slot="intro">
+    <p class="hand-text">
+      Messages from our community — shared here as screenshots from our Discord.
+    </p>
+    <p class="hand-text">
+      <em
+        ><strong
+          >They say words can remain… Leave a piece of yourself, a few thoughts
+          or memories so your journey here never truly fades.</strong
+        ></em
+      >
+    </p>
+  </Fragment>
   <Gallery
+    wide
     aspect="landscape"
+    altPrefix="Guestbook message"
     images={resolveGalleryList([
       "gallery08/b04b2349.jpg",
       "gallery08/fb0b75e8.jpg",

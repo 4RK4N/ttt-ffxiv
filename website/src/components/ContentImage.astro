@@ -1,6 +1,6 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { Image } from 'astro:assets';
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
 
 interface Props {
   src: ImageMetadata;
@@ -8,18 +8,51 @@ interface Props {
   sizes: string;
   widths?: number[];
   class?: string;
-  loading?: 'lazy' | 'eager';
+  loading?: "lazy" | "eager";
+  alt?: string;
+  lightbox?: boolean;
 }
 
-const { src, width, sizes, widths, class: className, loading = 'lazy' } = Astro.props;
+const {
+  src,
+  width,
+  sizes,
+  widths,
+  class: className,
+  loading = "lazy",
+  alt = "",
+  lightbox = false,
+} = Astro.props;
 ---
 
-<Image
-  src={src}
-  alt=""
-  width={width}
-  {...widths ? { widths } : { densities: [1, 2] }}
-  sizes={sizes}
-  loading={loading}
-  class={className}
-/>
+{
+  lightbox && alt ? (
+    <button
+      type="button"
+      class="image-frame lightbox-trigger w-full cursor-pointer p-0"
+      aria-label={alt}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        {...(widths ? { widths } : { densities: [1, 2] })}
+        sizes={sizes}
+        loading={loading}
+        class={className}
+      />
+    </button>
+  ) : (
+    <div class="image-frame w-full">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        {...(widths ? { widths } : { densities: [1, 2] })}
+        sizes={sizes}
+        loading={loading}
+        class={className}
+      />
+    </div>
+  )
+}

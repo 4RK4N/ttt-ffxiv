@@ -4,8 +4,10 @@ import { Image } from "astro:assets";
 import {
   LANDSCAPE_CELL_PX,
   LANDSCAPE_GALLERY_SIZES,
+  LANDSCAPE_GALLERY_SIZES_WIDE,
   PORTRAIT_CELL_LG_PX,
   PORTRAIT_GALLERY_SIZES,
+  PORTRAIT_GALLERY_SIZES_WIDE,
   landscapeGalleryWidths,
   portraitGalleryWidths,
 } from "../data/layout";
@@ -15,9 +17,23 @@ interface Props {
   aspect?: "portrait" | "landscape";
   cols?: 2;
   class?: string;
+  /** Use wider column sizes for gallery/guestbook pages. */
+  wide?: boolean;
+  /** Enable click-to-expand lightbox. Default true. */
+  lightbox?: boolean;
+  /** Optional alt text prefix for accessibility. */
+  altPrefix?: string;
 }
 
-const { images, aspect = "landscape", cols, class: className } = Astro.props;
+const {
+  images,
+  aspect = "landscape",
+  cols,
+  class: className,
+  wide = false,
+  lightbox = true,
+  altPrefix = "Screenshot",
+} = Astro.props;
 
 const aspectClass = {
   portrait: "aspect-[2/3]",
@@ -30,8 +46,13 @@ const colsClass = cols
     ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
     : "grid-cols-1 sm:grid-cols-2";
 
-const imageSizes =
-  aspect === "portrait" ? PORTRAIT_GALLERY_SIZES : LANDSCAPE_GALLERY_SIZES;
+const imageSizes = wide
+  ? aspect === "portrait"
+    ? PORTRAIT_GALLERY_SIZES_WIDE
+    : LANDSCAPE_GALLERY_SIZES_WIDE
+  : aspect === "portrait"
+    ? PORTRAIT_GALLERY_SIZES
+    : LANDSCAPE_GALLERY_SIZES;
 
 const imageWidths =
   aspect === "portrait" ? portraitGalleryWidths() : landscapeGalleryWidths();
@@ -45,19 +66,38 @@ const imageHeight =
     : Math.round((LANDSCAPE_CELL_PX * 9) / 16);
 ---
 
-<div class:list={["grid w-full gap-3", colsClass, className]}>
+<div
+  class:list={["grid w-full gap-3", colsClass, className]}
+  data-lightbox-group={lightbox ? "" : undefined}
+>
   {
-    images.map((src, index) => (
-      <Image
-        src={src}
-        alt={`Gallery image ${index + 1}`}
-        width={imageWidth}
-        height={imageHeight}
-        widths={imageWidths}
-        sizes={imageSizes}
-        loading="lazy"
-        class:list={["h-full w-full rounded-md object-cover", aspectClass]}
-      />
-    ))
+    images.map((src, index) => {
+      const alt = `${altPrefix} ${index + 1}`;
+      const imageEl = (
+        <Image
+          src={src}
+          alt={alt}
+          width={imageWidth}
+          height={imageHeight}
+          widths={imageWidths}
+          sizes={imageSizes}
+          loading="lazy"
+          class:list={["h-full w-full object-cover", aspectClass]}
+        />
+      );
+
+      return lightbox ? (
+        <button
+          type="button"
+          class="image-frame lightbox-trigger cursor-pointer p-0"
+          data-lightbox-index={index}
+          aria-label={alt}
+        >
+          {imageEl}
+        </button>
+      ) : (
+        <div class="image-frame">{imageEl}</div>
+      );
+    })
   }
 </div>

@@ -1,0 +1,133 @@
+<div
+  id="lightbox"
+  class="lightbox hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+  hidden
+>
+  <button
+    type="button"
+    id="lightbox-close"
+    class="lightbox__close"
+    aria-label="Close"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-5 w-5 fill-none stroke-current stroke-2"
+      aria-hidden="true"
+    >
+      <path d="M6 6l12 12M18 6L6 18"></path>
+    </svg>
+  </button>
+  <button
+    type="button"
+    id="lightbox-prev"
+    class="lightbox__btn lightbox__btn--prev"
+    aria-label="Previous image"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-6 w-6 fill-none stroke-current stroke-2"
+      aria-hidden="true"
+    >
+      <path d="M15 6l-6 6 6 6"></path>
+    </svg>
+  </button>
+  <img id="lightbox-image" class="lightbox__image" alt="" />
+  <button
+    type="button"
+    id="lightbox-next"
+    class="lightbox__btn lightbox__btn--next"
+    aria-label="Next image"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-6 w-6 fill-none stroke-current stroke-2"
+      aria-hidden="true"
+    >
+      <path d="M9 6l6 6-6 6"></path>
+    </svg>
+  </button>
+  <p id="lightbox-counter" class="lightbox__counter" aria-live="polite"></p>
+</div>
+
+<script>
+  function initLightbox() {
+    const overlay = document.getElementById("lightbox")!;
+    const img = document.getElementById("lightbox-image") as HTMLImageElement;
+    const counter = document.getElementById("lightbox-counter")!;
+    const closeBtn = document.getElementById("lightbox-close")!;
+    const prevBtn = document.getElementById("lightbox-prev")!;
+    const nextBtn = document.getElementById("lightbox-next")!;
+
+    let triggers: HTMLButtonElement[] = [];
+    let current = 0;
+    let lastFocus: HTMLElement | null = null;
+
+    function collectTriggers() {
+      triggers = [
+        ...document.querySelectorAll<HTMLButtonElement>(".lightbox-trigger"),
+      ];
+    }
+
+    function show(index: number) {
+      if (!triggers.length) return;
+      current = (index + triggers.length) % triggers.length;
+      const trigger = triggers[current];
+      const source = trigger.querySelector("img");
+      if (!source) return;
+
+      img.src = source.currentSrc || source.src;
+      img.alt = source.alt;
+      counter.textContent = `${current + 1} / ${triggers.length}`;
+      overlay.classList.remove("hidden");
+      overlay.hidden = false;
+      document.body.classList.add("overflow-hidden");
+      closeBtn.focus();
+    }
+
+    function hide() {
+      overlay.classList.add("hidden");
+      overlay.hidden = true;
+      document.body.classList.remove("overflow-hidden");
+      img.src = "";
+      lastFocus?.focus();
+    }
+
+    function onTriggerClick(e: Event) {
+      const trigger = e.currentTarget as HTMLButtonElement;
+      lastFocus = trigger;
+      const index = triggers.indexOf(trigger);
+      if (index >= 0) show(index);
+    }
+
+    function bindTriggers() {
+      collectTriggers();
+      triggers.forEach((trigger) => {
+        trigger.removeEventListener("click", onTriggerClick);
+        trigger.addEventListener("click", onTriggerClick);
+      });
+    }
+
+    closeBtn.onclick = hide;
+    prevBtn.onclick = () => show(current - 1);
+    nextBtn.onclick = () => show(current + 1);
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) hide();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (overlay.hidden) return;
+      if (e.key === "Escape") hide();
+      else if (e.key === "ArrowLeft") show(current - 1);
+      else if (e.key === "ArrowRight") show(current + 1);
+    });
+
+    bindTriggers();
+    document.addEventListener("astro:page-load", bindTriggers);
+  }
+
+  initLightbox();
+</script>

@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Timer from "./Timer.astro";
 import DiscordButton from "./DiscordButton.astro";
+import ContentPanel from "./ContentPanel.astro";
 import {
   HERO_CIRCLE_PX,
   HERO_REM,
@@ -12,7 +13,7 @@ import {
 import { homeCopy } from "../data/home";
 import { buildResponsivePreload } from "../data/preload";
 import { DISCORD_TTT, EVENT_TIMESTAMP, SERVER_LINE } from "../data/site";
-import type { Lang } from "../data/nav";
+import { type Lang } from "../data/nav";
 import { homeCircle } from "../data/images";
 
 interface Props {
@@ -35,17 +36,19 @@ const lcpPreload = await buildResponsivePreload(
 
 <Base title={title} lang={lang} path={path} heroLcp lcpPreload={lcpPreload}>
   <section class="content-section">
-    <Image
-      src={homeCircle}
-      alt=""
-      width={HERO_CIRCLE_PX}
-      height={HERO_CIRCLE_PX}
-      widths={heroWidths}
-      sizes={heroSizes}
-      loading="eager"
-      fetchpriority="high"
-      class="w-72 max-w-full"
-    />
+    <div class="hero-circle-wrap">
+      <Image
+        src={homeCircle}
+        alt=""
+        width={HERO_CIRCLE_PX}
+        height={HERO_CIRCLE_PX}
+        widths={heroWidths}
+        sizes={heroSizes}
+        loading="eager"
+        fetchpriority="high"
+        class="hero-circle w-72 max-w-full"
+      />
+    </div>
     <h1 class="page-heading">
       <span class="page-heading__text" data-text="Tiny Temptation Tubs"
         >Tiny Temptation Tubs</span
@@ -53,17 +56,19 @@ const lcpPreload = await buildResponsivePreload(
     </h1>
     <h2>{copy.openingHeading}</h2>
     <Timer lang={lang} timestamp={EVENT_TIMESTAMP} />
-    <p class="hand-text hand-text--home">
-      {
-        copy.introLines.map((line, i) => (
-          <>
-            {i > 0 && <br />}
-            {line}
-          </>
-        ))
-      }
-    </p>
-    <p class="subtitle-text">{SERVER_LINE}</p>
-    <DiscordButton href={DISCORD_TTT} />
+    <ContentPanel>
+      <p class="subtitle-text mb-4">{SERVER_LINE}</p>
+      <p class="hand-text hand-text--home">
+        {
+          copy.introLines.map((line, i) => (
+            <>
+              {i > 0 && <br />}
+              {line}
+            </>
+          ))
+        }
+      </p>
+    </ContentPanel>
+    <DiscordButton href={DISCORD_TTT} large />
   </section>
 </Base>

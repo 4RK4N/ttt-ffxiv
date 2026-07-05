@@ -9,18 +9,27 @@ import { resolveGalleryList } from "../../../data/images";
   lang="de"
   path="/de/gaestebuch/"
   heading="Gästebuch"
+  gallery
 >
-  <p class="hand-text">
-    <em
-      ><strong
-        >Man sagt, Worte können bleiben…<br /> Hinterlasse ein Stück von dir,<br
-        /> ein paar Gedanken oder Erinnerungen -<br /> damit deine Reise bei uns niemals
-        ganz vergeht.</strong
-      ></em
-    >
-  </p>
+  <Fragment slot="intro">
+    <p class="hand-text">
+      Nachrichten aus unserer Community — hier als Screenshots aus unserem
+      Discord geteilt.
+    </p>
+    <p class="hand-text">
+      <em
+        ><strong
+          >Man sagt, Worte können bleiben… Hinterlasse ein Stück von dir, ein
+          paar Gedanken oder Erinnerungen — damit deine Reise bei uns niemals
+          ganz vergeht.</strong
+        ></em
+      >
+    </p>
+  </Fragment>
   <Gallery
+    wide
     aspect="landscape"
+    altPrefix="Gästebuch-Nachricht"
     images={resolveGalleryList([
       "gallery01/b04b2349.jpg",
       "gallery01/fb0b75e8.jpg",
