@@ -9,7 +9,7 @@ import { SITE_URL } from "./src/data/site.ts";
 
 const site = SITE_URL;
 
-/** Old welcome-hub URLs → language homepages (mirrored in nginx.conf for production). */
+/** Welcome-hub URLs → language homepages (mirrored in nginx.conf for production). */
 const legacyRedirects = {
   "/de/": "/de.html",
   "/en/": "/",

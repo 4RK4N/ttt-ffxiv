@@ -15,15 +15,17 @@ export interface NavItem {
   path: string;
 }
 
-export interface NavCommunityGroup {
+export interface NavDropdownGroup {
   label: string;
   items: NavItem[];
 }
 
-/** Primary links plus Community subgroup — single menu definition per language. */
+/** Primary links plus Pics and Community submenus — single menu definition per language. */
 export interface SiteMenu {
-  primary: NavItem[];
-  community: NavCommunityGroup;
+  primaryLead: NavItem[];
+  pics: NavDropdownGroup;
+  primaryTrail: NavItem[];
+  community: NavDropdownGroup;
 }
 
 function pickNavItems(items: NavItem[], paths: readonly string[]): NavItem[] {
@@ -40,61 +42,74 @@ const navPages: Record<Lang, NavItem[]> = {
   de: [
     { label: "Über Uns", path: "/de/uber-uns/" },
     { label: "Hausregeln", path: "/de/regeln/" },
-    { label: "Events", path: "/de/events/" },
+    { label: "Events", path: "/de/pics/events/" },
     { label: "Karte", path: "/de/karte/" },
-    { label: "Staff", path: "/de/staff/" },
-    { label: "Partner", path: "/de/partner/" },
-    { label: "Mitwirken", path: "/de/mitwirken/" },
-    { label: "Galerie", path: "/de/galerie/" },
+    { label: "Staff", path: "/de/community/staff/" },
+    { label: "Partner", path: "/de/community/partner/" },
+    { label: "Mitwirken", path: "/de/community/mitwirken/" },
+    { label: "Galerie", path: "/de/pics/galerie/" },
     { label: "Gästebuch", path: "/de/gaestebuch/" },
   ],
   en: [
     { label: "About", path: "/en/about/" },
     { label: "Rules", path: "/en/rules/" },
-    { label: "Events", path: "/en/events/" },
+    { label: "Events", path: "/en/pics/events/" },
     { label: "Menu", path: "/en/menu/" },
-    { label: "Staff", path: "/en/staff/" },
-    { label: "Partner", path: "/en/partner/" },
-    { label: "Join us", path: "/en/join/" },
-    { label: "Gallery", path: "/en/gallery/" },
+    { label: "Staff", path: "/en/community/staff/" },
+    { label: "Partner", path: "/en/community/partner/" },
+    { label: "Join us", path: "/en/community/join/" },
+    { label: "Gallery", path: "/en/pics/gallery/" },
     { label: "Guestbook", path: "/en/guestbook/" },
   ],
 };
 
-/** Menu layout — primary order and Community membership. Paths must exist in navPages. */
+/** Menu layout — primary order and submenu membership. Paths must exist in navPages. */
 const siteMenuPaths: Record<
   Lang,
-  { primary: readonly string[]; community: readonly string[] }
+  {
+    primaryLead: readonly string[];
+    pics: readonly string[];
+    primaryTrail: readonly string[];
+    community: readonly string[];
+  }
 > = {
   de: {
-    primary: [
-      "/de/uber-uns/",
-      "/de/regeln/",
-      "/de/events/",
-      "/de/karte/",
-      "/de/galerie/",
-      "/de/gaestebuch/",
+    primaryLead: ["/de/uber-uns/", "/de/regeln/", "/de/karte/"],
+    pics: ["/de/pics/events/", "/de/pics/galerie/"],
+    primaryTrail: ["/de/gaestebuch/"],
+    community: [
+      "/de/community/staff/",
+      "/de/community/partner/",
+      "/de/community/mitwirken/",
     ],
-    community: ["/de/staff/", "/de/partner/", "/de/mitwirken/"],
   },
   en: {
-    primary: [
-      "/en/about/",
-      "/en/rules/",
-      "/en/events/",
-      "/en/menu/",
-      "/en/gallery/",
-      "/en/guestbook/",
+    primaryLead: ["/en/about/", "/en/rules/", "/en/menu/"],
+    pics: ["/en/pics/events/", "/en/pics/gallery/"],
+    primaryTrail: ["/en/guestbook/"],
+    community: [
+      "/en/community/staff/",
+      "/en/community/partner/",
+      "/en/community/join/",
     ],
-    community: ["/en/staff/", "/en/partner/", "/en/join/"],
   },
+};
+
+const picsMenuLabel: Record<Lang, string> = {
+  en: "Pics",
+  de: "Bilder",
 };
 
 function buildSiteMenu(lang: Lang): SiteMenu {
   const pages = navPages[lang];
   const paths = siteMenuPaths[lang];
   return {
-    primary: pickNavItems(pages, paths.primary),
+    primaryLead: pickNavItems(pages, paths.primaryLead),
+    pics: {
+      label: picsMenuLabel[lang],
+      items: pickNavItems(pages, paths.pics),
+    },
+    primaryTrail: pickNavItems(pages, paths.primaryTrail),
     community: {
       label: "Community",
       items: pickNavItems(pages, paths.community),
@@ -133,18 +148,36 @@ export const pathMap: Record<string, Record<Lang, string>> = {
   "/en/about/": { de: "/de/uber-uns/", en: "/en/about/" },
   "/de/regeln/": { de: "/de/regeln/", en: "/en/rules/" },
   "/en/rules/": { de: "/de/regeln/", en: "/en/rules/" },
-  "/de/events/": { de: "/de/events/", en: "/en/events/" },
-  "/en/events/": { de: "/de/events/", en: "/en/events/" },
+  "/de/pics/events/": { de: "/de/pics/events/", en: "/en/pics/events/" },
+  "/en/pics/events/": { de: "/de/pics/events/", en: "/en/pics/events/" },
   "/de/karte/": { de: "/de/karte/", en: "/en/menu/" },
   "/en/menu/": { de: "/de/karte/", en: "/en/menu/" },
-  "/de/staff/": { de: "/de/staff/", en: "/en/staff/" },
-  "/en/staff/": { de: "/de/staff/", en: "/en/staff/" },
-  "/de/partner/": { de: "/de/partner/", en: "/en/partner/" },
-  "/en/partner/": { de: "/de/partner/", en: "/en/partner/" },
-  "/de/mitwirken/": { de: "/de/mitwirken/", en: "/en/join/" },
-  "/en/join/": { de: "/de/mitwirken/", en: "/en/join/" },
-  "/de/galerie/": { de: "/de/galerie/", en: "/en/gallery/" },
-  "/en/gallery/": { de: "/de/galerie/", en: "/en/gallery/" },
+  "/de/community/staff/": {
+    de: "/de/community/staff/",
+    en: "/en/community/staff/",
+  },
+  "/en/community/staff/": {
+    de: "/de/community/staff/",
+    en: "/en/community/staff/",
+  },
+  "/de/community/partner/": {
+    de: "/de/community/partner/",
+    en: "/en/community/partner/",
+  },
+  "/en/community/partner/": {
+    de: "/de/community/partner/",
+    en: "/en/community/partner/",
+  },
+  "/de/community/mitwirken/": {
+    de: "/de/community/mitwirken/",
+    en: "/en/community/join/",
+  },
+  "/en/community/join/": {
+    de: "/de/community/mitwirken/",
+    en: "/en/community/join/",
+  },
+  "/de/pics/galerie/": { de: "/de/pics/galerie/", en: "/en/pics/gallery/" },
+  "/en/pics/gallery/": { de: "/de/pics/galerie/", en: "/en/pics/gallery/" },
   "/de/gaestebuch/": { de: "/de/gaestebuch/", en: "/en/guestbook/" },
   "/en/guestbook/": { de: "/de/gaestebuch/", en: "/en/guestbook/" },
   "/de/impressum/": { de: "/de/impressum/", en: "/en/imprint/" },

@@ -1,6 +1,6 @@
 ---
 import NavDropdown from "./NavDropdown.astro";
-import type { SiteMenu } from "../data/nav";
+import type { NavItem, SiteMenu } from "../data/nav";
 
 interface Props {
   menu: SiteMenu;
@@ -22,9 +22,19 @@ const {
 
 const isDesktop = variant === "desktop";
 const isActive = (itemPath: string) => itemPath === currentPath;
-const isCommunityActive = menu.community.items.some((item) =>
-  isActive(item.path),
-);
+const isGroupActive = (items: NavItem[]) =>
+  items.some((item) => isActive(item.path));
+const isPicsActive = isGroupActive(menu.pics.items);
+const isCommunityActive = isGroupActive(menu.community.items);
+
+const navLinkClass = (itemPath: string) => [
+  "nav-link",
+  isDesktop ? "" : "block px-1 py-2.5",
+  isActive(itemPath) && "nav-link--active",
+  !isActive(itemPath) && "text-bar-text",
+];
+
+const navItemClass = !isDesktop ? "border-b border-bar-border/50" : undefined;
 ---
 
 <nav id={id} class:list={[className]} aria-label={ariaLabel}>
@@ -34,17 +44,32 @@ const isCommunityActive = menu.community.items.some((item) =>
     ]}
   >
     {
-      menu.primary.map((item) => (
-        <li class:list={[!isDesktop && "border-b border-bar-border/50"]}>
+      menu.primaryLead.map((item) => (
+        <li class:list={[navItemClass]}>
           <a
             href={item.path}
             data-astro-prefetch
-            class:list={[
-              "nav-link",
-              isDesktop ? "" : "block px-1 py-2.5",
-              isActive(item.path) && "nav-link--active",
-              !isActive(item.path) && "text-bar-text",
-            ]}
+            class:list={navLinkClass(item.path)}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+    <NavDropdown
+      label={menu.pics.label}
+      items={menu.pics.items}
+      currentPath={currentPath}
+      isGroupActive={isPicsActive}
+      variant={isDesktop ? "bar" : "drawer"}
+    />
+    {
+      menu.primaryTrail.map((item) => (
+        <li class:list={[navItemClass]}>
+          <a
+            href={item.path}
+            data-astro-prefetch
+            class:list={navLinkClass(item.path)}
           >
             {item.label}
           </a>
