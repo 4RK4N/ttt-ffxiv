@@ -11,29 +11,33 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 
 1. Copy `bot/src/examples/module-template/` → `bot/src/modules/<name>/` and
    `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/` (kebab-case namespace).
-   Add `shared/modules/<name>/web-plugin.json` (and panel `types.ts` + `validate.ts` if needed).
-2. In `bot/src/lib/modules/<name>/types.ts` (or shared `types.ts` for panels): set namespace via `createModuleConfig('<name>', …)`.
+   Copy [`web-plugin.json`](web-plugin.json) → `shared/modules/<name>/` for the web editor.
+   **Panel modules:** also copy [`panel-types.ts`](panel-types.ts) → `shared/modules/<name>/types.ts` and
+   [`validate.ts`](validate.ts) → `shared/modules/<name>/validate.ts`.
+2. Set namespace via `createModuleConfig('<name>', …)` in `bot/src/lib/modules/<name>/types.ts`
+   (simple) or `shared/modules/<name>/types.ts` (panel — use `panel-types.ts` as starting point).
 3. Copy `data/example-module/` → project **`data/<namespace>/`** (Docker volume). Rename
    `*.example.json` → `config.json` / `texts.json`.
 4. Wire `bot/src/modules/<name>/index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
-5. Add `shared/modules/<name>/web-plugin.json` if the module should appear in the web editor.
-6. **Panel modules only:** wire `validate.ts` in `web-admin/src/store.ts` and register namespace in
+5. **Panel modules only:** uncomment panel block in `config-io.ts`; implement `panel.ts` + `publisher.ts`;
+   wire `validate.ts` in `web-admin/src/store.ts`; register namespace in
    `bot/src/internal-api/publishRegistry.ts`.
-7. Run `npm run deploy` after adding or changing slash commands.
+6. Run `npm run deploy` after adding or changing slash commands.
 
 ## File map
 
 | Location                  | File                | Purpose                                                                         |
 | ------------------------- | ------------------- | ------------------------------------------------------------------------------- |
-| `bot/src/lib/modules/<name>/` | `types.ts`          | Interfaces, defaults, `createModuleConfig`, `config()`, `texts()` (non-panel) |
-| `shared/modules/<name>/`  | `types.ts`          | Panel modules — shared contract with web validators                           |
+| `bot/src/lib/modules/<name>/` | `types.ts`          | Simple modules — interfaces, defaults, `config()`, `texts()`                    |
+| `shared/modules/<name>/`  | `types.ts`          | Panel modules — copy from [`panel-types.ts`](panel-types.ts)                  |
 | `bot/src/lib/modules/<name>/` | `config-io.ts`      | IO boundary — **handlers import from here**, not `types.ts`                     |
 | `bot/src/modules/<name>/` | `handlers.ts`       | Example patterns: guards, config/text reads, interactions                       |
 | `bot/src/modules/<name>/` | `index.ts`          | `CommandModule` export only                                                     |
-| `shared/modules/<name>/`  | `web-plugin.json`   | Web editor manifest (`title`, `description`, `fields`)                          |
-| `shared/modules/<name>/`  | `validate.ts`       | Panel/list row validation (web editor save) — optional                          |
+| `bot/src/examples/module-template/` | `web-plugin.json`   | Copy to `shared/modules/<name>/` for the web editor                            |
+| `bot/src/examples/module-template/` | `validate.ts`       | Copy to `shared/modules/<name>/` for panel row validation                     |
+| `shared/modules/<name>/`  | `validate.ts`       | Panel/list row validation (web editor save) — lives here after copy             |
 | `bot/src/lib/modules/<name>/`  | `panel.ts`          | Panel publish payload — panel modules only                                      |
-| `bot/src/lib/modules/<name>/`  | `publisher.ts`      | Publish/unpublish — panel modules only                                          |
+| `bot/src/lib/modules/<name>/`  | `publisher.ts`      | Publish/unpublish — panel modules only (see example-module/publisher.ts)        |
 | `data/example-module/`    | (under this folder) | Seed JSON for `data/<namespace>/`                                               |
 
 ## Import rule
@@ -120,7 +124,7 @@ for full examples.
 | `init(client)`      | `client.on(Events.…)` listeners                                |
 | `commands[]`        | Slash commands — requires `npm run deploy`                     |
 | `componentRoutes[]` | `{ prefix: '<namespace>:', handle }` for buttons/selects       |
-| `publish*()`        | Panel modules — register in `bot/src/internal-api/publishRegistry.ts` |
+| `publish*()`        | Panel modules — export from `bot/src/lib/modules/<name>/publisher.ts`; register in `publishRegistry.ts` |
 
 ## Data folder
 

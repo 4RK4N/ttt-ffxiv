@@ -57,65 +57,7 @@ export function targetChannelId(): string | undefined {
   return id === "" ? undefined : id;
 }
 
-// =============================================================================
-// PANEL MODULE (optional — uncomment entire block for publishable list items)
-// =============================================================================
-//
-// Panel modules store a *list* of items in config.json (e.g. panels[]) and nest
-// per-item copy in texts.json (e.g. texts.panels[id]). Use resolveKeyedItem()
-// to merge config row + text row into one object for handlers and publish.
-//
-// Also add validate.ts and wire validateExamplePanelRow in web-admin/src/store.ts.
-//
-/*
-export interface ExamplePanelConfig {
-  id: string;
-  published: boolean;
-  panelMessageId: string;
-  channelId: string;
-}
-
-export interface ExamplePanelTexts {
-  panelTitle: string;
-  panelDescription: string;
-}
-
-export interface ResolvedExamplePanel extends ExamplePanelConfig, ExamplePanelTexts {}
-
-export interface ExamplePanelModuleConfig extends ExampleConfig {
-  panels: ExamplePanelConfig[];
-}
-
-export interface ExamplePanelModuleTexts extends ExampleTexts {
-  panels: Record<string, ExamplePanelTexts>;
-}
-
-export const DEFAULT_PANEL_TEXTS: ExamplePanelTexts = {
-  panelTitle: 'Example panel',
-  panelDescription: 'Configure me in the web editor.',
-};
-
-// Replace CONFIG_DEFAULTS / TEXT_DEFAULTS and re-run createModuleConfig if converting
-// this template to a panel module:
-
-export const PANEL_CONFIG_DEFAULTS: ExamplePanelModuleConfig = {
-  enabled: true,
-  channelId: '',
-  panels: [],
-};
-
-export const PANEL_TEXT_DEFAULTS: ExamplePanelModuleTexts = {
-  disabled: 'This feature is currently disabled.',
-  greeting: 'Hello {mention}!',
-  panels: {},
-};
-
-export function resolveExamplePanel(id: string): ResolvedExamplePanel | undefined {
-  return resolveKeyedItem(
-    config().panels as ExamplePanelConfig[],
-    id,
-    (texts() as ExamplePanelModuleTexts).panels,
-    DEFAULT_PANEL_TEXTS
-  );
-}
-*/
+// --- Panel module (optional) --------------------------------------------------
+// Copy bot/src/examples/module-template/panel-types.ts → shared/modules/<name>/types.ts
+// Copy validate.ts → shared/modules/<name>/validate.ts; wire store.ts + publishRegistry.ts
+// Uncomment panel block in config-io.ts; implement panel.ts + publisher.ts

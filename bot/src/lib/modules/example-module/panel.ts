@@ -1,38 +1,42 @@
 /**
- * Panel publish stub (panel modules only — delete for simple modules).
+ * Panel Discord payload — panel modules only (delete for simple modules).
  *
- * When enabling panel types in types.ts + config-io.ts, import resolveExamplePanel
- * from config-io and match the signature used by real modules (tickets/panel.ts).
+ * Match the signature used by tickets/custom-embeds. Uncomment resolve import when
+ * panel types are in shared/modules/<name>/types.ts and config-io.ts is wired.
  */
 import {
   publishDiscordMessage,
   type DiscordApiContext,
+  type DiscordMessagePayload,
 } from "../../core/panelPublish.js";
-
-type ResolvedExamplePanel = {
-  id: string;
-  channelId: string;
-  panelTitle: string;
-  panelDescription: string;
-};
 
 export type { DiscordApiContext };
 
 export const EXAMPLE_BTN_PREFIX = "example-module:btn:";
 
-export function buildPanelPayload(panel: ResolvedExamplePanel) {
+// import { resolveExamplePanel } from './config-io.js';
+
+export function buildPanelPayload(_panelId: string): DiscordMessagePayload {
+  /*
+  const panel = resolveExamplePanel(_panelId);
+  if (!panel) throw new Error(`Unknown example panel "${_panelId}".`);
+
   return {
     content: panel.panelDescription,
     // embeds: [buildEmbed({ title: panel.panelTitle, description: panel.panelDescription })],
   };
+  */
+  throw new Error(
+    "Example panel stub — enable panel types and implement buildPanelPayload (see panel-types.ts).",
+  );
 }
 
 export async function publishPanel(
   ctx: DiscordApiContext,
-  panel: ResolvedExamplePanel,
-) {
-  return publishDiscordMessage(ctx, panel.channelId, buildPanelPayload(panel));
+  panelId: string,
+  channelId: string,
+  existingMessageId?: string,
+): Promise<string> {
+  const payload = buildPanelPayload(panelId);
+  return publishDiscordMessage(ctx, channelId, payload, existingMessageId);
 }
-
-// createPanelPublisher expects: publishPanel(ctx, resolvedPanel) — pass the merged
-// resolve*() result. Register publish/unpublish in bot/src/internal-api/publishRegistry.ts.

@@ -26,14 +26,14 @@ export {
 // --- Panel module (uncomment; remove simple barrel above) ---------------------
 /*
 import { createConfigIo } from '../../core/configIo.js';
-import type { ExamplePanelConfig } from './types.js';
+import type { ExamplePanelConfig } from '../../../../../shared/modules/<name>/types.js';
 import {
   CONFIG_DEFAULTS,
   NAMESPACE,
   config,
   resolveExamplePanel,
   texts,
-} from './types.js';
+} from '../../../../../shared/modules/<name>/types.js';
 
 const io = createConfigIo<ExamplePanelConfig>(NAMESPACE, 'panels', CONFIG_DEFAULTS);
 

@@ -1,10 +1,11 @@
 /**
- * Web editor row validation (panel / object-list modules).
+ * Panel row validation — copy to `shared/modules/<name>/validate.ts` when creating a
+ * panel module. Wire `validateExamplePanelRow` in `web-admin/src/store.ts` (see README).
  *
- * Called from web-admin/src/store.ts when saving object-list fields. Wire your validator
- * in the writeValues() loop — see README.md "Web editor validation".
+ * Not compiled in-place (see bot/tsconfig.json exclude) — imports assume destination
+ * under shared/modules/<name>/.
  */
-import { parsePanelBaseFields } from "../../../../../shared/core/panelFields.js";
+import { parsePanelBaseFields } from "../../core/panelFields.js";
 
 interface ExamplePanelLike {
   panelTitle: string;

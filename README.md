@@ -16,12 +16,14 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
    ```text
    bot/src/examples/module-template/  →  bot/src/modules/<name>/   (handlers, index.ts)
    bot/src/lib/modules/example-module/  →  bot/src/lib/modules/<name>/  (config-io, types, panel…)
-   shared/modules/example-module/       →  shared/modules/<name>/     (web-plugin.json; panel: types + validate)
+   bot/src/examples/module-template/web-plugin.json  →  shared/modules/<name>/web-plugin.json
    ```
 
    Use kebab-case for `<name>` (e.g. `my-feature`). Delete unused files (`panel.ts`, `validate.ts` for simple modules).
 
-2. **Set the namespace** in `shared/modules/<name>/types.ts` — `createModuleConfig('<name>', …)` must match the folder name and data path.
+2. **Set the namespace** — `createModuleConfig('<name>', …)` must match the data folder:
+   - **Simple modules:** `bot/src/lib/modules/<name>/types.ts`
+   - **Panel modules:** `shared/modules/<name>/types.ts` (copy from [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts))
 
 3. **Seed runtime data** — copy `bot/src/examples/module-template/data/example-module/` to `data/<name>/` on the host (Docker volume `./data:/app/data`). Rename `*.example.json` → `config.json` / `texts.json`.
 
@@ -32,7 +34,7 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 
 5. **Web editor (optional)** — keep/adapt `web-plugin.json`; rebuild so `copy-web-plugins.js` copies it to `dist/`.
 
-6. **Panel modules only** — shared `types.ts` + `validate.ts`, bot lib `panel.ts` / `publisher.ts`, wire validate in `web-admin/src/store.ts`, register namespace in `bot/src/internal-api/publishRegistry.ts`.
+6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/internal-api/publishRegistry.ts`.
 
 Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
 

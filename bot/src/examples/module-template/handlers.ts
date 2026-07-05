@@ -17,8 +17,8 @@ import {
 } from "../../lib/modules/example-module/config-io.js";
 
 // Optional core imports (uncomment when needed):
-// import { tryAssignRole } from '../../core/discordRoles.js';
-// import { startAndPopulateCommentsThread, buildThreadName } from '../../core/threads.js';
+// import { tryAssignRole } from '../../lib/core/discordRoles.js';
+// import { startAndPopulateCommentsThread, buildThreadName } from '../../lib/core/threads.js';
 
 // -----------------------------------------------------------------------------
 // Reading config
@@ -61,7 +61,7 @@ export function shouldHandleMessage(message: Message): boolean {
 // -----------------------------------------------------------------------------
 
 /*
-import { getExamplePanelConfig, resolveExamplePanel } from './config-io.js';
+import { getExamplePanelConfig, resolveExamplePanel } from '../../lib/modules/<name>/config-io.js';
 
 export function requirePublishedPanel(panelId: string) {
   const resolved = resolveExamplePanel(panelId);

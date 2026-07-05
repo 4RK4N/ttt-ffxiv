@@ -23,7 +23,7 @@ host — bind-mounted to `/app/data` inside the bot and web-editor containers
    texts.example.json   →  texts.json
    ```
 
-3. Edit via the web editor (once `web-plugin.json` is in `shared/modules/<name>/`) or by hand.
+3. Edit via the web editor (after copying [`web-plugin.json`](../../web-plugin.json) to `shared/modules/<name>/`) or by hand.
 
 ## Config vs texts
 

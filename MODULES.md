@@ -108,7 +108,9 @@ Every production module follows the same shape:
 **Panel modules:** shared `types.ts` + `validate.ts`; bot lib holds `config-io`, `panel`, `publisher`.
 
 **Adding a module:** copy [`bot/src/examples/module-template/`](bot/src/examples/module-template/) →
-`bot/src/modules/<name>/` and adapt `shared/modules/` + `bot/src/lib/modules/` as needed.
+`bot/src/modules/<name>/` and `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/`.
+For the web editor, copy `web-plugin.json` to `shared/modules/<name>/`.
+Panel modules also copy `panel-types.ts` and `validate.ts` from the template into `shared/modules/<name>/`.
 The loader picks up any folder with `index.ts` automatically.
 Panel modules also register the namespace in `bot/src/internal-api/publishRegistry.ts` and validators in
 `web-admin/src/store.ts`.

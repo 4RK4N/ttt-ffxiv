@@ -93,38 +93,12 @@ const componentRoutes: ComponentRoute[] = [
 ];
 
 // =============================================================================
-// Pattern D: panel publish (panel modules — see panel.ts, validate.ts, config-io)
+// Pattern D: panel publish (panel modules — see lib/modules/<name>/publisher.ts)
 // =============================================================================
 
 /*
-import { createPanelPublisher } from '../../core/panelPublisher.js';
-import {
-  getExamplePanelConfig,
-  resolveExamplePanel,
-  updateExamplePanel,
-} from './config-io.js';
-import { publishPanel, type DiscordApiContext } from './panel.js';
-
-const panelPublisher = createPanelPublisher({
-  resolve: resolveExamplePanel,
-  getConfig: getExamplePanelConfig,
-  update: updateExamplePanel,
-  publishPanel,
-  entityLabel: 'example panel',
-});
-
-export async function publishExamplePanel(
-  ctx: DiscordApiContext,
-  panelId: string
-): Promise<void> {
-  return panelPublisher.publish(ctx, panelId);
-}
-
-export async function unpublishExamplePanel(panelId: string): Promise<void> {
-  return panelPublisher.unpublish(panelId);
-}
-
-// Also register in bot/src/internal-api/publishRegistry.ts and wire validate.ts in store.ts.
+Register in bot/src/internal-api/publishRegistry.ts after uncommenting publisher.ts.
+See bot/src/lib/modules/example-module/publisher.ts and tickets/publisher.ts.
 */
 
 // =============================================================================
