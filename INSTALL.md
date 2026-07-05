@@ -295,15 +295,16 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 
 Use [`scripts/build.sh`](scripts/build.sh) for full-stack deploy builds. Bot and editor
 share one [`Dockerfile`](Dockerfile) (single `npm ci`), website has its own. Builds use
-layer cache by default; changed source re-runs only the affected steps. **`--progress plain`**
-for uncollapsed build logs.
+layer cache by default; changed source re-runs only the affected steps. Pass **`-v`** for
+uncollapsed build logs (`--progress plain`).
 
 ```bash
 chmod +x scripts/build.sh   # once, on Linux/macOS
-./scripts/build.sh
+./scripts/build.sh          # compact progress (default)
+./scripts/build.sh -v       # full step-by-step build output
 ```
 
-Force a full rebuild (no layer cache): `NO_CACHE=1 ./scripts/build.sh`
+Force a full rebuild (no layer cache): `./scripts/build.sh --no-cache`
 
 This builds and recreates:
 
