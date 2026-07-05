@@ -302,17 +302,17 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 `COMPOSE_BAKE=true` — keep that enabled so builds go through Bake/Buildx and the
 `nproc` ulimits in `docker-compose.yml` take effect.
 
-Use [`scripts/build.sh`](scripts/build.sh) for full-stack deploy builds. Bot and editor
-share one [`Dockerfile`](Dockerfile) (single `npm ci`), website has its own
-([`website/Dockerfile`](website/Dockerfile)). Builds use layer cache by default;
+Use [`scripts/build.sh`](scripts/build.sh) for deploy builds. Bot and web editor use
+[`Dockerfile`](Dockerfile) (separate image targets); website uses
+[`website/Dockerfile`](website/Dockerfile). Builds use layer cache by default;
 changed source re-runs only the affected steps.
 
-| Flag            | Effect                                        |
+| Flag / args     | Effect                                        |
 | --------------- | --------------------------------------------- |
-| _(none)_        | Compact build progress (default)              |
+| _(none)_        | Build and recreate all three services         |
 | `-v`            | Full step-by-step output (`--progress plain`) |
 | `--no-cache`    | Ignore layer cache; full rebuild              |
-| `-v --no-cache` | Both                                          |
+| `bot` / `web` / `website` | Build only listed services (aliases or `ttt-*` names) |
 
 ```bash
 chmod +x scripts/build.sh   # once, on Linux/macOS
@@ -320,6 +320,8 @@ chmod +x scripts/build.sh   # once, on Linux/macOS
 ./scripts/build.sh -v
 ./scripts/build.sh --no-cache
 ./scripts/build.sh -v --no-cache
+./scripts/build.sh bot
+./scripts/build.sh web-editor website
 ```
 
 This builds and recreates:

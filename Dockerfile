@@ -25,10 +25,12 @@ RUN --mount=type=cache,target=/root/.npm \
     npm ci --omit=dev
 
 FROM deps-prod AS deps-prod-bot
+# Web editor only — bot uses discord.js + @napi-rs/canvas.
 RUN rm -rf node_modules/hono node_modules/@hono
 
 FROM deps-prod AS deps-prod-web
-RUN rm -rf node_modules/@napi-rs
+# Bot only — web uses hono + @hono/node-server (REST via fetch, no discord.js client).
+RUN rm -rf node_modules/@napi-rs node_modules/discord.js node_modules/@discordjs
 
 FROM node:24-alpine AS ttt-discord-bot
 WORKDIR /app
