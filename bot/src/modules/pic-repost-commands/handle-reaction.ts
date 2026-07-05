@@ -28,24 +28,6 @@ function matchesDeleteEmoji(
   return !!configKey && configKey === reactionKey;
 }
 
-function findDeleteEmojiReaction(
-  message: MessageReaction["message"],
-  deleteEmoji: string,
-): MessageReaction | undefined {
-  for (const cached of message.reactions.cache.values()) {
-    if (
-      matchesDeleteEmoji(
-        cached.emoji.name,
-        cached.emoji.id ?? null,
-        deleteEmoji,
-      )
-    ) {
-      return cached;
-    }
-  }
-  return undefined;
-}
-
 async function handleDeleteReaction(
   reaction: MessageReaction | PartialMessageReaction,
   user: User | { id: string; bot?: boolean },
@@ -92,14 +74,9 @@ async function handleDeleteReaction(
   if (!authorUserId) return;
 
   if (user.id !== authorUserId) {
-    const deleteReaction = findDeleteEmojiReaction(
-      message,
-      resolveDeleteEmoji(cfg),
-    );
-    if (!deleteReaction) return;
     try {
-      // Remove only this user's delete-emoji reaction; leave hearts etc. untouched.
-      await deleteReaction.users.remove(user.id);
+      // Event reaction already matched deleteEmoji; remove only that emoji for this user.
+      await reaction.users.remove(user.id);
     } catch (err) {
       console.warn(
         `[${NAMESPACE}] Failed to remove non-author delete reaction message=${message.id} user=${user.id}:`,

@@ -14,13 +14,18 @@ export function parseCustomEmojiId(emoji: string): string | undefined {
   return match?.[2];
 }
 
+/** Strip variation selectors so 🗑 and 🗑️ match the same reaction. */
+function normalizeUnicodeEmoji(name: string): string {
+  return name.normalize("NFC").replace(/\uFE0F/g, "");
+}
+
 /** Stable key matching a live Discord reaction emoji. */
 export function reactionMatchKey(
   emojiName: string | null,
   emojiId: string | null,
 ): string | undefined {
   if (emojiId) return `custom:${emojiId}`;
-  if (emojiName) return `unicode:${emojiName}`;
+  if (emojiName) return `unicode:${normalizeUnicodeEmoji(emojiName)}`;
   return undefined;
 }
 
@@ -30,7 +35,7 @@ export function emojiMatchKey(emoji: string): string | undefined {
   if (!trimmed) return undefined;
   const customId = parseCustomEmojiId(trimmed);
   if (customId) return `custom:${customId}`;
-  return `unicode:${trimmed}`;
+  return `unicode:${normalizeUnicodeEmoji(trimmed)}`;
 }
 
 /** URL path segment for Discord reaction API. */
