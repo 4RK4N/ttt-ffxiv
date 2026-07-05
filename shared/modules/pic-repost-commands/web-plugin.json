@@ -3,6 +3,20 @@
   "description": "Adds /pic and /post commands that re-upload attached images with attribution and a comments thread.",
   "fields": [
     {
+      "key": "deleteEmoji",
+      "label": "Delete reaction emoji",
+      "type": "text",
+      "store": "config",
+      "help": "Emoji the post author can react with to delete their repost. Unicode (🗑️) or custom (<:name:id>)."
+    },
+    {
+      "key": "deleteAuthorLastMention",
+      "label": "Last mention is delete author",
+      "type": "boolean",
+      "store": "config",
+      "help": "When on (default), delete-by-reaction uses the last user mention in the caption — put {mention} after {message} so mentions inside the caption text are not treated as the author. When off, the first mention is used instead."
+    },
+    {
       "key": "disabled",
       "label": "Disabled reply",
       "type": "text",
@@ -42,7 +56,7 @@
       "key": "attribution",
       "label": "Attribution caption",
       "type": "textarea",
-      "help": "Caption posted with the re-uploaded images. Tokens: {message}, {mention}"
+      "help": "Caption posted with the re-uploaded images. Tokens: {message}, {mention}, {deleteEmoji}. Place {mention} after {message} so delete-by-reaction identifies the post author correctly."
     },
     {
       "key": "postedSuccess",

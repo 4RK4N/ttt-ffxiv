@@ -16,8 +16,11 @@ import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
 import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
 import {
   NAMESPACE,
+  config,
   texts,
+  resolveDeleteEmoji,
 } from "../../lib/modules/pic-repost-commands/config-io.js";
+import { registerDeleteReactionHandler } from "./handle-reaction.js";
 
 const MAX_IMAGES = 10;
 const MAX_MESSAGE_LENGTH = 2000;
@@ -131,6 +134,7 @@ async function execute(
   const content = format(t.attribution, {
     message,
     mention: `<@${interaction.user.id}>`,
+    deleteEmoji: resolveDeleteEmoji(config()),
   });
 
   if (!interaction.channel || !interaction.channel.isSendable()) {
@@ -175,6 +179,7 @@ const picRepostModule: CommandModule = {
     { data: buildCommand("pic"), execute },
     { data: buildCommand("post"), execute },
   ],
+  init: registerDeleteReactionHandler,
 };
 
 export default picRepostModule;

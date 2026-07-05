@@ -22,10 +22,13 @@ Posts a welcome card on join and sends rules by DM (falls back to channel if DMs
 ### pic-repost-commands (`/pic`, `/post`)
 
 Re-posts user images through the bot with attribution; opens a comments thread.
+The author can delete their repost by reacting with the configured delete emoji (bot does not pre-add the reaction).
 
-- **Config:** `enabled` toggle
-- **Texts:** disabled notice, errors, thread opener
-- **Permissions:** Send Messages, Attach Files, Create Public Threads (thread optional)
+- **Config:** `enabled` toggle, `deleteEmoji` (default 🗑️), `deleteAuthorLastMention` (default on — last mention is delete author)
+- **Texts:** disabled notice, errors, thread opener, attribution caption
+- **Tokens:** `{message}`, `{mention}`, `{deleteEmoji}` in attribution; `{count}`, `{images}` in success reply
+- **Delete auth:** author from user mention in caption (`{mention}` after `{message}`); last mention by default, or first when `deleteAuthorLastMention` is off
+- **Permissions:** Send Messages, Attach Files, Manage Messages (strip non-author reactions + delete), Create Public Threads (thread optional)
 
 ### links-pics-vids-autothread
 
@@ -127,7 +130,7 @@ See the [module template README](bot/src/examples/module-template/README.md) for
 | Module                     | Privileged intent       | Other requirements                     |
 | -------------------------- | ----------------------- | -------------------------------------- |
 | welcome-message            | Server Members          | —                                      |
-| pic-repost-commands        | —                       | Thread permissions in channel          |
+| pic-repost-commands        | —                       | Manage Messages, thread permissions    |
 | links-pics-vids-autothread | Message Content         | —                                      |
 | tickets                    | Server Members          | Manage Threads, Manage Roles           |
 | reaction-roles             | — (reactions: standard) | Manage Roles                           |

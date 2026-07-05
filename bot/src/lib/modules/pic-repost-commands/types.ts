@@ -16,13 +16,29 @@ export interface PicTexts {
   threadFirstMessage: string;
 }
 
+export const DEFAULT_DELETE_EMOJI = "🗑️";
+
 export interface PicConfig {
   enabled?: boolean;
+  deleteEmoji?: string;
+  /** When true (default), delete author is the last user mention in the caption. */
+  deleteAuthorLastMention?: boolean;
 }
 
 export const CONFIG_DEFAULTS: PicConfig = {
   enabled: true,
+  deleteEmoji: DEFAULT_DELETE_EMOJI,
+  deleteAuthorLastMention: true,
 };
+
+export function resolveDeleteEmoji(cfg: PicConfig): string {
+  const trimmed = cfg.deleteEmoji?.trim();
+  return trimmed || DEFAULT_DELETE_EMOJI;
+}
+
+export function resolveDeleteAuthorLastMention(cfg: PicConfig): boolean {
+  return cfg.deleteAuthorLastMention !== false;
+}
 
 // Code defaults; data/pic-repost-commands/texts.json overrides these.
 export const TEXT_DEFAULTS: PicTexts = {
@@ -40,7 +56,8 @@ export const TEXT_DEFAULTS: PicTexts = {
   postFailed:
     "I could not post in this channel. This is usually a file size limit or missing " +
     '"Send Messages"/"Attach Files" permission.',
-  attribution: "{message}\n\nby {mention}",
+  attribution:
+    "{message}\n\nby {mention}\n\nReact with {deleteEmoji} to delete",
   postedSuccess: "Posted {count} {images} to this channel.",
   threadNote:
     "\n\nNote: I could not create the comments thread. I may be missing the " +

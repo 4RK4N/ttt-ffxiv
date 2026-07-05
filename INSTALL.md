@@ -285,11 +285,14 @@ The bot needs **Send Messages** and **Embed Links** in each target channel.
 ### `data/pic-repost-commands/config.json` - /pic and /post commands
 
 ```json
-{ "enabled": true }
+{ "enabled": true, "deleteEmoji": "🗑️", "deleteAuthorLastMention": true }
 ```
 
+- **`deleteEmoji`** — emoji the post author reacts with to delete their repost (unicode or `<:name:id>`). The bot does not add this reaction; it is shown in the attribution caption via the `{deleteEmoji}` token.
+- **`deleteAuthorLastMention`** — when `true` (default), delete auth uses the **last** user mention in the caption; when `false`, the first mention. Put `{mention}` after `{message}` in the attribution template so mentions inside the caption text are not treated as the author.
+
 This module has no channel setting (the commands work in whatever channel they're
-run), so its `config.json` holds only the `enabled` toggle. Set `"enabled": false`
+run), so its `config.json` holds the module toggle and delete emoji. Set `"enabled": false`
 (or flip the toggle in the [Web editor](README.md#web-editor)) to turn off `/pic`
 and `/post`; while off they reply with a short "disabled" notice instead of
 posting.
