@@ -29,7 +29,10 @@ const {
   lightbox && alt ? (
     <button
       type="button"
-      class="image-frame lightbox-trigger w-full cursor-pointer p-0"
+      class:list={[
+        "image-frame lightbox-trigger mx-auto max-w-full cursor-pointer p-0",
+        className,
+      ]}
       aria-label={alt}
     >
       <Image
@@ -39,11 +42,11 @@ const {
         {...(widths ? { widths } : { densities: [1, 2] })}
         sizes={sizes}
         loading={loading}
-        class={className}
+        class="block h-auto w-full"
       />
     </button>
   ) : (
-    <div class="image-frame w-full">
+    <div class:list={["image-frame mx-auto max-w-full", className]}>
       <Image
         src={src}
         alt={alt}
@@ -51,7 +54,7 @@ const {
         {...(widths ? { widths } : { densities: [1, 2] })}
         sizes={sizes}
         loading={loading}
-        class={className}
+        class="block h-auto w-full"
       />
     </div>
   )

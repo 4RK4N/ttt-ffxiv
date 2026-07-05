@@ -33,7 +33,7 @@ const isActive = (itemPath: string) => itemPath === currentPath;
     type="button"
     class:list={[
       "nav-link nav-dropdown-trigger cursor-pointer gap-1 bg-transparent font-inherit",
-      isDrawer && "block w-full px-1 py-2.5 text-left",
+      isDrawer && "w-full justify-start px-1 py-2.5 text-left",
       isGroupActive ? "nav-link--active text-bar-accent" : "text-bar-text",
     ]}
     aria-haspopup="true"
