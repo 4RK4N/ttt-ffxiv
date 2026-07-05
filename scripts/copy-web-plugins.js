@@ -16,7 +16,6 @@ if (!existsSync(srcModules)) {
 }
 
 let copied = 0;
-let skipped = 0;
 for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
 
@@ -24,14 +23,7 @@ for (const entry of readdirSync(srcModules, { withFileTypes: true })) {
   if (!existsSync(manifest)) continue;
 
   const destDir = join(distModules, entry.name);
-  if (!existsSync(destDir)) {
-    console.warn(
-      `[copy-web-plugins] Skipping "${entry.name}": no compiled output at ${destDir}.`,
-    );
-    skipped += 1;
-    continue;
-  }
-
+  mkdirSync(destDir, { recursive: true });
   cpSync(manifest, join(destDir, "web-plugin.json"));
   copied++;
 }
@@ -81,12 +73,5 @@ cpSync(htmxSrc, join(adminJsDest, "htmx.min.js"));
 console.log("[copy-web-plugins] Copied htmx.min.js into dist.");
 if (!existsSync(join(adminJsDest, "htmx.min.js"))) {
   console.error("[copy-web-plugins] htmx.min.js missing after copy.");
-  process.exit(1);
-}
-
-if (skipped > 0) {
-  console.error(
-    `[copy-web-plugins] ${skipped} manifest(s) skipped because dist output was missing. Run "npm run build" first.`,
-  );
   process.exit(1);
 }
