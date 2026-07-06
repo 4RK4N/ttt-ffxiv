@@ -107,6 +107,7 @@ export async function handleRoleAction(
       ticketType,
       confirmation,
       welcomeMessage,
+      openerUserId,
     );
   } catch (err) {
     console.error("[tickets] Failed to complete role action:", err);

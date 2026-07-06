@@ -5,6 +5,7 @@ import {
   publishDiscordMessage,
   type DiscordApiContext,
 } from "../../core/panelPublish.js";
+import { validateTicketType } from "../../../../../shared/modules/tickets/validate.js";
 import { resolveTicketType } from "./config-io.js";
 
 export type { DiscordApiContext };
@@ -38,6 +39,7 @@ export function buildConfirmRow(
 export function buildPanelPayload(typeId: string) {
   const ticketType = resolveTicketType(typeId);
   if (!ticketType) throw new Error(`Unknown ticket type "${typeId}".`);
+  validateTicketType(ticketType);
 
   const embed = buildEmbed({
     title: ticketType.panelTitle,

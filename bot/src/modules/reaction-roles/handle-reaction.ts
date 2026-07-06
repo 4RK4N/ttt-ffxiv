@@ -5,6 +5,7 @@ import {
   type PartialMessageReaction,
   type User,
 } from "discord.js";
+import { ensureFullReaction } from "../../lib/core/reactionContext.js";
 import { isModuleEnabled } from "../../../../shared/core/texts.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import { matchOptionByReaction } from "../../lib/modules/reaction-roles/panel.js";
@@ -25,23 +26,10 @@ async function handleReaction(
   if (user.bot) return;
   if (!isModuleEnabled(NAMESPACE)) return;
 
-  if (reaction.partial) {
-    try {
-      await reaction.fetch();
-    } catch {
-      return;
-    }
-  }
+  const ctx = await ensureFullReaction(reaction);
+  if (!ctx) return;
 
-  const message = reaction.message;
-  if (message.partial) {
-    try {
-      await message.fetch();
-    } catch {
-      return;
-    }
-  }
-  if (!message.guild) return;
+  const { message, guild } = ctx;
 
   const panel = findPanelByMessageId(message.id);
   if (!panel || panel.reactionType !== "emoji") return;
@@ -58,7 +46,7 @@ async function handleReaction(
 
   let member;
   try {
-    member = await message.guild.members.fetch(user.id);
+    member = await guild.members.fetch(user.id);
   } catch {
     return;
   }

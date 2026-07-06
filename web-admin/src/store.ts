@@ -1,5 +1,10 @@
 import { readFileSync } from "node:fs";
 import { MAX_PANEL_OPTIONS } from "../../shared/core/limits.js";
+import {
+  assertSlugId,
+  assertSnowflake,
+  assertSnowflakesInArray,
+} from "../../shared/core/discordIds.js";
 import { slugify, toStringArray } from "../../shared/core/strings.js";
 import {
   invalidateModuleCache,
@@ -33,26 +38,34 @@ const STORE_FILES: Record<WebFieldStore, string> = {
 };
 
 const MAX_OPTION_LIST = MAX_PANEL_OPTIONS;
-const SLUG_ID = /^[a-z0-9-]{1,32}$/;
-const SNOWFLAKE = /^\d{17,20}$/;
 
-function assertSlugId(id: string, label: string): void {
-  if (!SLUG_ID.test(id)) {
+function validateSlugId(id: string, label: string): void {
+  try {
+    assertSlugId(id, label);
+  } catch (err) {
     throw new ValidationError(
-      `${label}: id must use lowercase letters, numbers, and hyphens only (no colons).`,
+      err instanceof Error ? err.message : String(err),
     );
   }
 }
 
-function assertSnowflake(value: string, label: string): void {
-  if (value && !SNOWFLAKE.test(value)) {
-    throw new ValidationError(`${label} must be a valid Discord ID.`);
+function validateSnowflake(value: string, label: string): void {
+  try {
+    assertSnowflake(value, label);
+  } catch (err) {
+    throw new ValidationError(
+      err instanceof Error ? err.message : String(err),
+    );
   }
 }
 
-function assertSnowflakesInArray(values: string[], label: string): void {
-  for (let i = 0; i < values.length; i++) {
-    assertSnowflake(values[i], `${label}[${i}]`);
+function validateSnowflakesInArray(values: string[], label: string): void {
+  try {
+    assertSnowflakesInArray(values, label);
+  } catch (err) {
+    throw new ValidationError(
+      err instanceof Error ? err.message : String(err),
+    );
   }
 }
 
@@ -62,11 +75,11 @@ function validateDiscordIdField(
   label: string,
 ): void {
   if (type === "channel" || type === "role") {
-    assertSnowflake(normalized as string, label);
+    validateSnowflake(normalized as string, label);
     return;
   }
   if (type === "channel-multi" || type === "role-multi") {
-    assertSnowflakesInArray(normalized as string[], label);
+    validateSnowflakesInArray(normalized as string[], label);
   }
 }
 
@@ -194,7 +207,7 @@ function validateOptionList(
           : "option";
       id = uniqueId(slugify(labelKey), usedIds);
     } else {
-      assertSlugId(id, `${label}.${sub.key}`);
+      validateSlugId(id, `${label}.${sub.key}`);
       usedIds.add(id);
     }
 
@@ -226,7 +239,7 @@ function validateSubValue(
     }
     const normalized = value as string[];
     if (sub.type === "channel-multi" || sub.type === "role-multi") {
-      assertSnowflakesInArray(normalized, `${label}.${sub.key}`);
+      validateSnowflakesInArray(normalized, `${label}.${sub.key}`);
     }
     return normalized;
   }
@@ -255,7 +268,7 @@ function validateSubValue(
     throw new ValidationError(`${label}.${sub.key} must be a string.`);
   }
   if (sub.type === "role" || sub.type === "channel") {
-    assertSnowflake(value, `${label}.${sub.key}`);
+    validateSnowflake(value, `${label}.${sub.key}`);
   }
   return value;
 }
@@ -313,7 +326,7 @@ export async function writeEnabled(
 
 export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
   const parsedByStore: Partial<Record<WebFieldStore, Record<string, unknown>>> =
-    {};
+  {};
   function parsed(store: WebFieldStore): Record<string, unknown> {
     return (parsedByStore[store] ??= readDataJson(plugin.namespace, store));
   }
@@ -341,7 +354,7 @@ export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
   return values;
 }
 
-export class ValidationError extends Error {}
+export class ValidationError extends Error { }
 
 export async function writeValues(
   plugin: WebPlugin,
@@ -410,12 +423,12 @@ export async function writeValues(
             typeof row.panelTitle === "string" && row.panelTitle.trim() !== ""
               ? row.panelTitle
               : typeof row.openButtonLabel === "string" &&
-                  row.openButtonLabel.trim() !== ""
+                row.openButtonLabel.trim() !== ""
                 ? row.openButtonLabel
                 : (field.itemLabel ?? "item");
           id = uniqueId(slugify(label), usedIds);
         } else {
-          assertSlugId(id, `${key}[${id}]`);
+          validateSlugId(id, `${key}[${id}]`);
           usedIds.add(id);
         }
 

@@ -3,10 +3,6 @@ import { stripCustomEmoji } from "../../lib/core/threads.js";
 const THREAD_NAME_MAX = 100;
 const CLOSED_PREFIX = "[CLOSED] ";
 
-function sanitizeSegment(value: string): string {
-  return stripCustomEmoji(value);
-}
-
 function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
@@ -23,7 +19,7 @@ export function formatTicketTimestamp(date: Date): string {
 export function buildTicketThreadName(displayName: string, date: Date): string {
   const suffix = ` - ${formatTicketTimestamp(date)}`;
   const maxNameLen = THREAD_NAME_MAX - suffix.length;
-  let name = sanitizeSegment(displayName);
+  let name = stripCustomEmoji(displayName);
   if (name.length > maxNameLen) {
     name = name.slice(0, Math.max(0, maxNameLen - 3)) + "...";
   }
@@ -32,7 +28,7 @@ export function buildTicketThreadName(displayName: string, date: Date): string {
 
 /** Prefixes the open-time thread name for closed tickets. */
 export function buildClosedThreadName(openName: string): string {
-  const base = sanitizeSegment(openName);
+  const base = stripCustomEmoji(openName);
   const maxBase = THREAD_NAME_MAX - CLOSED_PREFIX.length;
   const trimmed =
     base.length <= maxBase ? base : base.slice(0, maxBase - 3) + "...";

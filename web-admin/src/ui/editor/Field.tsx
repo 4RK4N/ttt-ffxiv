@@ -6,7 +6,7 @@ import { ChannelField, ChannelMultiField } from "./fields/ChannelField.js";
 import { RoleField, RoleMultiField } from "./fields/RoleField.js";
 import { BooleanField, SelectField } from "./fields/BooleanField.js";
 import { ObjectListField } from "./fields/ObjectListField.js";
-import type { SubFieldProps } from "./fields/shared.js";
+import { fieldValueStr, type SubFieldProps } from "./fields/shared.js";
 
 export function SubField(props: SubFieldProps & Record<string, unknown>) {
   const { f, ...rest } = props;
@@ -48,10 +48,6 @@ export function Field({
   return (
     <SubField f={f as WebPluginSubField} value={value} name={f.key} ctx={ctx} />
   );
-}
-
-function fieldValueStr(value: unknown): string {
-  return value != null ? String(value) : "";
 }
 
 function clearedValue(sub: WebPluginSubField): unknown {

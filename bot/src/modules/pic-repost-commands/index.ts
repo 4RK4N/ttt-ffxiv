@@ -21,15 +21,16 @@ import {
   resolveDeleteEmoji,
 } from "../../lib/modules/pic-repost-commands/config-io.js";
 import { registerDeleteReactionHandler } from "./handle-reaction.js";
+import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../shared/core/limits.js";
 
 const MAX_IMAGES = 10;
-const MAX_MESSAGE_LENGTH = 2000;
 /** Conservative pre-download cap; server upload limits may be lower. */
 const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 
 function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
   const builder = new SlashCommandBuilder()
     .setName(name)
+    .setDMPermission(false)
     .setDescription(
       "Re-post your images to this channel with attribution (avoids false auto-mod bans).",
     )
@@ -70,7 +71,7 @@ async function execute(
 
   const message = interaction.options.getString("message", true);
 
-  if (message.length > MAX_MESSAGE_LENGTH) {
+  if (message.length > DISCORD_MESSAGE_CONTENT_MAX) {
     await interaction.editReply(t.messageTooLong);
     return;
   }

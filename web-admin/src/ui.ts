@@ -1,1 +1,1 @@
-export { loginPage, escapeHtml } from "./ui/index.js";
+export { loginPage } from "./ui/index.js";

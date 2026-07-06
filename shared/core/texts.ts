@@ -15,7 +15,32 @@ export function moduleDataPath(
   namespace: string,
   ...segments: string[]
 ): string {
-  return path.join(DATA_DIR, namespace, ...segments);
+  assertSafePathSegment(namespace, "namespace");
+  for (const segment of segments) {
+    assertSafePathSegment(segment, "path segment");
+  }
+  const dataRoot = path.resolve(DATA_DIR);
+  const resolved = path.resolve(dataRoot, namespace, ...segments);
+  if (
+    resolved !== dataRoot &&
+    !resolved.startsWith(`${dataRoot}${path.sep}`)
+  ) {
+    throw new Error("Path escapes data directory.");
+  }
+  return resolved;
+}
+
+function assertSafePathSegment(segment: string, label: string): void {
+  if (
+    !segment ||
+    segment === "." ||
+    segment === ".." ||
+    segment.includes("\0") ||
+    segment.includes("/") ||
+    segment.includes("\\")
+  ) {
+    throw new Error(`Invalid ${label}.`);
+  }
 }
 
 /**

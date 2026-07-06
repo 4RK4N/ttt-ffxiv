@@ -33,11 +33,7 @@ export async function guardTicketThreadAction(
   const t = texts();
 
   if (!isModuleEnabled(NAMESPACE)) {
-    if (interaction.deferred || interaction.replied) {
-      await interaction.editReply(t.disabled);
-    } else {
-      await replyEphemeral(interaction, t.disabled);
-    }
+    await replyEphemeral(interaction, t.disabled);
     return { ok: false };
   }
 

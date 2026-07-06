@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { loadWebConfig } from "./config.js";
 import {
   ensureCsrfToken,
-  getSessionUser,
+  getAuthorizedSessionUser,
   handleCallback,
   logout,
   requireAuth,
@@ -32,6 +32,14 @@ async function main(): Promise<void> {
   console.log(`[web] Loaded ${plugins.length} editable module(s).`);
 
   const app = new Hono<Env>();
+
+  app.use("*", async (c, next) => {
+    await next();
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    c.header("Content-Security-Policy", "frame-ancestors 'none'");
+    c.header("X-Frame-Options", "DENY");
+  });
 
   app.onError((err, c) => {
     console.error("[web] Unhandled route error:", err);
@@ -129,7 +137,7 @@ async function main(): Promise<void> {
 
   // --- Editor page ------------------------------------------------------------
   app.get("/", async (c) => {
-    const user = await getSessionUser(c, cfg);
+    const user = await getAuthorizedSessionUser(c, cfg);
     if (!user) return c.html(loginPage(cfg.botName));
     const csrfToken = await ensureCsrfToken(c, cfg);
     const active = c.req.query("module") ?? plugins[0]?.namespace;

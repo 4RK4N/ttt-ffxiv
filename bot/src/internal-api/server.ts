@@ -105,21 +105,24 @@ async function handleRequest(
     }
     sendJson(res, 200, { ok: true });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Internal publish error.";
     console.error(
       `[internal-api] ${publishMatch ? "publish" : "unpublish"} ${namespace}/${itemId} failed:`,
       err,
     );
-    sendJson(res, 400, { error: message });
+    sendJson(res, 400, {
+      error: publishMatch ? "Publish failed." : "Unpublish failed.",
+    });
   }
+}
+
+/** Client-safe message for publish/unpublish failures (no internal detail). */
+export function publishClientError(isPublish: boolean): string {
+  return isPublish ? "Publish failed." : "Unpublish failed.";
 }
 
 export function startInternalApi(): void {
   const port = config.internalApiPort;
-  const bind =
-    config.internalApiBind ??
-    (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
+  const bind = config.internalApiBind ?? "127.0.0.1";
 
   if (!config.internalApiSecret) {
     console.warn(

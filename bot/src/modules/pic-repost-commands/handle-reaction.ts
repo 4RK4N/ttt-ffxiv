@@ -5,6 +5,7 @@ import {
   type PartialMessageReaction,
   type User,
 } from "discord.js";
+import { ensureFullReaction } from "../../lib/core/reactionContext.js";
 import {
   emojiMatchKey,
   reactionMatchKey,
@@ -38,25 +39,11 @@ async function handleDeleteReaction(
   if (!isModuleEnabled(NAMESPACE)) return;
   if (!botUserId) return;
 
-  if (reaction.partial) {
-    try {
-      await reaction.fetch();
-    } catch {
-      return;
-    }
-  }
+  const ctx = await ensureFullReaction(reaction);
+  if (!ctx) return;
 
-  const message = reaction.message;
-  let messageFetched = false;
-  if (message.partial) {
-    try {
-      await message.fetch();
-      messageFetched = true;
-    } catch {
-      return;
-    }
-  }
-  if (!message.guild) return;
+  const { message } = ctx;
+  const messageFetched = !reaction.message.partial;
 
   const cfg = config();
   if (

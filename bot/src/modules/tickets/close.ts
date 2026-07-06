@@ -1,6 +1,7 @@
 import { type ButtonInteraction, type GuildMember } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
+import { runTicketConfirmFlow } from "./confirm-flow.js";
 import { guardTicketThreadAction } from "./guards.js";
 import {
   buildConfirmRow,
@@ -66,34 +67,28 @@ export async function handleCloseTicket(
     parsed.openerUserId,
   );
 
-  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
-    await replyEphemeral(interaction, t.noPermission);
-    return;
-  }
-
   const closePayload = parsed.openerUserId
     ? `${parsed.threadId}:${parsed.typeId}:${parsed.openerUserId}`
     : `${parsed.threadId}:${parsed.typeId}:${openerUserId ?? ""}`;
 
-  if (!isConfirm) {
-    const row = buildConfirmRow(
-      `${CLOSE_CONFIRM_PREFIX}${closePayload}`,
-      `tickets:close-cancel:${parsed.threadId}`,
-      ticketType.confirmCloseYes,
-      ticketType.confirmCloseNo,
-    );
+  const flow = await runTicketConfirmFlow({
+    interaction,
+    isConfirm,
+    confirmPrefix: CLOSE_CONFIRM_PREFIX,
+    actionPayload: closePayload,
+    cancelCustomId: `tickets:close-cancel:${parsed.threadId}`,
+    labels: {
+      prompt: ticketType.confirmClosePrompt,
+      yesLabel: ticketType.confirmCloseYes,
+      noLabel: ticketType.confirmCloseNo,
+    },
+    buildConfirmRow,
+    canPerform: () =>
+      canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds),
+    deniedMessage: t.noPermission,
+  });
 
-    await replyEphemeral(interaction, {
-      content: ticketType.confirmClosePrompt,
-      components: [row],
-    });
-    return;
-  }
-
-  if (!canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds)) {
-    await replyEphemeral(interaction, t.noPermission);
-    return;
-  }
+  if (flow !== "confirmed") return;
 
   await interaction.deferUpdate();
 
@@ -104,6 +99,7 @@ export async function handleCloseTicket(
       ticketType,
       ticketType.ticketClosed,
       welcomeMessage,
+      openerUserId,
     );
   } catch (err) {
     console.error("[tickets] Failed to close ticket:", err);

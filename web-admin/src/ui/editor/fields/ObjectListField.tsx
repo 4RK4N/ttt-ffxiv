@@ -2,6 +2,7 @@ import type { WebPluginField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 import { RowSubFieldsWithWatch } from "../Field.js";
 import { OptionListField } from "./OptionListField.js";
+import { fieldValueStr } from "./shared.js";
 
 function rowKey(item: Record<string, unknown>, index: number): string {
   const id = item.id;
@@ -82,7 +83,7 @@ export function ObjectListRow({
             </span>
           ) : null}
           <h3 class="truncate font-semibold">
-            {cardTitle(field, row, row as Record<string, unknown>)}
+            {cardTitle(field, row, row)}
           </h3>
         </div>
         <span
@@ -154,10 +155,6 @@ export function ObjectListRow({
       </div>
     </div>
   );
-}
-
-function fieldValueStr(value: unknown): string {
-  return value != null ? String(value) : "";
 }
 
 export function ObjectListField({

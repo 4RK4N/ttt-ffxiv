@@ -1,3 +1,4 @@
+import { assertSnowflake, assertSnowflakesInArray } from "../../core/discordIds.js";
 import { parsePanelBaseFields } from "../../core/panelFields.js";
 import { toStringArray } from "../../core/strings.js";
 import type { ResolvedTicketType } from "./types.js";
@@ -43,16 +44,31 @@ export function validateTicketType(ticketType: ResolvedTicketType): void {
 
   if (
     !ticketType.confirmClosePrompt.trim() ||
-    !ticketType.confirmCloseYes.trim()
+    !ticketType.confirmCloseYes.trim() ||
+    !ticketType.confirmCloseNo.trim()
   ) {
-    throw new Error("Close confirmation prompt and yes label are required.");
+    throw new Error(
+      "Close confirmation prompt, yes label, and no label are required.",
+    );
   }
 
   if (
     !ticketType.confirmDeletePrompt.trim() ||
-    !ticketType.confirmDeleteYes.trim()
+    !ticketType.confirmDeleteYes.trim() ||
+    !ticketType.confirmDeleteNo.trim()
   ) {
-    throw new Error("Delete confirmation prompt and yes label are required.");
+    throw new Error(
+      "Delete confirmation prompt, yes label, and no label are required.",
+    );
+  }
+
+  if (ticketType.channelId.trim()) {
+    assertSnowflake(ticketType.channelId, "Channel ID");
+  }
+  assertSnowflakesInArray(ticketType.staffRoleIds, "Staff role IDs");
+  assertSnowflakesInArray(ticketType.deniedRoleIds, "Denied role IDs");
+  if (ticketType.roleActionRoleId) {
+    assertSnowflake(ticketType.roleActionRoleId, "Role action role ID");
   }
 }
 

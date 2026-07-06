@@ -9,7 +9,7 @@ export function parseEmoji(
   return { name: trimmed };
 }
 
-export function parseCustomEmojiId(emoji: string): string | undefined {
+function parseCustomEmojiId(emoji: string): string | undefined {
   const match = emoji.trim().match(/^<a?:(\w+):(\d+)>$/);
   return match?.[2];
 }

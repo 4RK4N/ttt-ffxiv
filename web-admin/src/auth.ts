@@ -351,6 +351,28 @@ export async function getSessionUser(
   return null;
 }
 
+function clearSessionCookies(c: Context): void {
+  deleteCookie(c, SESSION_COOKIE, { path: "/" });
+  deleteCookie(c, CSRF_COOKIE, { path: "/" });
+}
+
+/**
+ * Session user who still has guild admin. Clears cookies when session exists
+ * but admin was revoked.
+ */
+export async function getAuthorizedSessionUser(
+  c: Context,
+  cfg: WebConfig,
+): Promise<SessionUser | null> {
+  const user = await getSessionUser(c, cfg);
+  if (!user) return null;
+  if (!(await isStillAdmin(cfg, user.id))) {
+    clearSessionCookies(c);
+    return null;
+  }
+  return user;
+}
+
 /** CSRF token for double-submit validation (signed cookie, set on login). */
 export async function getCsrfToken(
   c: Context,
@@ -386,7 +408,6 @@ export async function ensureCsrfToken(
  */
 export function requireAuth(cfg: WebConfig): MiddlewareHandler {
   return async (c, next) => {
-    const user = await getSessionUser(c, cfg);
     const denied = () => {
       if (c.req.path.startsWith("/api/")) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -394,13 +415,8 @@ export function requireAuth(cfg: WebConfig): MiddlewareHandler {
       return c.redirect("/login");
     };
 
+    const user = await getAuthorizedSessionUser(c, cfg);
     if (!user) return denied();
-
-    if (!(await isStillAdmin(cfg, user.id))) {
-      deleteCookie(c, SESSION_COOKIE, { path: "/" });
-      deleteCookie(c, CSRF_COOKIE, { path: "/" });
-      return denied();
-    }
 
     c.set("user", user);
     await next();

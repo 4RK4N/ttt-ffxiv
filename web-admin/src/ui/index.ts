@@ -1,1 +1,1 @@
-export { loginPage, escapeHtml } from "./pages.js";
+export { loginPage } from "./pages.js";

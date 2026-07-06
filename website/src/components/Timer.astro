@@ -68,7 +68,11 @@ const isOpen = targetMs <= Date.now();
     const digits = timer.querySelectorAll<HTMLSpanElement>("[data-digit]");
 
     function showOpen() {
-      timer!.innerHTML = `<p class="timer-open">${openMessage}</p>`;
+      timer!.replaceChildren();
+      const paragraph = document.createElement("p");
+      paragraph.className = "timer-open";
+      paragraph.textContent = openMessage;
+      timer!.append(paragraph);
     }
 
     function tick() {
@@ -83,7 +87,10 @@ const isOpen = targetMs <= Date.now();
       return true;
     }
 
-    if (!digits.length) return;
+    if (!digits.length) {
+      if (target <= Date.now()) showOpen();
+      return;
+    }
 
     tick();
     interval = setInterval(() => {
@@ -94,6 +101,5 @@ const isOpen = targetMs <= Date.now();
     }, 1000);
   }
 
-  initTimer();
   document.addEventListener("astro:page-load", initTimer);
 </script>

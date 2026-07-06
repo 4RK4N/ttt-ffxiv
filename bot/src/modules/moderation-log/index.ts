@@ -27,15 +27,12 @@ import {
   logChannelId,
   texts,
 } from "../../lib/modules/moderation-log/config-io.js";
+import { sleep } from "../../lib/core/sleep.js";
 
 const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;
 const BULK_DELETE_BATCH = 5;
 const BULK_DELETE_DELAY_MS = 1_000;
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function markRecentBan(userId: string): void {
   recentBans.add(userId);
@@ -108,7 +105,7 @@ async function handleMessageDeleteBulk(
       batch.map((message) => handleMessageDelete(message, channel)),
     );
     if (i + BULK_DELETE_BATCH < items.length) {
-      await delay(BULK_DELETE_DELAY_MS);
+      await sleep(BULK_DELETE_DELAY_MS);
     }
   }
 }
@@ -209,7 +206,7 @@ const moderationLogModule: CommandModule = {
     if (!logChannelId()) {
       console.warn(
         "[moderation-log] No channelId configured in " +
-          "data/moderation-log/config.json; moderation logging is disabled.",
+        "data/moderation-log/config.json; moderation logging is disabled.",
       );
     }
 

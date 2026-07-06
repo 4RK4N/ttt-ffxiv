@@ -53,11 +53,15 @@ describe("validateTicketType", () => {
     ).toThrow(/open button/i);
   });
 
-  it("requires close confirmation labels", () => {
+  it("requires close confirmation no label", () => {
     expect(() =>
-      validateTicketType(
-        baseTicketType({ confirmClosePrompt: "", confirmCloseYes: "Yes" }),
-      ),
-    ).toThrow(/close confirmation/i);
+      validateTicketType(baseTicketType({ confirmCloseNo: "  " })),
+    ).toThrow(/no label/i);
+  });
+
+  it("requires delete confirmation no label", () => {
+    expect(() =>
+      validateTicketType(baseTicketType({ confirmDeleteNo: "" })),
+    ).toThrow(/no label/i);
   });
 });

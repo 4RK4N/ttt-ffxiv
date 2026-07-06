@@ -10,7 +10,12 @@ import {
   type TextChannel,
   type ThreadChannel,
 } from "discord.js";
+import {
+  channelThreadUrl,
+  DISCORD_MESSAGE_CONTENT_MAX,
+} from "../../../../shared/core/limits.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { sleep } from "../../lib/core/sleep.js";
 import { THREAD_AUTO_ARCHIVE_MINUTES } from "../../lib/core/threads.js";
 import { buildTicketThreadName, isClosedTicketThread } from "./names.js";
 import {
@@ -21,15 +26,17 @@ import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
 import { buildEmbed } from "../../lib/core/embedBuilder.js";
 import { addMembersToThread, collectStaffUserIds } from "./thread-members.js";
 import {
+  lookupOpenTicketThreadId,
+  registerOpenTicket,
+} from "./open-index.js";
+import {
   resolveTicketType,
   texts,
   NAMESPACE,
 } from "../../lib/modules/tickets/config-io.js";
 
 const openInFlight = new Set<string>();
-
-/** Discord plain message content limit; longer welcomes use an embed description. */
-const DISCORD_MESSAGE_CONTENT_MAX = 2000;
+const THREAD_MEMBER_FETCH_DELAY_MS = 250;
 
 function buildWelcomePayload(welcomeText: string) {
   if (welcomeText.length <= DISCORD_MESSAGE_CONTENT_MAX) {
@@ -42,12 +49,46 @@ function openLockKey(channelId: string, userId: string): string {
   return `${channelId}:${userId}`;
 }
 
-function threadLink(guildId: string, threadId: string): string {
-  return `https://discord.com/channels/${guildId}/${threadId}`;
+async function verifyOpenThreadMembership(
+  channel: TextChannel,
+  threadId: string,
+  userId: string,
+): Promise<boolean> {
+  const thread = channel.threads.cache.get(threadId);
+  if (thread) {
+    if (
+      thread.locked ||
+      isClosedTicketThread(thread.name, thread.locked ?? false)
+    ) {
+      return false;
+    }
+    if (thread.members.cache.has(userId)) return true;
+    try {
+      const members = await thread.members.fetch();
+      return members.has(userId);
+    } catch {
+      return false;
+    }
+  }
+
+  try {
+    const fetched = await channel.client.channels.fetch(threadId);
+    if (!fetched?.isThread()) return false;
+    if (
+      fetched.locked ||
+      isClosedTicketThread(fetched.name, fetched.locked ?? false)
+    ) {
+      return false;
+    }
+    if (fetched.members.cache.has(userId)) return true;
+    const members = await fetched.members.fetch();
+    return members.has(userId);
+  } catch {
+    return false;
+  }
 }
 
-/** Returns an open ticket thread id for this user in the channel, if any. */
-async function findOpenTicketThreadId(
+async function scanForOpenTicketThreadId(
   channel: TextChannel,
   userId: string,
 ): Promise<string | null> {
@@ -56,12 +97,32 @@ async function findOpenTicketThreadId(
     if (
       thread.locked ||
       isClosedTicketThread(thread.name, thread.locked ?? false)
-    )
+    ) {
       continue;
-    const members = await thread.members.fetch();
-    if (members.has(userId)) return thread.id;
+    }
+    if (thread.members.cache.has(userId)) return thread.id;
+    try {
+      const members = await thread.members.fetch();
+      if (members.has(userId)) return thread.id;
+    } catch {
+      // skip thread on fetch failure
+    }
+    await sleep(THREAD_MEMBER_FETCH_DELAY_MS);
   }
   return null;
+}
+
+/** Returns an open ticket thread id for this user in the channel, if any. */
+async function findOpenTicketThreadId(
+  channel: TextChannel,
+  userId: string,
+): Promise<string | null> {
+  const indexed = lookupOpenTicketThreadId(channel.id, userId);
+  if (indexed) {
+    const valid = await verifyOpenThreadMembership(channel, indexed, userId);
+    if (valid) return indexed;
+  }
+  return scanForOpenTicketThreadId(channel, userId);
 }
 
 export async function handleOpenTicket(
@@ -127,7 +188,7 @@ export async function handleOpenTicket(
       interaction.user.id,
     );
     if (existingThreadId && interaction.guildId) {
-      const link = threadLink(interaction.guildId, existingThreadId);
+      const link = channelThreadUrl(interaction.guildId, existingThreadId);
       await interaction.editReply(
         format(ticketType.alreadyOpen, { thread: link }),
       );
@@ -187,7 +248,9 @@ export async function handleOpenTicket(
       components: [row],
     });
 
-    const link = threadLink(interaction.guildId!, thread.id);
+    registerOpenTicket(textChannel.id, interaction.user.id, thread.id);
+
+    const link = channelThreadUrl(interaction.guildId!, thread.id);
     await interaction.editReply(
       format(ticketType.openSuccess, { thread: link }),
     );

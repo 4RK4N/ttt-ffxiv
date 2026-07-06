@@ -1,3 +1,4 @@
+import { toStringArray } from "../../core/strings.js";
 import {
   createModuleConfig,
   resolveKeyedItem,
@@ -38,7 +39,7 @@ export interface TicketTypeTexts {
   roleActionConfirmation: string;
 }
 
-export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts {}
+export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
 
 export interface TicketsConfig {
   enabled?: boolean;
@@ -131,11 +132,11 @@ export function resolveTicketType(id: string): ResolvedTicketType | undefined {
     id,
     texts().types,
     DEFAULT_TYPE_TEXTS,
-    (row, copy) => ({
+    (row: TicketTypeConfig, copy: TicketTypeTexts) => ({
       ...row,
       ...copy,
-      staffRoleIds: row.staffRoleIds ?? [],
-      deniedRoleIds: row.deniedRoleIds ?? [],
+      staffRoleIds: toStringArray(row.staffRoleIds),
+      deniedRoleIds: toStringArray(row.deniedRoleIds),
       roleActionRoleId: row.roleActionRoleId?.trim() || undefined,
     }),
   );

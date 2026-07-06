@@ -3,13 +3,6 @@ import { formBodyToValues } from "./form-parse.js";
 
 type FormBody = Record<string, string | File>;
 
-export function valuesFromForm(
-  plugin: WebPlugin,
-  body: FormBody,
-): Record<string, unknown> {
-  return formBodyToValues(plugin, body);
-}
-
 export function getObjectListItems(
   plugin: WebPlugin,
   body: FormBody,

@@ -7,6 +7,7 @@ import { NAMESPACE } from "../../lib/modules/tickets/config-io.js";
 import { handleCloseCancel, handleCloseTicket } from "./close.js";
 import { handleDeleteCancel, handleDeleteTicket } from "./delete.js";
 import { registerMemberCacheWarm } from "./member-cache.js";
+import { registerOpenTicketIndexHandlers } from "./open-index.js";
 import { handleOpenTicket } from "./open.js";
 import { handleRoleAction } from "./role-action.js";
 
@@ -55,7 +56,10 @@ async function handleComponent(
 
 const ticketsModule: CommandModule = {
   name: NAMESPACE,
-  init: registerMemberCacheWarm,
+  init: (client) => {
+    registerMemberCacheWarm(client);
+    registerOpenTicketIndexHandlers(client);
+  },
   componentRoutes: [{ prefix: "tickets:", handle: handleComponent }],
 };
 

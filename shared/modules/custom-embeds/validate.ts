@@ -1,3 +1,4 @@
+import { assertSnowflake } from "../../core/discordIds.js";
 import { parsePanelBaseFields } from "../../core/panelFields.js";
 import type { ResolvedEmbedPanel } from "./types.js";
 
@@ -24,6 +25,10 @@ export function validateEmbedPanel(panel: ResolvedEmbedPanel): void {
 
   if (iconUrl && !isHttpUrl(iconUrl)) {
     throw new Error("Author icon URL must be a valid http or https URL.");
+  }
+
+  if (panel.channelId.trim()) {
+    assertSnowflake(panel.channelId, "Channel ID");
   }
 }
 

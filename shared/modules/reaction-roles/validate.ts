@@ -1,19 +1,22 @@
+import { assertSnowflake } from "../../core/discordIds.js";
 import { emojiMatchKey } from "../../core/discordEmoji.js";
 import { MAX_PANEL_OPTIONS } from "../../core/limits.js";
 import { parsePanelBaseFields } from "../../core/panelFields.js";
-import type { ReactionType, ResolvedRolePanel, RoleOption } from "./types.js";
+import { isReactionType, normalizeRoleOptions, type ReactionType, type ResolvedRolePanel } from "./types.js";
 
 const MAX_OPTIONS = MAX_PANEL_OPTIONS;
 
-function normalizeRoleOptions(raw: unknown): RoleOption[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (v): v is RoleOption =>
-      typeof v === "object" && v !== null && typeof v.id === "string",
-  );
-}
-
 export function validateRolePanel(panel: ResolvedRolePanel): void {
+  if (!isReactionType(panel.reactionType)) {
+    throw new Error(
+      `Invalid reaction type "${String(panel.reactionType)}". Must be one of: button, emoji, dropdown, dropdown-single.`,
+    );
+  }
+
+  if (panel.channelId.trim()) {
+    assertSnowflake(panel.channelId, "Channel ID");
+  }
+
   const count = panel.roleOptions.length;
   if (count < 1 || count > MAX_OPTIONS) {
     throw new Error(
@@ -33,6 +36,7 @@ export function validateRolePanel(panel: ResolvedRolePanel): void {
           `Role is required for option "${opt.label || opt.id}" in emoji mode.`,
         );
       }
+      assertSnowflake(opt.roleId, `Option "${opt.label || opt.id}" role ID`);
       const key = emojiMatchKey(opt.emoji);
       if (key && seenEmoji.has(key)) {
         throw new Error(
@@ -56,6 +60,7 @@ export function validateRolePanel(panel: ResolvedRolePanel): void {
       if (!opt.roleId.trim()) {
         throw new Error(`Role is required for option "${opt.id}".`);
       }
+      assertSnowflake(opt.roleId, `Option "${opt.id}" role ID`);
     }
   }
 }
@@ -64,7 +69,15 @@ export function validateRolePanelRow(
   configRow: Record<string, unknown>,
   textRow: Record<string, unknown>,
 ): void {
-  const reactionType = (configRow.reactionType as ReactionType) ?? "button";
+  const rawType = configRow.reactionType;
+  const reactionType: ReactionType = isReactionType(rawType)
+    ? rawType
+    : "button";
+  if (rawType !== undefined && rawType !== null && !isReactionType(rawType)) {
+    throw new Error(
+      `Invalid reaction type "${String(rawType)}". Must be one of: button, emoji, dropdown, dropdown-single.`,
+    );
+  }
   const base = parsePanelBaseFields(configRow, textRow);
   const panel: ResolvedRolePanel = {
     ...base,

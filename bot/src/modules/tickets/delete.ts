@@ -4,7 +4,9 @@ import {
   type ThreadChannel,
 } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
+import { runTicketConfirmFlow } from "./confirm-flow.js";
 import { guardTicketThreadAction } from "./guards.js";
+import { clearOpenTicketByThreadId } from "./open-index.js";
 import { isClosedTicketThread } from "./names.js";
 import {
   buildConfirmRow,
@@ -63,32 +65,25 @@ export async function handleDeleteTicket(
     return;
   }
 
-  if (!canDeleteTicket(interaction, ticketType.staffRoleIds)) {
-    await replyEphemeral(interaction, t.noDeletePermission);
-    return;
-  }
-
   const deletePayload = `${parsed.threadId}:${parsed.typeId}`;
 
-  if (!isConfirm) {
-    const row = buildConfirmRow(
-      `${DELETE_CONFIRM_PREFIX}${deletePayload}`,
-      `tickets:delete-cancel:${parsed.threadId}`,
-      ticketType.confirmDeleteYes,
-      ticketType.confirmDeleteNo,
-    );
+  const flow = await runTicketConfirmFlow({
+    interaction,
+    isConfirm,
+    confirmPrefix: DELETE_CONFIRM_PREFIX,
+    actionPayload: deletePayload,
+    cancelCustomId: `tickets:delete-cancel:${parsed.threadId}`,
+    labels: {
+      prompt: ticketType.confirmDeletePrompt,
+      yesLabel: ticketType.confirmDeleteYes,
+      noLabel: ticketType.confirmDeleteNo,
+    },
+    buildConfirmRow,
+    canPerform: () => canDeleteTicket(interaction, ticketType.staffRoleIds),
+    deniedMessage: t.noDeletePermission,
+  });
 
-    await replyEphemeral(interaction, {
-      content: ticketType.confirmDeletePrompt,
-      components: [row],
-    });
-    return;
-  }
-
-  if (!canDeleteTicket(interaction, ticketType.staffRoleIds)) {
-    await replyEphemeral(interaction, t.noDeletePermission);
-    return;
-  }
+  if (flow !== "confirmed") return;
 
   await interaction.update({
     content: ticketType.ticketDeleted,
@@ -97,6 +92,7 @@ export async function handleDeleteTicket(
 
   try {
     await (thread as ThreadChannel).delete();
+    clearOpenTicketByThreadId(parsed.threadId);
   } catch (err) {
     console.error("[tickets] Failed to delete ticket thread:", err);
     await replyEphemeral(interaction, t.deleteError);

@@ -1,14 +1,11 @@
 import { discordBotFetch } from "../../../../shared/core/discordApi.js";
 import { encodeEmojiForReaction } from "../../../../shared/core/discordEmoji.js";
+import { sleep } from "./sleep.js";
 
 const MAX_ATTEMPTS = 5;
 const DEFAULT_DELAY_MS = 350;
 /** Pause after message create/edit — shares rate-limit bucket with reaction routes. */
 const POST_MESSAGE_DELAY_MS = 400;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 async function parseRetryAfterMs(res: Response): Promise<number> {
   try {
@@ -51,8 +48,14 @@ export async function addBotMessageReaction(
     }
 
     const detail = await res.text().catch(() => "");
+    if (detail) {
+      console.error(
+        `[discordReactions] Failed to add reaction "${emoji.trim()}" (HTTP ${res.status}):`,
+        detail,
+      );
+    }
     throw new Error(
-      `Failed to add reaction "${emoji.trim()}" (HTTP ${res.status})${detail ? `: ${detail}` : ""}.`,
+      `Failed to add reaction "${emoji.trim()}" (HTTP ${res.status}).`,
     );
   }
 }

@@ -21,7 +21,7 @@ export interface EmbedPanelTexts {
   footer: string;
 }
 
-export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts {}
+export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts { }
 
 export interface CustomEmbedsConfig {
   enabled?: boolean;
@@ -60,7 +60,7 @@ export function resolveEmbedPanel(id: string): ResolvedEmbedPanel | undefined {
     id,
     texts().panels,
     DEFAULT_PANEL_TEXTS,
-    (row, copy) => ({
+    (row: EmbedPanelConfig, copy: EmbedPanelTexts) => ({
       ...row,
       ...copy,
       showTimestamp: row.showTimestamp === true,

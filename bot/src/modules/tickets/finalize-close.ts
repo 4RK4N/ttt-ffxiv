@@ -6,6 +6,7 @@ import {
   type ThreadChannel,
 } from "discord.js";
 import { buildClosedThreadName } from "./names.js";
+import { clearOpenTicket } from "./open-index.js";
 import { DELETE_PREFIX } from "../../lib/modules/tickets/panel.js";
 import type { ResolvedTicketType } from "../../../../shared/modules/tickets/types.js";
 
@@ -31,18 +32,48 @@ export interface OpenerResolution {
   welcomeMessage?: Message;
 }
 
+async function openerIsThreadMember(
+  thread: ThreadChannel,
+  userId: string,
+): Promise<boolean> {
+  if (thread.members.cache.has(userId)) return true;
+  try {
+    const members = await thread.members.fetch();
+    return members.has(userId);
+  } catch {
+    return false;
+  }
+}
+
 /** Bot-created private threads have the bot as owner, not the opener. */
 export async function resolveOpenerUserId(
   thread: ThreadChannel,
   parsedOpenerUserId?: string,
 ): Promise<OpenerResolution> {
+  const welcome = parsedOpenerUserId
+    ? await fetchOldestThreadMessage(thread)
+    : undefined;
+  const welcomeOpener = welcome?.content.match(/<@!?(\d+)>/)?.[1] ?? null;
+
   if (parsedOpenerUserId) {
-    return { openerUserId: parsedOpenerUserId };
+    if (welcomeOpener && welcomeOpener !== parsedOpenerUserId) {
+      return { openerUserId: welcomeOpener, welcomeMessage: welcome };
+    }
+    if (
+      welcomeOpener === parsedOpenerUserId ||
+      (await openerIsThreadMember(thread, parsedOpenerUserId))
+    ) {
+      return { openerUserId: parsedOpenerUserId, welcomeMessage: welcome };
+    }
+    if (welcomeOpener) {
+      return { openerUserId: welcomeOpener, welcomeMessage: welcome };
+    }
+    return { openerUserId: null, welcomeMessage: welcome };
   }
 
-  const welcome = await fetchOldestThreadMessage(thread);
-  const match = welcome?.content.match(/<@!?(\d+)>/);
-  return { openerUserId: match?.[1] ?? null, welcomeMessage: welcome };
+  const oldest = welcome ?? (await fetchOldestThreadMessage(thread));
+  const match = oldest?.content.match(/<@!?(\d+)>/);
+  return { openerUserId: match?.[1] ?? null, welcomeMessage: oldest };
 }
 
 export async function finalizeTicketClose(
@@ -51,6 +82,7 @@ export async function finalizeTicketClose(
   ticketType: ResolvedTicketType,
   closedContent: string,
   welcomeMessage?: Message,
+  openerUserId?: string | null,
 ): Promise<void> {
   const welcome = welcomeMessage ?? (await fetchOldestThreadMessage(thread));
   if (welcome?.components.length) {
@@ -72,4 +104,11 @@ export async function finalizeTicketClose(
   });
   await thread.setName(buildClosedThreadName(thread.name));
   await thread.setLocked(true);
+
+  const parentId = thread.parentId;
+  const opener =
+    openerUserId ?? welcome?.content.match(/<@!?(\d+)>/)?.[1] ?? null;
+  if (parentId && opener) {
+    clearOpenTicket(parentId, opener);
+  }
 }

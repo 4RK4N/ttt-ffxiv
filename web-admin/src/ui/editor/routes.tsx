@@ -1,3 +1,4 @@
+import { assertSlugId } from "../../../../shared/core/discordIds.js";
 import type { Context } from "hono";
 import type { WebConfig } from "../../config.js";
 import { ensureCsrfToken } from "../../auth.js";
@@ -23,7 +24,6 @@ import {
   mergeRowFromForm,
   rowKeyForItem,
   toggleExpanded,
-  valuesFromForm,
 } from "./htmx-handlers.js";
 import { EnabledToggleResponse } from "./enabled-ui.js";
 import { ModulePanel } from "./ModulePanel.js";
@@ -56,6 +56,15 @@ function panelProps(
   status?: { ok: boolean; message: string },
 ) {
   return { mod, ctx, expanded, status };
+}
+
+function publishItemIdError(itemId: string): string | null {
+  try {
+    assertSlugId(itemId, "Panel id");
+    return null;
+  } catch (err) {
+    return err instanceof Error ? err.message : "Invalid panel id.";
+  }
 }
 
 export async function renderPanel(
@@ -250,7 +259,7 @@ export function registerHtmxRoutes(
 
     const body = await c.req.parseBody();
     const expanded = parseExpanded(c.req.query("expanded"));
-    const items = valuesFromForm(plugin, body);
+    const items = formBodyToValues(plugin, body);
     const listRaw = items[fieldKey];
     const listItems = Array.isArray(listRaw)
       ? (listRaw as Record<string, unknown>[])
@@ -366,6 +375,8 @@ export function registerHtmxRoutes(
   htmx.post("/modules/:namespace/publish/:itemId", async (c) => {
     const namespace = c.req.param("namespace");
     const itemId = c.req.param("itemId");
+    const idError = publishItemIdError(itemId);
+    if (idError) return c.text(idError, 400);
     const plugin = deps.byNamespace.get(namespace);
     if (!plugin || !hasPublishableField(plugin)) {
       return c.text(`Module "${namespace}" does not support publishing.`, 404);
@@ -413,6 +424,8 @@ export function registerHtmxRoutes(
   htmx.post("/modules/:namespace/unpublish/:itemId", async (c) => {
     const namespace = c.req.param("namespace");
     const itemId = c.req.param("itemId");
+    const idError = publishItemIdError(itemId);
+    if (idError) return c.text(idError, 400);
     const plugin = deps.byNamespace.get(namespace);
     if (!plugin || !hasPublishableField(plugin)) {
       return c.text(

@@ -58,8 +58,4 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
   );
 }
 
-export function ModulePanelPartial(props: PanelProps) {
-  return ModulePanel(props);
-}
-
 export type { EditorModule };
