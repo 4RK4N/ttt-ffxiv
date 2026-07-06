@@ -27,7 +27,7 @@ export function EditorLayout({
         <meta name="csrf-token" content={csrfToken} />
       </head>
       <body>
-        <div class="drawer lg:drawer-open">
+        <div class="drawer md:drawer-open">
           <input
             id="admin-drawer"
             type="checkbox"
@@ -36,8 +36,8 @@ export function EditorLayout({
             aria-label="Module menu"
           />
           <div class="drawer-content flex min-h-screen flex-col bg-base-100">
-            <header class="navbar border-b border-base-300 bg-base-200 px-2">
-              <div class="flex-none lg:hidden">
+            <header class="navbar sticky top-0 z-30 border-b border-base-300 bg-base-200 px-2">
+              <div class="flex-none md:hidden">
                 <button
                   type="button"
                   id="admin-drawer-open"
