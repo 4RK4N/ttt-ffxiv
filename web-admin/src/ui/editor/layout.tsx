@@ -32,18 +32,22 @@ export function EditorLayout({
             id="admin-drawer"
             type="checkbox"
             class="drawer-toggle"
-            aria-hidden="true"
+            tabindex="-1"
+            aria-label="Module menu"
           />
           <div class="drawer-content flex min-h-screen flex-col bg-base-100">
             <header class="navbar border-b border-base-300 bg-base-200 px-2">
               <div class="flex-none lg:hidden">
-                <label
-                  for="admin-drawer"
+                <button
+                  type="button"
+                  id="admin-drawer-open"
                   class="btn btn-square btn-ghost drawer-button"
                   aria-label="Open module menu"
+                  aria-controls="admin-drawer-panel"
+                  aria-expanded="false"
                 >
                   ☰
-                </label>
+                </button>
               </div>
               <div class="flex-1">
                 <span class="text-lg font-semibold">{title}</span>
@@ -73,7 +77,11 @@ export function EditorLayout({
               class="drawer-overlay"
               aria-label="Close module menu"
             />
-            <aside class="flex min-h-full w-60 flex-col border-r border-base-300 bg-base-200">
+            <aside
+              id="admin-drawer-panel"
+              class="flex min-h-full w-60 flex-col border-r border-base-300 bg-base-200"
+              aria-label="Modules"
+            >
               <div class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-base-content/60">
                 Modules
               </div>

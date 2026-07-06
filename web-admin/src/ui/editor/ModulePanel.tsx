@@ -19,13 +19,7 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
       data-ns={mod.namespace}
       id={`htmx-panel-${mod.namespace}`}
     >
-      <form
-        id={`panel-form-${mod.namespace}`}
-        hx-put={`/htmx/modules/${mod.namespace}`}
-        hx-target={`#htmx-panel-${mod.namespace}`}
-        hx-swap="outerHTML"
-        hx-disabled-elt="find button[type='submit']"
-      >
+      <form id={`panel-form-${mod.namespace}`}>
         <input type="hidden" name="_csrf" value={ctx.csrfToken} />
         <div class="mb-3 flex items-center justify-between gap-3">
           <h2 class="text-2xl font-semibold">{mod.title}</h2>
@@ -45,7 +39,15 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
           />
         ))}
         <div class="mt-3 flex items-center gap-2">
-          <button type="submit" class="btn btn-primary">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            hx-put={`/htmx/modules/${mod.namespace}`}
+            hx-target={`#htmx-panel-${mod.namespace}`}
+            hx-swap="outerHTML"
+            hx-include={`#panel-form-${mod.namespace}`}
+            hx-disabled-elt="this"
+          >
             Save
             <span class="htmx-indicator loading loading-spinner loading-sm" />
           </button>

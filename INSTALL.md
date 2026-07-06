@@ -329,9 +329,9 @@ chmod +x scripts/build.sh   # once, on Linux/macOS
 
 This builds and recreates:
 
-- **`ttt-discord-bot:1.1.0`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only.
-- **`ttt-web-editor:1.1.0`** — same root `Dockerfile`, separate target (`npm run build:web-admin` → `dist/web-admin/`).
-- **`ttt-website:1.1.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
+- **`ttt-discord-bot:1.2.0`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only.
+- **`ttt-web-editor:1.2.0`** — same root `Dockerfile`, separate target (`npm run build:web-admin` → `dist/web-admin/`).
+- **`ttt-website:1.2.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
 Runtime config lives in the mounted `./data` volume — not copied into images at build time.
 
@@ -478,13 +478,13 @@ If you prefer not to use Compose:
 
 ```bash
 # Bot
-docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.1.0 .
+docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.2.0 .
 
 # Web editor
-docker build -f Dockerfile --target ttt-web-editor -t ttt-web-editor:1.1.0 .
+docker build -f Dockerfile --target ttt-web-editor -t ttt-web-editor:1.2.0 .
 
 # Website
-docker build -f website/Dockerfile -t ttt-website:1.1.0 website/
+docker build -f website/Dockerfile -t ttt-website:1.2.0 website/
 
 # Register commands (one-off). The -v mount provides data/config.json.
 docker run --rm -v "$(pwd)/data:/app/data" ttt-discord-bot npm run deploy
