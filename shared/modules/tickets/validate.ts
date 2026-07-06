@@ -2,6 +2,9 @@ import { parsePanelBaseFields } from "../../core/panelFields.js";
 import { toStringArray } from "../../core/strings.js";
 import type { ResolvedTicketType } from "./types.js";
 
+/** Discord embed description limit (used when welcome exceeds plain content max). */
+const TICKET_WELCOME_MAX = 4096;
+
 export function validateTicketType(ticketType: ResolvedTicketType): void {
   if (!ticketType.openButtonLabel.trim()) {
     throw new Error("Open button label is required.");
@@ -13,6 +16,21 @@ export function validateTicketType(ticketType: ResolvedTicketType): void {
 
   if (ticketType.staffRoleIds.length === 0) {
     throw new Error("At least one staff role is required.");
+  }
+
+  if (ticketType.ticketWelcome.length > TICKET_WELCOME_MAX) {
+    throw new Error(
+      "Ticket welcome must be 4096 characters or fewer (Discord embed limit).",
+    );
+  }
+
+  if (
+    ticketType.roleActionRoleId &&
+    !ticketType.roleActionButtonLabel.trim()
+  ) {
+    throw new Error(
+      "Role action button label is required when a role action role is set.",
+    );
   }
 
   if (!ticketType.closeButtonLabel.trim()) {

@@ -210,7 +210,7 @@
           "label": "Welcome message",
           "type": "textarea",
           "store": "texts",
-          "help": "Tokens: {mention}"
+          "help": "Tokens: {mention}. Max 4096 characters. Text over 2000 characters is sent as an embed automatically."
         },
         {
           "key": "closeButtonLabel",

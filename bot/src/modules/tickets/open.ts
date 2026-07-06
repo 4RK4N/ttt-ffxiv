@@ -18,6 +18,7 @@ import {
   ROLE_ACTION_PREFIX,
 } from "../../lib/modules/tickets/panel.js";
 import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
+import { buildEmbed } from "../../lib/core/embedBuilder.js";
 import { addMembersToThread, collectStaffUserIds } from "./thread-members.js";
 import {
   resolveTicketType,
@@ -26,6 +27,16 @@ import {
 } from "../../lib/modules/tickets/config-io.js";
 
 const openInFlight = new Set<string>();
+
+/** Discord plain message content limit; longer welcomes use an embed description. */
+const DISCORD_MESSAGE_CONTENT_MAX = 2000;
+
+function buildWelcomePayload(welcomeText: string) {
+  if (welcomeText.length <= DISCORD_MESSAGE_CONTENT_MAX) {
+    return { content: welcomeText };
+  }
+  return { embeds: [buildEmbed({ description: welcomeText })] };
+}
 
 function openLockKey(channelId: string, userId: string): string {
   return `${channelId}:${userId}`;
@@ -168,10 +179,11 @@ export async function handleOpenTicket(
     }
     row.addComponents(closeButton);
 
+    const welcomeText = format(ticketType.ticketWelcome, {
+      mention: `<@${interaction.user.id}>`,
+    });
     await thread.send({
-      content: format(ticketType.ticketWelcome, {
-        mention: `<@${interaction.user.id}>`,
-      }),
+      ...buildWelcomePayload(welcomeText),
       components: [row],
     });
 
