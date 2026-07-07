@@ -386,7 +386,7 @@ Now go to your Discord server and try `/pic` or `/post`.
 
 ---
 
-## Part 7 - Public website (`ttt-ffxiv.eu`)
+## Part 7 - Public website (`ttt-ffxiv.com`)
 
 Static multi-page site built with **Astro 7 + Tailwind CSS**. The site is **built inside the
 `ttt-website` Docker image** (see `website/Dockerfile`) and served by nginx.
@@ -428,7 +428,7 @@ Browser ──HTTPS──► Caddy (caddy-docker-proxy, ports 80/443 on host)
 
 | Layer     | Role                                                                                                                                      |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Caddy** | Public entrypoint. Terminates TLS (Let's Encrypt cert for `ttt-ffxiv.eu`), redirects HTTP→HTTPS, proxies to the container.                |
+| **Caddy** | Public entrypoint. Terminates TLS (Let's Encrypt cert for `ttt-ffxiv.com`), redirects HTTP→HTTPS, proxies to the container.                |
 | **nginx** | Serves the built site (baked into the image at build time) on **port 8089 inside the container only**. Plain HTTP — no certificates here. |
 
 The `caddy:` and `caddy.reverse_proxy: "{{upstreams 8089}}"` labels on `ttt-website`
@@ -441,7 +441,7 @@ per-folder overrides.
 
 ### DNS
 
-Point **`ttt-ffxiv.eu`** (and optional `www`) to the same host as your Caddy stack.
+Point **`ttt-ffxiv.com`** (and optional `www`) to the same host as your Caddy stack.
 Caddy auto-provisions a Let's Encrypt certificate for the hostname in the `caddy:` label
 and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 

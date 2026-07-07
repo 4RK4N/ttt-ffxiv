@@ -6,6 +6,7 @@ import homeCircle from "../assets/images/image22.png";
 
 import image04 from "../assets/images/image04.jpg";
 import image09 from "../assets/images/image09.jpg";
+import drinksMenu from "../assets/images/Ralvus_karte_v2_upscaled.png";
 
 export { logo, bg, homeCircle };
 
@@ -13,6 +14,7 @@ export { logo, bg, homeCircle };
 export const pageImages = {
   image04,
   image09,
+  drinksMenu,
 } as const satisfies Record<string, ImageMetadata>;
 
 const galleryModules = import.meta.glob<ImageMetadata>(

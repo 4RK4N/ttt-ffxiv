@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ttt-ffxiv.eu/sitemap-index.xml
+Sitemap: https://ttt-ffxiv.com/sitemap-index.xml

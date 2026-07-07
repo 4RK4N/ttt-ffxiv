@@ -53,7 +53,7 @@ services:
       - ttt-internal
 
     labels:
-      caddy: bot.ttt-ffxiv.eu
+      caddy: bot.ttt-ffxiv.com
 
       caddy.encode: "gzip zstd"
 
@@ -95,7 +95,7 @@ services:
       - caddy
 
     labels:
-      caddy: ttt-ffxiv.eu
+      caddy: ttt-ffxiv.com
 
       caddy.encode: "gzip zstd"
 

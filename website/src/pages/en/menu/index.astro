@@ -6,7 +6,7 @@ import {
   CONTENT_COLUMN_SIZES,
   contentColumnWidths,
 } from "../../../data/layout";
-import { resolveGallery } from "../../../data/images";
+import { pageImages } from "../../../data/images";
 ---
 
 <ContentPage
@@ -16,7 +16,7 @@ import { resolveGallery } from "../../../data/images";
   heading="Menu"
 >
   <ContentImage
-    src={resolveGallery("gallery24/drinks-menu.png")}
+    src={pageImages.drinksMenu}
     width={CONTENT_COLUMN_PX}
     sizes={CONTENT_COLUMN_SIZES}
     widths={contentColumnWidths()}
