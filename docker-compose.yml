@@ -88,9 +88,6 @@ services:
 
     container_name: ttt-website
 
-    depends_on:
-      - ttt-discord-bot
-
     networks:
       - caddy
 

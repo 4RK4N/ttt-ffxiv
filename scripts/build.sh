@@ -101,5 +101,5 @@ for svc in "${selected[@]}"; do
 done
 
 for svc in "${selected[@]}"; do
-  "${compose[@]}" up -d --force-recreate --no-deps "$svc"
+  "${compose[@]}" up -d --force-recreate "$svc"
 done
