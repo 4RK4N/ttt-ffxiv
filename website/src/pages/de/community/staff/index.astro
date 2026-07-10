@@ -2,9 +2,13 @@
 import ContentPage from "../../../../components/ContentPage.astro";
 import ContentPanel from "../../../../components/ContentPanel.astro";
 import Gallery from "../../../../components/Gallery.astro";
-import { resolveImages } from "../../../../data/images";
+import {
+  staffCopy,
+  staffLandscape,
+  staffPortraits,
+} from "../../../../data/staff";
 
-const landscapeStaff = resolveImages(["staff/domino.jpg", "staff/alice.png"]);
+const copy = staffCopy.de;
 ---
 
 <ContentPage
@@ -15,46 +19,26 @@ const landscapeStaff = resolveImages(["staff/domino.jpg", "staff/alice.png"]);
 >
   <ContentPanel>
     <div class="hand-text flex flex-col gap-6">
-      <p>
-        <em
-          ><strong
-            >Hinter jedem warmen Empfang stehen jene,<br /> die sich um das Haus kümmern.</strong
-          ></em
-        >
-      </p>
-      <p>
-        <em
-          ><strong
-            >Unsere Gastgeber, Helfer und Wächter<br /> sorgen dafür, dass jeder Moment
-            angenehm bleibt.</strong
-          ></em
-        >
-      </p>
-      <p>
-        <em
-          ><strong
-            >Sie halten das Gleichgewicht,<br /> damit sich jeder sicher und willkommen
-            fühlt.</strong
-          ></em
-        >
-      </p>
+      {
+        copy.paragraphs.map((lines) => (
+          <p>
+            <em>
+              <strong>
+                {lines[0]}
+                <br />
+                {lines[1]}
+              </strong>
+            </em>
+          </p>
+        ))
+      }
     </div>
   </ContentPanel>
-  <Gallery
-    cols={5}
-    altPrefix="Staff portrait"
-    images={resolveImages([
-      "staff/reiji.jpg",
-      "staff/soldea.jpg",
-      "staff/domi.jpg",
-      "staff/elphine.jpg",
-      "staff/ralvus.png",
-    ])}
-  />
+  <Gallery cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
   <Gallery
     cols={2}
-    altPrefix="Staff portrait"
+    altPrefix={copy.altPrefix}
     class="w-full"
-    images={landscapeStaff}
+    images={staffLandscape}
   />
 </ContentPage>
