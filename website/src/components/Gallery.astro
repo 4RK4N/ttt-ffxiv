@@ -2,10 +2,8 @@
 import type { ImageMetadata } from "astro";
 import { getImage, Image } from "astro:assets";
 import {
-  LANDSCAPE_CELL_PX,
   LANDSCAPE_GALLERY_SIZES,
   LANDSCAPE_GALLERY_SIZES_WIDE,
-  PORTRAIT_CELL_LG_PX,
   PORTRAIT_GALLERY_SIZES,
   PORTRAIT_GALLERY_SIZES_WIDE,
   landscapeGalleryWidths,
@@ -35,11 +33,6 @@ const {
   altPrefix = "Screenshot",
 } = Astro.props;
 
-const aspectClass = {
-  portrait: "aspect-2/3",
-  landscape: "aspect-video",
-}[aspect];
-
 const colsClass = cols
   ? "grid-cols-2"
   : aspect === "portrait"
@@ -56,14 +49,6 @@ const imageSizes = wide
 
 const imageWidths =
   aspect === "portrait" ? portraitGalleryWidths() : landscapeGalleryWidths();
-
-const imageWidth =
-  aspect === "portrait" ? PORTRAIT_CELL_LG_PX : LANDSCAPE_CELL_PX;
-
-const imageHeight =
-  aspect === "portrait"
-    ? Math.round((PORTRAIT_CELL_LG_PX * 3) / 2)
-    : Math.round((LANDSCAPE_CELL_PX * 9) / 16);
 
 const fullSrcs = lightbox
   ? await Promise.all(
@@ -86,12 +71,12 @@ const fullSrcs = lightbox
         <Image
           src={src}
           alt={alt}
-          width={imageWidth}
-          height={imageHeight}
+          width={src.width}
+          height={src.height}
           widths={imageWidths}
           sizes={imageSizes}
           loading="lazy"
-          class:list={["h-full w-full object-cover", aspectClass]}
+          class="block h-auto w-full"
         />
       );
 
