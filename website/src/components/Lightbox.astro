@@ -24,7 +24,7 @@ const labels = lightboxLabels[lang];
   <button
     type="button"
     id="lightbox-close"
-    class="lightbox__close"
+    class="lightbox-close"
     aria-label={labels.close}
   >
     <CloseIcon class="h-5 w-5" />
@@ -32,7 +32,7 @@ const labels = lightboxLabels[lang];
   <button
     type="button"
     id="lightbox-prev"
-    class="lightbox__btn lightbox__btn--prev"
+    class="lightbox-btn lightbox-btn--prev"
     aria-label={labels.prev}
   >
     <svg
@@ -43,19 +43,21 @@ const labels = lightboxLabels[lang];
       <path d="M15 6l-6 6 6 6"></path>
     </svg>
   </button>
-  <div id="lightbox-stage" class="lightbox__stage">
-    <img
-      id="lightbox-image"
-      class="lightbox__image"
-      alt=""
-      title={labels.zoomIn}
-      aria-label={labels.zoomIn}
-    />
+  <div id="lightbox-stage" class="lightbox-stage">
+    <div class="lightbox-zoom-wrap">
+      <img
+        id="lightbox-image"
+        class="lightbox-image"
+        alt=""
+        title={labels.zoomIn}
+        aria-label={labels.zoomIn}
+      />
+    </div>
   </div>
   <button
     type="button"
     id="lightbox-next"
-    class="lightbox__btn lightbox__btn--next"
+    class="lightbox-btn lightbox-btn--next"
     aria-label={labels.next}
   >
     <svg
@@ -66,7 +68,7 @@ const labels = lightboxLabels[lang];
       <path d="M9 6l6 6-6 6"></path>
     </svg>
   </button>
-  <p id="lightbox-counter" class="lightbox__counter" aria-live="polite"></p>
+  <p id="lightbox-counter" class="lightbox-counter" aria-live="polite"></p>
 </div>
 
 <script>
@@ -78,6 +80,7 @@ const labels = lightboxLabels[lang];
   let overlayAbort: AbortController | null = null;
   let zoomed = false;
   let fitSrc = "";
+  let zoomResizeObserver: ResizeObserver | null = null;
   const documentScope = new AbortController();
 
   function getElements() {
@@ -138,29 +141,38 @@ const labels = lightboxLabels[lang];
     const { stage } = getElements();
     if (!stage) return;
 
-    stage.scrollLeft = (stage.scrollWidth - stage.clientWidth) / 2;
-    stage.scrollTop = (stage.scrollHeight - stage.clientHeight) / 2;
+    const maxScrollLeft = stage.scrollWidth - stage.clientWidth;
+    const maxScrollTop = stage.scrollHeight - stage.clientHeight;
+    stage.scrollLeft = maxScrollLeft > 0 ? maxScrollLeft / 2 : 0;
+    stage.scrollTop = maxScrollTop > 0 ? maxScrollTop / 2 : 0;
   }
 
   function centerStageScrollAfterZoom(img: HTMLImageElement) {
-    const center = () => {
+    zoomResizeObserver?.disconnect();
+
+    const scheduleCenter = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(centerStageScroll);
       });
     };
 
+    zoomResizeObserver = new ResizeObserver(scheduleCenter);
+    zoomResizeObserver.observe(img);
+
     if (img.complete && img.naturalWidth > 0) {
-      center();
+      scheduleCenter();
       return;
     }
 
-    img.addEventListener("load", center, { once: true });
+    img.addEventListener("load", scheduleCenter, { once: true });
     if (img.decode) {
-      img.decode().then(center).catch(center);
+      img.decode().then(scheduleCenter).catch(scheduleCenter);
     }
   }
 
   function resetZoom() {
+    zoomResizeObserver?.disconnect();
+    zoomResizeObserver = null;
     const { stage, img } = getElements();
     if (!img) return;
 

@@ -2,6 +2,7 @@
 import ContentPage from "../../../../components/ContentPage.astro";
 import ContentImage from "../../../../components/ContentImage.astro";
 import Gallery from "../../../../components/Gallery.astro";
+import SectionHeading from "../../../../components/SectionHeading.astro";
 import {
   FEATURED_EVENT_IMAGE_PX,
   FEATURED_EVENT_REM,
@@ -9,12 +10,13 @@ import {
   remScaledWidths,
 } from "../../../../data/layout";
 import { eventArchiveImages, resolveImage } from "../../../../data/images";
-import { eventPhotoAltPrefix } from "../../../../data/ui";
+import { eventPhotoAltPrefix, sectionHeadingLabels } from "../../../../data/ui";
+const lang = "en";
 ---
 
 <ContentPage
   title="Events | Tiny Temptation Tubs"
-  lang="en"
+  lang={lang}
   path="/en/pics/events/"
   heading="Events"
   gallery
@@ -28,11 +30,11 @@ import { eventPhotoAltPrefix } from "../../../../data/ui";
     class="w-full"
     alt="Next event: Saturday at 18:00 server time"
   />
-  <h2>★ Archive ★</h2>
+  <SectionHeading>{sectionHeadingLabels[lang].eventsArchive}</SectionHeading>
   <Gallery
     wide
     cols={5}
-    altPrefix={eventPhotoAltPrefix.en}
+    altPrefix={eventPhotoAltPrefix[lang]}
     images={eventArchiveImages}
   />
 </ContentPage>

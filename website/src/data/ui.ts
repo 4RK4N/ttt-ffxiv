@@ -81,3 +81,11 @@ export const eventPhotoAltPrefix: Record<Lang, string> = {
   en: "Event photo",
   de: "Event-Foto",
 };
+
+export const sectionHeadingLabels: Record<
+  Lang,
+  { eventsArchive: string }
+> = {
+  en: { eventsArchive: "★ Archive ★" },
+  de: { eventsArchive: "★ Archiv ★" },
+};

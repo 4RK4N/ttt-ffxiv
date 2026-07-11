@@ -3,12 +3,14 @@ import DiscordLogo from "./DiscordLogo.astro";
 
 interface Props {
   href: string;
+  /** Button label. Default "Discord". */
+  label?: string;
 }
 
-const { href } = Astro.props;
+const { href, label = "Discord" } = Astro.props;
 ---
 
 <a href={href} target="_blank" rel="noopener noreferrer" class="discord-cta">
   <DiscordLogo class="w-5 h-5" />
-  <span>Discord</span>
+  <span>{label}</span>
 </a>

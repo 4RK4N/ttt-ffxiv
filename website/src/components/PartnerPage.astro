@@ -1,0 +1,87 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import ContentImage from "./ContentImage.astro";
+import DiscordButton from "./DiscordButton.astro";
+import SectionHeading from "./SectionHeading.astro";
+import {
+  PARTNER_LOGO_PX,
+  PARTNER_REM,
+  remScaledSizes,
+  remScaledWidths,
+} from "../data/layout";
+import { resolveImage } from "../data/images";
+import { partnerBandLogos, partnerCopy } from "../data/partner";
+import { DISCORD_MOBATH } from "../data/site";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = partnerCopy[lang];
+const bandLogos = partnerBandLogos(lang);
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+>
+  <IntroPanel>
+    {
+      copy.introParagraphs.map((lines) => (
+        <p>
+          <strong>
+            {lines[0]}
+            <br />
+            {lines[1]}
+          </strong>
+        </p>
+      ))
+    }
+    <p>
+      <strong>{copy.introClosing}</strong>
+    </p>
+  </IntroPanel>
+  <ContentImage
+    src={resolveImage("partner/0d103a87.png")}
+    width={PARTNER_LOGO_PX}
+    sizes={remScaledSizes(PARTNER_REM)}
+    widths={remScaledWidths(PARTNER_REM)}
+    class="w-48 max-w-full"
+    alt={copy.mobathLogoAlt}
+    lightbox={false}
+  />
+  <IntroPanel center={false} gap={4}>
+    <h2>{copy.mobathHeading}</h2>
+    <p>
+      <strong>
+        {copy.mobathBody[0]}
+        <br />
+        {copy.mobathBody[1]}
+      </strong>
+    </p>
+    <h3>{copy.mobathWorlds}</h3>
+  </IntroPanel>
+  <DiscordButton href={DISCORD_MOBATH} label={copy.discordLabel} />
+  <SectionHeading>{copy.bandsHeading}</SectionHeading>
+  <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
+    {
+      bandLogos.map(({ src, alt, imageClass }) => (
+        <ContentImage
+          src={src}
+          width={PARTNER_LOGO_PX}
+          sizes={remScaledSizes(PARTNER_REM)}
+          widths={remScaledWidths(PARTNER_REM)}
+          class="flex w-48 max-w-full items-center"
+          imageClass={imageClass}
+          alt={alt}
+          lightbox={false}
+        />
+      ))
+    }
+  </div>
+</ContentPage>

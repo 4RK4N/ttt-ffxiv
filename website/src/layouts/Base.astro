@@ -126,7 +126,7 @@ const menuToggleLabel = labels.menuToggle;
         widths={[300, 450, 600]}
         sizes="min(300px, 34vw)"
         loading="lazy"
-        class="page-decor__corner page-decor__corner--left"
+        class="page-decor-corner page-decor-corner--left"
       />
       <Image
         src={cornerOrnament}
@@ -135,7 +135,7 @@ const menuToggleLabel = labels.menuToggle;
         widths={[300, 450, 600]}
         sizes="min(300px, 34vw)"
         loading="lazy"
-        class="page-decor__corner page-decor__corner--right"
+        class="page-decor-corner page-decor-corner--right"
       />
     </div>
 
@@ -215,8 +215,8 @@ const menuToggleLabel = labels.menuToggle;
               href={item.path}
               data-astro-prefetch
               class:list={[
-                "footer-nav__link",
-                item.path === path && "footer-nav__link--active",
+                "footer-nav-link",
+                item.path === path && "footer-nav-link--active",
               ]}
             >
               {item.label}

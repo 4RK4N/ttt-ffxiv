@@ -121,9 +121,6 @@ export function remScaledWidths(rem: number): number[] {
   return buildWidths(profile);
 }
 
-/** Full content column — w-full images inside default text sections. */
-export const CONTENT_COLUMN_SIZES = contentSectionSizes(CONTENT_MAX_TEXT_REM);
-
 /** Full content column for gallery pages. */
 export const GALLERY_CONTENT_COLUMN_SIZES = contentSectionSizes(
   CONTENT_MAX_GALLERY_REM,

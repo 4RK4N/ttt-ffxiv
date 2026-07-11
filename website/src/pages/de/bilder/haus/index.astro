@@ -4,6 +4,7 @@ import IntroPanel from "../../../../components/IntroPanel.astro";
 import ContentImage from "../../../../components/ContentImage.astro";
 import Gallery from "../../../../components/Gallery.astro";
 import SectionBreak from "../../../../components/SectionBreak.astro";
+import SectionHeading from "../../../../components/SectionHeading.astro";
 import {
   GALLERY_CONTENT_COLUMN_SIZES,
   CONTENT_COLUMN_PX,
@@ -46,7 +47,7 @@ const copy = galleryCopy.de;
   />
   <Gallery wide altPrefix={copy.altPrefix} images={galleryVenueImages} />
   <SectionBreak>
-    <h2>{copy.room1Heading}</h2>
+    <SectionHeading>{copy.room1Heading}</SectionHeading>
   </SectionBreak>
   <Gallery
     wide
@@ -54,7 +55,7 @@ const copy = galleryCopy.de;
     images={galleryRoom01Images}
   />
   <SectionBreak>
-    <h2>{copy.room2Heading}</h2>
+    <SectionHeading>{copy.room2Heading}</SectionHeading>
   </SectionBreak>
   <Gallery
     wide
