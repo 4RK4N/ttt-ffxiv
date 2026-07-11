@@ -1,0 +1,36 @@
+---
+import ContentPage from "./ContentPage.astro";
+import ContentPanel from "./ContentPanel.astro";
+import ImprintContent from "./ImprintContent.astro";
+import PrivacyContent from "./PrivacyContent.astro";
+import { legalCopy, type LegalPageKind } from "../data/legal";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+  kind: LegalPageKind;
+}
+
+const { lang, kind } = Astro.props;
+const copy = legalCopy[kind][lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  wide
+  preloadCormorant={false}
+  preloadJost={true}
+>
+  <ContentPanel class="panel-legal">
+    {
+      kind === "imprint" ? (
+        <ImprintContent lang={lang} />
+      ) : (
+        <PrivacyContent lang={lang} />
+      )
+    }
+  </ContentPanel>
+</ContentPage>

@@ -1,28 +1,5 @@
 ---
-import ContentPage from "../../../components/ContentPage.astro";
-import IntroPanel from "../../../components/IntroPanel.astro";
-import Gallery from "../../../components/Gallery.astro";
-import { guestbookImages } from "../../../data/images";
+import GuestbookPage from "../../../components/GuestbookPage.astro";
 ---
 
-<ContentPage
-  title="Guestbook | Tiny Temptation Tubs"
-  lang="en"
-  path="/en/guestbook/"
-  heading="Guestbook"
-  gallery
->
-  <IntroPanel gap={4} divider>
-    <p>
-      Messages left by our guests in our XIV venue guestbook — shared here as
-      screenshots.
-    </p>
-    <p>
-      <strong
-        >They say words can remain… Leave a piece of yourself, a few thoughts or
-        memories so your journey here never truly fades.</strong
-      >
-    </p>
-  </IntroPanel>
-  <Gallery wide altPrefix="Guestbook message" images={guestbookImages} />
-</ContentPage>
+<GuestbookPage lang="en" />

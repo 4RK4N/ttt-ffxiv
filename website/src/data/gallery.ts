@@ -44,21 +44,44 @@ export const galleryVenueImages = resolveImages(GALLERY_VENUE_PATHS);
 export const galleryRoom01Images = resolveImages(GALLERY_ROOM01_PATHS);
 export const galleryRoom02Images = resolveImages(GALLERY_ROOM02_PATHS);
 
-interface GalleryCopy {
+interface GalleryVenueCopy {
+  title: string;
+  path: string;
+  heading: string;
+  introLead: string;
+  introBody: string;
+  heroAlt: string;
   altPrefix: string;
   room1Heading: string;
   room2Heading: string;
+  roomScreenshotSuffix: string;
 }
 
-export const galleryCopy: Record<Lang, GalleryCopy> = {
+export const galleryVenueCopy: Record<Lang, GalleryVenueCopy> = {
   en: {
+    title: "The Venue | Tiny Temptation Tubs",
+    path: "/en/pics/venue/",
+    heading: "The Venue",
+    introLead: "A glimpse into our home…",
+    introBody:
+      "Warm rooms, quiet corners, soft lights, and places where memories are made.",
+    heroAlt: "Exterior view of the bathhouse at night",
     altPrefix: "Bathhouse screenshot",
     room1Heading: "Room 1",
     room2Heading: "Room 2",
+    roomScreenshotSuffix: " screenshot",
   },
   de: {
+    title: "Das Haus | Tiny Temptation Tubs",
+    path: "/de/bilder/haus/",
+    heading: "Das Haus",
+    introLead: "Ein Blick in unser Haus…",
+    introBody:
+      "Warme Räume, stille Ecken, sanftes Licht und Orte, an denen Erinnerungen entstehen.",
+    heroAlt: "Außenansicht des Badehauses bei Nacht",
     altPrefix: "Badehaus-Screenshot",
     room1Heading: "Zimmer 1",
     room2Heading: "Zimmer 2",
+    roomScreenshotSuffix: "-Screenshot",
   },
 };

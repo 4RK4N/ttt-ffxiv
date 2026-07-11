@@ -1,19 +1,5 @@
 ---
-import ContentPage from "../../../components/ContentPage.astro";
-import ContentPanel from "../../../components/ContentPanel.astro";
-import ImprintContent from "../../../components/ImprintContent.astro";
+import LegalPage from "../../../components/LegalPage.astro";
 ---
 
-<ContentPage
-  title="Imprint | Tiny Temptation Tubs"
-  lang="en"
-  path="/en/imprint/"
-  heading="Imprint"
-  wide
-  preloadCormorant={false}
-  preloadJost={true}
->
-  <ContentPanel class="panel-legal">
-    <ImprintContent lang="en" />
-  </ContentPanel>
-</ContentPage>
+<LegalPage lang="en" kind="imprint" />

@@ -1,0 +1,66 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import ContentImage from "./ContentImage.astro";
+import Gallery from "./Gallery.astro";
+import SectionBreak from "./SectionBreak.astro";
+import SectionHeading from "./SectionHeading.astro";
+import {
+  GALLERY_CONTENT_COLUMN_SIZES,
+  CONTENT_COLUMN_PX,
+  contentColumnWidths,
+} from "../data/layout";
+import { pageImages } from "../data/images";
+import {
+  galleryRoom01Images,
+  galleryRoom02Images,
+  galleryVenueCopy,
+  galleryVenueImages,
+} from "../data/gallery";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = galleryVenueCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  gallery
+>
+  <IntroPanel gap={4} divider>
+    <p><strong>{copy.introLead}</strong></p>
+    <p><strong>{copy.introBody}</strong></p>
+  </IntroPanel>
+  <ContentImage
+    src={pageImages.image09}
+    width={CONTENT_COLUMN_PX}
+    sizes={GALLERY_CONTENT_COLUMN_SIZES}
+    widths={contentColumnWidths()}
+    class="w-full"
+    alt={copy.heroAlt}
+  />
+  <Gallery wide altPrefix={copy.altPrefix} images={galleryVenueImages} />
+  <SectionBreak>
+    <SectionHeading>{copy.room1Heading}</SectionHeading>
+  </SectionBreak>
+  <Gallery
+    wide
+    altPrefix={`${copy.room1Heading}${copy.roomScreenshotSuffix}`}
+    images={galleryRoom01Images}
+  />
+  <SectionBreak>
+    <SectionHeading>{copy.room2Heading}</SectionHeading>
+  </SectionBreak>
+  <Gallery
+    wide
+    altPrefix={`${copy.room2Heading}${copy.roomScreenshotSuffix}`}
+    images={galleryRoom02Images}
+  />
+</ContentPage>

@@ -1,19 +1,5 @@
 ---
-import ContentPage from "../../../components/ContentPage.astro";
-import ContentPanel from "../../../components/ContentPanel.astro";
-import PrivacyContent from "../../../components/PrivacyContent.astro";
+import LegalPage from "../../../components/LegalPage.astro";
 ---
 
-<ContentPage
-  title="Privacy Policy | Tiny Temptation Tubs"
-  lang="en"
-  path="/en/privacy/"
-  heading="Privacy Policy"
-  wide
-  preloadCormorant={false}
-  preloadJost={true}
->
-  <ContentPanel class="panel-legal">
-    <PrivacyContent lang="en" />
-  </ContentPanel>
-</ContentPage>
+<LegalPage lang="en" kind="privacy" />

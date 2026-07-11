@@ -1,0 +1,37 @@
+---
+import ContentPage from "./ContentPage.astro";
+import ContentImage from "./ContentImage.astro";
+import {
+  GALLERY_CONTENT_COLUMN_SIZES,
+  CONTENT_COLUMN_PX,
+  contentColumnWidths,
+} from "../data/layout";
+import { pageImages } from "../data/images";
+import { menuCopy } from "../data/menu";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = menuCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  gallery
+>
+  <ContentImage
+    src={pageImages.drinksMenu}
+    width={CONTENT_COLUMN_PX}
+    sizes={GALLERY_CONTENT_COLUMN_SIZES}
+    widths={contentColumnWidths()}
+    featured="menu"
+    class="w-full"
+    alt={copy.menuAlt}
+  />
+</ContentPage>

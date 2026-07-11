@@ -1,28 +1,5 @@
 ---
-import ContentPage from "../../../components/ContentPage.astro";
-import ContentImage from "../../../components/ContentImage.astro";
-import {
-  GALLERY_CONTENT_COLUMN_SIZES,
-  CONTENT_COLUMN_PX,
-  contentColumnWidths,
-} from "../../../data/layout";
-import { pageImages } from "../../../data/images";
+import MenuPage from "../../../components/MenuPage.astro";
 ---
 
-<ContentPage
-  title="Karte | Tiny Temptation Tubs"
-  lang="de"
-  path="/de/karte/"
-  heading="Karte"
-  gallery
->
-  <ContentImage
-    src={pageImages.drinksMenu}
-    width={CONTENT_COLUMN_PX}
-    sizes={GALLERY_CONTENT_COLUMN_SIZES}
-    widths={contentColumnWidths()}
-    featured="menu"
-    class="w-full"
-    alt="Getränkekarte im Tiny Temptation Tubs, serviert von Ralvus dem Barkeeper"
-  />
-</ContentPage>
+<MenuPage lang="de" />

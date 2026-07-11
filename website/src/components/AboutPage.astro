@@ -1,0 +1,33 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import { aboutCopy } from "../data/about";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = aboutCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+>
+  <IntroPanel center={false}>
+    <h2 set:html={copy.whatIsHeading} />
+    <p set:html={copy.whatIsBody[0]} />
+    <p set:html={copy.whatIsBody[1]} />
+    <h2>{copy.whoForHeading}</h2>
+    <p>{copy.whoForLead}</p>
+    <ul class="body-list">
+      {copy.whoForList.map((item) => <li>{item}</li>)}
+    </ul>
+    <p>{copy.whoForBody[0]}</p>
+    <p>{copy.whoForBody[1]}</p>
+  </IntroPanel>
+</ContentPage>

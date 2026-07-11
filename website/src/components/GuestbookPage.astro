@@ -1,0 +1,29 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import Gallery from "./Gallery.astro";
+import { guestbookImages } from "../data/images";
+import { guestbookCopy } from "../data/guestbook";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = guestbookCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  gallery
+>
+  <IntroPanel gap={4} divider>
+    <p>{copy.introLead}</p>
+    <p><strong>{copy.introStrong}</strong></p>
+  </IntroPanel>
+  <Gallery wide altPrefix={copy.altPrefix} images={guestbookImages} />
+</ContentPage>

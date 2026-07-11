@@ -19,13 +19,19 @@ const STAFF_LANDSCAPE_PATHS = [
 export const staffPortraits = resolveImages(STAFF_PORTRAIT_PATHS);
 export const staffLandscape = resolveImages(STAFF_LANDSCAPE_PATHS);
 
-interface StaffCopy {
+interface StaffPageCopy {
+  title: string;
+  path: string;
+  heading: string;
   altPrefix: string;
   paragraphs: readonly (readonly [string, string])[];
 }
 
-export const staffCopy: Record<Lang, StaffCopy> = {
+export const staffCopy: Record<Lang, StaffPageCopy> = {
   en: {
+    title: "Staff | Tiny Temptation Tubs",
+    path: "/en/team/staff/",
+    heading: "Staff",
     altPrefix: "Staff portrait",
     paragraphs: [
       ["Behind every warm welcome stand those", "who care for the house."],
@@ -37,6 +43,9 @@ export const staffCopy: Record<Lang, StaffCopy> = {
     ],
   },
   de: {
+    title: "Staff | Tiny Temptation Tubs",
+    path: "/de/team/staff/",
+    heading: "Staff",
     altPrefix: "Staff portrait",
     paragraphs: [
       [

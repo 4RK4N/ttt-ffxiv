@@ -1,0 +1,44 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import Gallery from "./Gallery.astro";
+import { staffCopy, staffLandscape, staffPortraits } from "../data/staff";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = staffCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  gallery
+>
+  <IntroPanel divider>
+    {
+      copy.paragraphs.map((lines) => (
+        <p>
+          <strong>
+            {lines[0]}
+            <br />
+            {lines[1]}
+          </strong>
+        </p>
+      ))
+    }
+  </IntroPanel>
+  <Gallery wide cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
+  <Gallery
+    wide
+    cols={2}
+    altPrefix={copy.altPrefix}
+    class="w-full"
+    images={staffLandscape}
+  />
+</ContentPage>

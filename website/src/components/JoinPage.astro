@@ -1,0 +1,53 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import Gallery from "./Gallery.astro";
+import DiscordButton from "./DiscordButton.astro";
+import { joinImages } from "../data/images";
+import { joinCopy } from "../data/join";
+import { DISCORD_TTT } from "../data/site";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = joinCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  gallery
+>
+  <IntroPanel divider>
+    <p>
+      <strong>
+        {copy.introLead.map((line, index) => (
+          <>
+            {index > 0 && <br />}
+            {line}
+          </>
+        ))}
+      </strong>
+    </p>
+    <p>
+      <strong>
+        {copy.introClosing[0]}
+        <br />
+        {copy.introClosing[1]}
+      </strong>
+    </p>
+  </IntroPanel>
+  <Gallery
+    wide
+    cols={2}
+    altPrefix={copy.photoAltPrefix}
+    class="w-full"
+    images={joinImages[lang]}
+  />
+  <DiscordButton href={DISCORD_TTT} />
+</ContentPage>

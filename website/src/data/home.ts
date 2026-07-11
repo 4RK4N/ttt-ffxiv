@@ -1,12 +1,16 @@
-import type { Lang } from "./nav";
+import { type Lang, siteName } from "./nav";
 
 interface HomeCopy {
+  title: string;
+  path: string;
   openingHeading: string;
   introLines: string[];
 }
 
 export const homeCopy: Record<Lang, HomeCopy> = {
   en: {
+    title: siteName,
+    path: "/",
     openingHeading: "Next Opening",
     introLines: [
       "Welcome, traveler…",
@@ -18,6 +22,8 @@ export const homeCopy: Record<Lang, HomeCopy> = {
     ],
   },
   de: {
+    title: siteName,
+    path: "/de.html",
     openingHeading: "Nächste Öffnung",
     introLines: [
       "Willkommen, Reisender…",
