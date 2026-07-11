@@ -6,6 +6,7 @@ import DiscordButton from "./DiscordButton.astro";
 import IntroPanel from "./IntroPanel.astro";
 import OrnamentDivider from "./OrnamentDivider.astro";
 import AddressPlaque from "./AddressPlaque.astro";
+import SectionHeading from "./SectionHeading.astro";
 import {
   HERO_LOGO_PX,
   HERO_REM,
@@ -57,7 +58,7 @@ const lcpPreload = await buildResponsivePreload(
         <span class="heading-gradient-text">{siteName}</span>
       </h1>
       <OrnamentDivider />
-      <p class="opening-label">{copy.openingHeading}</p>
+      <SectionHeading>{copy.openingHeading}</SectionHeading>
       <Timer lang={lang} timestamp={EVENT_TIMESTAMP} />
     </div>
     <AddressPlaque lang={lang} />

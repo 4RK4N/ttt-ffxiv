@@ -118,16 +118,6 @@
     opacity: 0.75;
   }
 
-  .opening-label {
-    margin: 0;
-    font-family: var(--font-cinzel);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    color: var(--color-body-text-muted);
-  }
-
   main h2 {
     width: 100%;
     font-family: var(--font-cormorant);
