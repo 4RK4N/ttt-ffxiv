@@ -16,10 +16,12 @@ const copy = staffCopy.en;
   lang="en"
   path="/en/team/staff/"
   heading="Staff"
+  gallery
 >
   <StaffIntro lang="en" />
-  <Gallery cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
+  <Gallery wide cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
   <Gallery
+    wide
     cols={2}
     altPrefix={copy.altPrefix}
     class="w-full"
