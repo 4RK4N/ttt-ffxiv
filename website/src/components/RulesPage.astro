@@ -1,0 +1,37 @@
+---
+import ContentPage from "./ContentPage.astro";
+import IntroPanel from "./IntroPanel.astro";
+import RuleCard from "./RuleCard.astro";
+import { rulesCopy } from "../data/rules";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = rulesCopy[lang];
+---
+
+<ContentPage
+  title={copy.title}
+  lang={lang}
+  path={copy.path}
+  heading={copy.heading}
+  wide
+>
+  <IntroPanel center={false} gap={4}>
+    <h2 set:html={copy.introTitle} />
+    <p set:html={copy.introBody} />
+  </IntroPanel>
+  <div class="rules-stack">
+    {
+      copy.cards.map((card, index) => (
+        <RuleCard number={index + 1}>
+          <h3 set:html={card.title} />
+          <p set:html={card.body} />
+        </RuleCard>
+      ))
+    }
+  </div>
+</ContentPage>

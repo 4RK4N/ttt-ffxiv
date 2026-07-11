@@ -1,0 +1,14 @@
+---
+import { Image } from "astro:assets";
+import { ornDivider } from "../data/images";
+---
+
+<Image
+  src={ornDivider}
+  alt=""
+  width={440}
+  widths={[280, 440, 600]}
+  sizes="min(440px, 82vw)"
+  loading="lazy"
+  class="page-divider"
+/>

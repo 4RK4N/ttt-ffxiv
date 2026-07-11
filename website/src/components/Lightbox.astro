@@ -1,30 +1,39 @@
+---
+import CloseIcon from "./CloseIcon.astro";
+import type { Lang } from "../data/nav";
+import { lightboxLabels } from "../data/ui";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const labels = lightboxLabels[lang];
+---
+
 <div
   id="lightbox"
   class="lightbox hidden"
   role="dialog"
   aria-modal="true"
-  aria-label="Image viewer"
+  aria-label={labels.dialog}
+  data-zoom-in={labels.zoomIn}
+  data-zoom-out={labels.zoomOut}
   hidden
 >
   <button
     type="button"
     id="lightbox-close"
     class="lightbox__close"
-    aria-label="Close"
+    aria-label={labels.close}
   >
-    <svg
-      viewBox="0 0 24 24"
-      class="h-5 w-5 fill-none stroke-current stroke-2"
-      aria-hidden="true"
-    >
-      <path d="M6 6l12 12M18 6L6 18"></path>
-    </svg>
+    <CloseIcon class="h-5 w-5" />
   </button>
   <button
     type="button"
     id="lightbox-prev"
     class="lightbox__btn lightbox__btn--prev"
-    aria-label="Previous image"
+    aria-label={labels.prev}
   >
     <svg
       viewBox="0 0 24 24"
@@ -39,15 +48,15 @@
       id="lightbox-image"
       class="lightbox__image"
       alt=""
-      title="Zoom in"
-      aria-label="Zoom in"
+      title={labels.zoomIn}
+      aria-label={labels.zoomIn}
     />
   </div>
   <button
     type="button"
     id="lightbox-next"
     class="lightbox__btn lightbox__btn--next"
-    aria-label="Next image"
+    aria-label={labels.next}
   >
     <svg
       viewBox="0 0 24 24"
@@ -118,51 +127,37 @@
     img.classList.toggle("is-zoomed", isZoomed);
     overlay.classList.toggle("is-zoomed", isZoomed);
 
-    const label = isZoomed ? "Zoom out" : "Zoom in";
+    const label = isZoomed
+      ? (overlay.dataset.zoomOut ?? "Zoom out")
+      : (overlay.dataset.zoomIn ?? "Zoom in");
     img.title = label;
     img.setAttribute("aria-label", label);
   }
 
   function centerStageScroll() {
-    const { stage, img } = getElements();
-    if (!stage || !img) return;
+    const { stage } = getElements();
+    if (!stage) return;
 
-    stage.scrollLeft = Math.max(
-      0,
-      img.offsetLeft + (img.offsetWidth - stage.clientWidth) / 2,
-    );
-    stage.scrollTop = Math.max(
-      0,
-      img.offsetTop + (img.offsetHeight - stage.clientHeight) / 2,
-    );
+    stage.scrollLeft = (stage.scrollWidth - stage.clientWidth) / 2;
+    stage.scrollTop = (stage.scrollHeight - stage.clientHeight) / 2;
   }
 
   function centerStageScrollAfterZoom(img: HTMLImageElement) {
-    let attempts = 0;
-    const maxAttempts = 8;
-
-    const tryCenter = () => {
-      centerStageScroll();
-      attempts += 1;
-      if (attempts < maxAttempts) {
-        requestAnimationFrame(tryCenter);
-      }
-    };
-
-    const start = () => {
-      if (img.decode) {
-        img.decode().then(() => tryCenter()).catch(() => tryCenter());
-      } else {
-        tryCenter();
-      }
+    const center = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(centerStageScroll);
+      });
     };
 
     if (img.complete && img.naturalWidth > 0) {
-      start();
+      center();
       return;
     }
 
-    img.addEventListener("load", start, { once: true });
+    img.addEventListener("load", center, { once: true });
+    if (img.decode) {
+      img.decode().then(center).catch(center);
+    }
   }
 
   function resetZoom() {
@@ -226,11 +221,18 @@
     const fullSrc = trigger?.dataset.fullSrc;
 
     if (!zoomed) {
-      if (fullSrc && img.src !== fullSrc) {
+      const srcChanged = Boolean(fullSrc && img.src !== fullSrc);
+      if (srcChanged && fullSrc) {
         img.src = fullSrc;
       }
       setZoomUi(true);
-      centerStageScrollAfterZoom(img);
+      if (srcChanged) {
+        img.addEventListener("load", () => centerStageScrollAfterZoom(img), {
+          once: true,
+        });
+      } else {
+        centerStageScrollAfterZoom(img);
+      }
       return;
     }
 

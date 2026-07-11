@@ -2,7 +2,7 @@ import type { Lang } from "./nav";
 import { resolveImages } from "./images";
 
 /** Portrait-format staff cards in display order. */
-export const STAFF_PORTRAIT_PATHS = [
+const STAFF_PORTRAIT_PATHS = [
   "staff/reiji.jpg",
   "staff/soldea.jpg",
   "staff/domi.jpg",
@@ -11,7 +11,7 @@ export const STAFF_PORTRAIT_PATHS = [
 ] as const;
 
 /** Landscape-format staff cards — shown last in a 50/50 row. */
-export const STAFF_LANDSCAPE_PATHS = [
+const STAFF_LANDSCAPE_PATHS = [
   "staff/domino.jpg",
   "staff/alice.png",
 ] as const;

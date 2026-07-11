@@ -330,9 +330,9 @@ chmod +x scripts/build.sh   # once, on Linux/macOS
 
 This builds and recreates:
 
-- **`ttt-discord-bot:1.3.0`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only.
-- **`ttt-web-editor:1.3.0`** — same root `Dockerfile`, separate target (`npm run build:web-admin` → `dist/web-admin/`).
-- **`ttt-website:1.3.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
+- **`ttt-discord-bot:1.3.1`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only.
+- **`ttt-web-editor:1.3.1`** — same root `Dockerfile`, separate target (`npm run build:web-admin` → `dist/web-admin/`).
+- **`ttt-website:2.0.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
 Runtime config lives in the mounted `./data` volume — not copied into images at build time.
 
@@ -410,7 +410,7 @@ Static multi-page site built with **Astro 7 + Tailwind CSS**. The site is **buil
 gallery, icons, and background are source content — the Docker build runs
 `astro build` and needs them on disk after `git pull`. Organize optimized page
 images by purpose under `website/src/assets/images/`: `content/`, `events/`,
-`guestbook/`, `community/`, `staff/`, `partner/`, and
+`guestbook/`, `team/`, `staff/`, `partner/`, and
 `gallery/{venue,room01,room02,bands}/`. Only `website/dist/` and
 `website/.astro/` are build output and stay gitignored. `website/public/` holds
 four fixed-URL files (favicon, share image, etc.) only.
@@ -486,13 +486,13 @@ If you prefer not to use Compose:
 
 ```bash
 # Bot
-docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.3.0 .
+docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.3.1 .
 
 # Web editor
-docker build -f Dockerfile --target ttt-web-editor -t ttt-web-editor:1.3.0 .
+docker build -f Dockerfile --target ttt-web-editor -t ttt-web-editor:1.3.1 .
 
 # Website
-docker build -f website/Dockerfile -t ttt-website:1.3.0 website/
+docker build -f website/Dockerfile -t ttt-website:2.0.0 website/
 
 # Register commands (one-off). The -v mount provides data/config.json.
 docker run --rm -v "$(pwd)/data:/app/data" ttt-discord-bot npm run deploy

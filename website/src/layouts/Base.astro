@@ -18,11 +18,13 @@ import {
   headerLogoWidths,
 } from "../data/layout";
 import { DISCORD_TTT, SITE_URL } from "../data/site";
-import { logo, bg } from "../data/images";
+import { shellLabels } from "../data/ui";
+import { logo, bg, cornerOrnament } from "../data/images";
 import SiteNav from "../components/SiteNav.astro";
 import DiscordIcon from "../components/DiscordIcon.astro";
 import LangSwitch from "../components/LangSwitch.astro";
 import Lightbox from "../components/Lightbox.astro";
+import CloseIcon from "../components/CloseIcon.astro";
 
 interface Props {
   title: string;
@@ -35,10 +37,12 @@ interface Props {
   heroLcp?: boolean;
   /** Responsive preload for the home hero image. */
   lcpPreload?: { srcset: string; sizes: string };
-  /** Preload Pacifico (pages with h1 page-heading). Default true. */
-  preloadPacifico?: boolean;
-  /** Preload Patrick Hand (handwriting copy). Default true. */
-  preloadPatrick?: boolean;
+  /** Preload Cinzel (pages with h1 page-heading). Default true. */
+  preloadCinzel?: boolean;
+  /** Preload Cormorant Garamond (body copy). Default true. */
+  preloadCormorant?: boolean;
+  /** Preload Jost (legal / small UI). Default false on content pages. */
+  preloadJost?: boolean;
 }
 
 const {
@@ -48,8 +52,9 @@ const {
   description,
   heroLcp,
   lcpPreload,
-  preloadPacifico = true,
-  preloadPatrick = true,
+  preloadCinzel = true,
+  preloadCormorant = true,
+  preloadJost = false,
 } = Astro.props;
 
 const metaDescription = description ?? siteDescription[lang];
@@ -62,9 +67,12 @@ const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
 
 const bgOptimized = await getImage({ src: bg, width: 1920, format: "webp" });
 
-const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
-const mainMenuLabel = lang === "de" ? "Hauptmenü" : "Main menu";
-const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
+const labels = shellLabels[lang];
+const skipLabel = labels.skip;
+const mainMenuLabel = labels.mainMenu;
+const mobileMenuLabel = labels.mobileMenu;
+const legalNavLabel = labels.legalNav;
+const menuToggleLabel = labels.menuToggle;
 ---
 
 <!doctype html>
@@ -103,19 +111,40 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
         />
       )
     }
-    <Font cssVariable="--font-jost-face" preload />
-    {preloadPatrick && <Font cssVariable="--font-patrick-face" preload />}
-    {preloadPacifico && <Font cssVariable="--font-pacifico-face" preload />}
+    <Font cssVariable="--font-jost-face" preload={preloadJost} />
+    <Font cssVariable="--font-cormorant-face" preload={preloadCormorant} />
+    <Font cssVariable="--font-cinzel-face" preload={preloadCinzel} />
     <ClientRouter />
   </head>
 
   <body class="pt-(--header-height)">
+    <div class="page-decor" aria-hidden="true">
+      <Image
+        src={cornerOrnament}
+        alt=""
+        width={600}
+        widths={[300, 450, 600]}
+        sizes="min(300px, 34vw)"
+        loading="lazy"
+        class="page-decor__corner page-decor__corner--left"
+      />
+      <Image
+        src={cornerOrnament}
+        alt=""
+        width={600}
+        widths={[300, 450, 600]}
+        sizes="min(300px, 34vw)"
+        loading="lazy"
+        class="page-decor__corner page-decor__corner--right"
+      />
+    </div>
+
     <a href="#main-content" class="skip-link site-bar site-bar--header"
       >{skipLabel}</a
     >
 
     <header
-      class="site-bar site-bar--header fixed inset-x-0 top-0 z-50 flex h-(--header-height) items-center gap-4 px-4 font-jost text-base lg:px-7"
+      class="site-bar site-bar--header fixed inset-x-0 top-0 z-50 flex h-(--header-height) items-center gap-4 px-4 text-base lg:px-7"
     >
       <a href={homePath[lang]} class="flex h-full shrink-0 items-center py-1.5">
         <Image
@@ -149,7 +178,7 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
           id="menu-toggle"
           aria-expanded="false"
           aria-controls="mobile-drawer"
-          aria-label={lang === "de" ? "Menü" : "Menu"}
+          aria-label={menuToggleLabel}
           class="menu-toggle"
         >
           <svg
@@ -160,14 +189,7 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
           >
             <path d="M4 7h16M4 12h16M4 17h16"></path>
           </svg>
-          <svg
-            id="menu-icon-close"
-            viewBox="0 0 24 24"
-            class="hidden h-5 w-5 fill-none stroke-current stroke-2"
-            aria-hidden="true"
-          >
-            <path d="M6 6l12 12M18 6L6 18"></path>
-          </svg>
+          <CloseIcon id="menu-icon-close" class="hidden h-5 w-5" />
         </button>
       </div>
     </header>
@@ -178,7 +200,7 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
       currentPath={path}
       variant="mobile"
       ariaLabel={mobileMenuLabel}
-      class="site-bar site-bar--header fixed inset-x-0 top-(--header-height) z-40 hidden max-h-[calc(100vh-var(--header-height))] overflow-y-auto px-4 pb-4 pt-3 text-left font-jost text-base md:hidden!"
+      class="site-bar site-bar--header fixed inset-x-0 top-(--header-height) z-40 hidden max-h-[calc(100vh-var(--header-height))] overflow-y-auto px-4 pb-4 pt-3 text-left text-base md:hidden!"
     />
 
     <main id="main-content" transition:animate={fade({ duration: "0.2s" })}>
@@ -186,13 +208,17 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
     </main>
 
     <footer class="site-bar site-bar--footer px-4 py-4.5 text-center">
-      <nav
-        class="footer-nav"
-        aria-label={lang === "de" ? "Rechtliches" : "Legal"}
-      >
+      <nav class="footer-nav" aria-label={legalNavLabel}>
         {
           legal.map((item) => (
-            <a href={item.path} data-astro-prefetch>
+            <a
+              href={item.path}
+              data-astro-prefetch
+              class:list={[
+                "footer-nav__link",
+                item.path === path && "footer-nav__link--active",
+              ]}
+            >
               {item.label}
             </a>
           ))
@@ -200,7 +226,7 @@ const mobileMenuLabel = lang === "de" ? "Mobilmenü" : "Mobile menu";
       </nav>
     </footer>
 
-    <Lightbox />
+    <Lightbox lang={lang} />
 
     <script>
       import { on, renewListenerScope } from "../lib/dom-listeners";

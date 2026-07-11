@@ -11,7 +11,10 @@ interface Props {
   imageClass?: string;
   loading?: "lazy" | "eager";
   alt?: string;
+  /** Open in site lightbox with zoom. Default true when alt is set. */
   lightbox?: boolean;
+  /** Copper-framed layout for menu or event poster. */
+  featured?: "menu" | "event";
 }
 
 const {
@@ -23,21 +26,33 @@ const {
   imageClass,
   loading = "lazy",
   alt = "",
-  lightbox = false,
+  lightbox = true,
+  featured,
 } = Astro.props;
 
-const fullSrc =
-  lightbox && alt
-    ? (await getImage({ src, width: src.width, format: "webp" })).src
-    : undefined;
+const useLightbox = lightbox && alt.trim().length > 0;
+
+const frameClass =
+  featured === "menu"
+    ? "image-frame--featured image-frame--menu"
+    : featured === "event"
+      ? "image-frame--featured image-frame--event"
+      : undefined;
+
+const fullSrc = useLightbox
+  ? (await getImage({ src, width: src.width, format: "webp" })).src
+  : undefined;
+
+const widthProps = widths ? { widths } : { densities: [1, 2] };
 ---
 
 {
-  lightbox && alt ? (
+  useLightbox ? (
     <button
       type="button"
       class:list={[
         "image-frame lightbox-trigger mx-auto max-w-full cursor-pointer p-0",
+        frameClass,
         className,
       ]}
       aria-label={alt}
@@ -47,19 +62,19 @@ const fullSrc =
         src={src}
         alt={alt}
         width={width}
-        {...(widths ? { widths } : { densities: [1, 2] })}
+        {...widthProps}
         sizes={sizes}
         loading={loading}
         class:list={["block h-auto w-full", imageClass]}
       />
     </button>
   ) : (
-    <div class:list={["image-frame mx-auto max-w-full", className]}>
+    <div class:list={["image-frame mx-auto max-w-full", frameClass, className]}>
       <Image
         src={src}
         alt={alt}
         width={width}
-        {...(widths ? { widths } : { densities: [1, 2] })}
+        {...widthProps}
         sizes={sizes}
         loading={loading}
         class:list={["block h-auto w-full", imageClass]}

@@ -1,6 +1,6 @@
 ---
 import NavDropdown from "./NavDropdown.astro";
-import type { NavItem, SiteMenu } from "../data/nav";
+import { isNavPathActive, type NavItem, type SiteMenu } from "../data/nav";
 
 interface Props {
   menu: SiteMenu;
@@ -21,11 +21,11 @@ const {
 } = Astro.props;
 
 const isDesktop = variant === "desktop";
-const isActive = (itemPath: string) => itemPath === currentPath;
+const isActive = (itemPath: string) => isNavPathActive(itemPath, currentPath);
 const isGroupActive = (items: NavItem[]) =>
   items.some((item) => isActive(item.path));
 const isPicsActive = isGroupActive(menu.pics.items);
-const isCommunityActive = isGroupActive(menu.community.items);
+const isTeamActive = isGroupActive(menu.team.items);
 
 const navLinkClass = (itemPath: string) => [
   "nav-link",
@@ -77,10 +77,10 @@ const navItemClass = !isDesktop ? "border-b border-bar-border" : undefined;
       ))
     }
     <NavDropdown
-      label={menu.community.label}
-      items={menu.community.items}
+      label={menu.team.label}
+      items={menu.team.items}
       currentPath={currentPath}
-      isGroupActive={isCommunityActive}
+      isGroupActive={isTeamActive}
       variant={isDesktop ? "bar" : "drawer"}
     />
   </ul>

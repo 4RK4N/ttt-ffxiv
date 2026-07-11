@@ -1,17 +1,16 @@
 /** Desktop root; global.css scales html font-size at breakpoints (see remScaledSizes). */
-export const ROOT_FONT_PX = 24;
+const ROOT_FONT_PX = 24;
 
 /** Card images go full-width below this (matches narrow content layout). */
-export const NARROW_CONTENT_BP_PX = 720;
+const NARROW_CONTENT_BP_PX = 720;
 
 /** Horizontal padding on .content-section (px-6 × 2). */
-export const CONTENT_SECTION_PADDING_REM = 3;
+const CONTENT_SECTION_PADDING_REM = 3;
 
 /** Section max-widths — keep in sync with --content-max-* in theme.css. */
-export const CONTENT_MAX_REM = 56.25;
-export const CONTENT_MAX_TEXT_REM = 42.5;
-export const CONTENT_MAX_WIDE_REM = 47.5;
-export const CONTENT_MAX_GALLERY_REM = 56.25;
+const CONTENT_MAX_TEXT_REM = 28.333;
+const CONTENT_MAX_GALLERY_REM = 40;
+const CONTENT_MAX_EVENT_REM = 23.333;
 
 const CONTENT_COLUMN_INNER_REM =
   CONTENT_MAX_TEXT_REM - CONTENT_SECTION_PADDING_REM;
@@ -25,27 +24,27 @@ function contentSectionSizes(maxRem: number): string {
   return `calc(min(100vw, ${maxRem}rem) - ${CONTENT_SECTION_PADDING_REM}rem)`;
 }
 
-/** w-72 = 18rem — home hero circle */
-export const HERO_REM = 18;
-export const HERO_CIRCLE_PX = HERO_REM * ROOT_FONT_PX;
+/** min(420px, 78vw) — home hero logo overlay */
+export const HERO_REM = 17.5;
+export const HERO_LOGO_PX = 420;
 
-/** max-w-128 — featured event poster */
-export const FEATURED_EVENT_REM = 32;
-export const FEATURED_EVENT_IMAGE_PX = FEATURED_EVENT_REM * ROOT_FONT_PX;
+/** Featured event poster — synced with --content-max-event */
+export const FEATURED_EVENT_REM = CONTENT_MAX_EVENT_REM;
+export const FEATURED_EVENT_IMAGE_PX = Math.round(FEATURED_EVENT_REM * ROOT_FONT_PX);
 
 /** w-48 = 12rem — partner logo */
 export const PARTNER_REM = 12;
 export const PARTNER_LOGO_PX = PARTNER_REM * ROOT_FONT_PX;
 
 /** Header logo intrinsic dimensions */
-export const HEADER_LOGO_WIDTH_PX = 127;
-export const HEADER_LOGO_HEIGHT_PX = 49;
+const HEADER_LOGO_WIDTH_PX = 127;
+const HEADER_LOGO_HEIGHT_PX = 49;
 
 /** Header bar height — synced with --header-height in theme.css. */
-export const HEADER_HEIGHT_PX = 74;
+const HEADER_HEIGHT_PX = 74;
 
 /** Target logo display height inside the header bar. */
-export const HEADER_LOGO_TARGET_PX = 54;
+const HEADER_LOGO_TARGET_PX = 54;
 
 /** Header bar height and logo vertical padding — logo scales with rem. */
 const HEADER_BAR_PX = HEADER_HEIGHT_PX;
@@ -71,8 +70,8 @@ export function headerLogoSizes(): string {
 /** Fixed srcset widths for build — sizes attrs still drive browser selection. */
 const BUILD_WIDTHS = {
   headerLogo: [130, 195, 260],
-  hero: [432, 648, 864],
-  featuredEvent: [400, 576, 768, 1024, 1200],
+  hero: [420, 630, 840],
+  featuredEvent: [400, 560, 840],
   partner: [288, 432, 576],
   contentColumn: [
     400,
@@ -98,7 +97,7 @@ export function headerLogoWidths(): number[] {
 const GRID_GAP_REM = 0.75; // gap-3
 
 /** Rem length at a given root font size (px). */
-export function remPx(rem: number, rootPx: number = ROOT_FONT_PX): number {
+function remPx(rem: number, rootPx: number = ROOT_FONT_PX): number {
   return Math.round(rem * rootPx);
 }
 

@@ -1,0 +1,26 @@
+---
+import { Image } from "astro:assets";
+import { bannerWide } from "../data/images";
+import { SERVER_LINE } from "../data/site";
+import type { Lang } from "../data/nav";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<div class="address-plaque">
+  <Image
+    src={bannerWide}
+    alt=""
+    width={1600}
+    height={300}
+    widths={[640, 960, 1600]}
+    sizes="min(820px, 96vw)"
+    loading="lazy"
+    class="address-plaque__frame"
+  />
+  <span class="address-plaque__text">{SERVER_LINE[lang]}</span>
+</div>

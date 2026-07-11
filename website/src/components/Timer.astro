@@ -1,5 +1,6 @@
 ---
 import type { Lang } from "../data/nav";
+import { timerLabels } from "../data/ui";
 import { splitRemainingMs } from "../data/countdown";
 
 interface Props {
@@ -10,12 +11,7 @@ interface Props {
 
 const { lang, timestamp } = Astro.props;
 
-const labels =
-  lang === "de"
-    ? ["Tage", "Stunden", "Minuten", "Sekunden"]
-    : ["Days", "Hours", "Minutes", "Seconds"];
-
-const openMessage = lang === "de" ? "Wir haben geöffnet!" : "We're open!";
+const { units: labels, open: openMessage } = timerLabels[lang];
 
 const targetMs = timestamp * 1000;
 const initialDigits = splitRemainingMs(targetMs - Date.now());
@@ -102,4 +98,5 @@ const isOpen = targetMs <= Date.now();
   }
 
   document.addEventListener("astro:page-load", initTimer);
+  initTimer();
 </script>

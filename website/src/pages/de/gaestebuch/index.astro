@@ -1,7 +1,8 @@
 ---
 import ContentPage from "../../../components/ContentPage.astro";
+import IntroPanel from "../../../components/IntroPanel.astro";
 import Gallery from "../../../components/Gallery.astro";
-import { resolveImages } from "../../../data/images";
+import { guestbookImages } from "../../../data/images";
 ---
 
 <ContentPage
@@ -11,33 +12,18 @@ import { resolveImages } from "../../../data/images";
   heading="Gästebuch"
   gallery
 >
-  <Fragment slot="intro">
-    <p class="hand-text">
+  <IntroPanel gap={4}>
+    <p>
       Nachrichten unserer Gäste aus dem Gästebuch unserer XIV-Location — hier
       als Screenshots festgehalten.
     </p>
-    <p class="hand-text">
-      <em
-        ><strong
-          >Man sagt, Worte können bleiben… Hinterlasse ein Stück von dir, ein
-          paar Gedanken oder Erinnerungen — damit deine Reise bei uns niemals
-          ganz vergeht.</strong
-        ></em
+    <p>
+      <strong
+        >Man sagt, Worte können bleiben… Hinterlasse ein Stück von dir, ein paar
+        Gedanken oder Erinnerungen — damit deine Reise bei uns niemals ganz
+        vergeht.</strong
       >
     </p>
-  </Fragment>
-  <Gallery
-    wide
-    altPrefix="Gästebuch-Nachricht"
-    images={resolveImages([
-      "guestbook/b04b2349.jpg",
-      "guestbook/fb0b75e8.jpg",
-      "guestbook/228b4f2a.jpg",
-      "guestbook/ca8d23e8.jpg",
-      "guestbook/ab7b15ef.jpg",
-      "guestbook/4422e621.jpg",
-      "guestbook/ca8cef1a.jpg",
-      "guestbook/895a9878.jpg",
-    ])}
-  />
+  </IntroPanel>
+  <Gallery wide altPrefix="Gästebuch-Nachricht" images={guestbookImages} />
 </ContentPage>

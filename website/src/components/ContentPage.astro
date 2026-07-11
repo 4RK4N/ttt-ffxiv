@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import OrnamentDivider from "./OrnamentDivider.astro";
 import type { Lang } from "../data/nav";
 
 interface Props {
@@ -7,16 +8,14 @@ interface Props {
   lang: Lang;
   path: string;
   heading: string;
-  /** Rules pages use the wider column (760px); default is 680px text. */
+  /** Overrides site default for meta / og:description. */
+  description?: string;
+  /** Rules pages use the wider column (--content-max-wide). */
   wide?: boolean;
-  /** Gallery/guestbook pages use the widest column (900px). */
+  /** Gallery/guestbook pages use the widest column (--content-max-gallery). */
   gallery?: boolean;
-  /** Long-form pages (about, rules) keep left-aligned body text. */
-  centerBody?: boolean;
-  /** Preload Pacifico (pages with h1 page-heading). Default true. */
-  preloadPacifico?: boolean;
-  /** Preload Patrick Hand (handwriting copy). Default true. */
-  preloadPatrick?: boolean;
+  preloadCormorant?: boolean;
+  preloadJost?: boolean;
 }
 
 const {
@@ -24,11 +23,11 @@ const {
   lang,
   path,
   heading,
+  description,
   wide = false,
   gallery = false,
-  centerBody = true,
-  preloadPacifico = true,
-  preloadPatrick = true,
+  preloadCormorant = true,
+  preloadJost = false,
 } = Astro.props;
 ---
 
@@ -36,32 +35,23 @@ const {
   title={title}
   lang={lang}
   path={path}
-  preloadPacifico={preloadPacifico}
-  preloadPatrick={preloadPatrick}
+  description={description}
+  preloadCormorant={preloadCormorant}
+  preloadJost={preloadJost}
 >
   <section
     class:list={[
       "content-section",
       wide && "content-section--wide",
       gallery && "content-section--gallery",
-      centerBody && "content-section--center-body",
     ]}
   >
     <div class="section-head">
       <h1 class="page-heading">
         <span class="page-heading__text">{heading}</span>
       </h1>
-      <div class="page-ornament" aria-hidden="true">
-        <span class="page-ornament__diamond"></span>
-      </div>
     </div>
-    {
-      Astro.slots.has("intro") && (
-        <div class="page-intro">
-          <slot name="intro" />
-        </div>
-      )
-    }
     <slot />
+    <OrnamentDivider />
   </section>
 </Base>

@@ -1,6 +1,6 @@
 ---
 import { legalContact } from "../data/legal";
-import type { Lang } from "../data/nav";
+import { footerLinks, type Lang } from "../data/nav";
 
 interface Props {
   lang: Lang;
@@ -9,12 +9,12 @@ interface Props {
 const { lang } = Astro.props;
 
 const { operatorName, discordUrl, siteUrl } = legalContact;
-const imprintPath = lang === "de" ? "/de/impressum/" : "/en/imprint/";
+const imprintPath = footerLinks[lang][0].path;
 ---
 
 {
   lang === "de" ? (
-    <div class="legal-text flex flex-col gap-6">
+    <div class="legal flex flex-col gap-6">
       <p>Stand: Juli 2026</p>
 
       <h2>1. Verantwortlicher</h2>
@@ -157,7 +157,7 @@ const imprintPath = lang === "de" ? "/de/impressum/" : "/en/imprint/";
       </p>
     </div>
   ) : (
-    <div class="legal-text flex flex-col gap-6">
+    <div class="legal flex flex-col gap-6">
       <p>Last updated: July 2026</p>
 
       <h2>1. Controller</h2>

@@ -1,6 +1,6 @@
 ---
 import ContentPage from "../../../../components/ContentPage.astro";
-import ContentPanel from "../../../../components/ContentPanel.astro";
+import StaffIntro from "../../../../components/StaffIntro.astro";
 import Gallery from "../../../../components/Gallery.astro";
 import {
   staffCopy,
@@ -8,32 +8,16 @@ import {
   staffPortraits,
 } from "../../../../data/staff";
 
-const copy = staffCopy.en;
+const copy = staffCopy.de;
 ---
 
 <ContentPage
   title="Staff | Tiny Temptation Tubs"
-  lang="en"
-  path="/en/community/staff/"
+  lang="de"
+  path="/de/team/staff/"
   heading="Staff"
 >
-  <ContentPanel>
-    <div class="hand-text flex flex-col gap-6">
-      {
-        copy.paragraphs.map((lines) => (
-          <p>
-            <em>
-              <strong>
-                {lines[0]}
-                <br />
-                {lines[1]}
-              </strong>
-            </em>
-          </p>
-        ))
-      }
-    </div>
-  </ContentPanel>
+  <StaffIntro lang="de" />
   <Gallery cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
   <Gallery
     cols={2}

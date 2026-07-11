@@ -1,46 +1,56 @@
 @theme inline {
   --font-jost: var(--font-jost-face), system-ui, sans-serif;
-  --font-pacifico: var(--font-pacifico-face), cursive;
-  --font-patrick: var(--font-patrick-face), cursive;
+  --font-cinzel: var(--font-cinzel-face), "Times New Roman", serif;
+  --font-cormorant: var(--font-cormorant-face), "Times New Roman", serif;
 
   --header-height: 74px;
 
-  --color-page-bg: #150c09;
-  --color-page-overlay: rgb(21 12 9 / 0.9);
-  --color-body-text: #f3e7d3;
-  --color-body-text-muted: rgb(243 231 211 / 0.65);
-  --color-body-text-dim: rgb(243 231 211 / 0.75);
+  --color-page-bg: #0e080d;
+  --color-page-overlay: rgb(14 8 13 / 0.94);
+  --color-body-text: #efe3d2;
+  --color-body-text-muted: rgb(239 227 210 / 0.65);
+  --color-body-text-soft: rgb(239 227 210 / 0.85);
+  --color-body-text-dim: rgb(239 227 210 / 0.55);
 
-  --color-bar-bg: #3a161a;
-  --color-bar-border: rgb(232 197 106 / 0.25);
-  --color-bar-border-strong: rgb(232 197 106 / 0.5);
-  --color-bar-text: #f3e7d3;
-  --color-bar-accent: #e8c56a;
+  --color-bar-bg: #170b15;
+  --color-bar-border: #d9a05b;
+  --color-bar-border-strong: rgb(224 168 122 / 0.6);
+  --color-bar-text: var(--color-body-text);
+  --color-bar-accent: #e6b366;
+  --color-bar-accent-bright: #ecb872;
 
-  --color-gold-hairline-weak: rgb(232 197 106 / 0.45);
-  --color-gold-hairline: rgb(232 197 106 / 0.5);
-  --color-gold-hairline-strong: rgb(232 197 106 / 0.7);
-  --color-cream-hairline: rgb(243 231 211 / 0.28);
+  --color-copper-border: rgb(224 168 122 / 0.55);
+  --color-copper-border-strong: rgb(224 168 122 / 0.65);
+  --color-amethyst-border: rgb(139 63 198 / 0.4);
+  --color-amethyst-border-soft: rgb(139 63 198 / 0.35);
+  --color-amethyst-glow: rgb(139 63 198 / 0.12);
+  --color-amethyst-inset: rgb(139 63 198 / 0.15);
 
-  --color-page-heading-start: #ff3d67;
-  --color-page-heading-end: #ff8e9e;
+  --color-page-heading-start: #f6dbaa;
+  --color-page-heading-mid: var(--color-bar-accent);
+  --color-page-heading-end: #ae7854;
 
-  --color-heading-h2: rgb(243 231 211 / 0.95);
-  --color-heading-h3: rgb(243 231 211 / 0.9);
-  --color-subtitle: rgb(243 231 211 / 0.85);
+  --color-heading-h2: rgb(239 227 210 / 0.95);
+  --color-heading-h3: rgb(239 227 210 / 0.9);
 
-  --color-timer-digit: #f79b4e;
+  --color-timer-glow: rgb(230 182 118 / 0.55);
+  --color-rule-numeral: #c08bea;
+  --color-rule-numeral-glow: rgb(168 85 247 / 0.6);
 
   --color-discord: #5865f2;
   --color-discord-hover: #6b76f5;
+  --color-discord-shadow: rgb(88 101 242 / 0.35);
+  --color-on-accent: #fff;
+  --color-lightbox-overlay: rgb(0 0 0 / 0.92);
+  --color-hero-shadow: rgb(0 0 0 / 0.6);
 
-  --color-surface: rgb(21 12 9 / 0.55);
-  --color-surface-legal: rgb(21 12 9 / 0.6);
-  --color-surface-border: rgb(232 197 106 / 0.45);
+  --color-panel-bg: rgb(23 11 21 / 0.9);
 
   /* Section max-widths — keep in sync with layout.ts CONTENT_MAX_*_REM */
-  --content-max: 56.25rem;
-  --content-max-text: 42.5rem;
-  --content-max-wide: 47.5rem;
-  --content-max-gallery: 56.25rem;
+  --content-max: 40rem;
+  --content-max-text: 28.333rem;
+  --content-max-wide: 31.667rem;
+  --content-max-gallery: var(--content-max);
+  --content-max-menu: var(--content-max-wide);
+  --content-max-event: 23.333rem;
 }

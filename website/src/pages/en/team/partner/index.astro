@@ -1,6 +1,6 @@
 ---
 import ContentPage from "../../../../components/ContentPage.astro";
-import ContentPanel from "../../../../components/ContentPanel.astro";
+import IntroPanel from "../../../../components/IntroPanel.astro";
 import ContentImage from "../../../../components/ContentImage.astro";
 import DiscordButton from "../../../../components/DiscordButton.astro";
 import {
@@ -10,67 +10,52 @@ import {
   remScaledWidths,
 } from "../../../../data/layout";
 import { resolveImage } from "../../../../data/images";
+import { partnerBandLogos } from "../../../../data/partner";
 import { DISCORD_MOBATH } from "../../../../data/site";
 
-const bandLogos = [
-  {
-    src: resolveImage("gallery/bands/29745391.png"),
-    alt: "The Badger Trinity logo",
-    imageClass: "scale-125",
-  },
-  {
-    src: resolveImage("gallery/bands/TheSundering-White.png"),
-    alt: "The Sundering logo",
-    imageClass: undefined,
-  },
-];
+const bandLogos = partnerBandLogos("en");
 ---
 
 <ContentPage
   title="Partner | Tiny Temptation Tubs"
   lang="en"
-  path="/en/community/partner/"
+  path="/en/team/partner/"
   heading="Partner"
 >
-  <ContentPanel>
-    <div class="hand-text flex flex-col gap-6">
-      <p>
-        <em
-          ><strong
-            >Beyond our walls, there are places<br /> that are connected to us.</strong
-          ></em
-        >
-      </p>
-      <p>
-        <em
-          ><strong
-            >Friends, houses, and communities<br /> with whom we share stories.</strong
-          ></em
-        >
-      </p>
-      <p><em><strong>Together, we create a greater world.</strong></em></p>
-    </div>
-  </ContentPanel>
+  <IntroPanel>
+    <p>
+      <strong
+        >Beyond our walls, there are places<br /> that are connected to us.</strong
+      >
+    </p>
+    <p>
+      <strong
+        >Friends, houses, and communities<br /> with whom we share stories.</strong
+      >
+    </p>
+    <p><strong>Together, we create a greater world.</strong></p>
+  </IntroPanel>
   <ContentImage
     src={resolveImage("partner/0d103a87.png")}
     width={PARTNER_LOGO_PX}
     sizes={remScaledSizes(PARTNER_REM)}
     widths={remScaledWidths(PARTNER_REM)}
     class="w-48 max-w-full"
+    alt="MO'BATH Loft logo"
   />
-  <h2>MO'BATH LOFT</h2>
-  <p class="hand-text">
-    <em
-      ><strong
+  <IntroPanel center={false} gap={4}>
+    <h2>MO'BATH LOFT</h2>
+    <p>
+      <strong
         >MO'BATH LOFT is a relaxing bathhouse venue welcoming guests of all
         races and genders. Enjoy hot baths, friendly conversations, mini-games,
         and scenic views in a cozy and inclusive atmosphere.<br />
         The bathhouse is open Friday and Sunday, but you always can visit outside
         of working hours and hang out there.</strong
-      ></em
-    >
-  </p>
-  <h3>Chaos, Cerberus, Goblet, W28, P4</h3>
+      >
+    </p>
+    <h3>Chaos, Cerberus, Goblet, W28, P4</h3>
+  </IntroPanel>
   <DiscordButton href={DISCORD_MOBATH} />
   <h2>♫ Music bands ♫</h2>
   <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">

@@ -1,5 +1,5 @@
 ---
-import type { NavItem } from "../data/nav";
+import { isNavPathActive, type NavItem } from "../data/nav";
 
 interface Props {
   label: string;
@@ -18,7 +18,7 @@ const {
 } = Astro.props;
 
 const isDrawer = variant === "drawer";
-const isActive = (itemPath: string) => itemPath === currentPath;
+const isActive = (itemPath: string) => isNavPathActive(itemPath, currentPath);
 ---
 
 <li
@@ -30,7 +30,7 @@ const isActive = (itemPath: string) => itemPath === currentPath;
   <button
     type="button"
     class:list={[
-      "nav-link nav-dropdown-trigger cursor-pointer gap-1 bg-transparent font-inherit",
+      "nav-link nav-dropdown-trigger cursor-pointer bg-transparent font-inherit",
       isDrawer && "w-full justify-start px-1 py-2.5 text-left",
       isGroupActive && "nav-link--active",
     ]}

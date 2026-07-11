@@ -24,12 +24,13 @@
   }
 
   body {
+    position: relative;
     min-height: 100vh;
     min-width: 320px;
     overflow-x: hidden;
     word-wrap: break-word;
-    font-family: var(--font-jost);
-    font-weight: 400;
+    font-family: var(--font-cormorant);
+    font-weight: 500;
     color: var(--color-body-text);
     text-align: center;
   }
@@ -58,16 +59,16 @@
   }
 
   h1 {
-    font-family: var(--font-pacifico);
-    font-weight: 400;
+    font-family: var(--font-cinzel);
+    font-weight: 600;
   }
 
-  /* Fixed page background (--page-bg-image set in Base.astro) */
+  /* Page background (--page-bg-image set in Base.astro) */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: -2;
     pointer-events: none;
     background-image:
       linear-gradient(var(--color-page-overlay), var(--color-page-overlay)),
@@ -75,12 +76,5 @@
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;
-    background-attachment: fixed;
-  }
-
-  @media (hover: none), (pointer: coarse) {
-    body::before {
-      background-attachment: scroll;
-    }
   }
 }

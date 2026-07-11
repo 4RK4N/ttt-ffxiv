@@ -1,0 +1,23 @@
+---
+import ContentPanel from "./ContentPanel.astro";
+
+interface Props {
+  /** Vertical spacing between paragraphs. */
+  gap?: 4 | 6;
+  /** Center body text (default intro style). */
+  center?: boolean;
+  /** Narrow column (home welcome copy). */
+  narrow?: boolean;
+}
+
+const { gap = 6, center = true, narrow = false } = Astro.props;
+const gapClass = gap === 4 ? "gap-4" : "gap-6";
+---
+
+<ContentPanel class:list={[narrow && "panel-narrow"]}>
+  <div
+    class:list={["body", center && "body-center", "flex", "flex-col", gapClass]}
+  >
+    <slot />
+  </div>
+</ContentPanel>

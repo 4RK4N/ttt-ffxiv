@@ -3,18 +3,20 @@ import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Timer from "./Timer.astro";
 import DiscordButton from "./DiscordButton.astro";
-import ContentPanel from "./ContentPanel.astro";
+import IntroPanel from "./IntroPanel.astro";
+import OrnamentDivider from "./OrnamentDivider.astro";
+import AddressPlaque from "./AddressPlaque.astro";
 import {
-  HERO_CIRCLE_PX,
+  HERO_LOGO_PX,
   HERO_REM,
   remScaledSizes,
   remScaledWidths,
 } from "../data/layout";
 import { homeCopy } from "../data/home";
 import { buildResponsivePreload } from "../data/preload";
-import { DISCORD_TTT, EVENT_TIMESTAMP, SERVER_LINE } from "../data/site";
-import { type Lang } from "../data/nav";
-import { homeCircle } from "../data/images";
+import { DISCORD_TTT, EVENT_TIMESTAMP } from "../data/site";
+import { type Lang, siteName } from "../data/nav";
+import { homeLogo } from "../data/images";
 
 interface Props {
   title: string;
@@ -28,7 +30,7 @@ const copy = homeCopy[lang];
 const heroSizes = remScaledSizes(HERO_REM);
 const heroWidths = remScaledWidths(HERO_REM);
 const lcpPreload = await buildResponsivePreload(
-  homeCircle,
+  homeLogo,
   heroWidths,
   heroSizes,
 );
@@ -37,28 +39,26 @@ const lcpPreload = await buildResponsivePreload(
 <Base title={title} lang={lang} path={path} heroLcp lcpPreload={lcpPreload}>
   <section class="content-section content-section--home">
     <div class="section-head section-head--compact">
-      <div class="hero-circle-wrap">
-        <Image
-          src={homeCircle}
-          alt=""
-          width={HERO_CIRCLE_PX}
-          height={HERO_CIRCLE_PX}
-          widths={heroWidths}
-          sizes={heroSizes}
-          loading="eager"
-          fetchpriority="high"
-          class="hero-circle"
-        />
-      </div>
+      <Image
+        src={homeLogo}
+        alt=""
+        width={HERO_LOGO_PX}
+        widths={heroWidths}
+        sizes={heroSizes}
+        loading="eager"
+        fetchpriority="high"
+        class="hero-logo"
+      />
       <h1 class="page-heading page-heading--home">
-        <span class="page-heading__text">Tiny Temptation Tubs</span>
+        <span class="page-heading__text">{siteName}</span>
       </h1>
+      <OrnamentDivider />
       <p class="opening-label">{copy.openingHeading}</p>
       <Timer lang={lang} timestamp={EVENT_TIMESTAMP} />
     </div>
-    <p class="location-pill">{SERVER_LINE[lang]}</p>
-    <ContentPanel class="content-panel--welcome">
-      <p class="hand-text hand-text--home">
+    <AddressPlaque lang={lang} />
+    <IntroPanel narrow>
+      <p>
         {
           copy.introLines.map((line, i) => (
             <>
@@ -68,7 +68,8 @@ const lcpPreload = await buildResponsivePreload(
           ))
         }
       </p>
-    </ContentPanel>
-    <DiscordButton href={DISCORD_TTT} large />
+    </IntroPanel>
+    <DiscordButton href={DISCORD_TTT} />
+    <OrnamentDivider />
   </section>
 </Base>

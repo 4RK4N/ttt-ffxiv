@@ -1,0 +1,37 @@
+---
+import ContentPage from "../../../../components/ContentPage.astro";
+import IntroPanel from "../../../../components/IntroPanel.astro";
+import Gallery from "../../../../components/Gallery.astro";
+import DiscordButton from "../../../../components/DiscordButton.astro";
+import { joinImages } from "../../../../data/images";
+import { DISCORD_TTT } from "../../../../data/site";
+---
+
+<ContentPage
+  title="Mitwirken | Tiny Temptation Tubs"
+  lang="de"
+  path="/de/team/mitwirken/"
+  heading="Mitwirken"
+>
+  <IntroPanel>
+    <p>
+      <strong
+        >Vielleicht bist du mehr als nur ein Gast…<br /> Wenn du Musik in deinem Herzen
+        trägst,<br /> anderen Freude schenken willst<br /> oder Teil von etwas Größerem
+        werden möchtest</strong
+      >
+    </p>
+    <p>
+      <strong
+        >Dann laden wir dich ein,<br /> Teil unserer Geschichte zu werden.</strong
+      >
+    </p>
+  </IntroPanel>
+  <Gallery
+    cols={2}
+    altPrefix="Team-Foto"
+    class="mx-auto max-w-96"
+    images={joinImages.de}
+  />
+  <DiscordButton href={DISCORD_TTT} />
+</ContentPage>

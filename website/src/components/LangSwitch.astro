@@ -1,5 +1,6 @@
 ---
 import type { Lang } from "../data/nav";
+import { langSwitchLabels } from "../data/ui";
 
 interface Props {
   lang: Lang;
@@ -10,15 +11,14 @@ interface Props {
 const { lang, altDe, altEn } = Astro.props;
 
 const target = lang === "de" ? altEn : altDe;
-const label = lang === "de" ? "Zu Englisch wechseln" : "Switch to German";
-const title = lang === "de" ? "English" : "Deutsch";
+const { title, altLabel } = langSwitchLabels[lang];
 ---
 
 <a
   href={target}
   data-astro-prefetch
-  aria-label={label}
-  title={title}
+  aria-label={title}
+  title={altLabel}
   class="header-chip header-chip--lang"
 >
   {

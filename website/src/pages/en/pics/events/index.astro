@@ -8,7 +8,8 @@ import {
   featuredEventImageSizes,
   remScaledWidths,
 } from "../../../../data/layout";
-import { resolveImage, resolveImages } from "../../../../data/images";
+import { eventArchiveImages, resolveImage } from "../../../../data/images";
+import { eventPhotoAltPrefix } from "../../../../data/ui";
 ---
 
 <ContentPage
@@ -22,21 +23,14 @@ import { resolveImage, resolveImages } from "../../../../data/images";
     width={FEATURED_EVENT_IMAGE_PX}
     sizes={featuredEventImageSizes()}
     widths={remScaledWidths(FEATURED_EVENT_REM)}
-    class="w-full max-w-lg"
+    featured="event"
+    class="w-full"
     alt="Next event: Saturday at 18:00 server time"
   />
   <h2>★ Archive ★</h2>
   <Gallery
     cols={5}
-    altPrefix="Event photo"
-    images={resolveImages([
-      "events/Event_04.07.26.jpg",
-      "events/Event_20.06.26.png",
-      "events/Event_06.06.26.jpg",
-      "events/Event_23.05.26.jpg",
-      "events/Event_09.05.26.jpg",
-      "events/Event_25.04.26.jpg",
-      "events/Event_11.04.26.jpg",
-    ])}
+    altPrefix={eventPhotoAltPrefix.en}
+    images={eventArchiveImages}
   />
 </ContentPage>
