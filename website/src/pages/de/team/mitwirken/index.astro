@@ -12,8 +12,9 @@ import { DISCORD_TTT } from "../../../../data/site";
   lang="de"
   path="/de/team/mitwirken/"
   heading="Mitwirken"
+  gallery
 >
-  <IntroPanel>
+  <IntroPanel divider>
     <p>
       <strong
         >Vielleicht bist du mehr als nur ein Gast…<br /> Wenn du Musik in deinem Herzen
@@ -28,9 +29,10 @@ import { DISCORD_TTT } from "../../../../data/site";
     </p>
   </IntroPanel>
   <Gallery
+    wide
     cols={2}
     altPrefix="Team-Foto"
-    class="mx-auto max-w-96"
+    class="w-full"
     images={joinImages.de}
   />
   <DiscordButton href={DISCORD_TTT} />

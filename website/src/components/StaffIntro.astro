@@ -11,7 +11,7 @@ const { lang } = Astro.props;
 const { paragraphs } = staffCopy[lang];
 ---
 
-<IntroPanel>
+<IntroPanel divider>
   {
     paragraphs.map((lines) => (
       <p>

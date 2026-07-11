@@ -1,5 +1,6 @@
 ---
 import ContentPanel from "./ContentPanel.astro";
+import OrnamentDivider from "./OrnamentDivider.astro";
 
 interface Props {
   /** Vertical spacing between paragraphs. */
@@ -8,9 +9,11 @@ interface Props {
   center?: boolean;
   /** Narrow column (home welcome copy). */
   narrow?: boolean;
+  /** Ornament divider below the panel, before following content. */
+  divider?: boolean;
 }
 
-const { gap = 6, center = true, narrow = false } = Astro.props;
+const { gap = 6, center = true, narrow = false, divider = false } = Astro.props;
 const gapClass = gap === 4 ? "gap-4" : "gap-6";
 ---
 
@@ -21,3 +24,4 @@ const gapClass = gap === 4 ? "gap-4" : "gap-6";
     <slot />
   </div>
 </ContentPanel>
+{divider && <OrnamentDivider />}
