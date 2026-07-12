@@ -25,7 +25,7 @@ async function fetchAllGuildMembers(guild: Guild): Promise<number> {
   let after: string | undefined;
   let total = 0;
 
-  for (;;) {
+  for (; ;) {
     const query = new URLSearchParams({ limit: String(MEMBER_LIST_PAGE_SIZE) });
     if (after) query.set("after", after);
 
@@ -75,10 +75,10 @@ export async function warmGuildMemberCache(guild: Guild): Promise<void> {
   return promise;
 }
 
-/** Non-bot guild admins plus all members of the configured staff roles (deduped). */
+/** Non-bot guild admins plus all members of the configured staff role (deduped). */
 export async function collectStaffUserIds(
   guild: Guild,
-  staffRoleIds: string[],
+  staffRoleId: string,
 ): Promise<string[]> {
   try {
     await warmGuildMemberCache(guild);
@@ -93,13 +93,13 @@ export async function collectStaffUserIds(
     }
   }
 
-  const staffSet = new Set(staffRoleIds);
   const ids = new Set<string>();
 
   for (const [userId, member] of getMembersForGuild(guild.id)) {
     if (member.isBot) continue;
     if (
-      member.roleIds.some((rid) => staffSet.has(rid) || adminRoleIds.has(rid))
+      member.roleIds.includes(staffRoleId) ||
+      member.roleIds.some((rid) => adminRoleIds.has(rid))
     ) {
       ids.add(userId);
     }

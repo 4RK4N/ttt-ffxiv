@@ -12,7 +12,7 @@ export interface TicketTypeConfig {
   emoji: string;
   channelId: string;
   panelMessageId: string;
-  staffRoleIds: string[];
+  staffRoleId: string;
   deniedRoleIds: string[];
   roleActionRoleId?: string;
 }
@@ -39,7 +39,7 @@ export interface TicketTypeTexts {
   roleActionConfirmation: string;
 }
 
-export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts {}
+export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
 
 export interface TicketsConfig {
   enabled?: boolean;
@@ -135,7 +135,7 @@ export function resolveTicketType(id: string): ResolvedTicketType | undefined {
     (row: TicketTypeConfig, copy: TicketTypeTexts) => ({
       ...row,
       ...copy,
-      staffRoleIds: toStringArray(row.staffRoleIds),
+      staffRoleId: row.staffRoleId?.trim() ?? "",
       deniedRoleIds: toStringArray(row.deniedRoleIds),
       roleActionRoleId: row.roleActionRoleId?.trim() || undefined,
     }),

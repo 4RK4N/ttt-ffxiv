@@ -34,11 +34,11 @@ function parseDeleteCustomId(customId: string): ParsedDeleteCustomId | null {
 
 function canDeleteTicket(
   interaction: ButtonInteraction,
-  staffRoleIds: string[],
+  staffRoleId: string,
 ): boolean {
   const member = interaction.member as GuildMember | null;
   if (!member) return false;
-  return canStaffOrAdmin(member, staffRoleIds);
+  return canStaffOrAdmin(member, staffRoleId);
 }
 
 export async function handleDeleteTicket(
@@ -79,7 +79,7 @@ export async function handleDeleteTicket(
       noLabel: ticketType.confirmDeleteNo,
     },
     buildConfirmRow,
-    canPerform: () => canDeleteTicket(interaction, ticketType.staffRoleIds),
+    canPerform: () => canDeleteTicket(interaction, ticketType.staffRoleId),
     deniedMessage: t.noDeletePermission,
   });
 

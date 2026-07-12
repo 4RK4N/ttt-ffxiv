@@ -207,7 +207,7 @@ export async function handleOpenTicket(
     if (guild) {
       const staffUserIds = await collectStaffUserIds(
         guild,
-        ticketType.staffRoleIds,
+        ticketType.staffRoleId,
       );
       const staffFirst = staffUserIds.filter(
         (id) => id !== interaction.user.id,

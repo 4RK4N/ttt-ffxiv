@@ -35,13 +35,13 @@ function parseCloseCustomId(customId: string): ParsedCloseCustomId | null {
 function canCloseTicket(
   interaction: ButtonInteraction,
   openerUserId: string | null,
-  staffRoleIds: string[],
+  staffRoleId: string,
 ): boolean {
   if (openerUserId && interaction.user.id === openerUserId) return true;
 
   const member = interaction.member as GuildMember | null;
   if (!member) return false;
-  return canStaffOrAdmin(member, staffRoleIds);
+  return canStaffOrAdmin(member, staffRoleId);
 }
 
 export async function handleCloseTicket(
@@ -84,7 +84,7 @@ export async function handleCloseTicket(
     },
     buildConfirmRow,
     canPerform: () =>
-      canCloseTicket(interaction, openerUserId, ticketType.staffRoleIds),
+      canCloseTicket(interaction, openerUserId, ticketType.staffRoleId),
     deniedMessage: t.noPermission,
   });
 

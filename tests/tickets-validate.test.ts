@@ -11,7 +11,7 @@ function baseTicketType(
     emoji: "🎫",
     channelId: "123456789012345678",
     panelMessageId: "",
-    staffRoleIds: ["111111111111111111"],
+    staffRoleId: "111111111111111111",
     deniedRoleIds: [],
     openButtonLabel: "Open ticket",
     panelTitle: "Support",
@@ -41,9 +41,9 @@ describe("validateTicketType", () => {
     expect(() => validateTicketType(baseTicketType())).not.toThrow();
   });
 
-  it("requires staff roles", () => {
+  it("requires staff role", () => {
     expect(() =>
-      validateTicketType(baseTicketType({ staffRoleIds: [] })),
+      validateTicketType(baseTicketType({ staffRoleId: "" })),
     ).toThrow(/staff role/i);
   });
 

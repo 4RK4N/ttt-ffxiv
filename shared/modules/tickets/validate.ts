@@ -18,8 +18,8 @@ export function validateTicketType(ticketType: ResolvedTicketType): void {
     throw new Error("Panel title is required.");
   }
 
-  if (ticketType.staffRoleIds.length === 0) {
-    throw new Error("At least one staff role is required.");
+  if (!ticketType.staffRoleId.trim()) {
+    throw new Error("Staff role is required.");
   }
 
   if (ticketType.ticketWelcome.length > TICKET_WELCOME_MAX) {
@@ -65,7 +65,7 @@ export function validateTicketType(ticketType: ResolvedTicketType): void {
   if (ticketType.channelId.trim()) {
     assertSnowflake(ticketType.channelId, "Channel ID");
   }
-  assertSnowflakesInArray(ticketType.staffRoleIds, "Staff role IDs");
+  assertSnowflake(ticketType.staffRoleId, "Staff role ID");
   assertSnowflakesInArray(ticketType.deniedRoleIds, "Denied role IDs");
   if (ticketType.roleActionRoleId) {
     assertSnowflake(ticketType.roleActionRoleId, "Role action role ID");
@@ -82,7 +82,8 @@ export function validateTicketTypeRow(
     emoji: typeof configRow.emoji === "string" ? configRow.emoji : "",
     channelId:
       typeof configRow.channelId === "string" ? configRow.channelId : "",
-    staffRoleIds: toStringArray(configRow.staffRoleIds),
+    staffRoleId:
+      typeof configRow.staffRoleId === "string" ? configRow.staffRoleId : "",
     deniedRoleIds: toStringArray(configRow.deniedRoleIds),
     roleActionRoleId:
       typeof configRow.roleActionRoleId === "string"

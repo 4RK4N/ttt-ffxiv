@@ -1,11 +1,10 @@
 import { PermissionFlagsBits, type GuildMember } from "discord.js";
-import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
 
-/** Configured staff roles or guild Administrator. */
+/** Configured staff role or guild Administrator. */
 export function canStaffOrAdmin(
   member: GuildMember,
-  staffRoleIds: string[],
+  staffRoleId: string,
 ): boolean {
-  if (memberHasAnyRole(member, staffRoleIds)) return true;
+  if (member.roles.cache.has(staffRoleId)) return true;
   return member.permissions.has(PermissionFlagsBits.Administrator);
 }

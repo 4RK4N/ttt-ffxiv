@@ -206,11 +206,11 @@ cp data/tickets/texts.example.json data/tickets/texts.json
 ```
 
 Each **ticket type** is one category: pick a channel (panel + threads live there),
-staff roles, panel copy, and flow messages. **Save**, then click **Publish panel**
+staff role, panel copy, and flow messages. **Save**, then click **Publish panel**
 to post the open button in Discord. **Unpublish** disables new tickets (the panel
 stays; clicking the button replies with an ephemeral “not available” message).
 
-Staff roles need **View Channel** + **Manage Threads** on each ticket channel so
+Staff role needs **View Channel** + **Manage Threads** on each ticket channel so
 they can see private threads (the bot itself uses **Administrator** from the invite above).
 Only staff/admin can delete tickets. The opener can close their own ticket; staff/admin can close any ticket.
 Optional **denied roles** per ticket type block users with those roles from opening
@@ -218,8 +218,8 @@ Optional **denied roles** per ticket type block users with those roles from open
 `roleActionRoleId` is set, staff see a button in the thread that grants that role to
 the ticket opener (label and confirmation text are editable per type).
 
-On ticket open, all members of roles with Administrator permission plus configured
-staff roles are auto-added to the thread. At bot startup the member list is fetched
+On ticket open, all members of roles with Administrator permission plus the configured
+staff role are auto-added to the thread. At bot startup the member list is fetched
 once into a tickets-owned cache (1s pause between 1000-member pages); gateway events
 keep it current. Ticket opens pace thread member adds by 250ms. Large guilds may delay
 startup warm; if warm fails, opens still work but staff auto-add may be incomplete.

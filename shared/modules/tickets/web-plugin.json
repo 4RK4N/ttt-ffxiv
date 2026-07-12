@@ -127,7 +127,7 @@
         "panelDescription": "",
         "emoji": "",
         "channelId": "",
-        "staffRoleIds": [],
+        "staffRoleId": "",
         "deniedRoleIds": [],
         "roleActionRoleId": "",
         "roleDenied": "You cannot open a ticket in this category.",
@@ -162,9 +162,9 @@
           "help": "Panel is posted here; ticket threads are created here."
         },
         {
-          "key": "staffRoleIds",
-          "label": "Staff roles",
-          "type": "role-multi",
+          "key": "staffRoleId",
+          "label": "Staff role",
+          "type": "role",
           "store": "config"
         },
         {

@@ -58,7 +58,7 @@ export async function handleRoleAction(
   }
 
   const member = interaction.member as GuildMember | null;
-  if (!member || !canStaffOrAdmin(member, ticketType.staffRoleIds)) {
+  if (!member || !canStaffOrAdmin(member, ticketType.staffRoleId)) {
     await replyEphemeral(interaction, t.noPermission);
     return;
   }
