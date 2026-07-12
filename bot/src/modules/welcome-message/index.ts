@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import type { CommandModule } from "../../moduleLoader.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { DISCORD_CANNOT_SEND_DM } from "../../../../shared/core/limits.js";
 import { renderWelcomeCard } from "./card.js";
 import {
   NAMESPACE,
@@ -14,9 +15,6 @@ import {
   texts,
   welcomeChannelId,
 } from "../../lib/modules/welcome-message/config-io.js";
-
-// Discord error code returned when a user's DMs are closed to the bot.
-const CANNOT_SEND_DM = 50007;
 
 async function sendRulesDM(
   member: GuildMember,
@@ -26,7 +24,7 @@ async function sendRulesDM(
   try {
     await member.send(rulesMessage);
   } catch (err) {
-    if (err instanceof DiscordAPIError && err.code === CANNOT_SEND_DM) {
+    if (err instanceof DiscordAPIError && err.code === DISCORD_CANNOT_SEND_DM) {
       console.warn(
         `[welcome-message] Could not DM ${member.user.tag} (DMs closed); falling back to channel.`,
       );
@@ -96,7 +94,7 @@ const welcomeMessageModule: CommandModule = {
     if (!welcomeChannelId()) {
       console.warn(
         "[welcome-message] No channelId configured in " +
-          "data/welcome-message/config.json; welcome messages are disabled.",
+        "data/welcome-message/config.json; welcome messages are disabled.",
       );
       return;
     }

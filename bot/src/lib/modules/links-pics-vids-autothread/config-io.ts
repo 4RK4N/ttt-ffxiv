@@ -5,4 +5,5 @@ export {
   config,
   texts,
   channelIds,
+  deleteNonQualifyingMessagesEnabled,
 } from "./types.js";

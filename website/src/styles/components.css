@@ -762,7 +762,7 @@
   .lightbox-controls {
     position: absolute;
     z-index: 1;
-    bottom: 0.25rem;
+    bottom: 0.5rem;
     left: 50%;
     display: flex;
     align-items: center;

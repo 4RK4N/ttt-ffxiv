@@ -1,3 +1,4 @@
 {
-  "threadFirstMessage": "Please comment here in the thread to not clutter the channel.\n\nBitte hier im Thread kommentieren um nicht den Channel zu überlasten."
+  "threadFirstMessage": "Please comment here in the thread to not clutter the channel.\n\nBitte hier im Thread kommentieren um nicht den Channel zu überlasten.",
+  "nonQualifyingDm": "Hi! Your message in {channel} was removed because this channel is for images, videos, and supported post links only. Please comment in the thread under an existing post instead of posting in the channel.\n\nHallo! Deine Nachricht in {channel} wurde entfernt, weil dieser Channel nur für Bilder, Videos und unterstützte Post-Links gedacht ist. Bitte kommentiere im Thread unter einem bestehenden Post, statt im Channel zu schreiben."
 }

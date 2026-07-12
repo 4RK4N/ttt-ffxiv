@@ -10,10 +10,23 @@
       "help": "Channels where the bot auto-creates a comments thread on qualifying posts."
     },
     {
+      "key": "deleteNonQualifyingMessages",
+      "label": "Delete non-qualifying posts",
+      "type": "boolean",
+      "store": "config",
+      "help": "When on, messages without images, videos, or supported post links are deleted and the author receives a DM asking them to use comments threads."
+    },
+    {
       "key": "threadFirstMessage",
       "label": "Thread opener",
       "type": "textarea",
       "help": "First message posted in the auto-created comments thread."
+    },
+    {
+      "key": "nonQualifyingDm",
+      "label": "Non-qualifying post DM",
+      "type": "textarea",
+      "help": "Sent privately when a non-qualifying post is deleted. Tokens: {channel}, {message}"
     }
   ]
 }

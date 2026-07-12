@@ -145,7 +145,11 @@ toggling takes effect on the next event without a restart.
 ### `data/links-pics-vids-autothread/config.json` - auto-threading
 
 ```json
-{ "enabled": true, "channelIds": ["123", "456"] }
+{
+  "enabled": true,
+  "channelIds": ["123", "456"],
+  "deleteNonQualifyingMessages": false
+}
 ```
 
 `channelIds` lists the channels where the bot auto-creates a comments thread on
@@ -157,6 +161,24 @@ off while keeping the channel list. You can also set both in the
 instead of editing the file. This module needs the privileged **Message Content**
 intent (Developer Portal -> Bot -> Privileged Gateway Intents), plus **Create
 Public Threads** and **Send Messages in Threads** in each watched channel.
+
+**`deleteNonQualifyingMessages`** — when `true`, messages without images, videos,
+or supported post links are deleted and the author receives a DM (`nonQualifyingDm`
+in `texts.json`; tokens `{channel}`, `{message}`). Default is `false`. Requires
+**Manage Messages** in watched channels when enabled. If the user's DMs are closed,
+the message is still deleted and a warning is logged.
+
+### `data/links-pics-vids-autothread/texts.json` - auto-threading copy
+
+```json
+{
+  "threadFirstMessage": "Please comment here in the thread…",
+  "nonQualifyingDm": "Hi! Your message in {channel} was removed…"
+}
+```
+
+`nonQualifyingDm` is sent when enforcement deletes a non-qualifying post.
+Tokens: `{channel}` (channel name), `{message}` (deleted message text).
 
 ### `data/welcome-message/config.json` - join welcome card
 

@@ -36,10 +36,12 @@ Auto-creates comments threads on qualifying posts in watched channels: X,
 Bluesky, Aethy, or Instagram post links; direct Discord image/video links; or
 native image/video attachments.
 
-- **Config:** `channelIds[]`
+- **Config:** `channelIds[]`, `deleteNonQualifyingMessages` (default off)
+- **Texts:** `threadFirstMessage`, `nonQualifyingDm` (tokens: `{channel}`, `{message}`)
 - **Intent:** Message Content
-- **Permissions:** Create Public Threads, Send Messages in Threads
+- **Permissions:** Create Public Threads, Send Messages in Threads; **Manage Messages** when `deleteNonQualifyingMessages` is on
 - **Thread naming:** same pattern as `/pic` (`buildThreadName` in core)
+- **Enforcement:** when `deleteNonQualifyingMessages` is on, non-qualifying posts are deleted and the author receives a DM (skipped if DMs are closed)
 
 ### tickets
 
@@ -134,7 +136,7 @@ See the [module template README](bot/src/examples/module-template/README.md) for
 | -------------------------- | ----------------------- | -------------------------------------- |
 | welcome-message            | Server Members          | —                                      |
 | pic-repost-commands        | —                       | Manage Messages, Create/Manage Threads |
-| links-pics-vids-autothread | Message Content         | Create Public Threads, Send in Threads |
+| links-pics-vids-autothread | Message Content         | Create Public Threads, Send in Threads; Manage Messages (when enforcement on) |
 | tickets                    | Server Members          | Manage Threads, Manage Roles           |
 | reaction-roles             | — (reactions: standard) | Manage Roles                           |
 | moderation-log             | Server Members          | View Audit Log (moderator on kick/ban) |
