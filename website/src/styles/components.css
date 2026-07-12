@@ -793,7 +793,7 @@
   }
 
   .lightbox-close {
-    @apply absolute right-4 top-4 z-1 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border text-bar-text transition-colors;
+    @apply absolute right-3 top-3 z-1 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border text-bar-text transition-colors;
     border-color: var(--color-bar-border-strong);
     background: var(--color-bar-bg);
   }
