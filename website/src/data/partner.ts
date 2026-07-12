@@ -29,11 +29,11 @@ interface PartnerCopy {
   title: string;
   path: string;
   heading: string;
-  introParagraphs: readonly (readonly [string, string])[];
+  introParagraphs: readonly string[];
   introClosing: string;
   mobathLogoAlt: string;
   mobathHeading: string;
-  mobathBody: readonly [string, string];
+  mobathBody: readonly string[];
   mobathWorlds: string;
   discordLabel: string;
   bandsHeading: string;
@@ -45,11 +45,8 @@ export const partnerCopy: Record<Lang, PartnerCopy> = {
     path: "/en/team/partner/",
     heading: "Partner",
     introParagraphs: [
-      ["Beyond our walls, there are places", "that are connected to us."],
-      [
-        "Friends, houses, and communities",
-        "with whom we share stories.",
-      ],
+      "Beyond our walls, there are places that are connected to us.",
+      "Friends, houses, and communities with whom we share stories.",
     ],
     introClosing: "Together, we create a greater world.",
     mobathLogoAlt: "MO'BATH Loft logo",
@@ -67,20 +64,14 @@ export const partnerCopy: Record<Lang, PartnerCopy> = {
     path: "/de/team/partner/",
     heading: "Partner",
     introParagraphs: [
-      [
-        "Auch außerhalb unserer Mauern gibt es Orte,",
-        "die uns verbunden sind.",
-      ],
-      [
-        "Freunde, Häuser und Gemeinschaften,",
-        "mit denen wir Geschichten teilen.",
-      ],
+      "Auch außerhalb unserer Mauern gibt es Orte, die uns verbunden sind.",
+      "Freunde, Häuser und Gemeinschaften, mit denen wir Geschichten teilen.",
     ],
     introClosing: "Gemeinsam erschaffen wir eine größere Welt.",
     mobathLogoAlt: "MO'BATH Loft Logo",
     mobathHeading: "MO'BATH LOFT",
     mobathBody: [
-      "MO'BATH LOFT – Das Badehaus ist ein entspannter Ort, der Gäste aller Herkunft, Geschlechter und Identitäten willkommen heißt. Genieße heiße Bäder, freundliche Gespräche, kleine Spiele und eine schöne Aussicht in einer gemütlichen und inklusiven Atmosphäre.",
+      "MO'BATH LOFT - Das Badehaus ist ein entspannter Ort, der Gäste aller Herkunft, Geschlechter und Identitäten willkommen heißt. Genieße heiße Bäder, freundliche Gespräche, kleine Spiele und eine schöne Aussicht in einer gemütlichen und inklusiven Atmosphäre.",
       "Das Badehaus ist freitags und sonntags geöffnet. Du kannst jedoch auch außerhalb der offiziellen Öffnungszeiten vorbeikommen und dort Zeit verbringen.",
     ],
     mobathWorlds: "Chaos, Cerberus, Goblet, W28, P4",

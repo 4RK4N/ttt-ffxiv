@@ -25,21 +25,10 @@ const copy = joinCopy[lang];
 >
   <IntroPanel divider>
     <p>
-      <strong>
-        {copy.introLead.map((line, index) => (
-          <>
-            {index > 0 && <br />}
-            {line}
-          </>
-        ))}
-      </strong>
+      <strong>{copy.introLead}</strong>
     </p>
     <p>
-      <strong>
-        {copy.introClosing[0]}
-        <br />
-        {copy.introClosing[1]}
-      </strong>
+      <strong>{copy.introClosing}</strong>
     </p>
   </IntroPanel>
   <Gallery

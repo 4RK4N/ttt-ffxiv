@@ -31,7 +31,7 @@ export const aboutCopy: Record<Lang, AboutPageCopy> = {
     ],
     whoForBody: [
       "All races are welcome, including Lalafell. We take great care to keep this place safe and comfortable for everyone.",
-      "Tiny Temptation Tubs is more than just a place — it is a space for connection, stories, and shared experiences.",
+      "Tiny Temptation Tubs is more than just a place - it is a space for connection, stories, and shared experiences.",
     ],
   },
   de: {
@@ -41,7 +41,7 @@ export const aboutCopy: Record<Lang, AboutPageCopy> = {
     whatIsHeading: "Was ist <strong>Tiny Temptation Tubs</strong>?",
     whatIsBody: [
       "Tiny Temptation Tubs ist ein RP- &amp; ERP-Badehaus, ein Ort der Entspannung, Begegnung und Nähe.",
-      "Wir bieten unseren Gästen eine warme, stilvolle Umgebung, in der Roleplay, Gespräche, gemeinsame Abende und besondere Momente im Mittelpunkt stehen. Ob ruhige Zeit im Wasser, tiefgehende Gespräche oder sinnliches RP – bei uns darf sich jeder frei entfalten, solange alles respektvoll und einvernehmlich bleibt.",
+      "Wir bieten unseren Gästen eine warme, stilvolle Umgebung, in der Roleplay, Gespräche, gemeinsame Abende und besondere Momente im Mittelpunkt stehen. Ob ruhige Zeit im Wasser, tiefgehende Gespräche oder sinnliches RP - bei uns darf sich jeder frei entfalten, solange alles respektvoll und einvernehmlich bleibt.",
     ],
     whoForHeading: "Für wen ist unser Haus?",
     whoForLead: "Unser Haus steht allen offen, die:",
@@ -52,7 +52,7 @@ export const aboutCopy: Record<Lang, AboutPageCopy> = {
     ],
     whoForBody: [
       "Alle Rassen sind bei uns willkommen, einschließlich Lalafell. Wir achten besonders darauf, dass unser Haus ein Ort bleibt, an dem sich jeder wohl und akzeptiert fühlen kann.",
-      "Tiny Temptation Tubs ist mehr als ein Ort – es ist ein Raum für Begegnung, Geschichten und gemeinsame Erlebnisse.",
+      "Tiny Temptation Tubs ist mehr als ein Ort - es ist ein Raum für Begegnung, Geschichten und gemeinsame Erlebnisse.",
     ],
   },
 };

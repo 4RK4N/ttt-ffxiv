@@ -23,7 +23,7 @@ interface StaffPageCopy {
   heading: string;
   partTimeHeading: string;
   altPrefix: string;
-  paragraphs: readonly (readonly [string, string])[];
+  paragraphs: readonly string[];
 }
 
 export const staffCopy: Record<Lang, StaffPageCopy> = {
@@ -34,12 +34,9 @@ export const staffCopy: Record<Lang, StaffPageCopy> = {
     partTimeHeading: "Part Time",
     altPrefix: "Staff portrait",
     paragraphs: [
-      ["Behind every warm welcome stand those", "who care for the house."],
-      [
-        "Our hosts, helpers, and guardians",
-        "ensure every moment remains pleasant.",
-      ],
-      ["They keep the balance", "so everyone feels safe and welcome."],
+      "Behind every warm welcome stand those who care for the house.",
+      "Our hosts, helpers, and guardians ensure every moment remains pleasant.",
+      "They keep the balance so everyone feels safe and welcome.",
     ],
   },
   de: {
@@ -49,18 +46,9 @@ export const staffCopy: Record<Lang, StaffPageCopy> = {
     partTimeHeading: "Teilzeit",
     altPrefix: "Staff portrait",
     paragraphs: [
-      [
-        "Hinter jedem warmen Empfang stehen jene,",
-        "die sich um das Haus kümmern.",
-      ],
-      [
-        "Unsere Gastgeber, Helfer und Wächter",
-        "sorgen dafür, dass jeder Moment angenehm bleibt.",
-      ],
-      [
-        "Sie halten das Gleichgewicht,",
-        "damit sich jeder sicher und willkommen fühlt.",
-      ],
+      "Hinter jedem warmen Empfang stehen jene, die sich um das Haus kümmern.",
+      "Unsere Gastgeber, Helfer und Wächter sorgen dafür, dass jeder Moment angenehm bleibt.",
+      "Sie halten das Gleichgewicht, damit sich jeder sicher und willkommen fühlt.",
     ],
   },
 };

@@ -15,7 +15,7 @@ export const guestbookCopy: Record<Lang, GuestbookPageCopy> = {
     path: "/en/guestbook/",
     heading: "Guestbook",
     introLead:
-      "Messages left by our guests in our XIV venue guestbook — shared here as screenshots.",
+      "Messages left by our guests in our XIV venue guestbook - shared here as screenshots.",
     introStrong:
       "They say words can remain… Leave a piece of yourself, a few thoughts or memories so your journey here never truly fades.",
     altPrefix: "Guestbook message",
@@ -25,9 +25,9 @@ export const guestbookCopy: Record<Lang, GuestbookPageCopy> = {
     path: "/de/gaestebuch/",
     heading: "Gästebuch",
     introLead:
-      "Nachrichten unserer Gäste aus dem Gästebuch unserer XIV-Location — hier als Screenshots festgehalten.",
+      "Nachrichten unserer Gäste aus dem Gästebuch unserer XIV-Location - hier als Screenshots festgehalten.",
     introStrong:
-      "Man sagt, Worte können bleiben… Hinterlasse ein Stück von dir, ein paar Gedanken oder Erinnerungen — damit deine Reise bei uns niemals ganz vergeht.",
+      "Man sagt, Worte können bleiben… Hinterlasse ein Stück von dir, ein paar Gedanken oder Erinnerungen - damit deine Reise bei uns niemals ganz vergeht.",
     altPrefix: "Gästebuch-Nachricht",
   },
 };

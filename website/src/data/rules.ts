@@ -21,7 +21,7 @@ export const rulesCopy: Record<Lang, RulesPageCopy> = {
     heading: "Rules",
     introTitle: "Venue &amp; Server Rules",
     introBody:
-      "To ensure a safe, relaxed, and enjoyable experience for everyone, the following house rules apply within our bathhouse.<br /> By entering the venue, you agree to read, understand, and follow these rules.",
+      "To ensure a safe, relaxed, and enjoyable experience for everyone, the following house rules apply within our bathhouse. By entering the venue, you agree to read, understand, and follow these rules.",
     cards: [
       {
         title: "General Conduct",
@@ -37,7 +37,7 @@ export const rulesCopy: Record<Lang, RulesPageCopy> = {
       },
       {
         title: "Races &amp; Roleplay",
-        body: "<strong>All</strong> races are welcome <strong>including</strong> Lalafell. The same rules apply to everyone.<br /> Nudity is allowed and encouraged.<br /> ERP is allowed as long as it is consensual and follows the general rules.<br /> Sexual animations are allowed, however:<br /> – Please keep ERP chat in private.<br /> – Do not involve others without their explicit consent.<br /> – Do not take sexual roleplay to extreme levels in public areas.",
+        body: "<strong>All</strong> races are welcome <strong>including</strong> Lalafell. The same rules apply to everyone.<br /> Nudity is allowed and encouraged.<br /> ERP is allowed as long as it is consensual and follows the general rules.<br /> Sexual animations are allowed, however:<br /> - Please keep ERP chat in private.<br /> - Do not involve others without their explicit consent.<br /> - Do not take sexual roleplay to extreme levels in public areas.",
       },
       {
         title: "Emotes, Pets &amp; Items",
@@ -63,7 +63,7 @@ export const rulesCopy: Record<Lang, RulesPageCopy> = {
     heading: "Regeln",
     introTitle: "Venue- &amp; Serverregeln",
     introBody:
-      "Um allen Gästen ein sicheres, entspanntes und angenehmes Erlebnis zu ermöglichen, gelten in unserem Badehaus die folgenden Hausregeln.<br /> Mit dem Betreten der Venue erklärst du dich damit einverstanden, diese Regeln zu lesen, zu verstehen und einzuhalten.",
+      "Um allen Gästen ein sicheres, entspanntes und angenehmes Erlebnis zu ermöglichen, gelten in unserem Badehaus die folgenden Hausregeln. Mit dem Betreten der Venue erklärst du dich damit einverstanden, diese Regeln zu lesen, zu verstehen und einzuhalten.",
     cards: [
       {
         title: "Allgemeines Verhalten",
@@ -79,7 +79,7 @@ export const rulesCopy: Record<Lang, RulesPageCopy> = {
       },
       {
         title: "Rassen &amp; Roleplay",
-        body: "<strong>Alle</strong> Rassen sind willkommen <strong>inklusive</strong> Lalafell. Für alle Gäste gelten die gleichen Regeln.<br /> Nacktheit ist erlaubt und wir ermutigen dazu.<br /> ERP ist erlaubt, sofern es einvernehmlich ist und die allgemeinen Regeln eingehalten werden.<br /> Sexuelle Animationen sind erlaubt, jedoch:<br /> – ERP-Chats bitte privat halten.<br /> – Keine Einbeziehung anderer ohne deren ausdrückliche Zustimmung.<br /> – Keine extremen Inhalte im öffentlichen Bereich.",
+        body: "<strong>Alle</strong> Rassen sind willkommen <strong>inklusive</strong> Lalafell. Für alle Gäste gelten die gleichen Regeln.<br /> Nacktheit ist erlaubt und wir ermutigen dazu.<br /> ERP ist erlaubt, sofern es einvernehmlich ist und die allgemeinen Regeln eingehalten werden.<br /> Sexuelle Animationen sind erlaubt, jedoch:<br /> - ERP-Chats bitte privat halten.<br /> - Keine Einbeziehung anderer ohne deren ausdrückliche Zustimmung.<br /> - Keine extremen Inhalte im öffentlichen Bereich.",
       },
       {
         title: "Emotes, Pets &amp; Items",

@@ -63,16 +63,7 @@ const lcpPreload = await buildResponsivePreload(
     </div>
     <AddressPlaque lang={lang} />
     <IntroPanel narrow>
-      <p>
-        {
-          copy.introLines.map((line, i) => (
-            <>
-              {i > 0 && <br />}
-              {line}
-            </>
-          ))
-        }
-      </p>
+      {copy.introLines.map((line) => <p>{line}</p>)}
     </IntroPanel>
     <DiscordButton href={DISCORD_TTT} />
     <OrnamentDivider />

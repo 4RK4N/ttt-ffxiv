@@ -23,13 +23,9 @@ const copy = staffCopy[lang];
 >
   <IntroPanel divider>
     {
-      copy.paragraphs.map((lines) => (
+      copy.paragraphs.map((text) => (
         <p>
-          <strong>
-            {lines[0]}
-            <br />
-            {lines[1]}
-          </strong>
+          <strong>{text}</strong>
         </p>
       ))
     }

@@ -1,4 +1,5 @@
-FROM node:24-alpine AS builder
+# Sharp/libvips is unreliable on Alpine (musl) for some JPEG/PNG sources; use glibc for the build.
+FROM node:24-bookworm-slim AS builder
 WORKDIR /site
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \

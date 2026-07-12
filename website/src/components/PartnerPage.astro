@@ -32,13 +32,9 @@ const bandLogos = partnerBandLogos(lang);
 >
   <IntroPanel>
     {
-      copy.introParagraphs.map((lines) => (
+      copy.introParagraphs.map((text) => (
         <p>
-          <strong>
-            {lines[0]}
-            <br />
-            {lines[1]}
-          </strong>
+          <strong>{text}</strong>
         </p>
       ))
     }
@@ -58,11 +54,10 @@ const bandLogos = partnerBandLogos(lang);
   <IntroPanel center={false} gap={4}>
     <h2>{copy.mobathHeading}</h2>
     <p>
-      <strong>
-        {copy.mobathBody[0]}
-        <br />
-        {copy.mobathBody[1]}
-      </strong>
+      <strong>{copy.mobathBody[0]}</strong>
+    </p>
+    <p>
+      <strong>{copy.mobathBody[1]}</strong>
     </p>
     <h3>{copy.mobathWorlds}</h3>
   </IntroPanel>
