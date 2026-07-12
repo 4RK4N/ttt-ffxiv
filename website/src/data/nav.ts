@@ -77,21 +77,13 @@ const siteMenuPaths: Record<
     primaryLead: ["/de/uber-uns/", "/de/regeln/", "/de/karte/"],
     pics: ["/de/bilder/haus/", "/de/bilder/events/"],
     primaryTrail: ["/de/gaestebuch/"],
-    team: [
-      "/de/team/staff/",
-      "/de/team/partner/",
-      "/de/team/mitwirken/",
-    ],
+    team: ["/de/team/staff/", "/de/team/partner/", "/de/team/mitwirken/"],
   },
   en: {
     primaryLead: ["/en/about/", "/en/rules/", "/en/menu/"],
     pics: ["/en/pics/venue/", "/en/pics/events/"],
     primaryTrail: ["/en/guestbook/"],
-    team: [
-      "/en/team/staff/",
-      "/en/team/partner/",
-      "/en/team/join/",
-    ],
+    team: ["/en/team/staff/", "/en/team/partner/", "/en/team/join/"],
   },
 };
 
@@ -106,7 +98,10 @@ const teamMenuLabel: Record<Lang, string> = {
 };
 
 /** Whether a nav path matches the current page path. */
-export function isNavPathActive(itemPath: string, currentPath: string): boolean {
+export function isNavPathActive(
+  itemPath: string,
+  currentPath: string,
+): boolean {
   return itemPath === currentPath;
 }
 

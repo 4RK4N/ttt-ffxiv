@@ -5,6 +5,7 @@ import {
   type ServerResponse,
 } from "node:http";
 import { config } from "../../../shared/config.js";
+import { assertSlugId } from "../../../shared/core/discordIds.js";
 import { getPublishHandlers } from "./publishRegistry.js";
 
 const TOKEN_HEADER = "x-internal-token";
@@ -46,17 +47,21 @@ function parsePath(url: string | undefined): string {
   }
 }
 
+function validatePathSegment(id: string, label: string): string | null {
+  try {
+    assertSlugId(id, label);
+    return null;
+  } catch (err) {
+    return err instanceof Error ? err.message : "Invalid path.";
+  }
+}
+
 async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
   const path = parsePath(req.url);
   const method = req.method ?? "GET";
-
-  if (path === "/internal/health" && method === "GET") {
-    sendJson(res, 200, { ok: true });
-    return;
-  }
 
   if (!path.startsWith("/internal/")) {
     sendJson(res, 404, { error: "Not found." });
@@ -66,6 +71,11 @@ async function handleRequest(
   const secret = config.internalApiSecret;
   if (!secret || !isValidInternalToken(readToken(req), secret)) {
     sendJson(res, 401, { error: "Unauthorized." });
+    return;
+  }
+
+  if (path === "/internal/health" && method === "GET") {
+    sendJson(res, 200, { ok: true });
     return;
   }
 
@@ -82,6 +92,17 @@ async function handleRequest(
   const [, namespace, itemId] = publishMatch ?? unpublishMatch ?? [];
   if (!namespace || !itemId) {
     sendJson(res, 400, { error: "Invalid path." });
+    return;
+  }
+
+  const namespaceError = validatePathSegment(namespace, "namespace");
+  if (namespaceError) {
+    sendJson(res, 400, { error: namespaceError });
+    return;
+  }
+  const itemIdError = validatePathSegment(itemId, "itemId");
+  if (itemIdError) {
+    sendJson(res, 400, { error: itemIdError });
     return;
   }
 

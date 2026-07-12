@@ -45,12 +45,13 @@ export const TEXT_DEFAULTS: EmojisTexts = {
   addedSuccess: "Added {emoji} to this server.",
 };
 
-const module = createModuleConfig(
-  "emojis",
-  CONFIG_DEFAULTS,
-  TEXT_DEFAULTS,
-);
+const module = createModuleConfig("emojis", CONFIG_DEFAULTS, TEXT_DEFAULTS);
 
 export const NAMESPACE = module.NAMESPACE;
 export const config = module.config;
 export const texts = module.texts;
+
+export function emojiRoleId(): string | undefined {
+  const id = config().emojiRoleId?.trim();
+  return id === "" ? undefined : id;
+}

@@ -26,6 +26,13 @@ services:
     networks:
       - ttt-internal
 
+    healthcheck:
+      test: ["CMD", "node", "scripts/internal-api-health.mjs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
     restart: unless-stopped
 
   ttt-web-editor:
@@ -43,7 +50,8 @@ services:
     container_name: ttt-web-editor
 
     depends_on:
-      - ttt-discord-bot
+      ttt-discord-bot:
+        condition: service_healthy
 
     volumes:
       - ./data:/app/data
@@ -69,7 +77,7 @@ services:
 
       caddy.header.Permissions-Policy: "camera=(), microphone=(), geolocation=()"
 
-      caddy.header.Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.discordapp.com; connect-src 'self' https://discord.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+      # CSP is set per-request by web-admin (nonce-based script-src); not duplicated here.
 
       caddy.reverse_proxy: "{{upstreams 8088}}"
 

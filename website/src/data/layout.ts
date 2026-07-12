@@ -30,7 +30,9 @@ export const HERO_LOGO_PX = 420;
 
 /** Featured event poster — synced with --content-max-event */
 export const FEATURED_EVENT_REM = CONTENT_MAX_EVENT_REM;
-export const FEATURED_EVENT_IMAGE_PX = Math.round(FEATURED_EVENT_REM * ROOT_FONT_PX);
+export const FEATURED_EVENT_IMAGE_PX = Math.round(
+  FEATURED_EVENT_REM * ROOT_FONT_PX,
+);
 
 /** w-48 = 12rem — partner logo */
 export const PARTNER_REM = 12;

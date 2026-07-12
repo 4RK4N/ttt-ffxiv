@@ -1,19 +1,11 @@
 import {
   SlashCommandBuilder,
-  MessageFlags,
   type ChatInputCommandInteraction,
 } from "discord.js";
 import type { CommandModule } from "../../moduleLoader.js";
+import { deferEphemeral } from "../../lib/core/discordInteractions.js";
 import { NAMESPACE } from "../../lib/modules/emojis/config-io.js";
 import { executeEmojiAdd, executeEmojiCopy } from "./handlers.js";
-
-async function deferAndRun(
-  interaction: ChatInputCommandInteraction,
-  handler: (interaction: ChatInputCommandInteraction) => Promise<void>,
-): Promise<void> {
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-  await handler(interaction);
-}
 
 const emojiAddCommand = {
   data: new SlashCommandBuilder()
@@ -33,7 +25,7 @@ const emojiAddCommand = {
         .setRequired(true),
     ),
   execute: (interaction: ChatInputCommandInteraction) =>
-    deferAndRun(interaction, executeEmojiAdd),
+    deferEphemeral(interaction, executeEmojiAdd),
 };
 
 const emojiCopyCommand = {
@@ -50,11 +42,13 @@ const emojiCopyCommand = {
     .addStringOption((opt) =>
       opt
         .setName("name")
-        .setDescription("Emoji name on this server (2–32 letters, numbers, underscores).")
+        .setDescription(
+          "Emoji name on this server (2–32 letters, numbers, underscores).",
+        )
         .setRequired(true),
     ),
   execute: (interaction: ChatInputCommandInteraction) =>
-    deferAndRun(interaction, executeEmojiCopy),
+    deferEphemeral(interaction, executeEmojiCopy),
 };
 
 const emojisModule: CommandModule = {

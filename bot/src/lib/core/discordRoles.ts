@@ -82,3 +82,12 @@ export async function tryRemoveRole(
     return mapRoleApiError(err);
   }
 }
+
+/** User-facing message for a failed role assign/remove. */
+export function roleChangeErrorMessage(
+  result: RoleChangeResult,
+  hierarchyError: string,
+  error: string,
+): string {
+  return result.reason === "hierarchy" ? hierarchyError : error;
+}

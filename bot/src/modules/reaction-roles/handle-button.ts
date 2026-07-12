@@ -3,26 +3,13 @@ import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { tryAssignRole, tryRemoveRole } from "../../lib/core/discordRoles.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import { guardPublishedPanel } from "./guards.js";
+import { parseButtonCustomId } from "./parsers.js";
 import { formatEphemeralMessage, replyRoleResult } from "./respond.js";
-import { BTN_PREFIX } from "../../lib/modules/reaction-roles/panel.js";
 import {
   resolveOption,
   texts,
 } from "../../lib/modules/reaction-roles/config-io.js";
 import type { ResolvedRolePanel } from "../../../../shared/modules/reaction-roles/types.js";
-
-function parseButtonCustomId(
-  customId: string,
-): { panelId: string; optionId: string } | null {
-  if (!customId.startsWith(BTN_PREFIX)) return null;
-  const rest = customId.slice(BTN_PREFIX.length);
-  const sep = rest.lastIndexOf(":");
-  if (sep === -1) return null;
-  const panelId = rest.slice(0, sep);
-  const optionId = rest.slice(sep + 1);
-  if (!panelId || !optionId) return null;
-  return { panelId, optionId };
-}
 
 async function replySuccess(
   interaction: ButtonInteraction,

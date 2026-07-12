@@ -4,4 +4,5 @@ export {
   TEXT_DEFAULTS,
   config,
   texts,
+  emojiRoleId,
 } from "./types.js";

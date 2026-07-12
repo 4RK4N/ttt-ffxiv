@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
-import { MAX_PANEL_OPTIONS } from "../../shared/core/limits.js";
+import {
+  DISCORD_MESSAGE_CONTENT_MAX,
+  MAX_PANEL_OPTIONS,
+} from "../../shared/core/limits.js";
 import {
   assertSlugId,
   assertSnowflake,
@@ -52,6 +55,14 @@ function validateSnowflake(value: string, label: string): void {
     assertSnowflake(value, label);
   } catch (err) {
     throw new ValidationError(err instanceof Error ? err.message : String(err));
+  }
+}
+
+function validateTextLength(value: string, label: string): void {
+  if (value.length > DISCORD_MESSAGE_CONTENT_MAX) {
+    throw new ValidationError(
+      `${label} must be at most ${DISCORD_MESSAGE_CONTENT_MAX} characters.`,
+    );
   }
 }
 
@@ -260,6 +271,9 @@ function validateSubValue(
   }
   if (typeof value !== "string") {
     throw new ValidationError(`${label}.${sub.key} must be a string.`);
+  }
+  if (sub.type === "text" || sub.type === "textarea") {
+    validateTextLength(value, `${label}.${sub.key}`);
   }
   if (sub.type === "role" || sub.type === "channel") {
     validateSnowflake(value, `${label}.${sub.key}`);
@@ -512,6 +526,9 @@ export async function writeValues(
     } else {
       if (typeof value !== "string") {
         throw new ValidationError(`Field "${key}" must be a string.`);
+      }
+      if (field.type === "text" || field.type === "textarea") {
+        validateTextLength(value, `Field "${key}"`);
       }
       normalized = value;
     }

@@ -5,6 +5,7 @@ export function EditorLayout({
   title,
   username,
   csrfToken,
+  cspNonce,
   plugins,
   activeNamespace,
   panel,
@@ -12,6 +13,7 @@ export function EditorLayout({
   title: string;
   username: string;
   csrfToken: string;
+  cspNonce: string;
   plugins: Array<{ namespace: string; title: string; enabled?: boolean }>;
   activeNamespace: string;
   panel: unknown;
@@ -106,8 +108,8 @@ export function EditorLayout({
             </aside>
           </div>
         </div>
-        <script src={HTMX_JS} defer />
-        <script src={ADMIN_JS} defer />
+        <script src={HTMX_JS} nonce={cspNonce} defer />
+        <script src={ADMIN_JS} nonce={cspNonce} defer />
       </body>
     </html>
   );

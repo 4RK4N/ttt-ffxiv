@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from "./fetchWithTimeout.js";
+
 export const DISCORD_API = "https://discord.com/api/v10";
 
 /** Authenticated Discord REST request using the bot token. */
@@ -16,7 +18,7 @@ export async function discordBotFetch(
     headers["Content-Type"] = "application/json";
   }
 
-  return fetch(`${DISCORD_API}${path}`, {
+  return fetchWithTimeout(`${DISCORD_API}${path}`, {
     ...init,
     headers,
   });

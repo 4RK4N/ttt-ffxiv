@@ -1,45 +1,16 @@
-import {
-  type ButtonInteraction,
-  type GuildMember,
-  type ThreadChannel,
-} from "discord.js";
+import { type ButtonInteraction, type ThreadChannel } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { runTicketConfirmFlow } from "./confirm-flow.js";
 import { guardTicketThreadAction } from "./guards.js";
 import { clearOpenTicketByThreadId } from "./open-index.js";
 import { isClosedTicketThread } from "./names.js";
+import { parseDeleteCustomId } from "./parsers.js";
 import {
   buildConfirmRow,
   DELETE_CONFIRM_PREFIX,
-  DELETE_PREFIX,
 } from "../../lib/modules/tickets/panel.js";
-import { canStaffOrAdmin } from "./permissions.js";
+import { canDeleteTicket } from "./permissions.js";
 import { texts } from "../../lib/modules/tickets/config-io.js";
-
-interface ParsedDeleteCustomId {
-  threadId: string;
-  typeId: string;
-}
-
-function parseDeleteCustomId(customId: string): ParsedDeleteCustomId | null {
-  const confirm = customId.startsWith(DELETE_CONFIRM_PREFIX);
-  const prefix = confirm ? DELETE_CONFIRM_PREFIX : DELETE_PREFIX;
-  if (!customId.startsWith(prefix)) return null;
-
-  const segments = customId.slice(prefix.length).split(":");
-  if (segments.length < 2) return null;
-
-  return { threadId: segments[0], typeId: segments.slice(1).join(":") };
-}
-
-function canDeleteTicket(
-  interaction: ButtonInteraction,
-  staffRoleId: string,
-): boolean {
-  const member = interaction.member as GuildMember | null;
-  if (!member) return false;
-  return canStaffOrAdmin(member, staffRoleId);
-}
 
 export async function handleDeleteTicket(
   interaction: ButtonInteraction,

@@ -136,6 +136,17 @@ use `SameSite=Lax` (required for OAuth — `Strict` breaks the Discord callback)
 Mutating API requests require a CSRF token (`X-CSRF-Token` header matching a
 signed cookie set at login). See [Web editor](README.md#web-editor).
 
+**Internal API health:** `GET /internal/health` returns `{"ok":true}` when the bot
+internal API is up. All internal routes (including health) require the
+`X-Internal-Token` header set to `internalApiSecret`. The web editor sends this
+when checking bot reachability before publish/unpublish.
+
+With Docker Compose, `ttt-discord-bot` runs a healthcheck via
+[`scripts/internal-api-health.mjs`](scripts/internal-api-health.mjs) (reads
+`internalApiSecret` and `internalApiPort` from the mounted `data/config.json`).
+`ttt-web-editor` waits for `service_healthy` before starting so panel
+publish/unpublish is not attempted while the bot API is still booting.
+
 Every module's `config.json` also accepts an optional `enabled` boolean - the
 master on/off switch exposed as a toggle in the [Web editor](README.md#web-editor).
 Only an explicit `"enabled": false` disables the module; if the key is absent it
@@ -386,8 +397,8 @@ mounted volume):
 docker compose run --rm ttt-discord-bot npm run deploy
 ```
 
-- With `guildId` set, the `/pic` and `/post` commands appear in that server within
-  seconds.
+- With `guildId` set, slash commands (`/pic`, `/post`, `/emoji-add`, `/emoji-copy`, etc.)
+  appear in that server within seconds.
 - Without it, they register globally and can take up to ~1 hour to show up.
 
 **Module `enabled` toggle vs deploy:** The web editor's per-module **enabled** switch
@@ -422,7 +433,7 @@ docker compose logs -f ttt-discord-bot
 You should see `Logged in as <bot>#0000.` Press `Ctrl+C` to stop following logs
 (the bot keeps running).
 
-Now go to your Discord server and try `/pic` or `/post`.
+Now go to your Discord server and try `/pic`, `/post`, `/emoji-add`, or `/emoji-copy`.
 
 ---
 

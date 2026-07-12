@@ -5,6 +5,7 @@ import {
   type SKRSContext2D,
 } from "@napi-rs/canvas";
 import { moduleDataPath } from "../../../../shared/core/texts.js";
+import { fetchBuffer } from "../../lib/core/download.js";
 
 // Assets live in the runtime data dir (data/welcome-message/), so they can be
 // swapped without a rebuild and are not tied to the compiled output.
@@ -76,11 +77,11 @@ export async function renderWelcomeCard({
   ctx.fillStyle = `rgba(0, 0, 0, ${BACKGROUND_DIM})`;
   ctx.fillRect(0, 0, width, height);
 
-  const avatarRes = await fetch(avatarUrl);
-  if (!avatarRes.ok) {
-    throw new Error(`Failed to fetch avatar (HTTP ${avatarRes.status}).`);
+  const avatarBuffer = await fetchBuffer(avatarUrl);
+  if (!avatarBuffer) {
+    throw new Error("Failed to fetch avatar.");
   }
-  const avatar = await loadImage(Buffer.from(await avatarRes.arrayBuffer()));
+  const avatar = await loadImage(avatarBuffer);
 
   const centerX = width / 2;
   const centerY = height * 0.4;

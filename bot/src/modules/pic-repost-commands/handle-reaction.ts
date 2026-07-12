@@ -6,10 +6,7 @@ import {
   type User,
 } from "discord.js";
 import { ensureFullReaction } from "../../lib/core/reactionContext.js";
-import {
-  emojiMatchKey,
-  reactionMatchKey,
-} from "../../../../shared/core/discordEmoji.js";
+import { reactionsMatch } from "../../../../shared/core/discordEmoji.js";
 import { isModuleEnabled } from "../../../../shared/core/texts.js";
 import {
   config,
@@ -19,16 +16,6 @@ import {
 } from "../../lib/modules/pic-repost-commands/config-io.js";
 import { deleteCommentsThreadForMessage } from "../../lib/core/threads.js";
 import { resolvePicRepostAuthor } from "../../lib/modules/pic-repost-commands/resolve-author.js";
-
-function matchesDeleteEmoji(
-  emojiName: string | null,
-  emojiId: string | null,
-  deleteEmoji: string,
-): boolean {
-  const configKey = emojiMatchKey(deleteEmoji);
-  const reactionKey = reactionMatchKey(emojiName, emojiId);
-  return !!configKey && configKey === reactionKey;
-}
 
 async function handleDeleteReaction(
   reaction: MessageReaction | PartialMessageReaction,
@@ -47,10 +34,10 @@ async function handleDeleteReaction(
 
   const cfg = config();
   if (
-    !matchesDeleteEmoji(
+    !reactionsMatch(
+      resolveDeleteEmoji(cfg),
       reaction.emoji.name,
       reaction.emoji.id ?? null,
-      resolveDeleteEmoji(cfg),
     )
   ) {
     return;

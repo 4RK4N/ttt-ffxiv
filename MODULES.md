@@ -141,13 +141,13 @@ See the [module template README](bot/src/examples/module-template/README.md) for
 
 ## Intents & permissions (quick reference)
 
-| Module                     | Privileged intent       | Other requirements                     |
-| -------------------------- | ----------------------- | -------------------------------------- |
-| welcome-message            | Server Members          | —                                      |
-| pic-repost-commands        | —                       | Manage Messages, Create/Manage Threads |
+| Module                     | Privileged intent       | Other requirements                                                            |
+| -------------------------- | ----------------------- | ----------------------------------------------------------------------------- |
+| welcome-message            | Server Members          | —                                                                             |
+| pic-repost-commands        | —                       | Manage Messages, Create/Manage Threads                                        |
 | links-pics-vids-autothread | Message Content         | Create Public Threads, Send in Threads; Manage Messages (when enforcement on) |
-| tickets                    | Server Members          | Manage Threads, Manage Roles           |
-| reaction-roles             | — (reactions: standard) | Manage Roles                           |
-| moderation-log             | Server Members          | View Audit Log (moderator on kick/ban) |
-| custom-embeds              | —                       | Embed Links                            |
-| emojis                     | —                       | Manage Emojis and Stickers             |
+| tickets                    | Server Members          | Manage Threads, Manage Roles                                                  |
+| reaction-roles             | — (reactions: standard) | Manage Roles                                                                  |
+| moderation-log             | Server Members          | View Audit Log (moderator on kick/ban)                                        |
+| custom-embeds              | —                       | Embed Links                                                                   |
+| emojis                     | —                       | Manage Emojis and Stickers                                                    |

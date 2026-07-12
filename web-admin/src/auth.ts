@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { Context, MiddlewareHandler } from "hono";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
+import { fetchWithTimeout } from "../../shared/core/fetchWithTimeout.js";
 import type { WebConfig } from "./config.js";
 import { DISCORD_API } from "./discord.js";
 import {
@@ -92,7 +93,7 @@ async function exchangeCode(
     redirect_uri: cfg.oauthRedirectUri,
   });
 
-  const res = await fetch(`${DISCORD_API}/oauth2/token`, {
+  const res = await fetchWithTimeout(`${DISCORD_API}/oauth2/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
@@ -108,7 +109,7 @@ async function exchangeCode(
 }
 
 async function fetchUser(accessToken: string): Promise<SessionUser | null> {
-  const res = await fetch(`${DISCORD_API}/users/@me`, {
+  const res = await fetchWithTimeout(`${DISCORD_API}/users/@me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) return null;
@@ -122,7 +123,7 @@ async function isGuildAdmin(
   accessToken: string,
   guildId: string,
 ): Promise<boolean> {
-  const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+  const res = await fetchWithTimeout(`${DISCORD_API}/users/@me/guilds`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) {
@@ -197,13 +198,19 @@ async function isGuildAdminViaBot(
 }
 
 /**
- * Re-validates guild admin via the bot token. Positive results are cached briefly;
- * demotions are detected on the next request after the TTL expires.
+ * Re-validates guild admin via the bot token. Positive results are cached briefly
+ * on read-only requests; mutating requests always re-check live.
  */
-async function isStillAdmin(cfg: WebConfig, userId: string): Promise<boolean> {
-  const cached = adminCache.get(userId);
-  if (cached && Date.now() - cached.at < ADMIN_CACHE_TTL_MS) {
-    return true;
+async function isStillAdmin(
+  cfg: WebConfig,
+  userId: string,
+  freshCheck = false,
+): Promise<boolean> {
+  if (!freshCheck) {
+    const cached = adminCache.get(userId);
+    if (cached && Date.now() - cached.at < ADMIN_CACHE_TTL_MS) {
+      return true;
+    }
   }
 
   try {
@@ -337,6 +344,11 @@ function clearSessionCookies(c: Context): void {
   deleteCookie(c, CSRF_COOKIE, { path: "/" });
 }
 
+function isMutatingMethod(method: string): boolean {
+  const m = method.toUpperCase();
+  return m === "POST" || m === "PUT" || m === "PATCH" || m === "DELETE";
+}
+
 /**
  * Session user who still has guild admin. Clears cookies when session exists
  * but admin was revoked.
@@ -347,7 +359,7 @@ export async function getAuthorizedSessionUser(
 ): Promise<SessionUser | null> {
   const user = await getSessionUser(c, cfg);
   if (!user) return null;
-  if (!(await isStillAdmin(cfg, user.id))) {
+  if (!(await isStillAdmin(cfg, user.id, isMutatingMethod(c.req.method)))) {
     clearSessionCookies(c);
     return null;
   }

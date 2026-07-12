@@ -10,20 +10,20 @@ import {
   type TextChannel,
   type ThreadChannel,
 } from "discord.js";
-import {
-  channelThreadUrl,
-  DISCORD_MESSAGE_CONTENT_MAX,
-} from "../../../../shared/core/limits.js";
+import { channelThreadUrl } from "../../../../shared/core/limits.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
 import { sleep } from "../../lib/core/sleep.js";
-import { THREAD_AUTO_ARCHIVE_MINUTES } from "../../lib/core/threads.js";
+import { buildTextOrEmbedPayload } from "../../lib/core/embedBuilder.js";
+import {
+  THREAD_AUTO_ARCHIVE_MINUTES,
+  isThreadMember,
+} from "../../lib/core/threads.js";
 import { buildTicketThreadName, isClosedTicketThread } from "./names.js";
 import {
   CLOSE_PREFIX,
   ROLE_ACTION_PREFIX,
 } from "../../lib/modules/tickets/panel.js";
 import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
-import { buildEmbed } from "../../lib/core/embedBuilder.js";
 import { addMembersToThread, collectStaffUserIds } from "./thread-members.js";
 import { lookupOpenTicketThreadId, registerOpenTicket } from "./open-index.js";
 import {
@@ -36,10 +36,7 @@ const openInFlight = new Set<string>();
 const THREAD_MEMBER_FETCH_DELAY_MS = 250;
 
 function buildWelcomePayload(welcomeText: string) {
-  if (welcomeText.length <= DISCORD_MESSAGE_CONTENT_MAX) {
-    return { content: welcomeText };
-  }
-  return { embeds: [buildEmbed({ description: welcomeText })] };
+  return buildTextOrEmbedPayload(welcomeText);
 }
 
 function openLockKey(channelId: string, userId: string): string {
@@ -53,33 +50,22 @@ async function verifyOpenThreadMembership(
 ): Promise<boolean> {
   const thread = channel.threads.cache.get(threadId);
   if (thread) {
-    if (
-      thread.locked ||
-      isClosedTicketThread(thread.name, thread.locked ?? false)
-    ) {
+    const locked = thread.locked === true;
+    if (locked || isClosedTicketThread(thread.name, locked)) {
       return false;
     }
     if (thread.members.cache.has(userId)) return true;
-    try {
-      const members = await thread.members.fetch();
-      return members.has(userId);
-    } catch {
-      return false;
-    }
+    return isThreadMember(thread, userId);
   }
 
   try {
     const fetched = await channel.client.channels.fetch(threadId);
     if (!fetched?.isThread()) return false;
-    if (
-      fetched.locked ||
-      isClosedTicketThread(fetched.name, fetched.locked ?? false)
-    ) {
+    const locked = fetched.locked === true;
+    if (locked || isClosedTicketThread(fetched.name, locked)) {
       return false;
     }
-    if (fetched.members.cache.has(userId)) return true;
-    const members = await fetched.members.fetch();
-    return members.has(userId);
+    return isThreadMember(fetched, userId);
   } catch {
     return false;
   }
@@ -91,10 +77,8 @@ async function scanForOpenTicketThreadId(
 ): Promise<string | null> {
   const active = await channel.threads.fetchActive();
   for (const thread of active.threads.values()) {
-    if (
-      thread.locked ||
-      isClosedTicketThread(thread.name, thread.locked ?? false)
-    ) {
+    const locked = thread.locked === true;
+    if (locked || isClosedTicketThread(thread.name, locked)) {
       continue;
     }
     if (thread.members.cache.has(userId)) return thread.id;

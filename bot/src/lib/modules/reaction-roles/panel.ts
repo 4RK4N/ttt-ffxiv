@@ -7,9 +7,8 @@ import {
 } from "discord.js";
 import { buildEmbed } from "../../core/embedBuilder.js";
 import {
-  emojiMatchKey,
   parseEmoji,
-  reactionMatchKey,
+  reactionsMatch,
 } from "../../../../../shared/core/discordEmoji.js";
 import { syncBotMessageReactions } from "../../core/discordReactions.js";
 import {
@@ -154,11 +153,8 @@ export function matchOptionByReaction(
   emojiName: string | null,
   emojiId: string | null,
 ): RoleOption | undefined {
-  const key = reactionMatchKey(emojiName, emojiId);
-  if (!key) return undefined;
-
   for (const opt of options) {
-    if (emojiMatchKey(opt.emoji) === key) return opt;
+    if (reactionsMatch(opt.emoji, emojiName, emojiId)) return opt;
   }
   return undefined;
 }

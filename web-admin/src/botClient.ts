@@ -1,4 +1,5 @@
 import type { WebConfig } from "./config.js";
+import { fetchWithTimeout } from "../../shared/core/fetchWithTimeout.js";
 
 const MAX_ATTEMPTS = 5;
 const RETRY_DELAY_MS = 500;
@@ -18,12 +19,18 @@ function isConnectionError(message: string): boolean {
   return message.includes("fetch failed") || message.includes("ECONNREFUSED");
 }
 
-/** GET /internal/health — no auth required. */
+/** GET /internal/health — requires X-Internal-Token. */
 export async function checkBotHealth(cfg: WebConfig): Promise<boolean> {
   try {
-    const res = await fetch(`${internalApiBase(cfg)}/internal/health`, {
-      method: "GET",
-    });
+    const res = await fetchWithTimeout(
+      `${internalApiBase(cfg)}/internal/health`,
+      {
+        method: "GET",
+        headers: {
+          "X-Internal-Token": cfg.internalApiSecret,
+        },
+      },
+    );
     if (!res.ok) return false;
     const body = (await res.json()) as { ok?: boolean };
     return body.ok === true;
@@ -38,7 +45,7 @@ async function postInternal(cfg: WebConfig, path: string): Promise<void> {
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         method: "POST",
         headers: {
           "X-Internal-Token": cfg.internalApiSecret,

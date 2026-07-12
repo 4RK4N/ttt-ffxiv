@@ -3,7 +3,7 @@ import type { Context } from "hono";
 import type { WebConfig } from "../../config.js";
 import { ensureCsrfToken } from "../../auth.js";
 import type { WebPlugin } from "../../plugin-types.js";
-import type { SessionUser } from "../../auth.js";
+import type { AppEnv } from "../../env.js";
 import { hasPublishableField } from "../../plugins.js";
 import {
   DataReadError,
@@ -36,7 +36,7 @@ import { ObjectListRowsOnly } from "./fields/ObjectListField.js";
 import { OptionListRowsOnly } from "./fields/OptionListField.js";
 import type { EditorContext } from "./context.js";
 
-type Env = { Variables: { user: SessionUser } };
+type Env = AppEnv;
 type HonoCtx = Context<Env>;
 
 export interface HtmxDeps {

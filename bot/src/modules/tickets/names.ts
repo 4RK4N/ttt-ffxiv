@@ -1,6 +1,5 @@
-import { stripCustomEmoji } from "../../lib/core/threads.js";
+import { stripCustomEmoji, THREAD_NAME_MAX } from "../../lib/core/threads.js";
 
-const THREAD_NAME_MAX = 100;
 const CLOSED_PREFIX = "[CLOSED] ";
 
 function pad2(n: number): string {

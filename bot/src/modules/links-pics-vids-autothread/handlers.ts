@@ -1,16 +1,8 @@
-import {
-  DiscordAPIError,
-  GuildMember,
-  type Message,
-  type User,
-} from "discord.js";
-import {
-  channelUrl,
-  DISCORD_CANNOT_SEND_DM,
-  DISCORD_MESSAGE_CONTENT_MAX,
-} from "../../../../shared/core/limits.js";
+import { GuildMember, PermissionFlagsBits, type Message } from "discord.js";
+import { channelUrl } from "../../../../shared/core/limits.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
-import { buildEmbed } from "../../lib/core/embedBuilder.js";
+import { buildTextOrEmbedPayload } from "../../lib/core/embedBuilder.js";
+import { trySendDm } from "../../lib/core/discordDm.js";
 import {
   buildThreadName,
   startAndPopulateCommentsThread,
@@ -56,40 +48,28 @@ function formatNonQualifyingDm(
   });
 }
 
-function buildNonQualifyingDmPayload(
-  channelLink: string,
-  messageContent: string,
-): { content: string } | { embeds: ReturnType<typeof buildEmbed>[] } {
-  const dmText = formatNonQualifyingDm(channelLink, messageContent);
-  if (dmText.length <= DISCORD_MESSAGE_CONTENT_MAX) {
-    return { content: dmText };
-  }
-  return { embeds: [buildEmbed({ description: dmText })] };
-}
-
 async function sendNonQualifyingDm(
-  author: User,
+  message: Message,
   channelLink: string,
   messageContent: string,
 ): Promise<void> {
-  const payload = buildNonQualifyingDmPayload(channelLink, messageContent);
-  try {
-    await author.send(payload);
-  } catch (err) {
-    if (err instanceof DiscordAPIError && err.code === DISCORD_CANNOT_SEND_DM) {
-      console.warn(
-        `[${NAMESPACE}] Could not DM ${author.tag} (DMs closed) after deleting non-qualifying post.`,
-      );
-      return;
-    }
-    console.error(
-      `[${NAMESPACE}] Failed to send non-qualifying DM to ${author.tag}:`,
-      err,
-    );
-  }
+  const dmText = formatNonQualifyingDm(channelLink, messageContent);
+  await trySendDm(message.author, buildTextOrEmbedPayload(dmText), {
+    logPrefix: `[${NAMESPACE}]`,
+  });
 }
 
 async function deleteNonQualifyingMessage(message: Message): Promise<void> {
+  if (!message.guild) return;
+  const me = message.guild.members.me;
+  if (
+    !message.channel.isTextBased() ||
+    message.channel.isDMBased() ||
+    !me?.permissionsIn(message.channel).has(PermissionFlagsBits.ManageMessages)
+  ) {
+    return;
+  }
+
   const messageContent = message.content ?? "";
   const channelLink = resolveChannelLink(message);
 
@@ -105,7 +85,7 @@ async function deleteNonQualifyingMessage(message: Message): Promise<void> {
     return;
   }
 
-  await sendNonQualifyingDm(message.author, channelLink, messageContent);
+  await sendNonQualifyingDm(message, channelLink, messageContent);
 }
 
 export async function handleMessage(message: Message): Promise<void> {

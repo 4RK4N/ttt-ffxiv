@@ -57,6 +57,7 @@ No core changes needed — [`moduleLoader.ts`](bot/src/moduleLoader.ts) discover
 | [reaction-roles](MODULES.md#reaction-roles)                         | Button/emoji/dropdown role panels      |
 | [moderation-log](MODULES.md#moderation-log)                         | Message/member event logging           |
 | [custom-embeds](MODULES.md#custom-embeds)                           | Static embed info panels               |
+| [emojis](MODULES.md#emojis-emoji-add-emoji-copy)                    | `/emoji-add` / `/emoji-copy`           |
 
 Runtime settings and copy live in `data/<module>/`. Edit via the web editor or by hand —
 the bot hot-reloads on the next event.

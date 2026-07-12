@@ -12,7 +12,6 @@ export default tseslint.config(
       "website/",
       ".astro/",
       "bot/src/examples/",
-      "tests/",
       // Vite CSS entry — not part of web-admin tsc
       "web-admin/vite.config.ts",
       "web-admin/src/ui/assets/admin-styles.ts",
@@ -39,6 +38,21 @@ export default tseslint.config(
     },
     rules: {
       "@typescript-eslint/no-floating-promises": "error",
+    },
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ["tests/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tests/tsconfig.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
 );

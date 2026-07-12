@@ -1,5 +1,7 @@
 import {
   MessageFlags,
+  PermissionFlagsBits,
+  type ChatInputCommandInteraction,
   type GuildMember,
   type InteractionReplyOptions,
   type MessageComponentInteraction,
@@ -7,6 +9,15 @@ import {
 
 type EphemeralReply =
   string | (Omit<InteractionReplyOptions, "flags"> & { content: string });
+
+/** Defers an ephemeral slash-command reply, then runs the handler. */
+export async function deferEphemeral(
+  interaction: ChatInputCommandInteraction,
+  handler: (interaction: ChatInputCommandInteraction) => Promise<void>,
+): Promise<void> {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  await handler(interaction);
+}
 
 /** Ephemeral user feedback; uses followUp after deferUpdate/deferReply. */
 export async function replyEphemeral(
@@ -31,4 +42,15 @@ export function memberHasAnyRole(
   roleIds: string[],
 ): boolean {
   return roleIds.some((id) => member.roles.cache.has(id));
+}
+
+/** Configured role ID or guild Administrator. */
+export function canConfiguredRoleOrAdmin(
+  member: GuildMember,
+  roleId: string | undefined,
+): boolean {
+  if (member.permissions.has(PermissionFlagsBits.Administrator)) return true;
+  const id = roleId?.trim();
+  if (!id) return false;
+  return member.roles.cache.has(id);
 }

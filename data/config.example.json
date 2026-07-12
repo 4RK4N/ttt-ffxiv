@@ -10,5 +10,10 @@
   "internalApiPort": 8087,
   "internalApiSecret": "long-random-string-internal-api",
   "botInternalApiUrl": "http://127.0.0.1:8087",
-  "internalApiBind": "127.0.0.1"
+  "internalApiBind": "127.0.0.1",
+  "_docker": {
+    "note": "When running docker-compose, override internalApiBind and botInternalApiUrl with these values (see INSTALL.md Part 3):",
+    "internalApiBind": "0.0.0.0",
+    "botInternalApiUrl": "http://ttt-discord-bot:8087"
+  }
 }

@@ -25,7 +25,7 @@ async function fetchAllGuildMembers(guild: Guild): Promise<number> {
   let after: string | undefined;
   let total = 0;
 
-  for (; ;) {
+  for (;;) {
     const query = new URLSearchParams({ limit: String(MEMBER_LIST_PAGE_SIZE) });
     if (after) query.set("after", after);
 

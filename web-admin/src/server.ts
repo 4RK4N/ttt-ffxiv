@@ -13,14 +13,15 @@ import {
   requireCsrf,
   startLogin,
   verifyFormCsrf,
-  type SessionUser,
 } from "./auth.js";
 import { loadWebPlugins, type WebPlugin } from "./plugins.js";
 import { loginPage } from "./ui.js";
 import { EditorPage } from "./ui/editor-page.js";
 import { registerHtmxRoutes } from "./ui/editor/routes.js";
+import { buildCspHeader, generateCspNonce } from "./csp.js";
+import type { AppEnv } from "./env.js";
 
-type Env = { Variables: { user: SessionUser } };
+type Env = AppEnv;
 
 async function main(): Promise<void> {
   const cfg = loadWebConfig();
@@ -34,10 +35,12 @@ async function main(): Promise<void> {
   const app = new Hono<Env>();
 
   app.use("*", async (c, next) => {
+    const nonce = generateCspNonce();
+    c.set("cspNonce", nonce);
     await next();
     c.header("X-Content-Type-Options", "nosniff");
     c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-    c.header("Content-Security-Policy", "frame-ancestors 'none'");
+    c.header("Content-Security-Policy", buildCspHeader(nonce));
     c.header("X-Frame-Options", "DENY");
   });
 
@@ -146,6 +149,7 @@ async function main(): Promise<void> {
         cfg,
         user,
         csrfToken,
+        cspNonce: c.get("cspNonce"),
         plugins,
         activeNamespace: active,
       }),

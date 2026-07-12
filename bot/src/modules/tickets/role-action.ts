@@ -5,7 +5,10 @@ import {
 } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { format } from "../../../../shared/core/texts.js";
-import { tryAssignRole } from "../../lib/core/discordRoles.js";
+import {
+  tryAssignRole,
+  roleChangeErrorMessage,
+} from "../../lib/core/discordRoles.js";
 import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
 import { guardTicketThreadAction } from "./guards.js";
 import { ROLE_ACTION_PREFIX } from "../../lib/modules/tickets/panel.js";
@@ -86,11 +89,14 @@ export async function handleRoleAction(
   const result = await tryAssignRole(openerMember, roleId);
 
   if (!result.ok) {
-    const message =
-      result.reason === "hierarchy"
-        ? t.roleActionHierarchyError
-        : t.roleActionError;
-    await replyEphemeral(interaction, message);
+    await replyEphemeral(
+      interaction,
+      roleChangeErrorMessage(
+        result,
+        t.roleActionHierarchyError,
+        t.roleActionError,
+      ),
+    );
     return;
   }
 

@@ -1,8 +1,5 @@
 {
   "enabled": true,
-  "channelIds": [
-    "",
-    ""
-  ],
+  "channelIds": ["", ""],
   "deleteNonQualifyingMessages": false
 }

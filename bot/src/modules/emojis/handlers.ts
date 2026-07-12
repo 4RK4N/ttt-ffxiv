@@ -2,7 +2,6 @@ import {
   DiscordAPIError,
   GuildMember,
   PermissionFlagsBits,
-  type Attachment,
   type ChatInputCommandInteraction,
   type Guild,
   type GuildEmoji,
@@ -14,11 +13,14 @@ import {
   isValidGuildEmojiName,
   parseEmoji,
 } from "../../../../shared/core/discordEmoji.js";
+import { isSupportedEmojiImageBuffer } from "../../../../shared/core/imageBuffer.js";
+import { isImageAttachment } from "../../../../shared/core/attachments.js";
 import { DISCORD_EMOJI_MAX_BYTES } from "../../../../shared/core/limits.js";
 import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { fetchBuffer } from "../../lib/core/download.js";
 import {
   NAMESPACE,
-  config,
+  emojiRoleId,
   texts,
 } from "../../lib/modules/emojis/config-io.js";
 import type { EmojisTexts } from "../../lib/modules/emojis/types.js";
@@ -34,25 +36,15 @@ type CreateErrorKey = keyof Pick<
 >;
 
 async function downloadImage(url: string): Promise<Buffer | null> {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    return Buffer.from(await res.arrayBuffer());
-  } catch (err) {
-    console.error(`[${NAMESPACE}] Failed to download image:`, err);
-    return null;
-  }
+  return fetchBuffer(url, `[${NAMESPACE}]`);
 }
 
-function attachmentPayload(
-  buffer: Buffer,
-  animated: boolean,
-): Buffer | string {
+function attachmentPayload(buffer: Buffer, animated: boolean): Buffer | string {
   if (!animated) return buffer;
   return `data:image/gif;base64,${buffer.toString("base64")}`;
 }
 
-function mapCreateError(err: unknown): CreateErrorKey {
+export function mapCreateError(err: unknown): CreateErrorKey {
   if (err instanceof DiscordAPIError) {
     if (err.code === 50013) return "botMissingPermission";
     if (err.code === 30008 || err.code === 30018) return "slotsFull";
@@ -120,7 +112,7 @@ async function guardInteraction(
     return null;
   }
 
-  const roleId = config().emojiRoleId?.trim();
+  const roleId = emojiRoleId();
   if (!canEmojiOrAdmin(member, roleId)) {
     await interaction.editReply(t.noPermission);
     return null;
@@ -129,7 +121,7 @@ async function guardInteraction(
   return t;
 }
 
-async function validateName(
+export async function validateName(
   interaction: ChatInputCommandInteraction,
   t: EmojisTexts,
   name: string,
@@ -154,6 +146,12 @@ async function createFromBuffer(
   name: string,
   animated: boolean,
 ): Promise<void> {
+  const imageCheck = isSupportedEmojiImageBuffer(buffer);
+  if (!imageCheck.ok) {
+    await interaction.editReply(t.notImage);
+    return;
+  }
+
   if (buffer.byteLength > DISCORD_EMOJI_MAX_BYTES) {
     await interaction.editReply(t.fileTooLarge);
     return;
@@ -163,7 +161,7 @@ async function createFromBuffer(
     interaction.guild!,
     buffer,
     name,
-    animated,
+    imageCheck.animated || animated,
   );
   if (result.error) {
     await interaction.editReply(t[result.error]);
@@ -185,7 +183,7 @@ export async function executeEmojiAdd(
   if (!(await validateName(interaction, t, name))) return;
 
   const attachment = interaction.options.getAttachment("image", true);
-  if (!(attachment.contentType?.startsWith("image/") ?? false)) {
+  if (!isImageAttachment(attachment.contentType)) {
     await interaction.editReply(t.notImage);
     return;
   }

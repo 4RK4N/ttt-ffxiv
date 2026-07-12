@@ -7,7 +7,7 @@ import type {
 } from "discord.js";
 import { getMemberDisplayName } from "./memberDisplayNames.js";
 
-const THREAD_NAME_MAX = 100; // Discord's hard limit for thread names.
+export const THREAD_NAME_MAX = 100; // Discord's hard limit for thread names.
 
 // Default bilingual opener for comments threads. Each thread module keeps its own
 // editable copy in its texts.json; this constant is the seed/fallback for them.
@@ -21,6 +21,12 @@ export const THREAD_AUTO_ARCHIVE_MINUTES = 10080; // 7 days
 // literal text in thread names, so we strip them. Standard unicode emoji are kept.
 const CUSTOM_EMOJI_REGEX = /<a?:\w+:\d+>/g;
 export const USER_MENTION_REGEX = /<@!?(\d{17,20})>/g;
+const USER_MENTION_EXTRACT = /<@!?(\d{17,20})>/;
+
+/** Returns the first user mention ID in message content, if any. */
+export function extractFirstMentionId(content: string): string | null {
+  return USER_MENTION_EXTRACT.exec(content)?.[1] ?? null;
+}
 
 /** Strips custom Discord emoji markup and collapses whitespace. */
 export function stripCustomEmoji(text: string): string {
@@ -148,6 +154,20 @@ export async function startAndPopulateCommentsThread(
       `${options.logPrefix} Failed to create comments thread:`,
       err,
     );
+    return false;
+  }
+}
+
+/** True when userId is a member of the thread (cache-first, then fetch). */
+export async function isThreadMember(
+  thread: ThreadChannel,
+  userId: string,
+): Promise<boolean> {
+  if (thread.members.cache.has(userId)) return true;
+  try {
+    const members = await thread.members.fetch();
+    return members.has(userId);
+  } catch {
     return false;
   }
 }

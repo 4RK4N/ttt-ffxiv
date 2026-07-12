@@ -1,92 +1,12 @@
-import {
-  AttachmentBuilder,
-  DiscordAPIError,
-  Events,
-  type Client,
-  type GuildMember,
-} from "discord.js";
+import { Events, type Client } from "discord.js";
 import type { CommandModule } from "../../moduleLoader.js";
-import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
-import { DISCORD_CANNOT_SEND_DM } from "../../../../shared/core/limits.js";
-import { renderWelcomeCard } from "./card.js";
+import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { registerSafeHandler } from "../../lib/core/discordEvents.js";
 import {
   NAMESPACE,
-  rulesChannelLink,
-  texts,
   welcomeChannelId,
 } from "../../lib/modules/welcome-message/config-io.js";
-
-async function sendRulesDM(
-  member: GuildMember,
-  rulesMessage: string,
-  fallbackToChannel: () => Promise<void>,
-): Promise<void> {
-  try {
-    await member.send(rulesMessage);
-  } catch (err) {
-    if (err instanceof DiscordAPIError && err.code === DISCORD_CANNOT_SEND_DM) {
-      console.warn(
-        `[welcome-message] Could not DM ${member.user.tag} (DMs closed); falling back to channel.`,
-      );
-      await fallbackToChannel();
-      return;
-    }
-    throw err;
-  }
-}
-
-async function handleMemberAdd(member: GuildMember): Promise<void> {
-  if (!isModuleEnabled(NAMESPACE)) return;
-
-  const channelId = welcomeChannelId();
-  if (!channelId) return;
-
-  const channel = await member.client.channels.fetch(channelId);
-  if (!channel || !channel.isTextBased() || !channel.isSendable()) {
-    console.warn(
-      `[welcome-message] Welcome channel ${channelId} is missing or not sendable; skipping.`,
-    );
-    return;
-  }
-
-  const mention = `<@${member.id}>`;
-  const t = texts();
-  const welcomeContent = format(t.welcomeContent, { mention });
-
-  let files: AttachmentBuilder[] | undefined;
-  try {
-    const avatarUrl = member.displayAvatarURL({ extension: "png", size: 256 });
-    const card = await renderWelcomeCard({
-      avatarUrl,
-      displayName: member.displayName,
-    });
-    files = [new AttachmentBuilder(card, { name: "welcome.png" })];
-  } catch (err) {
-    console.warn(
-      "[welcome-message] Welcome card render failed; sending text-only welcome:",
-      err,
-    );
-  }
-
-  await channel.send({
-    content: welcomeContent,
-    files,
-    allowedMentions: { users: [member.id] },
-  });
-
-  const rulesChannel = rulesChannelLink(member.guild.id);
-  const rulesMessage = format(t.rulesMessage, { rulesChannel });
-  try {
-    await sendRulesDM(member, rulesMessage, async () => {
-      await channel.send({
-        content: format(t.rulesChannelFallback, { mention, rulesChannel }),
-        allowedMentions: { users: [member.id] },
-      });
-    });
-  } catch (err) {
-    console.error("[welcome-message] Failed to deliver rules message:", err);
-  }
-}
+import { handleMemberAdd } from "./handlers.js";
 
 const welcomeMessageModule: CommandModule = {
   name: NAMESPACE,
@@ -94,16 +14,20 @@ const welcomeMessageModule: CommandModule = {
     if (!welcomeChannelId()) {
       console.warn(
         "[welcome-message] No channelId configured in " +
-        "data/welcome-message/config.json; welcome messages are disabled.",
+          "data/welcome-message/config.json; welcome messages are disabled.",
       );
       return;
     }
 
-    client.on(Events.GuildMemberAdd, (member) => {
-      void handleMemberAdd(member).catch((err) => {
-        console.error("[welcome-message] Unhandled error:", err);
-      });
-    });
+    registerSafeHandler(
+      client,
+      Events.GuildMemberAdd,
+      (member) => {
+        if (!isModuleEnabled(NAMESPACE)) return;
+        return handleMemberAdd(member);
+      },
+      "[welcome-message]",
+    );
   },
 };
 

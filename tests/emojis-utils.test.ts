@@ -3,6 +3,7 @@ import {
   customEmojiCdnUrl,
   isCustomEmojiMarkup,
   isValidGuildEmojiName,
+  reactionsMatch,
 } from "../shared/core/discordEmoji.js";
 
 describe("isValidGuildEmojiName", () => {
@@ -44,5 +45,25 @@ describe("isCustomEmojiMarkup", () => {
   it("returns false for unicode emoji", () => {
     expect(isCustomEmojiMarkup("😀")).toBe(false);
     expect(isCustomEmojiMarkup("")).toBe(false);
+  });
+});
+
+describe("reactionsMatch", () => {
+  it("matches custom emoji by id", () => {
+    expect(
+      reactionsMatch(
+        "<:delete:123456789012345678>",
+        "delete",
+        "123456789012345678",
+      ),
+    ).toBe(true);
+  });
+
+  it("matches unicode emoji ignoring variation selector", () => {
+    expect(reactionsMatch("🗑", "🗑️", null)).toBe(true);
+  });
+
+  it("returns false for mismatched emoji", () => {
+    expect(reactionsMatch("👍", "👎", null)).toBe(false);
   });
 });

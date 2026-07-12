@@ -3,7 +3,11 @@ import {
   memberHasAnyRole,
   replyEphemeral,
 } from "../../lib/core/discordInteractions.js";
-import { tryAssignRole, tryRemoveRole } from "../../lib/core/discordRoles.js";
+import {
+  tryAssignRole,
+  tryRemoveRole,
+  roleChangeErrorMessage,
+} from "../../lib/core/discordRoles.js";
 import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import { guardPublishedPanel } from "./guards.js";
 import { formatEphemeralMessage } from "./respond.js";
@@ -84,9 +88,7 @@ export async function handleSelectInteraction(
           const result = await tryAssignRole(guildMember, opt.roleId);
           if (!result.ok) {
             throw new Error(
-              result.reason === "hierarchy"
-                ? t.roleHierarchyError
-                : t.roleError,
+              roleChangeErrorMessage(result, t.roleHierarchyError, t.roleError),
             );
           }
           applied.push({ roleId: opt.roleId, action: "add" });
@@ -96,9 +98,7 @@ export async function handleSelectInteraction(
           const result = await tryRemoveRole(guildMember, opt.roleId);
           if (!result.ok) {
             throw new Error(
-              result.reason === "hierarchy"
-                ? t.roleHierarchyError
-                : t.roleError,
+              roleChangeErrorMessage(result, t.roleHierarchyError, t.roleError),
             );
           }
           applied.push({ roleId: opt.roleId, action: "remove" });
@@ -109,7 +109,7 @@ export async function handleSelectInteraction(
         const result = await tryAssignRole(guildMember, opt.roleId);
         if (!result.ok) {
           throw new Error(
-            result.reason === "hierarchy" ? t.roleHierarchyError : t.roleError,
+            roleChangeErrorMessage(result, t.roleHierarchyError, t.roleError),
           );
         }
         applied.push({ roleId: opt.roleId, action: "add" });

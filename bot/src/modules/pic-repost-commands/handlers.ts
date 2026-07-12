@@ -1,0 +1,140 @@
+import {
+  AttachmentBuilder,
+  GuildMember,
+  MessageFlags,
+  type ChatInputCommandInteraction,
+  type Attachment,
+} from "discord.js";
+import {
+  buildThreadName,
+  startAndPopulateCommentsThread,
+} from "../../lib/core/threads.js";
+import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
+import { fetchBuffer } from "../../lib/core/download.js";
+import { isImageAttachment } from "../../../../shared/core/attachments.js";
+import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../shared/core/limits.js";
+import {
+  NAMESPACE,
+  config,
+  texts,
+  resolveDeleteEmoji,
+} from "../../lib/modules/pic-repost-commands/config-io.js";
+
+const MAX_IMAGES = 10;
+/** Conservative pre-download cap; server upload limits may be lower. */
+const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+
+export async function executePicRepost(
+  interaction: ChatInputCommandInteraction,
+): Promise<void> {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const t = texts();
+
+  if (!isModuleEnabled(NAMESPACE)) {
+    await interaction.editReply(t.disabled);
+    return;
+  }
+
+  const message = interaction.options.getString("message", true);
+
+  if (message.length > DISCORD_MESSAGE_CONTENT_MAX) {
+    await interaction.editReply(t.messageTooLong);
+    return;
+  }
+
+  const displayName = resolveDisplayName(
+    interaction.member instanceof GuildMember ? interaction.member : null,
+    interaction.user,
+  );
+
+  const attachments: Attachment[] = [];
+  for (let i = 1; i <= MAX_IMAGES; i++) {
+    const attachment = interaction.options.getAttachment(`image${i}`);
+    if (attachment) attachments.push(attachment);
+  }
+
+  if (attachments.length === 0) {
+    await interaction.editReply(t.noImages);
+    return;
+  }
+
+  const nonImages = attachments.filter(
+    (a) => !isImageAttachment(a.contentType),
+  );
+  if (nonImages.length > 0) {
+    await interaction.editReply(
+      format(t.notImages, { names: nonImages.map((a) => a.name).join(", ") }),
+    );
+    return;
+  }
+
+  const oversized = attachments.filter((a) => a.size > MAX_ATTACHMENT_BYTES);
+  if (oversized.length > 0) {
+    await interaction.editReply(
+      format(t.attachmentTooLarge, {
+        names: oversized.map((a) => a.name).join(", "),
+      }),
+    );
+    return;
+  }
+
+  let files: AttachmentBuilder[];
+  try {
+    files = await Promise.all(
+      attachments.map(async (attachment) => {
+        const buffer = await fetchBuffer(attachment.url, `[${NAMESPACE}]`);
+        if (!buffer) {
+          throw new Error(`Failed to download "${attachment.name}".`);
+        }
+        return new AttachmentBuilder(buffer, { name: attachment.name });
+      }),
+    );
+  } catch (err) {
+    console.error(`[${NAMESPACE}] Failed to download attachment(s):`, err);
+    await interaction.editReply(t.downloadFailed);
+    return;
+  }
+
+  const content = format(t.attribution, {
+    message,
+    mention: `<@${interaction.user.id}>`,
+    deleteEmoji: resolveDeleteEmoji(config()),
+  });
+
+  if (!interaction.channel || !interaction.channel.isSendable()) {
+    await interaction.editReply(t.cannotPost);
+    return;
+  }
+
+  let sent;
+  try {
+    sent = await interaction.channel.send({
+      content,
+      files,
+      allowedMentions: { users: [] },
+    });
+  } catch (err) {
+    console.error(`[${NAMESPACE}] Failed to post images to channel:`, err);
+    await interaction.editReply(t.postFailed);
+    return;
+  }
+
+  const threadOk = await startAndPopulateCommentsThread(sent, {
+    name: buildThreadName(displayName, message, {
+      guild: interaction.guild,
+      client: interaction.client,
+    }),
+    logPrefix: `[${NAMESPACE}]`,
+    authorUserId: interaction.user.id,
+    firstMessage: t.threadFirstMessage,
+  });
+  const threadFailed = !threadOk;
+
+  const success = format(t.postedSuccess, {
+    count: files.length,
+    images: files.length === 1 ? "image" : "images",
+  });
+  await interaction.editReply(success + (threadFailed ? t.threadNote : ""));
+}

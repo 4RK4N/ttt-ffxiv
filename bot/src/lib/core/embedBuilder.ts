@@ -1,4 +1,5 @@
 import { EmbedBuilder } from "discord.js";
+import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../shared/core/limits.js";
 
 const MAX_TITLE = 256;
 const MAX_DESCRIPTION = 4096;
@@ -47,4 +48,14 @@ export function buildEmbed(options: BuildEmbedOptions): EmbedBuilder {
   }
 
   return embed;
+}
+
+/** Plain content when short enough; otherwise a single description embed. */
+export function buildTextOrEmbedPayload(
+  text: string,
+): { content: string } | { embeds: EmbedBuilder[] } {
+  if (text.length <= DISCORD_MESSAGE_CONTENT_MAX) {
+    return { content: text };
+  }
+  return { embeds: [buildEmbed({ description: text })] };
 }

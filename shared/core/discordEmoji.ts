@@ -60,6 +60,17 @@ export function emojiMatchKey(emoji: string): string | undefined {
   return `unicode:${normalizeUnicodeEmoji(trimmed)}`;
 }
 
+/** True when a live reaction matches a configured emoji string. */
+export function reactionsMatch(
+  configEmoji: string,
+  emojiName: string | null,
+  emojiId: string | null,
+): boolean {
+  const configKey = emojiMatchKey(configEmoji);
+  const reactionKey = reactionMatchKey(emojiName, emojiId);
+  return !!configKey && configKey === reactionKey;
+}
+
 /** URL path segment for Discord reaction API. */
 export function encodeEmojiForReaction(emoji: string): string | undefined {
   const trimmed = emoji.trim();

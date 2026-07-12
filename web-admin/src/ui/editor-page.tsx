@@ -10,12 +10,14 @@ export async function EditorPage({
   cfg,
   user,
   csrfToken,
+  cspNonce,
   plugins,
   activeNamespace,
 }: {
   cfg: WebConfig;
   user: SessionUser;
   csrfToken: string;
+  cspNonce: string;
   plugins: WebPlugin[];
   activeNamespace?: string;
 }) {
@@ -39,6 +41,7 @@ export async function EditorPage({
       title={`${cfg.botName} Admin Interface`}
       username={user.username}
       csrfToken={csrfToken}
+      cspNonce={cspNonce}
       plugins={pluginList}
       activeNamespace={activePlugin?.namespace ?? ""}
       panel={panel}

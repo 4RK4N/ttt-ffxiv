@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"],
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../bot"
+    }
+  ]
+}

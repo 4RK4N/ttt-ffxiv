@@ -1,6 +1,9 @@
 import { type ButtonInteraction } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
-import type { RoleChangeResult } from "../../lib/core/discordRoles.js";
+import {
+  roleChangeErrorMessage,
+  type RoleChangeResult,
+} from "../../lib/core/discordRoles.js";
 import { format } from "../../../../shared/core/texts.js";
 import type {
   ReactionRolesTexts,
@@ -30,7 +33,7 @@ export async function replyRoleResult(
   if (result.ok) return true;
   await replyEphemeral(
     interaction,
-    result.reason === "hierarchy" ? t.roleHierarchyError : t.roleError,
+    roleChangeErrorMessage(result, t.roleHierarchyError, t.roleError),
   );
   return false;
 }

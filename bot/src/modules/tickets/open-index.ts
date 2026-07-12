@@ -1,4 +1,5 @@
 import { Events, type Client } from "discord.js";
+import { registerSafeHandler } from "../../lib/core/discordEvents.js";
 import { isClosedTicketThread } from "./names.js";
 
 const openTickets = new Map<string, string>();
@@ -33,18 +34,28 @@ export function lookupOpenTicketThreadId(
 }
 
 export function registerOpenTicketIndexHandlers(client: Client): void {
-  client.on(Events.ThreadDelete, (thread) => {
-    clearOpenTicketByThreadId(thread.id);
-  });
+  registerSafeHandler(
+    client,
+    Events.ThreadDelete,
+    (thread) => {
+      clearOpenTicketByThreadId(thread.id);
+    },
+    "[tickets]",
+  );
 
-  client.on(Events.ThreadUpdate, (_oldThread, newThread) => {
-    if (
-      newThread.locked &&
-      isClosedTicketThread(newThread.name, newThread.locked)
-    ) {
-      clearOpenTicketByThreadId(newThread.id);
-    }
-  });
+  registerSafeHandler(
+    client,
+    Events.ThreadUpdate,
+    (_oldThread, newThread) => {
+      if (
+        newThread.locked === true &&
+        isClosedTicketThread(newThread.name, true)
+      ) {
+        clearOpenTicketByThreadId(newThread.id);
+      }
+    },
+    "[tickets]",
+  );
 }
 
 /** Test-only reset. */
