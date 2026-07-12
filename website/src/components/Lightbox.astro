@@ -210,7 +210,8 @@ const labels = lightboxLabels[lang];
     const source = trigger.querySelector<HTMLImageElement>("img");
     if (!source) return;
 
-    const src = imageSrc(source);
+    const fullSrc = trigger.dataset.fullSrc;
+    const src = fullSrc || imageSrc(source);
     if (!src) return;
 
     fitSrc = src;

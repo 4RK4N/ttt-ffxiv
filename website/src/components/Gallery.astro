@@ -5,6 +5,8 @@ import {
   GALLERY_GRID_SIZES,
   GALLERY_GRID_SIZES_WIDE,
   galleryGridWidths,
+  GALLERY_GRID_3COL_SIZES,
+  GALLERY_GRID_3COL_SIZES_WIDE,
   GALLERY_GRID_DENSE_SIZES,
   GALLERY_GRID_DENSE_SIZES_WIDE,
   galleryGridDenseWidths,
@@ -12,8 +14,8 @@ import {
 
 interface Props {
   images: ImageMetadata[];
-  /** Grid columns: default 2 on sm+, or 5 for denser layouts. */
-  cols?: 2 | 5;
+  /** Grid columns: default 2 on sm+, 3 for staff-style grids, or 5 for denser layouts. */
+  cols?: 2 | 3 | 5;
   class?: string;
   /** Use wider column sizes for gallery/guestbook pages. */
   wide?: boolean;
@@ -35,18 +37,25 @@ const {
 const colsClass =
   cols === 2
     ? "grid-cols-2"
-    : cols === 5
-      ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
-      : "grid-cols-1 sm:grid-cols-2";
+    : cols === 3
+      ? "grid-cols-2 sm:grid-cols-3"
+      : cols === 5
+        ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+        : "grid-cols-1 sm:grid-cols-2";
 
 const dense = cols === 5;
+const threeCol = cols === 3;
 const imageSizes = wide
   ? dense
     ? GALLERY_GRID_DENSE_SIZES_WIDE
-    : GALLERY_GRID_SIZES_WIDE
+    : threeCol
+      ? GALLERY_GRID_3COL_SIZES_WIDE
+      : GALLERY_GRID_SIZES_WIDE
   : dense
     ? GALLERY_GRID_DENSE_SIZES
-    : GALLERY_GRID_SIZES;
+    : threeCol
+      ? GALLERY_GRID_3COL_SIZES
+      : GALLERY_GRID_SIZES;
 const imageWidths = dense ? galleryGridDenseWidths() : galleryGridWidths();
 
 const fullSrcs = lightbox

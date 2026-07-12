@@ -141,6 +141,16 @@ export const GALLERY_GRID_SIZES_WIDE =
   `(max-width: 640px) ${contentSectionSizes(CONTENT_MAX_GALLERY_REM)}, ` +
   `calc((${contentSectionSizes(CONTENT_MAX_GALLERY_REM)} - ${GRID_GAP_REM}rem) / 2)`;
 
+/** 3-column gallery sizes — 2 cols below sm, 3 cols at sm+. */
+export const GALLERY_GRID_3COL_SIZES =
+  `(max-width: 640px) calc((min(100vw, ${CONTENT_MAX_TEXT_REM}rem) - ${CONTENT_SECTION_PADDING_REM}rem - ${GRID_GAP_REM}rem) / 2), ` +
+  `calc((min(100vw, ${CONTENT_MAX_TEXT_REM}rem) - ${CONTENT_SECTION_PADDING_REM}rem - 1.5rem) / 3)`;
+
+/** 3-column gallery sizes for gallery/guestbook pages. */
+export const GALLERY_GRID_3COL_SIZES_WIDE =
+  `(max-width: 640px) calc((${contentSectionSizes(CONTENT_MAX_GALLERY_REM)} - ${GRID_GAP_REM}rem) / 2), ` +
+  `calc((${contentSectionSizes(CONTENT_MAX_GALLERY_REM)} - 1.5rem) / 3)`;
+
 /** 5-column gallery sizes — calc() tracks rem scaling and column max-width. */
 export const GALLERY_GRID_DENSE_SIZES =
   `(max-width: 640px) calc((min(100vw, ${CONTENT_MAX_TEXT_REM}rem) - ${CONTENT_SECTION_PADDING_REM}rem - ${GRID_GAP_REM}rem) / 2), ` +

@@ -1,28 +1,27 @@
 import type { Lang } from "./nav";
 import { resolveImages } from "./images";
 
-/** Portrait-format staff cards in display order. */
-const STAFF_PORTRAIT_PATHS = [
-  "staff/reiji.jpg",
-  "staff/soldea.jpg",
-  "staff/domi.jpg",
-  "staff/elphine.jpg",
-  "staff/ralvus.png",
+/** Full-time staff cards in display order (3-column grid). */
+const STAFF_MAIN_PATHS = [
+  "staff/Reiji-Staff.png",
+  "staff/Soldea-Staff.png",
+  "staff/Domi-Staff.png",
+  "staff/Elphine-Staff.png",
+  "staff/Ralvus-Staff.png",
+  "staff/Domino-Staff.png",
 ] as const;
 
-/** Landscape-format staff cards — shown last in a 50/50 row. */
-const STAFF_LANDSCAPE_PATHS = [
-  "staff/domino.jpg",
-  "staff/alice.png",
-] as const;
+/** Part-time staff — shown below the main grid. */
+const STAFF_PART_TIME_PATHS = ["staff/alice.png"] as const;
 
-export const staffPortraits = resolveImages(STAFF_PORTRAIT_PATHS);
-export const staffLandscape = resolveImages(STAFF_LANDSCAPE_PATHS);
+export const staffMain = resolveImages(STAFF_MAIN_PATHS);
+export const staffPartTime = resolveImages(STAFF_PART_TIME_PATHS);
 
 interface StaffPageCopy {
   title: string;
   path: string;
   heading: string;
+  partTimeHeading: string;
   altPrefix: string;
   paragraphs: readonly (readonly [string, string])[];
 }
@@ -32,6 +31,7 @@ export const staffCopy: Record<Lang, StaffPageCopy> = {
     title: "Staff | Tiny Temptation Tubs",
     path: "/en/team/staff/",
     heading: "Staff",
+    partTimeHeading: "Part Time",
     altPrefix: "Staff portrait",
     paragraphs: [
       ["Behind every warm welcome stand those", "who care for the house."],
@@ -46,6 +46,7 @@ export const staffCopy: Record<Lang, StaffPageCopy> = {
     title: "Staff | Tiny Temptation Tubs",
     path: "/de/team/staff/",
     heading: "Staff",
+    partTimeHeading: "Teilzeit",
     altPrefix: "Staff portrait",
     paragraphs: [
       [

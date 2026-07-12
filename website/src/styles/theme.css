@@ -42,6 +42,9 @@
   --color-discord-shadow: rgb(88 101 242 / 0.35);
   --color-on-accent: #fff;
   --color-lightbox-overlay: rgb(0 0 0 / 0.92);
+  --lightbox-inset-top: 2rem;
+  --lightbox-inset-bottom: 2rem;
+  --lightbox-inset-x: 5rem;
   --color-hero-shadow: rgb(0 0 0 / 0.6);
 
   --color-panel-bg: rgb(23 11 21 / 0.9);

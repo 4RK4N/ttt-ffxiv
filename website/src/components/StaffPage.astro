@@ -2,7 +2,8 @@
 import ContentPage from "./ContentPage.astro";
 import IntroPanel from "./IntroPanel.astro";
 import Gallery from "./Gallery.astro";
-import { staffCopy, staffLandscape, staffPortraits } from "../data/staff";
+import SectionHeading from "./SectionHeading.astro";
+import { staffCopy, staffMain, staffPartTime } from "../data/staff";
 import type { Lang } from "../data/nav";
 
 interface Props {
@@ -33,12 +34,7 @@ const copy = staffCopy[lang];
       ))
     }
   </IntroPanel>
-  <Gallery wide cols={5} altPrefix={copy.altPrefix} images={staffPortraits} />
-  <Gallery
-    wide
-    cols={2}
-    altPrefix={copy.altPrefix}
-    class="w-full"
-    images={staffLandscape}
-  />
+  <Gallery wide cols={3} altPrefix={copy.altPrefix} images={staffMain} />
+  <SectionHeading>{copy.partTimeHeading}</SectionHeading>
+  <Gallery wide cols={3} altPrefix={copy.altPrefix} images={staffPartTime} />
 </ContentPage>
