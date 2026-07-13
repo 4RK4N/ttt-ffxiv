@@ -7,8 +7,10 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY astro.config.mjs tsconfig.json ./
 COPY public ./public
 COPY src ./src
-# Astro 7's Rust compiler uses Rayon; cap threads so Docker builds don't hit nproc limits.
-ENV RAYON_NUM_THREADS=4
+# Cap parallel OS threads during astro build (compiler-rs + esbuild + Node).
+ENV RAYON_NUM_THREADS=1 \
+    GOMAXPROCS=1 \
+    UV_THREADPOOL_SIZE=2
 RUN npm run build
 
 FROM nginx:alpine
