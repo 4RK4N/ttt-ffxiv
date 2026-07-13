@@ -13,7 +13,11 @@ import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
 import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
 import { fetchBuffer } from "../../lib/core/download.js";
 import { isImageAttachment } from "../../../../shared/core/attachments.js";
-import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../shared/core/limits.js";
+import {
+  DISCORD_MESSAGE_CONTENT_MAX,
+  DISCORD_REQUEST_ENTITY_TOO_LARGE,
+  guildUploadLimitBytes,
+} from "../../../../shared/core/limits.js";
 import {
   NAMESPACE,
   config,
@@ -22,8 +26,13 @@ import {
 } from "../../lib/modules/pic-repost-commands/config-io.js";
 
 const MAX_IMAGES = 10;
-/** Conservative pre-download cap; server upload limits may be lower. */
-const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+
+/** True when a channel.send rejection is Discord's payload-too-large error. */
+function isTooLargeError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const { code, status } = err as { code?: unknown; status?: unknown };
+  return code === DISCORD_REQUEST_ENTITY_TOO_LARGE || status === 413;
+}
 
 export async function executePicRepost(
   interaction: ChatInputCommandInteraction,
@@ -70,11 +79,14 @@ export async function executePicRepost(
     return;
   }
 
-  const oversized = attachments.filter((a) => a.size > MAX_ATTACHMENT_BYTES);
+  const maxBytes = guildUploadLimitBytes(interaction.guild?.premiumTier);
+  const limitLabel = `${Math.floor(maxBytes / (1024 * 1024))} MB`;
+  const oversized = attachments.filter((a) => a.size > maxBytes);
   if (oversized.length > 0) {
     await interaction.editReply(
       format(t.attachmentTooLarge, {
         names: oversized.map((a) => a.name).join(", "),
+        limit: limitLabel,
       }),
     );
     return;
@@ -117,7 +129,16 @@ export async function executePicRepost(
     });
   } catch (err) {
     console.error(`[${NAMESPACE}] Failed to post images to channel:`, err);
-    await interaction.editReply(t.postFailed);
+    if (isTooLargeError(err)) {
+      await interaction.editReply(
+        format(t.attachmentTooLarge, {
+          names: attachments.map((a) => a.name).join(", "),
+          limit: limitLabel,
+        }),
+      );
+    } else {
+      await interaction.editReply(t.postFailed);
+    }
     return;
   }
 

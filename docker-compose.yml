@@ -14,7 +14,7 @@ services:
       ulimits:
         nproc: 65535
 
-    image: ttt-discord-bot:1.4.0
+    image: ttt-discord-bot:1.4.1
 
     pull_policy: build
 
@@ -43,7 +43,7 @@ services:
       ulimits:
         nproc: 65535
 
-    image: ttt-web-editor:1.4.0
+    image: ttt-web-editor:1.4.1
 
     pull_policy: build
 

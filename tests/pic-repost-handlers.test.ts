@@ -82,6 +82,19 @@ describe("executePicRepost validation", () => {
     );
   });
 
+  it("rejects attachments over the guild upload limit", async () => {
+    const interaction = mockInteraction({
+      attachments: [
+        { name: "huge.png", contentType: "image/png", size: 11 * 1024 * 1024 },
+      ],
+    });
+    await executePicRepost(interaction);
+
+    expect(interaction.editReply).toHaveBeenCalledWith(
+      expect.stringContaining("huge.png"),
+    );
+  });
+
   it("rejects messages over Discord content limit", async () => {
     const interaction = mockInteraction({
       message: "x".repeat(DISCORD_MESSAGE_CONTENT_MAX + 1),

@@ -3,7 +3,7 @@
   "noImages": "You need to attach at least one image.",
   "notImages": "These attachments are not images: {names}. Please attach image files only.",
   "messageTooLong": "Your message is too long. Please keep it under 2000 characters.",
-  "attachmentTooLarge": "One or more images are too large: {names}. Please use smaller files.",
+  "attachmentTooLarge": "One or more images are too large: {names}. This server allows up to {limit} per file.",
   "downloadFailed": "Could not download one of your images. Please try again with a smaller or different file.",
   "cannotPost": "I cannot post in this channel.",
   "postFailed": "I could not post in this channel. This is usually a file size limit or missing \"Send Messages\"/\"Attach Files\" permission.",

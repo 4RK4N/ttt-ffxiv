@@ -49,7 +49,7 @@ export const TEXT_DEFAULTS: PicTexts = {
   messageTooLong:
     "Your message is too long. Please keep it under 2000 characters.",
   attachmentTooLarge:
-    "One or more images are too large: {names}. Please use smaller files.",
+    "One or more images are too large: {names}. This server allows up to {limit} per file.",
   downloadFailed:
     "Could not download one of your images. Please try again with a smaller or different file.",
   cannotPost: "I cannot post in this channel.",

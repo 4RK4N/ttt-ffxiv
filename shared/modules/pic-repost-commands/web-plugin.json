@@ -35,6 +35,18 @@
       "help": "Shown when attachments are not images. Tokens: {names}"
     },
     {
+      "key": "attachmentTooLarge",
+      "label": "Attachment too large",
+      "type": "text",
+      "help": "Shown when an image exceeds this server's upload limit (set by boost level). Tokens: {names}, {limit}"
+    },
+    {
+      "key": "messageTooLong",
+      "label": "Message too long",
+      "type": "text",
+      "help": "Shown when the caption exceeds Discord's 2000 character limit."
+    },
+    {
       "key": "downloadFailed",
       "label": "Download failed",
       "type": "text",
