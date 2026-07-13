@@ -37,7 +37,7 @@
     {
       "key": "attachmentTooLarge",
       "label": "Attachment too large",
-      "type": "text",
+      "type": "textarea",
       "help": "Shown when an image exceeds this server's upload limit (set by boost level). Tokens: {names}, {limit}"
     },
     {
