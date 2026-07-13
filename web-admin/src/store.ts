@@ -111,6 +111,35 @@ function uniqueId(base: string, used: Set<string>): string {
   return id;
 }
 
+function isBlankValue(value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value === "string") return value.trim() === "";
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+}
+
+/** Keeps stored row values when the form POST omits or blanks unchanged fields. */
+export function mergeObjectListRow(
+  incoming: Record<string, unknown>,
+  prev: Record<string, unknown> | undefined,
+  itemFields: WebPluginSubField[],
+): Record<string, unknown> {
+  if (!prev) return incoming;
+  const merged: Record<string, unknown> = {
+    ...prev,
+    ...incoming,
+    id: incoming.id ?? prev.id,
+  };
+  for (const sub of itemFields) {
+    const formVal = incoming[sub.key];
+    const prevVal = prev[sub.key];
+    if (isBlankValue(formVal) && !isBlankValue(prevVal)) {
+      merged[sub.key] = prevVal;
+    }
+  }
+  return merged;
+}
+
 function isSubFieldVisible(
   sub: WebPluginSubField,
   mergedRow: Record<string, unknown>,
@@ -285,7 +314,16 @@ function readObjectListValues(
       };
 
       for (const sub of field.itemFields ?? []) {
-        merged[sub.key] = readSubValue(sub, row[sub.key]);
+        let val = readSubValue(sub, row[sub.key]);
+        const store = sub.store ?? "config";
+        if (
+          store === "texts" &&
+          isBlankValue(val) &&
+          field.defaultItem?.[sub.key] !== undefined
+        ) {
+          val = readSubValue(sub, field.defaultItem[sub.key]);
+        }
+        merged[sub.key] = val;
       }
       return merged;
     });
@@ -399,6 +437,8 @@ export async function writeValues(
         }
 
         const prev = existingById.get(id);
+        const itemFields = field.itemFields ?? [];
+        const mergedRow = mergeObjectListRow(row, prev, itemFields);
         const configRow: Record<string, unknown> = {
           id,
           published: prev?.published === true,
@@ -407,10 +447,10 @@ export async function writeValues(
         };
         const textRow: Record<string, unknown> = {};
 
-        for (const sub of field.itemFields ?? []) {
+        for (const sub of itemFields) {
           const normalized = validateSubValue(
             sub,
-            row[sub.key],
+            mergedRow[sub.key],
             `${key}[${id}]`,
           );
           const store = sub.store ?? "config";

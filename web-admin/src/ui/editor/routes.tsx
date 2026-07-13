@@ -11,6 +11,7 @@ import {
   ValidationError,
   writeEnabled,
   writeValues,
+  type FieldValue,
 } from "../../store.js";
 import {
   publishPanel,
@@ -126,6 +127,7 @@ export function registerHtmxRoutes(
       const csrfToken = await ensureCsrfToken(c, deps.cfg);
       const ctx = await loadEditorContext(deps.cfg, csrfToken);
       const mod = buildEditorModule(plugin);
+      mod.values = values as Record<string, FieldValue>;
       return c.html(
         <ModulePanel
           {...panelProps(mod, ctx, expanded, { ok: false, message })}
