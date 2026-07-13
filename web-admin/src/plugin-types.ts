@@ -40,7 +40,6 @@ export interface WebPluginField {
   itemLabel?: string;
   publishable?: boolean;
   collapsible?: boolean;
-  textsKey?: string;
   itemFields?: WebPluginSubField[];
   optionFields?: WebPluginSubField[];
   defaultItem?: Record<string, unknown>;

@@ -7,7 +7,6 @@
       "label": "Embed panels",
       "type": "object-list",
       "store": "config",
-      "textsKey": "panels",
       "itemLabel": "Embed panel",
       "publishable": true,
       "collapsible": true,

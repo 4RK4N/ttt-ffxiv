@@ -53,7 +53,7 @@ export interface RolePanelTexts {
   ephemeralMessage: string;
 }
 
-export interface ResolvedRolePanel extends RolePanelConfig, RolePanelTexts {}
+export interface ResolvedRolePanel extends RolePanelConfig, RolePanelTexts { }
 
 export interface ReactionRolesConfig {
   enabled?: boolean;
@@ -67,7 +67,6 @@ export interface ReactionRolesTexts {
   cooldown: string;
   roleError: string;
   roleHierarchyError: string;
-  panels: Record<string, RolePanelTexts>;
 }
 
 export const DEFAULT_PANEL_TEXTS: RolePanelTexts = {
@@ -83,7 +82,6 @@ export const TEXT_DEFAULTS: ReactionRolesTexts = {
   cooldown: "Please wait a moment before trying again.",
   roleError: "Could not update your roles. Please contact an administrator.",
   roleHierarchyError: "The bot cannot assign one or more of these roles.",
-  panels: {},
 };
 
 export const CONFIG_DEFAULTS: ReactionRolesConfig = {
@@ -91,15 +89,11 @@ export const CONFIG_DEFAULTS: ReactionRolesConfig = {
   panels: [],
 };
 
-export type ReactionRolesModuleData = Omit<ReactionRolesConfig, "panels"> &
-  Omit<ReactionRolesTexts, "panels"> & {
-    panels: RolePanelConfig[];
-  };
+export type ReactionRolesModuleData = ReactionRolesConfig & ReactionRolesTexts;
 
 export const MODULE_DEFAULTS: ReactionRolesModuleData = moduleDefaultsFromParts(
   CONFIG_DEFAULTS,
   TEXT_DEFAULTS,
-  ["panels"],
 );
 
 const mod = createModuleData(NAMESPACE, MODULE_DEFAULTS);

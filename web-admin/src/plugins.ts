@@ -76,7 +76,7 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
 
   const type =
     typeof f.type === "string" &&
-    (VALID_SCALAR_TYPES as string[]).includes(f.type)
+      (VALID_SCALAR_TYPES as string[]).includes(f.type)
       ? (f.type as WebPluginSubField["type"])
       : "text";
 
@@ -149,7 +149,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
 
     const store: WebFieldStore =
       typeof f.store === "string" &&
-      (VALID_STORES as string[]).includes(f.store)
+        (VALID_STORES as string[]).includes(f.store)
         ? (f.store as WebFieldStore)
         : "texts";
 
@@ -171,7 +171,6 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       itemLabel: typeof f.itemLabel === "string" ? f.itemLabel : "Item",
       publishable: f.publishable === true,
       collapsible: f.collapsible === true,
-      textsKey: typeof f.textsKey === "string" ? f.textsKey : undefined,
       itemFields: itemFields.length > 0 ? itemFields : undefined,
       defaultItem: parseDefaultItem(f.defaultItem),
     });

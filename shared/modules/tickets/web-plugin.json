@@ -115,7 +115,6 @@
       "label": "Ticket types",
       "type": "object-list",
       "store": "config",
-      "textsKey": "types",
       "itemLabel": "Ticket type",
       "publishable": true,
       "collapsible": true,

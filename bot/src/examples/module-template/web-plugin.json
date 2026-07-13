@@ -1,6 +1,6 @@
 {
   "title": "Example module",
-  "description": "Template manifest — copy to shared/modules/<name>/ when creating a module. Field keys must match types.ts and data/*.json. The web editor validates channel/role fields as Discord IDs (17–20 digit snowflakes) on save.",
+  "description": "Template manifest — copy to shared/modules/<name>/ when creating a module. Field keys must match types.ts. The web editor validates channel/role fields as Discord IDs (17–20 digit snowflakes) on save.",
   "fields": [
     {
       "key": "greeting",

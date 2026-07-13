@@ -1,7 +1,6 @@
 import {
   createModuleData,
   findListItemById,
-  moduleDefaultsFromParts,
 } from "../../core/moduleConfig.js";
 
 export const NAMESPACE = "custom-embeds";
@@ -22,15 +21,11 @@ export interface EmbedPanelTexts {
   footer: string;
 }
 
-export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts {}
+export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts { }
 
 export interface CustomEmbedsConfig {
   enabled?: boolean;
   panels: EmbedPanelConfig[];
-}
-
-export interface CustomEmbedsTexts {
-  panels: Record<string, EmbedPanelTexts>;
 }
 
 export const DEFAULT_PANEL_TEXTS: EmbedPanelTexts = {
@@ -41,25 +36,14 @@ export const DEFAULT_PANEL_TEXTS: EmbedPanelTexts = {
   footer: "",
 };
 
-export const TEXT_DEFAULTS: CustomEmbedsTexts = {
-  panels: {},
-};
-
 export const CONFIG_DEFAULTS: CustomEmbedsConfig = {
   enabled: true,
   panels: [],
 };
 
-export type CustomEmbedsModuleData = Omit<CustomEmbedsConfig, "panels"> &
-  Omit<CustomEmbedsTexts, "panels"> & {
-    panels: EmbedPanelConfig[];
-  };
+export type CustomEmbedsModuleData = CustomEmbedsConfig;
 
-export const MODULE_DEFAULTS: CustomEmbedsModuleData = moduleDefaultsFromParts(
-  CONFIG_DEFAULTS,
-  TEXT_DEFAULTS,
-  ["panels"],
-);
+export const MODULE_DEFAULTS: CustomEmbedsModuleData = { ...CONFIG_DEFAULTS };
 
 const mod = createModuleData(NAMESPACE, MODULE_DEFAULTS);
 

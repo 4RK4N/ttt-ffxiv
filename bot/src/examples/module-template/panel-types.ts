@@ -23,7 +23,7 @@ export interface ExamplePanelTexts {
 }
 
 export interface ResolvedExamplePanel
-  extends ExamplePanelConfig, ExamplePanelTexts {}
+  extends ExamplePanelConfig, ExamplePanelTexts { }
 
 export interface ExamplePanelModuleConfig {
   enabled?: boolean;
@@ -34,7 +34,6 @@ export interface ExamplePanelModuleConfig {
 export interface ExamplePanelModuleTexts {
   disabled: string;
   greeting: string;
-  panels: Record<string, ExamplePanelTexts>;
 }
 
 export const DEFAULT_PANEL_TEXTS: ExamplePanelTexts = {
@@ -51,21 +50,14 @@ export const CONFIG_DEFAULTS: ExamplePanelModuleConfig = {
 export const TEXT_DEFAULTS: ExamplePanelModuleTexts = {
   disabled: "This feature is currently disabled.",
   greeting: "Hello {mention}!",
-  panels: {},
 };
 
-export type ExamplePanelModuleData = Omit<
-  ExamplePanelModuleConfig,
-  "panels"
-> &
-  Omit<ExamplePanelModuleTexts, "panels"> & {
-    panels: ExamplePanelConfig[];
-  };
+export type ExamplePanelModuleData = ExamplePanelModuleConfig &
+  ExamplePanelModuleTexts;
 
 export const MODULE_DEFAULTS: ExamplePanelModuleData = moduleDefaultsFromParts(
   CONFIG_DEFAULTS,
   TEXT_DEFAULTS,
-  ["panels"],
 );
 
 const mod = createModuleData(NAMESPACE, MODULE_DEFAULTS);

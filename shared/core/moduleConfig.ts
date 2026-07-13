@@ -6,7 +6,7 @@ import {
 import { moduleTableName } from "./moduleTable.js";
 import { getDbData, setDbData } from "./dbData.js";
 
-/** Merges config + text defaults for DB storage (omit legacy sidecar keys). */
+/** Merges config + text defaults for DB seeding and cache fallbacks. */
 export function moduleDefaultsFromParts<
   TConfig extends object,
   TTexts extends object,

@@ -40,7 +40,7 @@ export interface TicketTypeTexts {
   roleActionConfirmation: string;
 }
 
-export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts {}
+export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
 
 export interface TicketsConfig {
   enabled?: boolean;
@@ -66,7 +66,6 @@ export interface TicketsTexts {
   roleActionError: string;
   roleActionHierarchyError: string;
   roleActionOpenerMissing: string;
-  types: Record<string, TicketTypeTexts>;
 }
 
 export const DEFAULT_TYPE_TEXTS: TicketTypeTexts = {
@@ -114,7 +113,6 @@ export const TEXT_DEFAULTS: TicketsTexts = {
     "I cannot assign that role — it is above my highest role.",
   roleActionOpenerMissing:
     "Could not find the ticket opener to assign the role.",
-  types: {},
 };
 
 export const CONFIG_DEFAULTS: TicketsConfig = {
@@ -122,15 +120,11 @@ export const CONFIG_DEFAULTS: TicketsConfig = {
   ticketTypes: [],
 };
 
-export type TicketsModuleData = Omit<TicketsConfig, "ticketTypes"> &
-  Omit<TicketsTexts, "types"> & {
-    ticketTypes: TicketTypeConfig[];
-  };
+export type TicketsModuleData = TicketsConfig & TicketsTexts;
 
 export const MODULE_DEFAULTS: TicketsModuleData = moduleDefaultsFromParts(
   CONFIG_DEFAULTS,
   TEXT_DEFAULTS,
-  ["types"],
 );
 
 const mod = createModuleData(NAMESPACE, MODULE_DEFAULTS);

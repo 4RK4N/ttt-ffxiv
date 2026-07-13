@@ -82,7 +82,7 @@ Reuse these instead of duplicating logic:
 | Module                                                                             | Use for                                                           |
 | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | [`shared/core/moduleConfig.ts`](../../../../shared/core/moduleConfig.ts)           | `createModuleData`, `moduleDefaultsFromParts`, `findListItemById` |
-| [`shared/core/texts.ts`](../../../../shared/core/texts.ts)                         | `format`, `isModuleEnabled`, `getConfig`/`getTexts` (via factory) |
+| [`shared/core/texts.ts`](../../../../shared/core/texts.ts)                         | `format`, `isModuleEnabled`, `get()` / `data()` via `createModuleData` |
 | [`bot/src/lib/core/discordInteractions.ts`](../../lib/core/discordInteractions.ts) | `replyEphemeral`, `memberHasAnyRole`                              |
 | [`bot/src/lib/core/discordRoles.ts`](../../lib/core/discordRoles.ts)               | `tryAssignRole`, `tryRemoveRole`                                  |
 | [`bot/src/lib/core/threads.ts`](../../lib/core/threads.ts)                         | `buildThreadName`, `startAndPopulateCommentsThread`               |

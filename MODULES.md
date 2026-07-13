@@ -6,7 +6,7 @@ validators, `web-plugin.json`). Runtime settings live in PostgreSQL (`module_*` 
 The [web editor](README.md#web-editor) edits module settings; changes hot-reload without restart.
 Panel publish/unpublish goes through the bot internal API.
 
-Setup details and example JSON: [INSTALL.md](INSTALL.md#configuration-reference).
+Setup details: [INSTALL.md](INSTALL.md#configuration-reference).
 
 ## Catalog
 

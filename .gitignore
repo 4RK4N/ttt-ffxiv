@@ -7,7 +7,6 @@ website/.astro/
 # Runtime config — DB bootstrap only (secrets live in PostgreSQL).
 postgres-data/
 data/config.json
-data/.migration-backup-*
 
 *.log
 npm-debug.log*
