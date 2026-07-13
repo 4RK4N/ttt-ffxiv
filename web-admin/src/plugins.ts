@@ -69,6 +69,13 @@ function parseSelectOptions(raw: unknown): WebPluginSelectOption[] | undefined {
   return options.length > 0 ? options : undefined;
 }
 
+function parseMaxLength(raw: unknown): number | undefined {
+  if (typeof raw !== "number" || !Number.isFinite(raw) || raw <= 0) {
+    return undefined;
+  }
+  return Math.floor(raw);
+}
+
 function parseSubField(entry: unknown): WebPluginSubField | null {
   if (typeof entry !== "object" || entry === null) return null;
   const f = entry as Record<string, unknown>;
@@ -93,12 +100,7 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
     }
   }
 
-  const maxLength =
-    typeof f.maxLength === "number" &&
-      Number.isFinite(f.maxLength) &&
-      f.maxLength > 0
-      ? Math.floor(f.maxLength)
-      : undefined;
+  const maxLength = parseMaxLength(f.maxLength);
 
   return {
     key: f.key,
@@ -169,12 +171,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       }
     }
 
-    const maxLength =
-      typeof f.maxLength === "number" &&
-        Number.isFinite(f.maxLength) &&
-        f.maxLength > 0
-        ? Math.floor(f.maxLength)
-        : undefined;
+    const maxLength = parseMaxLength(f.maxLength);
 
     fields.push({
       key: f.key,

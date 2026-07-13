@@ -1,4 +1,4 @@
-import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../../shared/core/limits.js";
+import { resolveFieldMaxLength } from "../../../../../shared/core/limits.js";
 import type { WebPluginSubField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 
@@ -26,7 +26,7 @@ export function fieldValueStr(value: unknown): string {
 export function textInputMaxLength(
   f: Pick<WebPluginSubField, "maxLength">,
 ): number {
-  return f.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX;
+  return resolveFieldMaxLength(f.maxLength);
 }
 
 export function Help({ text }: { text?: string }) {

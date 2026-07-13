@@ -1,6 +1,6 @@
 import {
-  DISCORD_MESSAGE_CONTENT_MAX,
   MAX_PANEL_OPTIONS,
+  resolveFieldMaxLength,
 } from "../../shared/core/limits.js";
 import {
   assertSlugId,
@@ -52,7 +52,7 @@ function validateSnowflake(value: string, label: string): void {
 function validateTextLength(
   value: string,
   label: string,
-  maxLength: number = DISCORD_MESSAGE_CONTENT_MAX,
+  maxLength: number = resolveFieldMaxLength(),
 ): void {
   if (value.length > maxLength) {
     throw new ValidationError(
@@ -292,7 +292,7 @@ function validateSubValue(
     validateTextLength(
       value,
       `${label}.${sub.key}`,
-      sub.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX,
+      resolveFieldMaxLength(sub.maxLength),
     );
   }
   if (sub.type === "role" || sub.type === "channel") {
@@ -532,7 +532,7 @@ export async function writeValues(
         validateTextLength(
           value,
           `Field "${key}"`,
-          field.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX,
+          resolveFieldMaxLength(field.maxLength),
         );
       }
       normalized = value;

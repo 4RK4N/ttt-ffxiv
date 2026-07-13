@@ -1,6 +1,11 @@
 /** Discord plain message content limit. */
 export const DISCORD_MESSAGE_CONTENT_MAX = 2000;
 
+/** Resolves configured max string length for editor fields; defaults to plain message limit. */
+export function resolveFieldMaxLength(configured?: number): number {
+  return configured ?? DISCORD_MESSAGE_CONTENT_MAX;
+}
+
 /** Discord API error when a user's DMs are closed to the bot. */
 export const DISCORD_CANNOT_SEND_DM = 50007;
 
