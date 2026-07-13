@@ -49,10 +49,14 @@ function validateSnowflake(value: string, label: string): void {
   }
 }
 
-function validateTextLength(value: string, label: string): void {
-  if (value.length > DISCORD_MESSAGE_CONTENT_MAX) {
+function validateTextLength(
+  value: string,
+  label: string,
+  maxLength: number = DISCORD_MESSAGE_CONTENT_MAX,
+): void {
+  if (value.length > maxLength) {
     throw new ValidationError(
-      `${label} must be at most ${DISCORD_MESSAGE_CONTENT_MAX} characters.`,
+      `${label} must be at most ${maxLength} characters.`,
     );
   }
 }
@@ -285,7 +289,11 @@ function validateSubValue(
     throw new ValidationError(`${label}.${sub.key} must be a string.`);
   }
   if (sub.type === "text" || sub.type === "textarea") {
-    validateTextLength(value, `${label}.${sub.key}`);
+    validateTextLength(
+      value,
+      `${label}.${sub.key}`,
+      sub.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX,
+    );
   }
   if (sub.type === "role" || sub.type === "channel") {
     validateSnowflake(value, `${label}.${sub.key}`);

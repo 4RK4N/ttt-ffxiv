@@ -25,6 +25,8 @@ export interface WebPluginSubField {
   type: Exclude<WebFieldType, "object-list">;
   store?: WebFieldStore;
   help?: string;
+  /** Max string length; defaults to Discord plain message limit (2000). */
+  maxLength?: number;
   options?: WebPluginSelectOption[];
   optionFields?: WebPluginSubField[];
   visibleWhen?: WebPluginVisibleWhen;

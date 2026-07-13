@@ -64,4 +64,18 @@ describe("validateTicketType", () => {
       validateTicketType(baseTicketType({ confirmDeleteNo: "" })),
     ).toThrow(/no label/i);
   });
+
+  it("accepts ticketWelcome up to 4096 characters", () => {
+    const welcome = "x".repeat(4096);
+    expect(() =>
+      validateTicketType(baseTicketType({ ticketWelcome: welcome })),
+    ).not.toThrow();
+  });
+
+  it("rejects ticketWelcome over 4096 characters", () => {
+    const welcome = "x".repeat(4097);
+    expect(() =>
+      validateTicketType(baseTicketType({ ticketWelcome: welcome })),
+    ).toThrow(/4096/);
+  });
 });

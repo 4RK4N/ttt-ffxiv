@@ -93,6 +93,13 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
     }
   }
 
+  const maxLength =
+    typeof f.maxLength === "number" &&
+      Number.isFinite(f.maxLength) &&
+      f.maxLength > 0
+      ? Math.floor(f.maxLength)
+      : undefined;
+
   return {
     key: f.key,
     label:
@@ -100,6 +107,7 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
     type,
     store,
     help: typeof f.help === "string" ? f.help : undefined,
+    maxLength,
     options: parseSelectOptions(f.options),
     optionFields: optionFields.length > 0 ? optionFields : undefined,
     visibleWhen: parseVisibleWhen(f.visibleWhen),

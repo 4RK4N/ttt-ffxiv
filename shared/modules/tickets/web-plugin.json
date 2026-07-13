@@ -209,6 +209,7 @@
           "label": "Welcome message",
           "type": "textarea",
           "store": "texts",
+          "maxLength": 4096,
           "help": "Tokens: {mention}. Max 4096 characters. Text over 2000 characters is sent as an embed automatically."
         },
         {

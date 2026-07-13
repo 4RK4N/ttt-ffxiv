@@ -62,7 +62,7 @@ const ticketItemFields: WebPluginSubField[] = [
     type: "textarea",
     store: "texts",
   },
-  { key: "ticketWelcome", label: "Welcome", type: "textarea", store: "texts" },
+  { key: "ticketWelcome", label: "Welcome", type: "textarea", store: "texts", maxLength: 4096 },
   { key: "closeButtonLabel", label: "Close", type: "text", store: "texts" },
   {
     key: "roleActionButtonLabel",
@@ -187,6 +187,45 @@ describe("mergeObjectListRow", () => {
     expect(merged.ticketWelcome).toBe("Updated welcome {mention}");
     expect(merged.openButtonLabel).toBe("Open ticket");
 
+    const { configRow, textRow } = splitRow(merged, ticketItemFields);
+    expect(() => validateTicketTypeRow(configRow, textRow)).not.toThrow();
+  });
+
+  it("preserves long ticketWelcome when form updates another field", () => {
+    const longWelcome = "w".repeat(2500);
+    const prev: Record<string, unknown> = {
+      id: "nsfw-yes",
+      channelId: "123456789012345678",
+      staffRoleId: "111111111111111111",
+      deniedRoleIds: [],
+      openButtonLabel: "Open ticket",
+      panelTitle: "Support",
+      ticketWelcome: longWelcome,
+      closeButtonLabel: "Close ticket",
+      confirmClosePrompt: "Close?",
+      confirmCloseYes: "Yes",
+      confirmCloseNo: "No",
+      deleteButtonLabel: "DELETE",
+      confirmDeletePrompt: "Delete?",
+      confirmDeleteYes: "Yes",
+      confirmDeleteNo: "No",
+      ticketClosed: "Closed.",
+      ticketDeleted: "Deleted.",
+      alreadyOpen: "Already open.",
+      openSuccess: "Created {thread}",
+      roleDenied: "Denied.",
+      roleActionButtonLabel: "Grant",
+      roleActionConfirmation: "Done.",
+    };
+    const incoming = blankIncoming(
+      "nsfw-yes",
+      { openButtonLabel: "Updated label" },
+      ticketItemFields,
+    );
+
+    const merged = mergeObjectListRow(incoming, prev, ticketItemFields);
+
+    expect(merged.ticketWelcome).toBe(longWelcome);
     const { configRow, textRow } = splitRow(merged, ticketItemFields);
     expect(() => validateTicketTypeRow(configRow, textRow)).not.toThrow();
   });
