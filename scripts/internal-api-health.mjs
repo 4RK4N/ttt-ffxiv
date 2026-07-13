@@ -4,28 +4,40 @@ import pg from "pg";
 
 const configPath = path.join(process.cwd(), "data", "config.json");
 
-function loadBootstrap() {
-  const raw = JSON.parse(readFileSync(configPath, "utf8")) as Record<
-    string,
-    unknown
-  >;
-  function requiredString(key) {
-    const value = raw[key];
-    if (typeof value !== "string" || value.trim() === "") {
-      throw new Error(`Missing DB config "${key}" in data/config.json.`);
-    }
+function optionalString(value, fallback) {
+  if (typeof value === "string" && value.trim() !== "") {
     return value.trim();
   }
-  const portRaw = raw.dbPort;
-  const port =
-    typeof portRaw === "number"
-      ? portRaw
-      : Number.parseInt(String(portRaw ?? ""), 10);
+  return fallback;
+}
+
+function optionalPort(value, fallback) {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : Number.parseInt(String(value ?? ""), 10);
+  return Number.isInteger(parsed) && parsed > 0 && parsed < 65536
+    ? parsed
+    : fallback;
+}
+
+function loadBootstrap() {
+  let raw;
+  try {
+    raw = JSON.parse(readFileSync(configPath, "utf8"));
+  } catch (err) {
+    throw new Error(
+      `Could not read DB bootstrap config from "${configPath}": ${err.message}`,
+    );
+  }
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    throw new Error(`"${configPath}" must be a JSON object.`);
+  }
   return {
-    host: requiredString("dbHost"),
-    port: Number.isInteger(port) && port > 0 ? port : 5432,
-    user: requiredString("dbUser"),
-    database: requiredString("dbName"),
+    host: optionalString(raw.dbHost, "ttt-postgres"),
+    port: optionalPort(raw.dbPort, 5432),
+    user: optionalString(raw.dbUser, "ttt"),
+    database: optionalString(raw.dbName, "ttt"),
   };
 }
 
