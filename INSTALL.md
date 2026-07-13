@@ -590,7 +590,7 @@ docker logs -f ttt-discord-bot
   **Attach Files** permissions in that channel. Re-check the channel's permission
   overrides for the bot's role.
 - **Web editor save errors**: ensure `ttt-postgres` is healthy and schema is applied.
-  During `./scripts/db/db-init.sh` or migration cutover, `data/` may need to be writable
+  During `./scripts/db/db-init.sh`, `data/` may need to be writable
   by UID 1000; afterward containers only need read access to `data/config.json` and media assets.
 
 - **Large images fail**: Discord caps uploads (10 MB on unboosted servers). The

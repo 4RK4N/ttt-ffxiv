@@ -10,16 +10,8 @@ import { getDbData, setDbData } from "./dbData.js";
 export function moduleDefaultsFromParts<
   TConfig extends object,
   TTexts extends object,
->(
-  configDefaults: TConfig,
-  textDefaults: TTexts,
-  omitTextKeys: (keyof TTexts)[] = [],
-): TConfig & TTexts {
-  const texts = { ...textDefaults } as Record<string, unknown>;
-  for (const key of omitTextKeys) {
-    delete texts[key as string];
-  }
-  return { ...configDefaults, ...texts } as TConfig & TTexts;
+>(configDefaults: TConfig, textDefaults: TTexts): TConfig & TTexts {
+  return { ...configDefaults, ...textDefaults };
 }
 
 export function createModuleData<TModule extends object>(
