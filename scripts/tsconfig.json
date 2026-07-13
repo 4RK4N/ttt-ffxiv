@@ -9,9 +9,8 @@
   },
   "include": [
     "deploy-commands.ts",
-    "db-seed.ts",
-    "db-write-app-config.ts",
-    "lib/**/*.ts"
+    "db/cli.ts",
+    "db/moduleSeedDefaults.ts"
   ],
   "references": [
     {

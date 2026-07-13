@@ -97,7 +97,7 @@ data/
 ```
 
 Module settings and copy live in PostgreSQL (`module_*` tables), edited via the web editor.
-Each module ships code defaults in `types.ts`; `./scripts/db-init.sh` seeds empty tables from those defaults.
+Each module ships code defaults in `types.ts`; `./scripts/db/db-init.sh` seeds empty tables from those defaults.
 Slash command names/descriptions stay in code — run `npm run deploy` after changes.
 
 Channel and role fields in the web editor are validated as Discord IDs (numeric snowflakes) on save.

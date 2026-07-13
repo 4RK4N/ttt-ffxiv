@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
+
+cd "$(dirname "$0")/../.."
+
+wait_for_postgres() {
+  echo "Waiting for PostgreSQL..."
+  for _ in $(seq 1 30); do
+    if docker compose exec -T ttt-postgres pg_isready -U ttt -d ttt >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "PostgreSQL is not healthy. Start it with: docker compose up -d ttt-postgres" >&2
+  return 1
+}
 
 FORCE=0
-if [[ "${1:-}" == "--force" ]]; then
-  FORCE=1
-fi
-
 CONFIG_FILE="data/config.json"
 EXAMPLE_CONFIG="data/config.example.json"
 SCHEMA="scripts/db/schema.sql"
+DB_CLI="dist/scripts/db/cli.js"
 
 usage() {
   cat >&2 <<EOF
@@ -21,60 +31,9 @@ First-time PostgreSQL setup:
   3. Seed module tables from code defaults when empty
 
   --force  Overwrite existing app_config / module rows
+
+Requires a built bot image for seed/write steps: ./scripts/build.sh bot
 EOF
-}
-
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
-
-if [[ -n "${1:-}" && "${1:-}" != "--force" ]]; then
-  usage
-  exit 1
-fi
-
-mkdir -p data postgres-data
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-  cp "$EXAMPLE_CONFIG" "$CONFIG_FILE"
-  echo "Created $CONFIG_FILE from template."
-fi
-
-echo "Starting ttt-postgres..."
-docker compose up -d ttt-postgres
-
-echo "Waiting for PostgreSQL..."
-for _ in $(seq 1 30); do
-  if docker compose exec -T ttt-postgres pg_isready -U ttt -d ttt >/dev/null 2>&1; then
-    break
-  fi
-  sleep 1
-done
-
-if ! docker compose exec -T ttt-postgres pg_isready -U ttt -d ttt >/dev/null 2>&1; then
-  echo "PostgreSQL is not healthy." >&2
-  exit 1
-fi
-
-echo "Applying schema..."
-docker compose exec -T ttt-postgres psql -U ttt -d ttt -v ON_ERROR_STOP=1 -f - < "$SCHEMA"
-
-app_count="$(docker compose exec -T ttt-postgres psql -U ttt -d ttt -Atqc "SELECT COUNT(*) FROM app_config")"
-
-run_write_app_config() {
-  local config_file="$1"
-  docker compose run --rm --no-deps \
-    -v "${config_file}:/tmp/app-config.json:ro" \
-    ttt-discord-bot node dist/scripts/db-write-app-config.js /tmp/app-config.json
-}
-
-run_node_seed() {
-  if [[ "$FORCE" -eq 1 ]]; then
-    docker compose run --rm --no-deps ttt-discord-bot node dist/scripts/db-seed.js --force
-  else
-    docker compose run --rm --no-deps ttt-discord-bot node dist/scripts/db-seed.js
-  fi
 }
 
 prompt_secret() {
@@ -98,6 +57,36 @@ prompt_value() {
   fi
 }
 
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ -n "${1:-}" && "${1:-}" != "--force" ]]; then
+  usage
+  exit 1
+fi
+
+if [[ "${1:-}" == "--force" ]]; then
+  FORCE=1
+fi
+
+mkdir -p data postgres-data
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  cp "$EXAMPLE_CONFIG" "$CONFIG_FILE"
+  echo "Created $CONFIG_FILE from template."
+fi
+
+echo "Starting ttt-postgres..."
+docker compose up -d ttt-postgres
+wait_for_postgres
+
+echo "Applying schema..."
+docker compose exec -T ttt-postgres psql -U ttt -d ttt -v ON_ERROR_STOP=1 -f - < "$SCHEMA"
+
+app_count="$(docker compose exec -T ttt-postgres psql -U ttt -d ttt -Atqc "SELECT COUNT(*) FROM app_config")"
+
 if [[ "$app_count" == "0" || "$FORCE" -eq 1 ]]; then
   echo "Configure app settings (stored in app_config):"
 
@@ -115,33 +104,31 @@ if [[ "$app_count" == "0" || "$FORCE" -eq 1 ]]; then
   if [[ -z "$client_secret" ]]; then echo "clientSecret is required." >&2; exit 1; fi
 
   session_secret="$(prompt_secret "Session secret (empty = auto-generate)")"
-  if [[ -z "$session_secret" ]]; then
-    session_secret="$(openssl rand -hex 32)"
-    echo "Generated sessionSecret."
-  fi
 
   oauth_redirect="$(prompt_value "OAuth redirect URI")"
   if [[ -z "$oauth_redirect" ]]; then echo "oauthRedirectUri is required." >&2; exit 1; fi
 
   internal_secret="$(prompt_secret "Internal API secret (empty = auto-generate)")"
-  if [[ -z "$internal_secret" ]]; then
-    internal_secret="$(openssl rand -hex 32)"
-    echo "Generated internalApiSecret."
-  fi
 
   web_port="$(prompt_value "Web editor port" "8088")"
   internal_port="$(prompt_value "Internal API port" "8087")"
   internal_bind="$(prompt_value "Internal API bind" "0.0.0.0")"
   bot_api_url="$(prompt_value "Bot internal API URL" "http://ttt-discord-bot:8087")"
 
-  app_config_tmp="$(mktemp)"
-  chmod 600 "$app_config_tmp"
-  python3 scripts/lib/build-app-config-json.py \
-    "$discord_token" "$client_id" "$guild_id" "$bot_name" \
-    "$client_secret" "$session_secret" "$oauth_redirect" \
-    "$internal_secret" "$web_port" "$internal_port" \
-    "$internal_bind" "$bot_api_url" > "$app_config_tmp"
-  run_write_app_config "$app_config_tmp"
+  docker compose run --rm --no-deps \
+    -e "TTT_DISCORD_TOKEN=${discord_token}" \
+    -e "TTT_CLIENT_ID=${client_id}" \
+    -e "TTT_GUILD_ID=${guild_id}" \
+    -e "TTT_BOT_NAME=${bot_name}" \
+    -e "TTT_CLIENT_SECRET=${client_secret}" \
+    -e "TTT_SESSION_SECRET=${session_secret}" \
+    -e "TTT_OAUTH_REDIRECT_URI=${oauth_redirect}" \
+    -e "TTT_INTERNAL_API_SECRET=${internal_secret}" \
+    -e "TTT_WEB_PORT=${web_port}" \
+    -e "TTT_INTERNAL_API_PORT=${internal_port}" \
+    -e "TTT_INTERNAL_API_BIND=${internal_bind}" \
+    -e "TTT_BOT_INTERNAL_API_URL=${bot_api_url}" \
+    ttt-discord-bot node "$DB_CLI" write-app-config
 
   echo "app_config populated."
 else
@@ -149,7 +136,11 @@ else
 fi
 
 echo "Seeding module tables from code defaults..."
-run_node_seed
+if [[ "$FORCE" -eq 1 ]]; then
+  docker compose run --rm --no-deps ttt-discord-bot node "$DB_CLI" seed --force
+else
+  docker compose run --rm --no-deps ttt-discord-bot node "$DB_CLI" seed
+fi
 
 echo "Table summary:"
 docker compose exec -T ttt-postgres psql -U ttt -d ttt -c \

@@ -37,7 +37,7 @@ export function loadWebConfig(): WebConfig {
   if (missing.length > 0) {
     console.error(
       `[web] Missing required config value(s): ${missing.join(", ")}.\n` +
-      "Run ./scripts/db-init.sh or update app_config in the database.",
+      "Run ./scripts/db/db-init.sh or update app_config in the database.",
     );
     process.exit(1);
   }

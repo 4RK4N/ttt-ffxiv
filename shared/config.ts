@@ -32,7 +32,7 @@ function requiredFromRows(rows: Record<string, unknown>, key: string): string {
   if (!value) {
     throw new Error(
       `Missing required app config "${key}" in database table "${APP_CONFIG_TABLE}". ` +
-      "Run ./scripts/db-init.sh to populate app_config.",
+      "Run ./scripts/db/db-init.sh to populate app_config.",
     );
   }
   return value;

@@ -25,7 +25,7 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
    - **Simple modules:** `bot/src/lib/modules/<name>/types.ts`
    - **Panel modules:** `shared/modules/<name>/types.ts` (copy from [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts))
 
-3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts` and `scripts/db/schema.sql`, then run `./scripts/db-update.sh` with a migration SQL file.
+3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts` and `scripts/db/schema.sql`, then run `./scripts/db/db-update.sh <file.sql>` when applying schema changes.
 
 4. **Wire `index.ts`** — export a `CommandModule` with at least one of:
    - `init(client)` — event listeners
@@ -34,7 +34,7 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 
 5. **Web editor (optional)** — keep/adapt `web-plugin.json`; rebuild so `copy-web-plugins.js` copies it to `dist/`.
 
-6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/internal-api/publishRegistry.ts`; add defaults to `scripts/lib/moduleSeedDefaults.ts`.
+6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/internal-api/publishRegistry.ts`; add defaults to `scripts/db/moduleSeedDefaults.ts`.
 
 Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
 
@@ -70,7 +70,7 @@ web-admin/src/    web editor server + UI
 website/          Astro public site (see INSTALL.md § Part 7)
 Dockerfile        bot + web-editor image targets (shared npm ci)
 data/             DB bootstrap config.json + binary assets (welcome media)
-scripts/          build.sh, db-init.sh, deploy-commands, copy-web-plugins
+scripts/db/       db-init.sh, db-update.sh, db-dump.sh, cli.ts, schema.sql
 postgres-data/    PostgreSQL data directory (gitignored)
 ```
 
@@ -96,7 +96,7 @@ With Docker: `./scripts/build.sh` for deploy (see [INSTALL.md § Part 4](INSTALL
 2. `npm install`
 3. [Developer Portal](https://discord.com/developers/applications): bot token + client ID; invite with Administrator (see [INSTALL.md](INSTALL.md))
 4. `cp data/config.example.json data/config.json` — DB bootstrap only
-5. `./scripts/db-init.sh` — schema, app secrets (`app_config`), module defaults (see [INSTALL.md](INSTALL.md))
+5. `./scripts/db/db-init.sh` — schema, app secrets (`app_config`), module defaults (see [INSTALL.md](INSTALL.md))
 
 ## Deploy slash commands
 

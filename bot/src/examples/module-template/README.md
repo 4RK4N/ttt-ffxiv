@@ -16,8 +16,8 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
    [`validate.ts`](validate.ts) → `shared/modules/<name>/validate.ts`.
 2. Set namespace via `createModuleData('<name>', …)` in `bot/src/lib/modules/<name>/types.ts`
    (simple) or `shared/modules/<name>/types.ts` (panel — use `panel-types.ts` as starting point).
-3. Register in `moduleTable.ts`, `schema.sql`, and `scripts/lib/moduleSeedDefaults.ts`; run
-   `./scripts/db-init.sh` (or `./scripts/db-seed.js --force` in Docker) to seed defaults.
+3. Register in `moduleTable.ts`, `schema.sql`, and `scripts/db/moduleSeedDefaults.ts`; run
+   `./scripts/db/db-init.sh` (or `db/cli.js seed --force` in Docker) to seed defaults.
 4. Wire `bot/src/modules/<name>/index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
 5. **Panel modules only:** uncomment panel block in `config-io.ts`; implement `panel.ts` + `publisher.ts`;
    wire `validate.ts` in `web-admin/src/store.ts`; register namespace in
@@ -53,7 +53,7 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 PostgreSQL `module_*` table  ──►  get() / data()  in types.ts  ──►  re-exported by config-io.ts
 ```
 
-- **Defaults** in `types.ts` are fallbacks and seed values for `./scripts/db-init.sh`.
+- **Defaults** in `types.ts` are fallbacks and seed values for `./scripts/db/db-init.sh`.
 - Reads are **cached** in `shared/core/texts.ts` — the bot refreshes when DB rows change.
 - **`isModuleEnabled(NAMESPACE)`** checks `config.enabled !== false` (web editor toggle).
 - **Panel list patches** use `createConfigIo` at runtime (publish flow).

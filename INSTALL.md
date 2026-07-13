@@ -79,10 +79,10 @@ docker compose version
 
    ```bash
    cp data/config.example.json data/config.json   # DB connection only
-   ./scripts/db-init.sh
+   ./scripts/db/db-init.sh
    ```
 
-   `db-init.sh` starts `ttt-postgres`, applies `scripts/db/schema.sql`, prompts
+   `scripts/db/db-init.sh` starts `ttt-postgres`, applies `scripts/db/schema.sql`, prompts
    for Discord/OAuth/API secrets (stored in the `app_config` table), and seeds
    module tables from code defaults (`MODULE_DEFAULTS` in each module's `types.ts`).
    Node steps run inside the `ttt-discord-bot` container — build it first with
@@ -98,10 +98,11 @@ Bot secrets and module settings live in **PostgreSQL** (`app_config` and
 
 Never commit `data/config.json` or `postgres-data/`. See **Configuration reference** below.
 
-**Schema updates:** add SQL under `scripts/db/migrations/`, then
-`./scripts/db-update.sh scripts/db/migrations/00N_description.sql`.
+**Schema updates:** write a `.sql` file (e.g. next to `schema.sql`), then
+`./scripts/db/db-update.sh scripts/db/002_description.sql`.
 
-**Backups:** `postgres-data/` holds database files; run `pg_dump` periodically.
+**Backups:** `postgres-data/` holds database files; run
+`./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically.
 
 ---
 
@@ -134,7 +135,7 @@ No password — `ttt-postgres` uses `trust` on the internal Docker network only
 
 ### `app_config` table — bot + web editor secrets
 
-Populated interactively by `./scripts/db-init.sh`.
+Populated interactively by `./scripts/db/db-init.sh`.
 
 | Key                 | Required         | Description |
 | ------------------- | ---------------- | ----------- |
@@ -154,7 +155,7 @@ Populated interactively by `./scripts/db-init.sh`.
 Changing `app_config` values requires restarting bot and web editor containers.
 Module settings hot-reload without a restart.
 
-To rotate a secret: update the row in PostgreSQL, or re-run `./scripts/db-init.sh --force`.
+To rotate a secret: update the row in PostgreSQL, or re-run `./scripts/db/db-init.sh --force`.
 
 The four editor fields (`clientSecret`, `sessionSecret`, `oauthRedirectUri`,
 `webPort`) plus `guildId`, `internalApiSecret`, and `botInternalApiUrl` are only needed if you run the browser-based editor;
@@ -581,15 +582,15 @@ docker logs -f ttt-discord-bot
 
 - **Commands don't appear**: make sure you ran the deploy step. Global commands
   are slow to propagate - set `guildId` for instant updates during setup.
-- **"Missing required config value"** on start: run `./scripts/db-init.sh` or
+- **"Missing required config value"** on start: run `./scripts/db/db-init.sh` or
   check `app_config` in PostgreSQL (`discordToken`, `clientId`, etc.).
 - **Web editor missing OAuth fields**: same — populate `app_config` via
-  `db-init.sh` or update rows directly.
+  `scripts/db/db-init.sh` or update rows directly.
 - **Bot is online but `/pic` fails to post**: the bot needs **Send Messages** and
   **Attach Files** permissions in that channel. Re-check the channel's permission
   overrides for the bot's role.
 - **Web editor save errors**: ensure `ttt-postgres` is healthy and schema is applied.
-  During `./scripts/db-init.sh` or migration cutover, `data/` may need to be writable
+  During `./scripts/db/db-init.sh` or migration cutover, `data/` may need to be writable
   by UID 1000; afterward containers only need read access to `data/config.json` and media assets.
 
 - **Large images fail**: Discord caps uploads (10 MB on unboosted servers). The
