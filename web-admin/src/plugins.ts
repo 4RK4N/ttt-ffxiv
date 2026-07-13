@@ -169,6 +169,13 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       }
     }
 
+    const maxLength =
+      typeof f.maxLength === "number" &&
+        Number.isFinite(f.maxLength) &&
+        f.maxLength > 0
+        ? Math.floor(f.maxLength)
+        : undefined;
+
     fields.push({
       key: f.key,
       label:
@@ -176,6 +183,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       type,
       store,
       help: typeof f.help === "string" ? f.help : undefined,
+      maxLength,
       itemLabel: typeof f.itemLabel === "string" ? f.itemLabel : "Item",
       publishable: f.publishable === true,
       collapsible: f.collapsible === true,

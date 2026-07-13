@@ -529,7 +529,11 @@ export async function writeValues(
         throw new ValidationError(`Field "${key}" must be a string.`);
       }
       if (field.type === "text" || field.type === "textarea") {
-        validateTextLength(value, `Field "${key}"`);
+        validateTextLength(
+          value,
+          `Field "${key}"`,
+          field.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX,
+        );
       }
       normalized = value;
     }

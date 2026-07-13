@@ -1,3 +1,4 @@
+import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../../shared/core/limits.js";
 import type { WebPluginSubField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 
@@ -19,6 +20,13 @@ export interface TopFieldProps {
 
 export function fieldValueStr(value: unknown): string {
   return value != null ? String(value) : "";
+}
+
+/** HTML maxLength for text/textarea; uses plugin config when set. */
+export function textInputMaxLength(
+  f: Pick<WebPluginSubField, "maxLength">,
+): number {
+  return f.maxLength ?? DISCORD_MESSAGE_CONTENT_MAX;
 }
 
 export function Help({ text }: { text?: string }) {

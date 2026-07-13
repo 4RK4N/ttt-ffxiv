@@ -39,6 +39,8 @@ export interface WebPluginField {
   type: WebFieldType;
   store: WebFieldStore;
   help?: string;
+  /** Max string length for text/textarea; defaults to Discord plain message limit (2000). */
+  maxLength?: number;
   itemLabel?: string;
   publishable?: boolean;
   collapsible?: boolean;
