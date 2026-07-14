@@ -26,7 +26,9 @@ usage() {
   cat >&2 <<EOF
 Usage: $0 <output.sql>
 
-Dump the ttt database to a plain SQL file (pg_dump).
+Dump the ttt database to a plain SQL file (pg_dump --column-inserts).
+Output uses per-row INSERT statements (not COPY blocks), suitable for
+the Turso migration importer.
 
 Example:
   $0 backups/ttt-$(date +%F).sql
@@ -59,5 +61,5 @@ if [[ "$out_dir" != "." && ! -d "$out_dir" ]]; then
 fi
 
 echo "Dumping database to $output ..."
-docker compose exec -T ttt-postgres pg_dump -U ttt -d ttt --no-owner --no-acl > "$output"
+docker compose exec -T ttt-postgres pg_dump -U ttt -d ttt --no-owner --no-acl --column-inserts > "$output"
 echo "Done."
