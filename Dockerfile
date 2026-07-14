@@ -18,7 +18,7 @@ COPY web-admin ./web-admin
 COPY scripts ./scripts
 RUN npm run build:web-admin
 
-FROM node:24-alpine AS deps-prod
+FROM node:24-slim AS deps-prod
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
@@ -32,7 +32,8 @@ FROM deps-prod AS deps-prod-web
 # Bot only — web uses hono + @hono/node-server (REST via fetch, no discord.js client).
 RUN rm -rf node_modules/@napi-rs node_modules/discord.js node_modules/@discordjs
 
-FROM node:24-alpine AS ttt-discord-bot
+# Turso (@tursodatabase/database) ships linux-gnu natives only — not musl/Alpine.
+FROM node:24-slim AS ttt-discord-bot
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps-prod-bot /app/node_modules ./node_modules
