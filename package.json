@@ -11,6 +11,7 @@
     "build": "tsc -b && npm run build:admin-assets && node scripts/copy-web-plugins.js",
     "build:admin-assets": "node --input-type=module -e \"import { mkdirSync } from 'node:fs'; mkdirSync('dist/web-admin/src/ui/js', { recursive: true });\" && vite build --config web-admin/vite.config.ts && esbuild web-admin/src/ui/assets/admin.ts --bundle --minify --outfile=dist/web-admin/src/ui/js/admin.min.js --format=iife --target=es2022",
     "build:bot": "tsc -b shared bot scripts",
+    "generate-seed-sql": "tsx scripts/db/generate-seed-sql.ts",
     "build:web-admin": "tsc -b shared web-admin && npm run build:admin-assets && node scripts/copy-web-plugins.js",
     "start": "node dist/bot/src/index.js",
     "deploy": "node dist/scripts/deploy-commands.js",
@@ -29,7 +30,8 @@
     "@napi-rs/canvas": "^1.0.2",
     "discord.js": "^14.26.4",
     "hono": "^4.12.27",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "@tursodatabase/database": "^0.5.1"
   },
   "overrides": {
     "undici": "^6.27.0",

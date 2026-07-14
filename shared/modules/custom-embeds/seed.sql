@@ -1,0 +1,10 @@
+-- One-time seed for custom-embeds (SQLite/Turso). Do not re-run on a populated DB.
+CREATE TABLE IF NOT EXISTS module_custom_embeds (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT INTO module_custom_embeds(key,value,updated_at) VALUES('editorConfig','{"title":"Custom Embeds","description":"Publish static info embeds to Discord channels. Configure each panel, save, then publish.","fields":[{"key":"panels","label":"Embed panels","type":"object-list","store":"config","itemLabel":"Embed panel","publishable":true,"collapsible":true,"defaultItem":{"id":"","published":false,"channelId":"","showTimestamp":false,"panelTitle":"","panelDescription":"","authorName":"","authorIconUrl":"","footer":""},"itemFields":[{"key":"channelId","label":"Channel","type":"channel","store":"config","help":"The embed message is posted here."},{"key":"panelTitle","label":"Embed title","type":"text","store":"texts"},{"key":"panelDescription","label":"Embed description","type":"textarea","store":"texts","help":"Required. Main body of the embed."},{"key":"authorName","label":"Author name","type":"text","store":"texts","help":"Optional. Shown above the embed title."},{"key":"authorIconUrl","label":"Author icon URL","type":"text","store":"texts","help":"Optional. Requires author name. Must be a valid http or https URL."},{"key":"footer","label":"Footer","type":"text","store":"texts","help":"Optional. Small text at the bottom of the embed."},{"key":"showTimestamp","label":"Show timestamp","type":"boolean","store":"config","help":"When enabled, the embed shows the publish time. Updates on re-publish."}]}]}',0) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;
+INSERT INTO module_custom_embeds(key,value,updated_at) VALUES('enabled','true',0) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;
+INSERT INTO module_custom_embeds(key,value,updated_at) VALUES('panels','[]',0) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;

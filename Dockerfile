@@ -40,6 +40,8 @@ COPY --from=deps-prod-bot /app/package.json ./package.json
 COPY --from=build-bot /app/dist/shared ./dist/shared
 COPY --from=build-bot /app/dist/bot ./dist/bot
 COPY --from=build-bot /app/dist/scripts ./dist/scripts
+COPY scripts/db/schema-turso.sql ./scripts/db/schema-turso.sql
+COPY shared/modules ./shared/modules
 COPY scripts/internal-api-health.mjs ./scripts/internal-api-health.mjs
 USER node
 CMD ["node", "dist/bot/src/index.js"]

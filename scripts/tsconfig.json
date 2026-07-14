@@ -10,7 +10,12 @@
   "include": [
     "deploy-commands.ts",
     "db/cli.ts",
-    "db/moduleSeedDefaults.ts"
+    "db/moduleSeedDefaults.ts",
+    "db/tursoDb.ts",
+    "db/sqlLiteral.ts",
+    "db/apply-sql.ts",
+    "db/pg-turso-import.ts",
+    "db/generate-seed-sql.ts"
   ],
   "references": [
     {
