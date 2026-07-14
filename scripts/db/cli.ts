@@ -91,9 +91,10 @@ async function applySqlFile(dbPath: string, sqlFile: string): Promise<void> {
 async function countAppConfig(dbPath: string): Promise<void> {
   await initDb({ dbPath: path.resolve(dbPath) });
   try {
-    const row = (await getDb()
-      .prepare(`SELECT COUNT(*) AS count FROM ${APP_CONFIG_TABLE}`)
-      .get()) as { count: number };
+    const stmt = await getDb().prepare(
+      `SELECT COUNT(*) AS count FROM ${APP_CONFIG_TABLE}`,
+    );
+    const row = (await stmt.get()) as { count: number };
     console.log(row.count);
   } finally {
     await closeDb();
@@ -106,9 +107,8 @@ async function tableCounts(dbPath: string): Promise<void> {
     const db = getDb();
     const tables = [APP_CONFIG_TABLE, ...MODULE_NAMESPACES.map(moduleTableName)];
     for (const table of tables) {
-      const row = (await db
-        .prepare(`SELECT COUNT(*) AS count FROM ${table}`)
-        .get()) as { count: number };
+      const stmt = await db.prepare(`SELECT COUNT(*) AS count FROM ${table}`);
+      const row = (await stmt.get()) as { count: number };
       console.log(`${table}: ${row.count}`);
     }
   } finally {
@@ -120,11 +120,10 @@ async function dumpDb(dbPath: string): Promise<void> {
   await initDb({ dbPath: path.resolve(dbPath) });
   try {
     const db = getDb();
-    const tables = (await db
-      .prepare(
-        `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
-      )
-      .all()) as Array<{ name: string }>;
+    const listStmt = await db.prepare(
+      `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
+    );
+    const tables = (await listStmt.all()) as Array<{ name: string }>;
 
     const lines: string[] = [
       `-- Turso dump of ${path.resolve(dbPath)}`,
@@ -133,9 +132,10 @@ async function dumpDb(dbPath: string): Promise<void> {
     ];
 
     for (const { name } of tables) {
-      const rows = (await db
-        .prepare(`SELECT key, value, updated_at FROM ${name} ORDER BY key`)
-        .all()) as Array<{
+      const rowStmt = await db.prepare(
+        `SELECT key, value, updated_at FROM ${name} ORDER BY key`,
+      );
+      const rows = (await rowStmt.all()) as Array<{
         key: string;
         value: string;
         updated_at: number;

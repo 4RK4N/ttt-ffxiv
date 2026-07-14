@@ -43,9 +43,10 @@ const dbPath = loadDbPath();
 const db = await connect(dbPath);
 
 try {
-  const row = db
-    .prepare("SELECT value FROM app_config WHERE key = 'webPort'")
-    .get();
+  const stmt = await db.prepare(
+    "SELECT value FROM app_config WHERE key = 'webPort'",
+  );
+  const row = await stmt.get();
   const port = optionalPort(parseStoredValue(row?.value), 8088);
 
   const res = await fetch(`http://127.0.0.1:${port}/health`);

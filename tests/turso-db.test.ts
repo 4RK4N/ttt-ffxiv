@@ -65,11 +65,10 @@ describe("Turso dbData", () => {
 
     await expect(
       withTransaction(async (db) => {
-        await db
-          .prepare(
-            `INSERT INTO ${table}(key, value, updated_at) VALUES('channelId', ?, ?)`,
-          )
-          .run(JSON.stringify("999"), Date.now());
+        const stmt = await db.prepare(
+          `INSERT INTO ${table}(key, value, updated_at) VALUES('channelId', ?, ?)`,
+        );
+        await stmt.run(JSON.stringify("999"), Date.now());
         throw new Error("boom");
       }),
     ).rejects.toThrow("boom");

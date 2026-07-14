@@ -34,9 +34,10 @@ function mergeDefaults<T extends object>(
 }
 
 async function loadTableStamp(client: Database, table: string): Promise<number> {
-  const row = (await client
-    .prepare(`SELECT MAX(updated_at) AS max FROM ${table}`)
-    .get()) as { max: number | null } | undefined;
+  const stmt = await client.prepare(
+    `SELECT MAX(updated_at) AS max FROM ${table}`,
+  );
+  const row = (await stmt.get()) as { max: number | null } | undefined;
   return row?.max ?? 0;
 }
 
@@ -44,9 +45,8 @@ async function loadTableRows(
   client: Database,
   table: string,
 ): Promise<Map<string, unknown>> {
-  const result = (await client
-    .prepare(`SELECT key, value FROM ${table}`)
-    .all()) as Array<{ key: string; value: unknown }>;
+  const stmt = await client.prepare(`SELECT key, value FROM ${table}`);
+  const result = (await stmt.all()) as Array<{ key: string; value: unknown }>;
   const rows = new Map<string, unknown>();
   for (const row of result) {
     rows.set(row.key, parseStoredValue(row.value));
@@ -84,9 +84,10 @@ export async function getDbDataFromClient(
   key: string,
 ): Promise<unknown> {
   assertSafeTableName(table);
-  const row = (await client
-    .prepare(`SELECT value FROM ${table} WHERE key = ?`)
-    .get(key)) as { value: unknown } | undefined;
+  const stmt = await client.prepare(
+    `SELECT value FROM ${table} WHERE key = ?`,
+  );
+  const row = (await stmt.get(key)) as { value: unknown } | undefined;
   return row ? parseStoredValue(row.value) : undefined;
 }
 
@@ -112,14 +113,13 @@ export async function setDbData(
   const valueText = JSON.stringify(value);
 
   const run = async (c: Database) => {
-    await c
-      .prepare(
-        `INSERT INTO ${table} (key, value, updated_at)
-         VALUES (?, ?, ?)
-         ON CONFLICT (key) DO UPDATE
-           SET value = excluded.value, updated_at = excluded.updated_at`,
-      )
-      .run(key, valueText, now);
+    const stmt = await c.prepare(
+      `INSERT INTO ${table} (key, value, updated_at)
+       VALUES (?, ?, ?)
+       ON CONFLICT (key) DO UPDATE
+         SET value = excluded.value, updated_at = excluded.updated_at`,
+    );
+    await stmt.run(key, valueText, now);
   };
 
   if (client) {
@@ -139,7 +139,7 @@ export async function setDbDataMany(
   const now = Date.now();
 
   const run = async (c: Database) => {
-    const stmt = c.prepare(
+    const stmt = await c.prepare(
       `INSERT INTO ${table} (key, value, updated_at)
        VALUES (?, ?, ?)
        ON CONFLICT (key) DO UPDATE
@@ -160,8 +160,7 @@ export async function setDbDataMany(
 
 export async function tableIsEmpty(table: string): Promise<boolean> {
   assertSafeTableName(table);
-  const row = (await getDb()
-    .prepare(`SELECT COUNT(*) AS count FROM ${table}`)
-    .get()) as { count: number };
+  const stmt = await getDb().prepare(`SELECT COUNT(*) AS count FROM ${table}`);
+  const row = (await stmt.get()) as { count: number };
   return row.count === 0;
 }
