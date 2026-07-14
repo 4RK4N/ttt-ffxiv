@@ -124,10 +124,13 @@ async function dumpDb(dbPath: string): Promise<void> {
     fileMustExist: true,
   });
   try {
-    const listStmt = await db.prepare(
-      `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
+    const schemaStmt = await db.prepare(
+      `SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
     );
-    const tables = (await listStmt.all()) as Array<{ name: string }>;
+    const tables = (await schemaStmt.all()) as Array<{
+      name: string;
+      sql: string | null;
+    }>;
 
     const lines: string[] = [
       `-- Turso dump of ${resolved}`,
@@ -135,7 +138,12 @@ async function dumpDb(dbPath: string): Promise<void> {
       "",
     ];
 
-    for (const { name } of tables) {
+    for (const { name, sql } of tables) {
+      if (sql?.trim()) {
+        lines.push(sql.trim().endsWith(";") ? sql.trim() : `${sql.trim()};`);
+        lines.push("");
+      }
+
       const rowStmt = await db.prepare(
         `SELECT key, value, updated_at FROM ${name} ORDER BY key`,
       );
@@ -146,7 +154,8 @@ async function dumpDb(dbPath: string): Promise<void> {
       }>;
       for (const row of rows) {
         lines.push(
-          `INSERT INTO ${name}(key,value,updated_at) VALUES(${sqlStringLiteral(row.key)},${sqlStringLiteral(String(row.value))},${row.updated_at});`,
+          `INSERT INTO ${name}(key,value,updated_at) VALUES(${sqlStringLiteral(row.key)},${sqlStringLiteral(String(row.value))},${row.updated_at}) ` +
+          `ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;`,
         );
       }
       if (rows.length > 0) lines.push("");

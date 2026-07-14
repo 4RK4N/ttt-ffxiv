@@ -11,7 +11,7 @@ usage() {
   cat >&2 <<EOF
 Usage: $0 <output.sql>
 
-Dump data/ttt.db to a plain SQL file (INSERT statements per row).
+Dump data/ttt.db to a plain SQL file (CREATE TABLE + INSERT statements).
 Uses a read-only Turso connection so the bot can keep running.
 
 Example:
@@ -22,6 +22,14 @@ If locking still fails, stop the bot first:
 
 Requires a built bot image: ./scripts/build.sh bot
 EOF
+}
+
+run_dump() {
+  if docker compose ps --status running -q "$SERVICE" 2>/dev/null | grep -q .; then
+    docker compose exec -T "$SERVICE" node "$DB_CLI" dump-db "$DB_PATH"
+  else
+    docker compose run --rm --no-deps --no-build -T "$SERVICE" node "$DB_CLI" dump-db "$DB_PATH"
+  fi
 }
 
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
@@ -52,5 +60,12 @@ if [[ "$out_dir" != "." && ! -d "$out_dir" ]]; then
 fi
 
 echo "Dumping $DB_PATH to $output ..."
-docker compose run --rm --no-deps "$SERVICE" node "$DB_CLI" dump-db "$DB_PATH" > "$output"
+run_dump > "$output"
+
+if ! grep -q '^-- Turso dump of ' "$output"; then
+  echo "Dump output is invalid (stdout was polluted — rebuild first: ./scripts/build.sh bot)." >&2
+  rm -f "$output"
+  exit 1
+fi
+
 echo "Done."
