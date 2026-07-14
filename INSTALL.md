@@ -102,7 +102,7 @@ Never commit `data/config.json` or `data/ttt.db`. See **Configuration reference*
 **Schema updates:** write a `.sql` file (e.g. next to `schema.sql`), then
 `./scripts/db/db-update.sh scripts/db/002_description.sql`.
 
-**Backups:** run `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically.
+**Backups:** run `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically (read-only dump; bot can stay up).
 
 ---
 
@@ -403,7 +403,7 @@ docker compose run --rm ttt-discord-bot npm run deploy
 
 **Module `enabled` toggle vs deploy:** The web editor's per-module **enabled** switch
 only affects runtime behavior (handlers reply "disabled" when off). Deploy registers
-slash commands from code; modules with `enabled: false` in PostgreSQL are **omitted**
+slash commands from code; modules with `enabled: false` in Turso are **omitted**
 on deploy so they disappear from Discord. Re-run deploy after toggling enabled if you
 want slash commands to match.
 

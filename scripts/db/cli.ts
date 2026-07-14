@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { connect } from "@tursodatabase/database";
 import {
   closeDb,
   getDb,
@@ -117,16 +118,19 @@ async function tableCounts(dbPath: string): Promise<void> {
 }
 
 async function dumpDb(dbPath: string): Promise<void> {
-  await initDb({ dbPath: path.resolve(dbPath) });
+  const resolved = path.resolve(dbPath);
+  const db = await connect(resolved, {
+    readonly: true,
+    fileMustExist: true,
+  });
   try {
-    const db = getDb();
     const listStmt = await db.prepare(
       `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
     );
     const tables = (await listStmt.all()) as Array<{ name: string }>;
 
     const lines: string[] = [
-      `-- Turso dump of ${path.resolve(dbPath)}`,
+      `-- Turso dump of ${resolved}`,
       `-- Generated at ${new Date().toISOString()}`,
       "",
     ];
@@ -150,7 +154,7 @@ async function dumpDb(dbPath: string): Promise<void> {
 
     process.stdout.write(`${lines.join("\n")}\n`);
   } finally {
-    await closeDb();
+    await db.close();
   }
 }
 

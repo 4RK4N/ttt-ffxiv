@@ -12,9 +12,13 @@ usage() {
 Usage: $0 <output.sql>
 
 Dump data/ttt.db to a plain SQL file (INSERT statements per row).
+Uses a read-only Turso connection so the bot can keep running.
 
 Example:
   $0 backups/ttt-$(date +%F).sql
+
+If locking still fails, stop the bot first:
+  docker compose stop ttt-discord-bot
 
 Requires a built bot image: ./scripts/build.sh bot
 EOF

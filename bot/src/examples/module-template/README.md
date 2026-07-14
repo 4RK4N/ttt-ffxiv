@@ -50,7 +50,7 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 ## How config and texts are read
 
 ```
-PostgreSQL `module_*` table  ──►  get() / data()  in types.ts  ──►  re-exported by config-io.ts
+Turso `module_*` table  ──►  get() / data()  in types.ts  ──►  re-exported by config-io.ts
 ```
 
 - **Defaults** in `types.ts` are fallbacks and seed values for `./scripts/db/db-init.sh`.

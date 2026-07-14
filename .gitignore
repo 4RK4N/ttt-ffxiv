@@ -4,8 +4,7 @@ dist/
 website/dist/
 .astro/
 website/.astro/
-# Runtime config — DB bootstrap only (secrets live in PostgreSQL).
-postgres-data/
+# Runtime config — DB bootstrap only (secrets live in Turso app_config).
 data/config.json
 data/ttt.db
 backups/

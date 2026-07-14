@@ -13,7 +13,6 @@
     "db/tursoDb.ts",
     "db/sqlLiteral.ts",
     "db/apply-sql.ts",
-    "db/pg-turso-import.ts",
     "db/generate-seed-sql.ts"
   ],
   "references": [
