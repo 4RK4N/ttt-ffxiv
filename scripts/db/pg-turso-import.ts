@@ -17,7 +17,7 @@ import {
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../..",
+  "../../..",
 );
 
 const MIGRATE_TABLES = new Set([
