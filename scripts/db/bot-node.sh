@@ -8,6 +8,30 @@
 _WRITE_SESSION=0
 _WRITE_STOPPED=0
 
+_COMPOSE_RUN_SUPPORTS_NO_BUILD=
+_compose_run_supports_no_build() {
+  if [[ -n "$_COMPOSE_RUN_SUPPORTS_NO_BUILD" ]]; then
+    [[ "$_COMPOSE_RUN_SUPPORTS_NO_BUILD" == "1" ]]
+    return
+  fi
+  if docker compose run --help 2>&1 | grep -q -- '--no-build'; then
+    _COMPOSE_RUN_SUPPORTS_NO_BUILD=1
+  else
+    _COMPOSE_RUN_SUPPORTS_NO_BUILD=0
+  fi
+  [[ "$_COMPOSE_RUN_SUPPORTS_NO_BUILD" == "1" ]]
+}
+
+# docker compose run node "$@" — skips rebuild when compose supports --no-build.
+_compose_run_node() {
+  local -a cmd=(docker compose run --rm --no-deps -T)
+  if _compose_run_supports_no_build; then
+    cmd+=(--no-build)
+  fi
+  cmd+=("$SERVICE" node "$@")
+  "${cmd[@]}"
+}
+
 _bot_is_running() {
   docker compose ps --status running -q "$SERVICE" 2>/dev/null | grep -q .
 }
@@ -17,13 +41,13 @@ bot_node() {
   if _bot_is_running; then
     docker compose exec -T "$SERVICE" node "$@"
   else
-    docker compose run --rm --no-deps --no-build -T "$SERVICE" node "$@"
+    _compose_run_node "$@"
   fi
 }
 
 # One-off container run (no stop/start); use inside a write session.
 bot_node_run() {
-  docker compose run --rm --no-deps --no-build -T "$SERVICE" node "$@"
+  _compose_run_node "$@"
 }
 
 bot_node_write_begin() {
@@ -68,7 +92,12 @@ bot_node_write_env() {
   done
 
   bot_node_write_begin
-  docker compose run --rm --no-deps --no-build -T "${env_flags[@]}" "$SERVICE" node "$@"
+  local -a cmd=(docker compose run --rm --no-deps -T)
+  if _compose_run_supports_no_build; then
+    cmd+=(--no-build)
+  fi
+  cmd+=("${env_flags[@]}" "$SERVICE" node "$@")
+  "${cmd[@]}"
   local rc=$?
   bot_node_write_end
   return $rc
