@@ -1,5 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { Database } from "@tursodatabase/database";
 import { RESERVED_MODULE_KEYS } from "../../shared/core/dbData.js";
 import {
   APP_CONFIG_TABLE,
@@ -12,6 +14,11 @@ import {
   DEFAULT_TURSO_DB_PATH,
   openTursoDb,
 } from "./tursoDb.js";
+
+const ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 
 const MIGRATE_TABLES = new Set([
   APP_CONFIG_TABLE,
@@ -157,8 +164,56 @@ One-time import from pg_dump --column-inserts into Turso.
 Upserts app_config + module_* rows; skips internal-API app_config keys
 and module editorConfig (keeps existing seed editor schemas).
 
-Default db path: ${DEFAULT_TURSO_DB_PATH}`);
+Default db path: ${DEFAULT_TURSO_DB_PATH}
+Creates the DB file if missing. Applies schema + module seeds when tables are absent.`);
   process.exit(1);
+}
+
+async function tableExists(db: Database, name: string): Promise<boolean> {
+  const stmt = await db.prepare(
+    `SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = ?`,
+  );
+  const row = (await stmt.get(name)) as { ok: number } | undefined;
+  return row != null;
+}
+
+async function applySqlFile(db: Database, sqlPath: string): Promise<void> {
+  const sql = readFileSync(sqlPath, "utf8");
+  await db.exec(sql);
+  console.log(`[pg-turso-import] Applied ${path.relative(ROOT, sqlPath)}`);
+}
+
+/** Idempotent: schema.sql + per-module seed.sql (editorConfig lives in seeds). */
+async function ensureDbSkeleton(db: Database): Promise<void> {
+  if (await tableExists(db, APP_CONFIG_TABLE)) {
+    return;
+  }
+
+  console.log(
+    "[pg-turso-import] Tables missing — applying base schema and module seeds...",
+  );
+
+  const schemaPath = path.join(ROOT, "scripts/db/schema.sql");
+  if (!existsSync(schemaPath)) {
+    throw new Error(`Missing ${schemaPath} in bot image. Rebuild: ./scripts/build.sh bot`);
+  }
+  await applySqlFile(db, schemaPath);
+
+  const modulesDir = path.join(ROOT, "shared/modules");
+  let seedCount = 0;
+  for (const entry of readdirSync(modulesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const seedPath = path.join(modulesDir, entry.name, "seed.sql");
+    if (!existsSync(seedPath)) continue;
+    await applySqlFile(db, seedPath);
+    seedCount++;
+  }
+
+  if (seedCount === 0) {
+    throw new Error(
+      "No shared/modules/*/seed.sql in bot image. Rebuild: ./scripts/build.sh bot",
+    );
+  }
 }
 
 async function upsertRow(
@@ -195,11 +250,7 @@ async function main(): Promise<void> {
   if (!dumpPath) usage();
 
   if (!existsSync(dbPath)) {
-    console.error(
-      `[pg-turso-import] Database not found: ${dbPath}\n` +
-      "Run ./scripts/db/db-init.sh first (schema + module seeds with editorConfig).",
-    );
-    process.exit(1);
+    console.log(`[pg-turso-import] Creating ${dbPath} ...`);
   }
 
   const resolvedDump = path.resolve(dumpPath);
@@ -214,6 +265,8 @@ async function main(): Promise<void> {
   let skipped = 0;
 
   try {
+    await ensureDbSkeleton(db);
+
     await db.exec("BEGIN");
     try {
       for (const statement of statements) {

@@ -13,10 +13,9 @@ Usage: $0 <pg-dump.sql>
 
 One-time import from pg_dump --column-inserts into $DB_PATH.
 Upserts production app_config + module rows; keeps existing editorConfig seeds.
+Creates tables from schema + seeds automatically when missing.
 
-Requires:
-  - Built bot image: ./scripts/build.sh bot
-  - Existing $DB_PATH with tables (./scripts/db/db-init.sh if missing)
+Requires a built bot image: ./scripts/build.sh bot
 
 Example:
   $0 backups/ttt-pre-turso.sql
@@ -32,11 +31,6 @@ dump="${1:-}"
 if [[ -z "$dump" || ! -f "$dump" ]]; then
   echo "Dump file not found: ${dump:-<missing>}" >&2
   usage
-  exit 1
-fi
-
-if [[ ! -f "$DB_PATH" ]]; then
-  echo "$DB_PATH not found. Run ./scripts/db/db-init.sh first." >&2
   exit 1
 fi
 
