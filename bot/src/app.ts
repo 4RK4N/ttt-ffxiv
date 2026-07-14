@@ -2,7 +2,7 @@ import { closeDb } from "../../shared/core/db.js";
 import { registerPublishHandlers } from "../../shared/core/panelPublishBridge.js";
 import { initConfig } from "../../shared/config.js";
 import { MODULE_NAMESPACES } from "../../shared/core/moduleTable.js";
-import { warmAllModuleCaches } from "../../shared/core/texts.js";
+import { reloadAllModuleStores } from "../../shared/core/texts.js";
 import { startWeb } from "../../web-admin/src/server.js";
 import { publishHandlersByNamespace } from "./internal-api/publishRegistry.js";
 import { startBot } from "./index.js";
@@ -10,7 +10,7 @@ import { startBot } from "./index.js";
 async function main(): Promise<void> {
   await initConfig();
   registerPublishHandlers(publishHandlersByNamespace);
-  await warmAllModuleCaches([...MODULE_NAMESPACES]);
+  await reloadAllModuleStores([...MODULE_NAMESPACES]);
 
   const web = await startWeb();
   const bot = await startBot();

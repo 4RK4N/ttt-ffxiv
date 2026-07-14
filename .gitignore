@@ -7,6 +7,8 @@ website/.astro/
 # Runtime config — DB bootstrap only (secrets live in Turso app_config).
 data/config.json
 data/ttt.db
+data/ttt.db-wal
+data/ttt.db-shm
 backups/
 
 *.log

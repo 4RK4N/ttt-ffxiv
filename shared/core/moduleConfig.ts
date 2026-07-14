@@ -1,12 +1,7 @@
-import {
-  getModuleDataSync,
-  invalidateModuleCache,
-  warmModuleCache,
-} from "./texts.js";
+import { getModuleDataSync } from "./texts.js";
 import { moduleTableName } from "./moduleTable.js";
-import { getDbData, setDbData } from "./dbData.js";
 
-/** Merges config + text defaults for DB seeding and cache fallbacks. */
+/** Merges config + text defaults for DB seeding and store fallbacks. */
 export function moduleDefaultsFromParts<
   TConfig extends object,
   TTexts extends object,
@@ -22,27 +17,12 @@ export function createModuleData<TModule extends object>(
     NAMESPACE: namespace,
     MODULE_DEFAULTS: moduleDefaults,
     table: moduleTableName(namespace),
-    async refresh(): Promise<void> {
-      await warmModuleCache(namespace);
-    },
     data(): TModule {
       return getModuleDataSync(namespace, moduleDefaults) as TModule;
     },
     get<K extends keyof TModule>(key: K): TModule[K] {
       const all = getModuleDataSync(namespace, moduleDefaults) as TModule;
       return all[key];
-    },
-    async getDb(key: keyof TModule & string): Promise<TModule[keyof TModule]> {
-      const value = await getDbData(moduleTableName(namespace), key);
-      if (value === undefined) {
-        return moduleDefaults[key];
-      }
-      return value as TModule[keyof TModule];
-    },
-    async setDb(key: keyof TModule & string, value: unknown): Promise<void> {
-      await setDbData(moduleTableName(namespace), key, value);
-      invalidateModuleCache(namespace);
-      await warmModuleCache(namespace);
     },
   };
 }

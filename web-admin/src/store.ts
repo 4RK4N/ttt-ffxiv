@@ -10,11 +10,7 @@ import {
 import { slugify, toStringArray } from "../../shared/core/strings.js";
 import { setDbDataMany } from "../../shared/core/dbData.js";
 import { moduleTableName } from "../../shared/core/moduleTable.js";
-import {
-  getModuleRowsSync,
-  invalidateModuleCache,
-  warmModuleCache,
-} from "../../shared/core/texts.js";
+import { getModuleRowsSync } from "../../shared/core/texts.js";
 import { validateEmbedPanelRow } from "../../shared/modules/custom-embeds/validate.js";
 import { validateRolePanelRow } from "../../shared/modules/reaction-roles/validate.js";
 import { validateTicketTypeRow } from "../../shared/modules/tickets/validate.js";
@@ -347,8 +343,6 @@ export async function writeEnabled(
 ): Promise<boolean> {
   const table = moduleTableName(namespace);
   await setDbDataMany(table, { enabled });
-  invalidateModuleCache(namespace);
-  await warmModuleCache(namespace);
   return enabled;
 }
 
@@ -544,8 +538,6 @@ export async function writeValues(
 
   if (Object.keys(patch).length > 0) {
     await setDbDataMany(moduleTableName(plugin.namespace), patch);
-    invalidateModuleCache(plugin.namespace);
-    await warmModuleCache(plugin.namespace);
   }
 
   return readValues(plugin);

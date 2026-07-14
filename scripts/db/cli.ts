@@ -145,17 +145,16 @@ async function dumpDb(dbPath: string): Promise<void> {
       }
 
       const rowStmt = await db.prepare(
-        `SELECT key, value, updated_at FROM ${name} ORDER BY key`,
+        `SELECT key, value FROM ${name} ORDER BY key`,
       );
       const rows = (await rowStmt.all()) as Array<{
         key: string;
         value: string;
-        updated_at: number;
       }>;
       for (const row of rows) {
         lines.push(
-          `INSERT INTO ${name}(key,value,updated_at) VALUES(${sqlStringLiteral(row.key)},${sqlStringLiteral(String(row.value))},${row.updated_at}) ` +
-          `ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;`,
+          `INSERT INTO ${name}(key,value) VALUES(${sqlStringLiteral(row.key)},${sqlStringLiteral(String(row.value))}) ` +
+          `ON CONFLICT(key) DO UPDATE SET value=excluded.value;`,
         );
       }
       if (rows.length > 0) lines.push("");

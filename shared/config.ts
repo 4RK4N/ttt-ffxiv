@@ -1,6 +1,6 @@
 import { initDb, loadDbBootstrapConfig } from "./core/db.js";
 import { APP_CONFIG_TABLE } from "./core/moduleTable.js";
-import { getDbDataAll, invalidateTableCache } from "./core/dbData.js";
+import { getDbDataAll } from "./core/dbData.js";
 
 const CONFIG_FILE_KEYS = new Set(["dbPath", "_docker"]);
 
@@ -25,7 +25,7 @@ function requiredFromRows(rows: Record<string, unknown>, key: string): string {
   if (!value) {
     throw new Error(
       `Missing required app config "${key}" in database table "${APP_CONFIG_TABLE}". ` +
-        "Run ./scripts/db/db-init.sh to populate app_config.",
+      "Run ./scripts/db/db-init.sh to populate app_config.",
     );
   }
   return value;
@@ -61,8 +61,4 @@ export async function initConfig(): Promise<void> {
 
 export function isAppConfigDbKey(key: string): boolean {
   return CONFIG_FILE_KEYS.has(key);
-}
-
-export function invalidateAppConfigCache(): void {
-  invalidateTableCache(APP_CONFIG_TABLE);
 }

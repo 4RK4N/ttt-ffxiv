@@ -10,9 +10,7 @@
   "include": [
     "deploy-commands.ts",
     "db/cli.ts",
-    "db/tursoDb.ts",
     "db/sqlLiteral.ts",
-    "db/apply-sql.ts",
     "db/generate-seed-sql.ts"
   ],
   "references": [

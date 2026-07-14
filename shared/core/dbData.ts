@@ -1,16 +1,9 @@
 import type { Database } from "@tursodatabase/database";
-import { assertSafeTableName } from "./moduleTable.js";
+import { assertSafeTableName, namespaceFromTable } from "./moduleTable.js";
 import { getDb, withTransaction } from "./db.js";
 
 /** Reserved module row keys — not merged into bot runtime data. */
 export const RESERVED_MODULE_KEYS = new Set(["editorConfig"]);
-
-interface TableCacheEntry {
-  stampMs: number;
-  rows: Map<string, unknown>;
-}
-
-const tableCache = new Map<string, TableCacheEntry>();
 
 function parseStoredValue(raw: unknown): unknown {
   if (typeof raw !== "string") return raw;
@@ -33,14 +26,6 @@ function mergeDefaults<T extends object>(
   return out as T;
 }
 
-async function loadTableStamp(client: Database, table: string): Promise<number> {
-  const stmt = await client.prepare(
-    `SELECT MAX(updated_at) AS max FROM ${table}`,
-  );
-  const row = (await stmt.get()) as { max: number | null } | undefined;
-  return row?.max ?? 0;
-}
-
 async function loadTableRows(
   client: Database,
   table: string,
@@ -54,30 +39,23 @@ async function loadTableRows(
   return rows;
 }
 
-async function refreshCacheIfNeeded(table: string): Promise<TableCacheEntry> {
-  assertSafeTableName(table);
-  const handle = getDb();
-  const stampMs = await loadTableStamp(handle, table);
-  const cached = tableCache.get(table);
-  if (cached && cached.stampMs === stampMs) {
-    return cached;
-  }
-  const rows = await loadTableRows(handle, table);
-  const entry = { stampMs, rows };
-  tableCache.set(table, entry);
-  return entry;
-}
-
-export function invalidateTableCache(table: string): void {
-  tableCache.delete(table);
+async function notifyModuleWrite(table: string): Promise<void> {
+  const namespace = namespaceFromTable(table);
+  if (!namespace) return;
+  const { reloadModuleStore } = await import("./texts.js");
+  await reloadModuleStore(namespace);
 }
 
 export async function getDbData(table: string, key: string): Promise<unknown> {
-  const entry = await refreshCacheIfNeeded(table);
-  return entry.rows.get(key);
+  assertSafeTableName(table);
+  const stmt = await getDb().prepare(
+    `SELECT value FROM ${table} WHERE key = ?`,
+  );
+  const row = (await stmt.get(key)) as { value: unknown } | undefined;
+  return row ? parseStoredValue(row.value) : undefined;
 }
 
-/** Reads a single key on an open transaction connection (no cache). */
+/** Reads a single key on an open transaction connection. */
 export async function getDbDataFromClient(
   client: Database,
   table: string,
@@ -95,11 +73,12 @@ export async function getDbDataAll(
   table: string,
   defaults?: object,
 ): Promise<Record<string, unknown>> {
-  const entry = await refreshCacheIfNeeded(table);
+  assertSafeTableName(table);
+  const rows = await loadTableRows(getDb(), table);
   if (!defaults) {
-    return Object.fromEntries(entry.rows);
+    return Object.fromEntries(rows);
   }
-  return mergeDefaults(defaults, entry.rows) as Record<string, unknown>;
+  return mergeDefaults(defaults, rows) as Record<string, unknown>;
 }
 
 export async function setDbData(
@@ -109,25 +88,23 @@ export async function setDbData(
   client?: Database,
 ): Promise<void> {
   assertSafeTableName(table);
-  const now = Date.now();
   const valueText = JSON.stringify(value);
 
   const run = async (c: Database) => {
     const stmt = await c.prepare(
-      `INSERT INTO ${table} (key, value, updated_at)
-       VALUES (?, ?, ?)
-       ON CONFLICT (key) DO UPDATE
-         SET value = excluded.value, updated_at = excluded.updated_at`,
+      `INSERT INTO ${table} (key, value)
+       VALUES (?, ?)
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
     );
-    await stmt.run(key, valueText, now);
+    await stmt.run(key, valueText);
   };
 
   if (client) {
     await run(client);
   } else {
     await withTransaction(async (c) => run(c));
+    await notifyModuleWrite(table);
   }
-  invalidateTableCache(table);
 }
 
 export async function setDbDataMany(
@@ -136,17 +113,15 @@ export async function setDbDataMany(
   client?: Database,
 ): Promise<void> {
   assertSafeTableName(table);
-  const now = Date.now();
 
   const run = async (c: Database) => {
     const stmt = await c.prepare(
-      `INSERT INTO ${table} (key, value, updated_at)
-       VALUES (?, ?, ?)
-       ON CONFLICT (key) DO UPDATE
-         SET value = excluded.value, updated_at = excluded.updated_at`,
+      `INSERT INTO ${table} (key, value)
+       VALUES (?, ?)
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
     );
     for (const [key, value] of Object.entries(rows)) {
-      await stmt.run(key, JSON.stringify(value), now);
+      await stmt.run(key, JSON.stringify(value));
     }
   };
 
@@ -154,8 +129,8 @@ export async function setDbDataMany(
     await run(client);
   } else {
     await withTransaction(async (c) => run(c));
+    await notifyModuleWrite(table);
   }
-  invalidateTableCache(table);
 }
 
 export async function tableIsEmpty(table: string): Promise<boolean> {

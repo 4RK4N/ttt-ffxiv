@@ -20,6 +20,15 @@ export function moduleTableName(namespace: string): string {
   return `module_${namespace.replace(/-/g, "_")}`;
 }
 
+export function namespaceFromTable(table: string): ModuleNamespace | undefined {
+  if (!table.startsWith("module_")) return undefined;
+  const slug = table.slice("module_".length).replace(/_/g, "-");
+  if (!(MODULE_NAMESPACES as readonly string[]).includes(slug)) {
+    return undefined;
+  }
+  return slug as ModuleNamespace;
+}
+
 export function assertSafeTableName(table: string): void {
   if (table === APP_CONFIG_TABLE) return;
   if (!table.startsWith("module_")) {

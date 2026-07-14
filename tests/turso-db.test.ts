@@ -11,7 +11,7 @@ import {
 } from "../shared/core/dbData.js";
 import {
   getModuleRowsSync,
-  warmModuleCache,
+  reloadModuleStore,
 } from "../shared/core/texts.js";
 import { moduleTableName } from "../shared/core/moduleTable.js";
 
@@ -26,8 +26,7 @@ describe("Turso dbData", () => {
     await getDb().exec(
       `CREATE TABLE ${table} (
         key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at INTEGER NOT NULL DEFAULT 0
+        value TEXT NOT NULL
       );`,
     );
   });
@@ -41,14 +40,14 @@ describe("Turso dbData", () => {
     }
   });
 
-  it("filters editorConfig from module runtime cache", async () => {
+  it("filters editorConfig from module runtime store", async () => {
     await setDbDataMany(table, {
       editorConfig: { title: "Welcome", fields: [] },
       enabled: true,
       channelId: "123",
     });
 
-    await warmModuleCache(namespace);
+    await reloadModuleStore(namespace);
     const rows = getModuleRowsSync(namespace);
     expect(rows.editorConfig).toBeUndefined();
     expect(rows.enabled).toBe(true);
@@ -66,9 +65,9 @@ describe("Turso dbData", () => {
     await expect(
       withTransaction(async (db) => {
         const stmt = await db.prepare(
-          `INSERT INTO ${table}(key, value, updated_at) VALUES('channelId', ?, ?)`,
+          `INSERT INTO ${table}(key, value) VALUES('channelId', ?)`,
         );
-        await stmt.run(JSON.stringify("999"), Date.now());
+        await stmt.run(JSON.stringify("999"));
         throw new Error("boom");
       }),
     ).rejects.toThrow("boom");

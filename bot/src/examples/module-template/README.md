@@ -54,7 +54,7 @@ Turso `module_*` table  ──►  get() / data()  in types.ts  ──►  re-ex
 ```
 
 - **Defaults** in `types.ts` are fallbacks and seed values for `./scripts/db/db-init.sh`.
-- Reads are **cached** in `shared/core/texts.ts` — the bot refreshes when DB rows change.
+- Reads use an **in-process store** in `shared/core/texts.ts` — reloaded on startup and after DB writes.
 - **`isModuleEnabled(NAMESPACE)`** checks `config.enabled !== false` (web editor toggle).
 - **Panel list patches** use `createConfigIo` at runtime (publish flow).
 

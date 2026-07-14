@@ -6,8 +6,7 @@ import {
 import { moduleTableName } from "../../../../shared/core/moduleTable.js";
 import {
   getModuleRowsSync,
-  invalidateModuleCache,
-  warmModuleCache,
+  reloadModuleStore,
 } from "../../../../shared/core/texts.js";
 
 export interface ConfigIo<T extends { id: string }> {
@@ -46,8 +45,7 @@ export function createConfigIo<T extends { id: string }>(
     });
 
     if (updated) {
-      invalidateModuleCache(namespace);
-      await warmModuleCache(namespace);
+      await reloadModuleStore(namespace);
     }
 
     return updated;

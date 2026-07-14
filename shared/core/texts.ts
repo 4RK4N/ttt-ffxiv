@@ -1,7 +1,6 @@
 import path from "node:path";
 import { RESERVED_MODULE_KEYS } from "./dbData.js";
-import { getDbDataAll, invalidateTableCache } from "./dbData.js";
-import { getDb } from "./db.js";
+import { getDbDataAll } from "./dbData.js";
 import { moduleTableName } from "./moduleTable.js";
 
 export const DATA_DIR = path.resolve(process.cwd(), "data");
@@ -49,7 +48,7 @@ export function format(
   );
 }
 
-const syncCache = new Map<string, Record<string, unknown>>();
+const moduleStore = new Map<string, Record<string, unknown>>();
 
 function merge<T extends object>(defaults: T, overrides: Partial<T>): T {
   return { ...defaults, ...overrides };
@@ -71,17 +70,11 @@ function runtimeRows(rows: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
-/** Clears cached reads for a module after a write. */
-export function invalidateModuleCache(namespace: string): void {
-  syncCache.delete(namespace);
-  invalidateTableCache(moduleTableName(namespace));
-}
-
 export function getModuleRowsSync(namespace: string): Record<string, unknown> {
-  const cached = syncCache.get(namespace);
+  const cached = moduleStore.get(namespace);
   if (!cached) {
     throw new Error(
-      `Module "${namespace}" cache is cold. Call warmModuleCache() during startup.`,
+      `Module "${namespace}" store is cold. Call reloadModuleStore() during startup.`,
     );
   }
   return { ...cached };
@@ -91,27 +84,29 @@ export function getModuleDataSync<T extends object>(
   namespace: string,
   defaults: T,
 ): T {
-  const cached = syncCache.get(namespace);
+  const cached = moduleStore.get(namespace);
   if (cached) {
     return cachedData(defaults, cached);
   }
   throw new Error(
-    `Module "${namespace}" cache is cold. Call warmModuleCache() during startup.`,
+    `Module "${namespace}" store is cold. Call reloadModuleStore() during startup.`,
   );
 }
 
-export async function warmModuleCache(namespace: string): Promise<void> {
+export async function reloadModuleStore(namespace: string): Promise<void> {
   const table = moduleTableName(namespace);
   const rows = await getDbDataAll(table);
-  syncCache.set(namespace, runtimeRows(rows));
+  moduleStore.set(namespace, runtimeRows(rows));
 }
 
-export async function warmAllModuleCaches(namespaces: string[]): Promise<void> {
-  await Promise.all(namespaces.map((ns) => warmModuleCache(ns)));
+export async function reloadAllModuleStores(
+  namespaces: string[],
+): Promise<void> {
+  await Promise.all(namespaces.map((ns) => reloadModuleStore(ns)));
 }
 
 export function isModuleEnabled(namespace: string): boolean {
-  const cached = syncCache.get(namespace);
+  const cached = moduleStore.get(namespace);
   if (!cached) return true;
   return cached.enabled !== false;
 }

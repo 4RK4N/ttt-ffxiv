@@ -37,17 +37,16 @@ function upsertRow(table: string, key: string, jsonValue: unknown): string {
   const value = sqlStringLiteral(JSON.stringify(jsonValue));
   const keyLit = sqlStringLiteral(key);
   return (
-    `INSERT INTO ${table}(key,value,updated_at) VALUES(${keyLit},${value},0) ` +
-    `ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at;`
+    `INSERT INTO ${table}(key,value) VALUES(${keyLit},${value}) ` +
+    `ON CONFLICT(key) DO UPDATE SET value=excluded.value;`
   );
 }
 
 function createTableDdl(table: string): string {
   return (
     `CREATE TABLE IF NOT EXISTS ${table} (\n` +
-    `  key        TEXT PRIMARY KEY,\n` +
-    `  value      TEXT NOT NULL,\n` +
-    `  updated_at INTEGER NOT NULL DEFAULT 0\n` +
+    `  key   TEXT PRIMARY KEY,\n` +
+    `  value TEXT NOT NULL\n` +
     `);`
   );
 }

@@ -102,17 +102,17 @@ Never commit `data/config.json` or `data/ttt.db`. See **Configuration reference*
 **Schema updates:** write a `.sql` file (e.g. next to `schema.sql`), then
 `./scripts/db/db-update.sh scripts/db/002_description.sql`.
 
-**Backups:** run `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically (exec into the running bot; read-only).
+**Backups:** run `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically (exec into the running bot; read-only). Dumps use `key` + `value` columns only (no `updated_at`).
 
-**Migrations / init:** `db-init.sh` and `db-update.sh` stop the bot briefly when it is running (Turso write lock), apply SQL in a one-off container, then restart.
+**Migrations / init:** `db-init.sh` and `db-update.sh` stop the bot briefly when it is running (Turso write lock), apply SQL in a one-off container, then restart. Existing DBs from before the cache simplification: `./scripts/db/db-update.sh scripts/db/migrations/001_drop_updated_at.sql` once, then rebuild and restart.
 
 ---
 
 ## Configuration reference
 
 Runtime settings are stored in Turso as key-value rows (`TEXT` JSON values).
-The web editor reads and writes the database directly; the bot hot-reloads module
-caches when rows change.
+The web editor writes the database directly; the bot keeps an in-process module
+store (`shared/core/texts.ts`) that reloads automatically when rows change.
 
 ### `data/config.json` — database bootstrap only
 
