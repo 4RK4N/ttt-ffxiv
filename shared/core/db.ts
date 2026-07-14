@@ -1,28 +1,17 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import pg from "pg";
+import { connect, type Database } from "@tursodatabase/database";
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
 const CONFIG_FILE = path.join(DATA_DIR, "config.json");
 
+export type DbHandle = Database;
+
 export interface DbBootstrapConfig {
-  dbHost: string;
-  dbPort: number;
-  dbUser: string;
-  dbName: string;
+  dbPath: string;
 }
 
-let pool: pg.Pool | null = null;
-
-function optionalPort(value: unknown, fallback: number): number {
-  const parsed =
-    typeof value === "number"
-      ? value
-      : Number.parseInt(String(value ?? ""), 10);
-  return Number.isInteger(parsed) && parsed > 0 && parsed < 65536
-    ? parsed
-    : fallback;
-}
+let db: Database | null = null;
 
 export function loadDbBootstrapConfig(): DbBootstrapConfig {
   let raw: Record<string, unknown>;
@@ -34,66 +23,52 @@ export function loadDbBootstrapConfig(): DbBootstrapConfig {
   } catch (err) {
     throw new Error(
       `Could not read DB bootstrap config from "${CONFIG_FILE}". ` +
-      'Copy "data/config.example.json" to "data/config.json". ' +
-      `(${(err as Error).message})`,
+        'Copy "data/config.example.json" to "data/config.json". ' +
+        `(${(err as Error).message})`,
     );
   }
 
-  function optionalString(value: unknown, fallback: string): string {
-    if (typeof value === "string" && value.trim() !== "") {
-      return value.trim();
-    }
-    return fallback;
-  }
+  const dbPath =
+    typeof raw.dbPath === "string" && raw.dbPath.trim() !== ""
+      ? raw.dbPath.trim()
+      : "data/ttt.db";
 
-  return {
-    dbHost: optionalString(raw.dbHost, "ttt-postgres"),
-    dbPort: optionalPort(raw.dbPort, 5432),
-    dbUser: optionalString(raw.dbUser, "ttt"),
-    dbName: optionalString(raw.dbName, "ttt"),
-  };
+  return { dbPath: path.isAbsolute(dbPath) ? dbPath : path.resolve(dbPath) };
 }
 
-export function initDbPool(
+export async function initDb(
   bootstrap: DbBootstrapConfig = loadDbBootstrapConfig(),
-): pg.Pool {
-  if (pool) return pool;
-  pool = new pg.Pool({
-    host: bootstrap.dbHost,
-    port: bootstrap.dbPort,
-    user: bootstrap.dbUser,
-    database: bootstrap.dbName,
-  });
-  return pool;
+): Promise<Database> {
+  if (db) return db;
+  db = await connect(bootstrap.dbPath);
+  return db;
 }
 
-export function getDbPool(): pg.Pool {
-  if (!pool) {
-    throw new Error("Database pool not initialized. Call initDbPool() first.");
+export function getDb(): Database {
+  if (!db) {
+    throw new Error("Database not initialized. Call initDb() first.");
   }
-  return pool;
+  return db;
 }
 
-export async function closeDbPool(): Promise<void> {
-  if (!pool) return;
-  const current = pool;
-  pool = null;
-  await current.end();
+export async function closeDb(): Promise<void> {
+  if (!db) return;
+  const current = db;
+  db = null;
+  await current.close();
 }
 
 export async function withTransaction<T>(
-  fn: (client: pg.PoolClient) => Promise<T>,
+  fn: (client: Database) => Promise<T>,
 ): Promise<T> {
-  const client = await getDbPool().connect();
+  const client = getDb();
+  await client.exec("BEGIN");
   try {
-    await client.query("BEGIN");
     const result = await fn(client);
-    await client.query("COMMIT");
+    await client.exec("COMMIT");
     return result;
   } catch (err) {
-    await client.query("ROLLBACK");
+    await client.exec("ROLLBACK");
     throw err;
-  } finally {
-    client.release();
   }
 }

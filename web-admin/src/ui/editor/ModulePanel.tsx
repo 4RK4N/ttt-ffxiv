@@ -1,6 +1,5 @@
 import type { EditorModule } from "../../plugin-types.js";
 import type { PanelProps } from "./context.js";
-import { BotHealthBanner } from "./BotHealthBanner.js";
 import { Field } from "./Field.js";
 import { EnabledToggle } from "./enabled-ui.js";
 
@@ -28,7 +27,6 @@ export function ModulePanel({ mod, ctx, expanded, status }: PanelProps) {
         {mod.description ? (
           <p class="mb-3 text-base-content/60">{mod.description}</p>
         ) : null}
-        <BotHealthBanner ctx={ctx} />
         {mod.fields.map((f) => (
           <Field
             f={f}

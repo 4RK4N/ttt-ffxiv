@@ -75,40 +75,40 @@ docker compose version
    cd ttt-bot
    ```
 
-2. Bootstrap PostgreSQL and app settings:
+2. Bootstrap Turso and app settings:
 
    ```bash
-   cp data/config.example.json data/config.json   # DB connection only
+   cp data/config.example.json data/config.json   # DB path only
    ./scripts/db/db-init.sh
    ```
 
-   `scripts/db/db-init.sh` starts `ttt-postgres`, applies `scripts/db/schema.sql`, prompts
-   for Discord/OAuth/API secrets (stored in the `app_config` table), and seeds
-   module tables from code defaults (`MODULE_DEFAULTS` in each module's `types.ts`).
-   Node steps run inside the `ttt-discord-bot` container — build it first with
-   `./scripts/build.sh bot`.
+   `scripts/db/db-init.sh` creates `data/ttt.db`, applies `scripts/db/schema.sql` and
+   per-module `seed.sql` files, prompts for Discord/OAuth secrets (stored in the
+   `app_config` table), and seeds module tables from code defaults (`MODULE_DEFAULTS`
+   in each module's `types.ts`). Node steps run inside the `ttt-discord-bot` container —
+   build it first with `./scripts/build.sh bot`.
 
    Host **Node.js is not required** on the server; only Docker.
 
-Bot secrets and module settings live in **PostgreSQL** (`app_config` and
-`module_*` tables). On disk under `data/` you keep only:
+Bot secrets and module settings live in **Turso** (`data/ttt.db`: `app_config` and
+`module_*` tables). On disk under `data/` you keep:
 
-- `data/config.json` — DB host/port/user/name (no password; internal Docker network)
+- `data/config.json` — path to the SQLite database (`dbPath`)
+- `data/ttt.db` — embedded Turso database (gitignored)
 - Binary assets (welcome card media, fonts)
 
-Never commit `data/config.json` or `postgres-data/`. See **Configuration reference** below.
+Never commit `data/config.json` or `data/ttt.db`. See **Configuration reference** below.
 
 **Schema updates:** write a `.sql` file (e.g. next to `schema.sql`), then
 `./scripts/db/db-update.sh scripts/db/002_description.sql`.
 
-**Backups:** `postgres-data/` holds database files; run
-`./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically.
+**Backups:** run `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` periodically.
 
 ---
 
 ## Configuration reference
 
-Runtime settings are stored in PostgreSQL as key-value rows (`JSONB` values).
+Runtime settings are stored in Turso as key-value rows (`TEXT` JSON values).
 The web editor reads and writes the database directly; the bot hot-reloads module
 caches when rows change.
 
@@ -116,22 +116,13 @@ caches when rows change.
 
 ```json
 {
-  "dbHost": "ttt-postgres",
-  "dbPort": 5432,
-  "dbUser": "ttt",
-  "dbName": "ttt"
+  "dbPath": "data/ttt.db"
 }
 ```
 
 | Field    | Required | Description |
 | -------- | -------- | ----------- |
-| `dbHost` | **Yes**  | PostgreSQL hostname. Docker: `ttt-postgres`. |
-| `dbPort` | No       | Defaults to `5432`. |
-| `dbUser` | **Yes**  | Must match `POSTGRES_USER` in `docker-compose.yml` (`ttt`). |
-| `dbName` | **Yes**  | Must match `POSTGRES_DB` (`ttt`). |
-
-No password — `ttt-postgres` uses `trust` on the internal Docker network only
-(no host port mapping).
+| `dbPath` | No       | Path to the Turso SQLite file. Defaults to `data/ttt.db`. |
 
 ### `app_config` table — bot + web editor secrets
 
@@ -147,48 +138,37 @@ Populated interactively by `./scripts/db/db-init.sh`.
 | `sessionSecret`     | Editor only      | Session cookie signing secret. |
 | `oauthRedirectUri`  | Editor only      | OAuth redirect URL (`/callback`). |
 | `webPort`           | No               | Editor port inside the container (default `8088`). |
-| `internalApiPort`   | No               | Bot internal API port (default `8087`). |
-| `internalApiSecret` | **Editor + bot** | `X-Internal-Token` for publish/unpublish. |
-| `botInternalApiUrl` | **Editor**       | Docker: `http://ttt-discord-bot:8087`. |
-| `internalApiBind`   | No               | Docker: `0.0.0.0`. |
 
-Changing `app_config` values requires restarting bot and web editor containers.
+Changing `app_config` values requires restarting the bot container.
 Module settings hot-reload without a restart.
 
-To rotate a secret: update the row in PostgreSQL, or re-run `./scripts/db/db-init.sh --force`.
+To rotate a secret: update the row in Turso, or re-run `./scripts/db/db-init.sh --force`.
 
 The four editor fields (`clientSecret`, `sessionSecret`, `oauthRedirectUri`,
-`webPort`) plus `guildId`, `internalApiSecret`, and `botInternalApiUrl` are only needed if you run the browser-based editor;
+`webPort`) plus `guildId` are only needed if you run the browser-based editor;
 the bot process ignores OAuth fields. The editor uses `discordToken` (the bot
-token) to list the server's channels and roles. Panel publish/unpublish calls the
-bot internal API (not Discord REST directly). Session cookies
-use `SameSite=Lax` (required for OAuth — `Strict` breaks the Discord callback).
-Mutating API requests require a CSRF token (`X-CSRF-Token` header matching a
-signed cookie set at login). See [Web editor](README.md#web-editor).
+token) to list the server's channels and roles. Panel publish/unpublish runs
+in-process (no internal HTTP API). Session cookies use `SameSite=Lax` (required
+for OAuth — `Strict` breaks the Discord callback). Mutating API requests require
+a CSRF token (`X-CSRF-Token` header matching a signed cookie set at login).
+See [Web editor](README.md#web-editor).
 
-**Internal API health:** `GET /internal/health` returns `{"ok":true}` when the bot
-internal API is up. All internal routes (including health) require the
-`X-Internal-Token` header set to `internalApiSecret`. The web editor sends this
-when checking bot reachability before publish/unpublish.
-
-With Docker Compose, `ttt-discord-bot` runs a healthcheck via
-[`scripts/internal-api-health.mjs`](scripts/internal-api-health.mjs) (reads
-`internalApiSecret` and `internalApiPort` from `app_config` via the DB bootstrap in
-`data/config.json`).
-`ttt-web-editor` waits for `service_healthy` before starting so panel
-publish/unpublish is not attempted while the bot API is still booting.
+**Health check:** `GET /health` on the web port returns `{"ok":true}` when the
+combined app is up. Docker Compose runs
+[`scripts/web-health.mjs`](scripts/web-health.mjs) against that endpoint.
 
 Each module's `enabled` key (in its `module_*` table) is the master on/off switch
 exposed as a toggle in the [Web editor](README.md#web-editor).
 Only an explicit `false` disables the module; if the key is absent it reads as
-enabled. The bot hot-reloads this from PostgreSQL.
+enabled. The bot hot-reloads this from Turso.
 
 ### Module settings (`module_*` tables)
 
 Each module has a dedicated table (e.g. `module_tickets`). Settings and user-facing
-copy are stored as individual key rows (`JSONB` values). Panel modules (tickets,
+copy are stored as individual key rows (`TEXT` JSON values). Panel modules (tickets,
 reaction-roles, custom-embeds) store merged list rows — e.g. `ticketTypes[]`
-includes both `channelId` and `panelTitle` in one array.
+includes both `channelId` and `panelTitle` in one array. Each table also has an
+`editorConfig` row defining web editor fields (replaces the old `web-plugin.json` files).
 
 Configure modules via the [Web editor](README.md#web-editor).
 
@@ -383,10 +363,10 @@ changed source re-runs only the affected steps.
 
 | Flag / args               | Effect                                                |
 | ------------------------- | ----------------------------------------------------- |
-| _(none)_                  | Build and recreate all three services                 |
+| _(none)_                  | Build and recreate bot + website services             |
 | `-v`                      | Full step-by-step output (`--progress plain`)         |
 | `--no-cache`              | Ignore layer cache; full rebuild                      |
-| `bot` / `web` / `website` | Build only listed services (aliases or `ttt-*` names) |
+| `bot` / `website`         | Build only listed services (aliases or `ttt-*` names) |
 
 ```bash
 chmod +x scripts/build.sh   # once, on Linux/macOS
@@ -395,16 +375,15 @@ chmod +x scripts/build.sh   # once, on Linux/macOS
 ./scripts/build.sh --no-cache
 ./scripts/build.sh -v --no-cache
 ./scripts/build.sh bot
-./scripts/build.sh web-editor website
+./scripts/build.sh bot website
 ```
 
 This builds and recreates:
 
-- **`ttt-discord-bot:1.5.0`** — multi-stage Node 24: compile TypeScript (`npm run build:bot` → `dist/bot/`), runtime image with production dependencies only.
-- **`ttt-web-editor:1.5.0`** — same root `Dockerfile`, separate target (`npm run build:web-admin` → `dist/web-admin/`).
+- **`ttt-discord-bot:1.5.0`** — single Node 24 (glibc) image: Discord bot + web editor in one process (`dist/bot/src/app.js`). Includes Turso, discord.js, hono, and admin UI assets.
 - **`ttt-website:2.0.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
-Runtime config lives in the mounted `./data` volume — not copied into images at build time.
+Runtime config and the database live in the mounted `./data` volume — not copied into images at build time.
 
 ---
 
@@ -435,7 +414,7 @@ You only need to repeat this when you add or change commands - not on every rest
 ## Part 6 - Start the bot
 
 When using Docker Compose with Caddy, replace the `caddy:` hostname label on
-`ttt-web-editor` in `docker-compose.yml` with your public hostname. The
+`ttt-discord-bot` in `docker-compose.yml` with your public hostname. The
 `caddy.reverse_proxy` upstream port must match `webPort` (default `8088`).
 
 ```bash
@@ -491,13 +470,13 @@ After **website** source changes, rebuild and restart the website service:
 docker compose build ttt-website && docker compose up -d --force-recreate ttt-website
 ```
 
-For a full stack deploy (bot + web editor + website), use `./scripts/build.sh` (see Part 4 for flags).
+For a full stack deploy (bot + website), use `./scripts/build.sh` (see Part 4 for flags).
 
 For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
 
 ### How traffic reaches the site (nginx + Caddy + SSL)
 
-Nothing listens on the host for the public website — same pattern as `ttt-web-editor`:
+Nothing listens on the host for the public website — same pattern as the web editor:
 
 ```text
 Browser ──HTTPS──► Caddy (caddy-docker-proxy, ports 80/443 on host)
@@ -536,7 +515,6 @@ and redirects plain HTTP to HTTPS — no SSL config in nginx required.
 | Restart the bot                | `docker compose restart ttt-discord-bot`                                                      |
 | Rebuild after code changes     | `./scripts/build.sh` (optional `-v`, `--no-cache`)                                            |
 | Re-register commands           | `docker compose run --rm ttt-discord-bot npm run deploy`                                      |
-| Rebuild web editor after edits | `docker compose build ttt-web-editor && docker compose up -d --force-recreate ttt-web-editor` |
 | Rebuild website after edits    | `docker compose build ttt-website && docker compose up -d --force-recreate ttt-website`       |
 
 ### Updating to new code
@@ -555,11 +533,8 @@ docker compose run --rm ttt-discord-bot npm run deploy
 If you prefer not to use Compose:
 
 ```bash
-# Bot
+# Bot + web editor (single image)
 docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.5.0 .
-
-# Web editor
-docker build -f Dockerfile --target ttt-web-editor -t ttt-web-editor:1.5.0 .
 
 # Website
 docker build -f website/Dockerfile -t ttt-website:2.0.0 website/
@@ -583,15 +558,15 @@ docker logs -f ttt-discord-bot
 - **Commands don't appear**: make sure you ran the deploy step. Global commands
   are slow to propagate - set `guildId` for instant updates during setup.
 - **"Missing required config value"** on start: run `./scripts/db/db-init.sh` or
-  check `app_config` in PostgreSQL (`discordToken`, `clientId`, etc.).
+  check `app_config` in Turso (`discordToken`, `clientId`, etc.).
 - **Web editor missing OAuth fields**: same — populate `app_config` via
   `scripts/db/db-init.sh` or update rows directly.
 - **Bot is online but `/pic` fails to post**: the bot needs **Send Messages** and
   **Attach Files** permissions in that channel. Re-check the channel's permission
   overrides for the bot's role.
-- **Web editor save errors**: ensure `ttt-postgres` is healthy and schema is applied.
+- **Web editor save errors**: ensure `data/ttt.db` exists and is writable.
   During `./scripts/db/db-init.sh`, `data/` may need to be writable
-  by UID 1000; afterward containers only need read access to `data/config.json` and media assets.
+  by UID 1000; afterward containers need read/write access to `data/ttt.db`.
 
 - **Large images fail**: Discord caps uploads (10 MB on unboosted servers). The
   bot reports this back to the user privately.

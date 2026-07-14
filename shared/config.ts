@@ -1,15 +1,8 @@
-import { initDbPool, loadDbBootstrapConfig } from "./core/db.js";
+import { initDb, loadDbBootstrapConfig } from "./core/db.js";
 import { APP_CONFIG_TABLE } from "./core/moduleTable.js";
 import { getDbDataAll, invalidateTableCache } from "./core/dbData.js";
 
-const CONFIG_FILE_KEYS = new Set([
-  "dbHost",
-  "dbPort",
-  "dbUser",
-  "dbName",
-  "databaseUrl",
-  "_docker",
-]);
+const CONFIG_FILE_KEYS = new Set(["dbPath", "_docker"]);
 
 function trimmedOrUndefined(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() !== ""
@@ -32,7 +25,7 @@ function requiredFromRows(rows: Record<string, unknown>, key: string): string {
   if (!value) {
     throw new Error(
       `Missing required app config "${key}" in database table "${APP_CONFIG_TABLE}". ` +
-      "Run ./scripts/db/db-init.sh to populate app_config.",
+        "Run ./scripts/db/db-init.sh to populate app_config.",
     );
   }
   return value;
@@ -47,16 +40,12 @@ export interface Config {
   sessionSecret: string | undefined;
   oauthRedirectUri: string | undefined;
   webPort: number;
-  internalApiPort: number;
-  internalApiSecret: string | undefined;
-  internalApiBind: string | undefined;
-  botInternalApiUrl: string | undefined;
 }
 
 export let config: Config;
 
 export async function initConfig(): Promise<void> {
-  initDbPool(loadDbBootstrapConfig());
+  await initDb(loadDbBootstrapConfig());
   const rows = await getDbDataAll(APP_CONFIG_TABLE);
   config = {
     discordToken: requiredFromRows(rows, "discordToken"),
@@ -67,10 +56,6 @@ export async function initConfig(): Promise<void> {
     sessionSecret: trimmedOrUndefined(rows.sessionSecret),
     oauthRedirectUri: trimmedOrUndefined(rows.oauthRedirectUri),
     webPort: optionalPort(rows.webPort, 8088),
-    internalApiPort: optionalPort(rows.internalApiPort, 8087),
-    internalApiSecret: trimmedOrUndefined(rows.internalApiSecret),
-    internalApiBind: trimmedOrUndefined(rows.internalApiBind),
-    botInternalApiUrl: trimmedOrUndefined(rows.botInternalApiUrl),
   };
 }
 

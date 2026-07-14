@@ -1,14 +1,37 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { MODULE_DEFAULTS as customEmbeds } from "../../shared/modules/custom-embeds/types.js";
+import { MODULE_DEFAULTS as reactionRoles } from "../../shared/modules/reaction-roles/types.js";
+import { MODULE_DEFAULTS as tickets } from "../../shared/modules/tickets/types.js";
 import {
   MODULE_NAMESPACES,
   moduleTableName,
+  type ModuleNamespace,
 } from "../../shared/core/moduleTable.js";
-import { MODULE_SEED_DEFAULTS } from "./moduleSeedDefaults.js";
-import { sqlStringLiteral } from "./sqlLiteral.js";
+import { MODULE_DEFAULTS as autothread } from "../../bot/src/lib/modules/links-pics-vids-autothread/types.js";
+import { MODULE_DEFAULTS as emojis } from "../../bot/src/lib/modules/emojis/types.js";
+import { MODULE_DEFAULTS as moderationLog } from "../../bot/src/lib/modules/moderation-log/types.js";
+import { MODULE_DEFAULTS as picRepost } from "../../bot/src/lib/modules/pic-repost-commands/types.js";
+import { MODULE_DEFAULTS as welcomeMessage } from "../../bot/src/lib/modules/welcome-message/types.js";
+import { parseSqlStringLiteral, sqlStringLiteral } from "./sqlLiteral.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+const MODULE_SEED_DEFAULTS: Record<ModuleNamespace, Record<string, unknown>> = {
+  "welcome-message": seedRows(welcomeMessage),
+  "pic-repost-commands": seedRows(picRepost),
+  "links-pics-vids-autothread": seedRows(autothread),
+  tickets: seedRows(tickets),
+  "reaction-roles": seedRows(reactionRoles),
+  "custom-embeds": seedRows(customEmbeds),
+  "moderation-log": seedRows(moderationLog),
+  emojis: seedRows(emojis),
+};
+
+function seedRows(data: object): Record<string, unknown> {
+  return data as Record<string, unknown>;
+}
 
 function upsertRow(table: string, key: string, jsonValue: unknown): string {
   const value = sqlStringLiteral(JSON.stringify(jsonValue));
@@ -29,17 +52,31 @@ function createTableDdl(table: string): string {
   );
 }
 
-function generateModuleSeed(namespace: string): string {
+function extractEditorConfigFromSeed(seedPath: string): unknown {
+  if (!existsSync(seedPath)) {
+    throw new Error(
+      `Missing ${seedPath}. editorConfig is preserved from the existing seed.sql file.`,
+    );
+  }
+  const sql = readFileSync(seedPath, "utf8");
+  const marker = "VALUES('editorConfig',";
+  const start = sql.indexOf(marker);
+  if (start === -1) {
+    throw new Error(`No editorConfig row found in ${seedPath}.`);
+  }
+  const quoteStart = start + marker.length;
+  const parsed = parseSqlStringLiteral(sql, quoteStart);
+  if (!parsed) {
+    throw new Error(`Could not parse editorConfig literal in ${seedPath}.`);
+  }
+  return JSON.parse(parsed.value) as unknown;
+}
+
+function generateModuleSeed(namespace: ModuleNamespace): string {
   const table = moduleTableName(namespace);
-  const pluginPath = path.join(
-    ROOT,
-    "shared",
-    "modules",
-    namespace,
-    "web-plugin.json",
-  );
-  const editorConfig = JSON.parse(readFileSync(pluginPath, "utf8"));
-  const defaults = MODULE_SEED_DEFAULTS[namespace as keyof typeof MODULE_SEED_DEFAULTS];
+  const seedPath = path.join(ROOT, "shared", "modules", namespace, "seed.sql");
+  const editorConfig = extractEditorConfigFromSeed(seedPath);
+  const defaults = MODULE_SEED_DEFAULTS[namespace];
 
   const lines = [
     `-- One-time seed for ${namespace} (SQLite/Turso). Do not re-run on a populated DB.`,

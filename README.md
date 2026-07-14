@@ -16,25 +16,24 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
    ```text
    bot/src/examples/module-template/  →  bot/src/modules/<name>/   (handlers, index.ts)
    bot/src/lib/modules/example-module/  →  bot/src/lib/modules/<name>/  (config-io, types, panel…)
-   bot/src/examples/module-template/web-plugin.json  →  shared/modules/<name>/web-plugin.json
    ```
 
    Use kebab-case for `<name>` (e.g. `my-feature`). Delete unused files (`panel.ts`, `validate.ts` for simple modules).
 
-2. **Set the namespace** — `createModuleData('<name>', …)` must match the PostgreSQL table prefix:
+2. **Set the namespace** — `createModuleData('<name>', …)` must match the Turso table prefix:
    - **Simple modules:** `bot/src/lib/modules/<name>/types.ts`
    - **Panel modules:** `shared/modules/<name>/types.ts` (copy from [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts))
 
-3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts` and `scripts/db/schema.sql`, then run `./scripts/db/db-update.sh <file.sql>` when applying schema changes.
+3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts`, add `shared/modules/<name>/seed.sql` (run `npm run generate-seed-sql` after editing `editorConfig` in an existing seed), then `./scripts/db/db-update.sh <file.sql>` for incremental changes on a live DB.
 
 4. **Wire `index.ts`** — export a `CommandModule` with at least one of:
    - `init(client)` — event listeners
    - `commands[]` — slash commands (then `npm run deploy`)
    - `componentRoutes[]` — buttons/selects by `customId` prefix
 
-5. **Web editor (optional)** — keep/adapt `web-plugin.json`; rebuild so `copy-web-plugins.js` copies it to `dist/`.
+5. **Web editor (optional)** — add an `editorConfig` row in `seed.sql` (title, description, fields). Regenerate with `npm run generate-seed-sql` when defaults change; edit `editorConfig` directly in `seed.sql` when changing editor fields.
 
-6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/internal-api/publishRegistry.ts`; add defaults to `scripts/db/moduleSeedDefaults.ts`.
+6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/internal-api/publishRegistry.ts`.
 
 Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
 
@@ -59,43 +58,43 @@ No core changes needed — [`moduleLoader.ts`](bot/src/moduleLoader.ts) discover
 | [custom-embeds](MODULES.md#custom-embeds)                           | Static embed info panels               |
 | [emojis](MODULES.md#emojis-emoji-add-emoji-copy)                    | `/emoji-add` / `/emoji-copy`           |
 
-Runtime settings and copy live in PostgreSQL. Edit via the web editor — the bot hot-reloads on a short interval.
+Runtime settings and copy live in Turso (`data/ttt.db`). Edit via the web editor — the bot hot-reloads on save.
 
 ## Project layout
 
 ```
-shared/           core/, config.ts, modules/ (types, validate, web-plugin.json)
-bot/src/          index.ts, moduleLoader.ts, modules/ (handlers + index.ts), examples/
-web-admin/src/    web editor server + UI
+shared/           core/, config.ts, modules/ (types, validate, seed.sql)
+bot/src/          app.ts, index.ts, moduleLoader.ts, modules/, examples/
+web-admin/src/    web editor UI (served by combined app)
 website/          Astro public site (see INSTALL.md § Part 7)
-Dockerfile        bot + web-editor image targets (shared npm ci)
-data/             DB bootstrap config.json + binary assets (welcome media)
+Dockerfile        single bot+editor image target (node:24-slim)
+data/             config.json, ttt.db, binary assets (welcome media)
 scripts/db/       db-init.sh, db-update.sh, db-dump.sh, cli.ts, schema.sql
-postgres-data/    PostgreSQL data directory (gitignored)
 ```
 
 ## Web editor
 
-Browser UI for editing module settings in PostgreSQL (side-tabs per module).
-Runs as a separate container on the same Docker network as Postgres — no restart needed for module edits.
+Browser UI for editing module settings in Turso (side-tabs per module).
+Runs in the same process as the bot — no restart needed for module edits.
 
 - Per-module **on/off** toggle (`enabled` in `module_*` table)
-- Fields declared in each module's `web-plugin.json`
+- Fields declared in each module's `editorConfig` row
 - Guild **administrator** access via Discord OAuth
 
 ```bash
 npm run build
-npm run web        # or npm run web:dev
+npm start          # combined bot + editor
+npm run web:dev    # editor only (dev)
 ```
 
-With Docker: `./scripts/build.sh` for deploy (see [INSTALL.md § Part 4](INSTALL.md#part-4---build-the-images)).
+With Docker: `./scripts/build.sh bot` for deploy (see [INSTALL.md § Part 4](INSTALL.md#part-4---build-the-images)).
 
 ## Setup
 
 1. Node.js 24+ (local dev only; Docker-only servers need only Docker)
 2. `npm install`
 3. [Developer Portal](https://discord.com/developers/applications): bot token + client ID; invite with Administrator (see [INSTALL.md](INSTALL.md))
-4. `cp data/config.example.json data/config.json` — DB bootstrap only
+4. `cp data/config.example.json data/config.json` — DB path only
 5. `./scripts/db/db-init.sh` — schema, app secrets (`app_config`), module defaults (see [INSTALL.md](INSTALL.md))
 
 ## Deploy slash commands

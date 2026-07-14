@@ -11,7 +11,6 @@ export interface EditorContext {
   roles: GuildRole[];
   channelsError: string | null;
   rolesError: string | null;
-  botHealthError: string | null;
 }
 
 export interface PanelProps {

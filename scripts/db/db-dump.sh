@@ -3,35 +3,20 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 
-wait_for_postgres() {
-  echo "Waiting for PostgreSQL..."
-  for _ in $(seq 1 30); do
-    if docker compose exec -T ttt-postgres pg_isready -U ttt -d ttt >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep 1
-  done
-  echo "PostgreSQL is not healthy. Start it with: docker compose up -d ttt-postgres" >&2
-  return 1
-}
-
-require_postgres() {
-  if ! docker compose exec -T ttt-postgres pg_isready -U ttt -d ttt >/dev/null 2>&1; then
-    echo "PostgreSQL is not running. Start it with: docker compose up -d ttt-postgres" >&2
-    exit 1
-  fi
-}
+DB_PATH="data/ttt.db"
+DB_CLI="dist/scripts/db/cli.js"
+SERVICE="ttt-discord-bot"
 
 usage() {
   cat >&2 <<EOF
 Usage: $0 <output.sql>
 
-Dump the ttt database to a plain SQL file (pg_dump --column-inserts).
-Output uses per-row INSERT statements (not COPY blocks), suitable for
-the Turso migration importer.
+Dump data/ttt.db to a plain SQL file (INSERT statements per row).
 
 Example:
   $0 backups/ttt-$(date +%F).sql
+
+Requires a built bot image: ./scripts/build.sh bot
 EOF
 }
 
@@ -52,14 +37,16 @@ if [[ "$output" == "-" ]]; then
   exit 1
 fi
 
-require_postgres
-wait_for_postgres
+if [[ ! -f "$DB_PATH" ]]; then
+  echo "$DB_PATH not found. Nothing to dump." >&2
+  exit 1
+fi
 
 out_dir="$(dirname "$output")"
 if [[ "$out_dir" != "." && ! -d "$out_dir" ]]; then
   mkdir -p "$out_dir"
 fi
 
-echo "Dumping database to $output ..."
-docker compose exec -T ttt-postgres pg_dump -U ttt -d ttt --no-owner --no-acl --column-inserts > "$output"
+echo "Dumping $DB_PATH to $output ..."
+docker compose run --rm --no-deps "$SERVICE" node "$DB_CLI" dump-db "$DB_PATH" > "$output"
 echo "Done."

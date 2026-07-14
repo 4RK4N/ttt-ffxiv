@@ -1,3 +1,4 @@
+import type { PublishHandlers } from "../../../shared/core/panelPublishBridge.js";
 import {
   publishEmbedPanel,
   unpublishEmbedPanel,
@@ -10,12 +11,8 @@ import {
   publishTicketPanel,
   unpublishTicketPanel,
 } from "../lib/modules/tickets/publisher.js";
-import type { DiscordApiContext } from "../lib/core/panelPublish.js";
 
-export interface PublishHandlers {
-  publish: (ctx: DiscordApiContext, itemId: string) => Promise<void>;
-  unpublish: (itemId: string) => Promise<void>;
-}
+export type { PublishHandlers };
 
 export const publishHandlersByNamespace: Record<string, PublishHandlers> = {
   "custom-embeds": {

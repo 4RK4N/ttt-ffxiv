@@ -1,6 +1,9 @@
-import type pg from "pg";
+import type { Database } from "@tursodatabase/database";
 import { assertSafeTableName } from "./moduleTable.js";
-import { getDbPool, withTransaction } from "./db.js";
+import { getDb, withTransaction } from "./db.js";
+
+/** Reserved module row keys — not merged into bot runtime data. */
+export const RESERVED_MODULE_KEYS = new Set(["editorConfig"]);
 
 interface TableCacheEntry {
   stampMs: number;
@@ -9,51 +12,57 @@ interface TableCacheEntry {
 
 const tableCache = new Map<string, TableCacheEntry>();
 
+function parseStoredValue(raw: unknown): unknown {
+  if (typeof raw !== "string") return raw;
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return raw;
+  }
+}
+
 function mergeDefaults<T extends object>(
   defaults: T,
   rows: Map<string, unknown>,
 ): T {
   const out = { ...defaults } as Record<string, unknown>;
   for (const [key, value] of rows) {
+    if (RESERVED_MODULE_KEYS.has(key)) continue;
     out[key] = value;
   }
   return out as T;
 }
 
-async function loadTableStamp(
-  client: pg.Pool | pg.PoolClient,
-  table: string,
-): Promise<number> {
-  const result = await client.query<{ max: Date | null }>(
-    `SELECT MAX(updated_at) AS max FROM ${table}`,
-  );
-  const max = result.rows[0]?.max;
-  return max ? max.getTime() : 0;
+async function loadTableStamp(client: Database, table: string): Promise<number> {
+  const row = (await client
+    .prepare(`SELECT MAX(updated_at) AS max FROM ${table}`)
+    .get()) as { max: number | null } | undefined;
+  return row?.max ?? 0;
 }
 
 async function loadTableRows(
-  client: pg.Pool | pg.PoolClient,
+  client: Database,
   table: string,
 ): Promise<Map<string, unknown>> {
-  const result = await client.query<{ key: string; value: unknown }>(
-    `SELECT key, value FROM ${table}`,
-  );
+  const result = (await client
+    .prepare(`SELECT key, value FROM ${table}`)
+    .all()) as Array<{ key: string; value: unknown }>;
   const rows = new Map<string, unknown>();
-  for (const row of result.rows) {
-    rows.set(row.key, row.value);
+  for (const row of result) {
+    rows.set(row.key, parseStoredValue(row.value));
   }
   return rows;
 }
 
 async function refreshCacheIfNeeded(table: string): Promise<TableCacheEntry> {
   assertSafeTableName(table);
-  const pool = getDbPool();
-  const stampMs = await loadTableStamp(pool, table);
+  const handle = getDb();
+  const stampMs = await loadTableStamp(handle, table);
   const cached = tableCache.get(table);
   if (cached && cached.stampMs === stampMs) {
     return cached;
   }
-  const rows = await loadTableRows(pool, table);
+  const rows = await loadTableRows(handle, table);
   const entry = { stampMs, rows };
   tableCache.set(table, entry);
   return entry;
@@ -70,16 +79,15 @@ export async function getDbData(table: string, key: string): Promise<unknown> {
 
 /** Reads a single key on an open transaction connection (no cache). */
 export async function getDbDataFromClient(
-  client: pg.PoolClient,
+  client: Database,
   table: string,
   key: string,
 ): Promise<unknown> {
   assertSafeTableName(table);
-  const result = await client.query<{ value: unknown }>(
-    `SELECT value FROM ${table} WHERE key = $1`,
-    [key],
-  );
-  return result.rows[0]?.value;
+  const row = (await client
+    .prepare(`SELECT value FROM ${table} WHERE key = ?`)
+    .get(key)) as { value: unknown } | undefined;
+  return row ? parseStoredValue(row.value) : undefined;
 }
 
 export async function getDbDataAll(
@@ -97,17 +105,21 @@ export async function setDbData(
   table: string,
   key: string,
   value: unknown,
-  client?: pg.PoolClient,
+  client?: Database,
 ): Promise<void> {
   assertSafeTableName(table);
-  const run = async (c: pg.PoolClient) => {
-    await c.query(
-      `INSERT INTO ${table} (key, value, updated_at)
-       VALUES ($1, $2::jsonb, now())
-       ON CONFLICT (key) DO UPDATE
-         SET value = EXCLUDED.value, updated_at = now()`,
-      [key, JSON.stringify(value)],
-    );
+  const now = Date.now();
+  const valueText = JSON.stringify(value);
+
+  const run = async (c: Database) => {
+    await c
+      .prepare(
+        `INSERT INTO ${table} (key, value, updated_at)
+         VALUES (?, ?, ?)
+         ON CONFLICT (key) DO UPDATE
+           SET value = excluded.value, updated_at = excluded.updated_at`,
+      )
+      .run(key, valueText, now);
   };
 
   if (client) {
@@ -121,18 +133,20 @@ export async function setDbData(
 export async function setDbDataMany(
   table: string,
   rows: Record<string, unknown>,
-  client?: pg.PoolClient,
+  client?: Database,
 ): Promise<void> {
   assertSafeTableName(table);
-  const run = async (c: pg.PoolClient) => {
+  const now = Date.now();
+
+  const run = async (c: Database) => {
+    const stmt = c.prepare(
+      `INSERT INTO ${table} (key, value, updated_at)
+       VALUES (?, ?, ?)
+       ON CONFLICT (key) DO UPDATE
+         SET value = excluded.value, updated_at = excluded.updated_at`,
+    );
     for (const [key, value] of Object.entries(rows)) {
-      await c.query(
-        `INSERT INTO ${table} (key, value, updated_at)
-         VALUES ($1, $2::jsonb, now())
-         ON CONFLICT (key) DO UPDATE
-           SET value = EXCLUDED.value, updated_at = now()`,
-        [key, JSON.stringify(value)],
-      );
+      await stmt.run(key, JSON.stringify(value), now);
     }
   };
 
@@ -146,8 +160,8 @@ export async function setDbDataMany(
 
 export async function tableIsEmpty(table: string): Promise<boolean> {
   assertSafeTableName(table);
-  const result = await getDbPool().query<{ count: string }>(
-    `SELECT COUNT(*)::text AS count FROM ${table}`,
-  );
-  return result.rows[0]?.count === "0";
+  const row = (await getDb()
+    .prepare(`SELECT COUNT(*) AS count FROM ${table}`)
+    .get()) as { count: number };
+  return row.count === 0;
 }

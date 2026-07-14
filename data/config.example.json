@@ -1,6 +1,3 @@
 {
-  "dbHost": "ttt-postgres",
-  "dbPort": 5432,
-  "dbUser": "ttt",
-  "dbName": "ttt"
+  "dbPath": "data/ttt.db"
 }

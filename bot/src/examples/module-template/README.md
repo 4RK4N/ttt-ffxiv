@@ -11,13 +11,13 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 
 1. Copy `bot/src/examples/module-template/` → `bot/src/modules/<name>/` and
    `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/` (kebab-case namespace).
-   Copy [`web-plugin.json`](web-plugin.json) → `shared/modules/<name>/` for the web editor.
+   Add `editorConfig` to `shared/modules/<name>/seed.sql` for the web editor (see existing modules).
    **Panel modules:** also copy [`panel-types.ts`](panel-types.ts) → `shared/modules/<name>/types.ts` and
    [`validate.ts`](validate.ts) → `shared/modules/<name>/validate.ts`.
 2. Set namespace via `createModuleData('<name>', …)` in `bot/src/lib/modules/<name>/types.ts`
    (simple) or `shared/modules/<name>/types.ts` (panel — use `panel-types.ts` as starting point).
-3. Register in `moduleTable.ts`, `schema.sql`, and `scripts/db/moduleSeedDefaults.ts`; run
-   `./scripts/db/db-init.sh` (or `db/cli.js seed --force` in Docker) to seed defaults.
+3. Register in `moduleTable.ts`, add `shared/modules/<name>/seed.sql` (`npm run generate-seed-sql`);
+   run `./scripts/db/db-init.sh` on fresh installs.
 4. Wire `bot/src/modules/<name>/index.ts` — enable `commands`, `init`, and/or `componentRoutes` as needed.
 5. **Panel modules only:** uncomment panel block in `config-io.ts`; implement `panel.ts` + `publisher.ts`;
    wire `validate.ts` in `web-admin/src/store.ts`; register namespace in
@@ -33,7 +33,7 @@ Also see [MODULES.md](../../../../MODULES.md) (catalog + data layout) and
 | `bot/src/lib/modules/<name>/`       | `config-io.ts`      | IO boundary — **handlers import from here**, not `types.ts`              |
 | `bot/src/modules/<name>/`           | `handlers.ts`       | Example patterns: guards, config/text reads, interactions                |
 | `bot/src/modules/<name>/`           | `index.ts`          | `CommandModule` export only                                              |
-| `bot/src/examples/module-template/` | `web-plugin.json`   | Copy to `shared/modules/<name>/` for the web editor                      |
+| `shared/modules/<name>/`            | `seed.sql`          | Table DDL + editorConfig + defaults (web editor fields)                  |
 | `bot/src/examples/module-template/` | `validate.ts`       | Copy to `shared/modules/<name>/` for panel row validation                |
 | `shared/modules/<name>/`            | `validate.ts`       | Panel/list row validation (web editor save) — lives here after copy      |
 | `bot/src/lib/modules/<name>/`       | `panel.ts`          | Panel publish payload — panel modules only                               |
@@ -93,7 +93,7 @@ Reuse these instead of duplicating logic:
 
 **Discord IDs (snowflakes):** `channel`, `role`, `channel-multi`, and `role-multi` fields are
 validated on save in `web-admin/src/store.ts` (17–20 digits; empty = unset). See
-[`web-plugin.json`](web-plugin.json) `channelId` field.
+any module's `editorConfig` in `shared/modules/<name>/seed.sql` for field examples.
 
 **Panel / list rows:** add `validate.ts` and wire it in `web-admin/src/store.ts` inside the
 `writeValues()` object-list loop (same pattern as `custom-embeds`, `reaction-roles`, `tickets`):

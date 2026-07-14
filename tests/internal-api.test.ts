@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publishClientError } from "../bot/src/internal-api/server.js";
+import { publishClientError } from "../shared/core/publishErrors.js";
 
 describe("publishClientError", () => {
   it("returns generic messages without internal detail", () => {

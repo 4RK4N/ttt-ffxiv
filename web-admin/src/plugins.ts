@@ -1,8 +1,8 @@
-import { readFileSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import {
+  MODULE_NAMESPACES,
+  moduleTableName,
+} from "../../shared/core/moduleTable.js";
+import { getDbData } from "../../shared/core/dbData.js";
 import type {
   WebFieldStore,
   WebFieldType,
@@ -22,9 +22,6 @@ export type {
   WebPluginField,
   WebPlugin,
 } from "./plugin-types.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const MODULES_DIR = join(__dirname, "../../shared/modules");
 
 const VALID_SCALAR_TYPES: WebPluginSubField["type"][] = [
   "text",
@@ -120,7 +117,7 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
 function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
   if (typeof raw !== "object" || raw === null) {
     console.warn(
-      `[web/plugins] "${namespace}/web-plugin.json" is not an object; skipping.`,
+      `[web/plugins] "${namespace}" editorConfig is not an object; skipping.`,
     );
     return null;
   }
@@ -135,7 +132,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
 
   if (!Array.isArray(obj.fields)) {
     console.warn(
-      `[web/plugins] "${namespace}/web-plugin.json" has no fields array; skipping.`,
+      `[web/plugins] "${namespace}" editorConfig has no fields array; skipping.`,
     );
     return null;
   }
@@ -191,7 +188,7 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
 
   if (fields.length === 0) {
     console.warn(
-      `[web/plugins] "${namespace}/web-plugin.json" has no valid fields; skipping.`,
+      `[web/plugins] "${namespace}" editorConfig has no valid fields; skipping.`,
     );
     return null;
   }
@@ -200,34 +197,23 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
 }
 
 export async function loadWebPlugins(): Promise<WebPlugin[]> {
-  if (!existsSync(MODULES_DIR)) {
-    console.warn(
-      `[web/plugins] Modules directory not found at ${MODULES_DIR}.`,
-    );
-    return [];
-  }
-
   const plugins: WebPlugin[] = [];
-  const entries = await readdir(MODULES_DIR, { withFileTypes: true });
 
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-
-    const manifestPath = join(MODULES_DIR, entry.name, "web-plugin.json");
-    if (!existsSync(manifestPath)) continue;
-
+  for (const namespace of MODULE_NAMESPACES) {
+    const table = moduleTableName(namespace);
     try {
-      const parsed = JSON.parse(readFileSync(manifestPath, "utf8"));
-      const plugin = parsePlugin(entry.name, parsed);
+      const raw = await getDbData(table, "editorConfig");
+      if (raw == null) continue;
+      const plugin = parsePlugin(namespace, raw);
       if (plugin) {
         plugins.push(plugin);
         console.log(
-          `[web/plugins] Loaded web plugin "${plugin.title}" (${entry.name}).`,
+          `[web/plugins] Loaded web plugin "${plugin.title}" (${namespace}).`,
         );
       }
     } catch (err) {
       console.warn(
-        `[web/plugins] Failed to read "${manifestPath}"; skipping.`,
+        `[web/plugins] Failed to read editorConfig for "${namespace}"; skipping.`,
         err,
       );
     }

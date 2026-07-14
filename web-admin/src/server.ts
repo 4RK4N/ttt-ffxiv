@@ -1,11 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { serve } from "@hono/node-server";
+import { serve, type ServerType } from "@hono/node-server";
 import { Hono } from "hono";
-import { initConfig } from "../../shared/config.js";
-import { MODULE_NAMESPACES } from "../../shared/core/moduleTable.js";
-import { warmAllModuleCaches } from "../../shared/core/texts.js";
 import { loadWebConfig } from "./config.js";
 import {
   ensureCsrfToken,
@@ -26,10 +23,11 @@ import type { AppEnv } from "./env.js";
 
 type Env = AppEnv;
 
-async function main(): Promise<void> {
-  await initConfig();
-  await warmAllModuleCaches([...MODULE_NAMESPACES]);
+export interface WebRuntime {
+  close: () => Promise<void>;
+}
 
+export async function startWeb(): Promise<WebRuntime> {
   const cfg = loadWebConfig();
   const plugins = await loadWebPlugins();
   const byNamespace = new Map<string, WebPlugin>(
@@ -77,6 +75,8 @@ async function main(): Promise<void> {
     console.warn("[web] admin.min.js missing; rebuild with npm run build.");
   }
 
+  app.get("/health", (c) => c.json({ ok: true }));
+
   app.get("/assets/css/:file", (c) => {
     const file = c.req.param("file");
     if (!file || !/^[\w.-]+\.css$/.test(file)) {
@@ -117,7 +117,6 @@ async function main(): Promise<void> {
     }
   });
 
-  // --- Auth routes (public) ---------------------------------------------------
   app.get("/login", (c) => startLogin(c, cfg));
 
   app.get("/callback", async (c) => {
@@ -144,7 +143,6 @@ async function main(): Promise<void> {
     return c.redirect("/");
   });
 
-  // --- Editor page ------------------------------------------------------------
   app.get("/", async (c) => {
     const user = await getAuthorizedSessionUser(c, cfg);
     if (!user) return c.html(loginPage(cfg.botName));
@@ -169,43 +167,24 @@ async function main(): Promise<void> {
 
   app.route("/htmx", htmx);
 
-  // Binds 0.0.0.0 for the Caddy-proxied deployment: docker-compose publishes no
-  // host port and only exposes this via the internal caddy network (TLS + auth in
-  // front). Don't publish a host port without putting access control ahead of it.
-  const server = serve({ fetch: app.fetch, port: cfg.port }, (info) => {
-    console.log(
-      `[web] Admin interface listening on http://0.0.0.0:${info.port}`,
-    );
+  let server: ServerType | undefined;
+  await new Promise<void>((resolve) => {
+    server = serve({ fetch: app.fetch, port: cfg.port }, (info) => {
+      console.log(
+        `[web] Admin interface listening on http://0.0.0.0:${info.port}`,
+      );
+      resolve();
+    });
   });
 
-  // Graceful shutdown: Docker sends SIGTERM on `compose up --build`/stop. Without
-  // this the process ignores it and Docker waits the full stop grace period before
-  // SIGKILL, slowing container recreation. Close the server and exit promptly; a
-  // short timer guarantees exit even if close() hangs on a lingering connection.
-  let shuttingDown = false;
-  const shutdown = (signal: NodeJS.Signals) => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    console.log(`[web] Received ${signal}; shutting down...`);
-
-    const forceExit = setTimeout(() => {
-      console.warn("[web] Shutdown timed out; forcing exit.");
-      process.exit(0);
-    }, 5000);
-    forceExit.unref();
-
-    server.close((err) => {
-      if (err) console.error("[web] Error during shutdown:", err);
-      clearTimeout(forceExit);
-      process.exit(0);
-    });
+  return {
+    close: () =>
+      new Promise<void>((resolve, reject) => {
+        if (!server) {
+          resolve();
+          return;
+        }
+        server.close((err) => (err ? reject(err) : resolve()));
+      }),
   };
-
-  process.once("SIGTERM", () => shutdown("SIGTERM"));
-  process.once("SIGINT", () => shutdown("SIGINT"));
 }
-
-main().catch((err) => {
-  console.error("[web] Fatal startup error:", err);
-  process.exit(1);
-});

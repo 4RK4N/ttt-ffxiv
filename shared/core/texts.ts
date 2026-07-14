@@ -1,6 +1,7 @@
 import path from "node:path";
+import { RESERVED_MODULE_KEYS } from "./dbData.js";
 import { getDbDataAll, invalidateTableCache } from "./dbData.js";
-import { getDbPool } from "./db.js";
+import { getDb } from "./db.js";
 import { moduleTableName } from "./moduleTable.js";
 
 export const DATA_DIR = path.resolve(process.cwd(), "data");
@@ -49,15 +50,6 @@ export function format(
 }
 
 const syncCache = new Map<string, Record<string, unknown>>();
-const syncCacheStamps = new Map<string, number>();
-
-async function loadTableStampMs(table: string): Promise<number> {
-  const result = await getDbPool().query<{ max: Date | null }>(
-    `SELECT MAX(updated_at) AS max FROM ${table}`,
-  );
-  const max = result.rows[0]?.max;
-  return max ? max.getTime() : 0;
-}
 
 function merge<T extends object>(defaults: T, overrides: Partial<T>): T {
   return { ...defaults, ...overrides };
@@ -70,10 +62,18 @@ function cachedData<T extends object>(
   return merge(defaults, rows as Partial<T>);
 }
 
+function runtimeRows(rows: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(rows)) {
+    if (RESERVED_MODULE_KEYS.has(key)) continue;
+    out[key] = value;
+  }
+  return out;
+}
+
 /** Clears cached reads for a module after a write. */
 export function invalidateModuleCache(namespace: string): void {
   syncCache.delete(namespace);
-  syncCacheStamps.delete(namespace);
   invalidateTableCache(moduleTableName(namespace));
 }
 
@@ -102,26 +102,12 @@ export function getModuleDataSync<T extends object>(
 
 export async function warmModuleCache(namespace: string): Promise<void> {
   const table = moduleTableName(namespace);
-  syncCache.set(namespace, await getDbDataAll(table));
-  syncCacheStamps.set(namespace, await loadTableStampMs(table));
+  const rows = await getDbDataAll(table);
+  syncCache.set(namespace, runtimeRows(rows));
 }
 
 export async function warmAllModuleCaches(namespaces: string[]): Promise<void> {
   await Promise.all(namespaces.map((ns) => warmModuleCache(ns)));
-}
-
-/** Reloads module sync caches when another process updates the DB. */
-export async function refreshStaleModuleCaches(
-  namespaces: string[],
-): Promise<void> {
-  await Promise.all(
-    namespaces.map(async (namespace) => {
-      const table = moduleTableName(namespace);
-      const stampMs = await loadTableStampMs(table);
-      if (syncCacheStamps.get(namespace) === stampMs) return;
-      await warmModuleCache(namespace);
-    }),
-  );
 }
 
 export function isModuleEnabled(namespace: string): boolean {

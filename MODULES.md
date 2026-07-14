@@ -2,9 +2,9 @@
 
 Bot features live under `bot/src/modules/<name>/` (handlers), `bot/src/lib/modules/<name>/`
 (config-io, panels, publishers), and `shared/modules/<name>/` (web contract: types,
-validators, `web-plugin.json`). Runtime settings live in PostgreSQL (`module_*` tables).
+validators, `seed.sql`). Runtime settings live in Turso (`module_*` tables in `data/ttt.db`).
 The [web editor](README.md#web-editor) edits module settings; changes hot-reload without restart.
-Panel publish/unpublish goes through the bot internal API.
+Panel publish/unpublish runs in-process (no internal HTTP API).
 
 Setup details: [INSTALL.md](INSTALL.md#configuration-reference).
 
@@ -90,14 +90,15 @@ Upload or clone custom server emojis.
 
 ```
 data/
-  config.json         # DB bootstrap only (host/port/user/name)
+  config.json         # DB bootstrap only (dbPath)
+  ttt.db              # Turso database (gitignored)
   welcome-message/
     media/            # welcome card background
     fonts/            # welcome card font
 ```
 
-Module settings and copy live in PostgreSQL (`module_*` tables), edited via the web editor.
-Each module ships code defaults in `types.ts`; `./scripts/db/db-init.sh` seeds empty tables from those defaults.
+Module settings and copy live in Turso (`module_*` tables), edited via the web editor.
+Each module ships code defaults in `types.ts` and a one-time `seed.sql`; `./scripts/db/db-init.sh` applies seeds on fresh installs.
 Slash command names/descriptions stay in code — run `npm run deploy` after changes.
 
 Channel and role fields in the web editor are validated as Discord IDs (numeric snowflakes) on save.
@@ -112,7 +113,7 @@ Every production module follows the same shape:
 | ----------------------------- | ----------------- | -------------------------------------------------------- |
 | `shared/modules/<name>/`      | `types.ts`        | Panel modules only — shared contract with web validators |
 | `shared/modules/<name>/`      | `validate.ts`     | Row validation for object-lists (panel modules)          |
-| `shared/modules/<name>/`      | `web-plugin.json` | Web editor fields (optional)                             |
+| `shared/modules/<name>/`      | `seed.sql`        | Table DDL + `editorConfig` + default rows (one-time seed) |
 | `bot/src/lib/modules/<name>/` | `types.ts`        | Non-panel modules — defaults, `get()` / `data()`         |
 | `bot/src/lib/modules/<name>/` | `config-io.ts`    | IO boundary — **handlers import from here**              |
 | `bot/src/lib/modules/<name>/` | `panel.ts`        | Publish payload + custom IDs (panel modules)             |
@@ -125,7 +126,7 @@ Every production module follows the same shape:
 
 **Adding a module:** copy [`bot/src/examples/module-template/`](bot/src/examples/module-template/) →
 `bot/src/modules/<name>/` and `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/`.
-For the web editor, copy `web-plugin.json` to `shared/modules/<name>/`.
+For the web editor, add `editorConfig` to `shared/modules/<name>/seed.sql` (see existing modules).
 Panel modules also copy `panel-types.ts` and `validate.ts` from the template into `shared/modules/<name>/`.
 The loader picks up any folder with `index.ts` automatically.
 Panel modules also register the namespace in `bot/src/internal-api/publishRegistry.ts` and validators in

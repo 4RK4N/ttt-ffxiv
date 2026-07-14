@@ -6,39 +6,21 @@ import {
   Partials,
   type Interaction,
 } from "discord.js";
-import { config, initConfig } from "../../shared/config.js";
-import { MODULE_NAMESPACES } from "../../shared/core/moduleTable.js";
-import {
-  refreshStaleModuleCaches,
-  warmAllModuleCaches,
-} from "../../shared/core/texts.js";
+import { config } from "../../shared/config.js";
 import { loadModules } from "./moduleLoader.js";
-import { startInternalApi } from "./internal-api/server.js";
 
-const MODULE_CACHE_REFRESH_MS = 15_000;
-
-// Generic fallback shown when a command handler throws. Not module-specific.
 const COMMAND_ERROR_MESSAGE =
   "Something went wrong while handling your command. Please try again.";
 
 const COMPONENT_ERROR_MESSAGE =
   "Something went wrong while handling that interaction. Please try again.";
 
-async function main(): Promise<void> {
-  await initConfig();
-  await warmAllModuleCaches([...MODULE_NAMESPACES]);
+export interface BotRuntime {
+  client: Client;
+  destroy: () => Promise<void>;
+}
 
-  const cacheRefreshTimer = setInterval(() => {
-    void refreshStaleModuleCaches([...MODULE_NAMESPACES]).catch((err) => {
-      console.error("Failed to refresh module caches:", err);
-    });
-  }, MODULE_CACHE_REFRESH_MS);
-  cacheRefreshTimer.unref();
-
-  // GuildMembers + Partials.GuildMember: member join/leave (incl. uncached removes).
-  // GuildModeration: moderation log ban/unban events. GuildMessageReactions:
-  // reaction-roles emoji mode. MessageContent and GuildMembers are privileged
-  // intents — enable them in the Developer Portal.
+export async function startBot(): Promise<BotRuntime> {
   const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
@@ -83,7 +65,6 @@ async function main(): Promise<void> {
         const message = COMPONENT_ERROR_MESSAGE;
         try {
           if (interaction.deferred || interaction.replied) {
-            // deferUpdate() — never editReply; that would wipe the channel panel message.
             const panelSafe =
               interaction.isMessageComponent() &&
               interaction.deferred &&
@@ -137,40 +118,10 @@ async function main(): Promise<void> {
     }
   });
 
-  // Graceful shutdown: Docker sends SIGTERM on `compose up --build`/stop. Without
-  // this, the process ignores it and Docker waits the full stop grace period
-  // before SIGKILL, making container recreation slow. Destroy the gateway
-  // connection and exit promptly instead. A short timer guarantees we exit even
-  // if client.destroy() hangs.
-  let shuttingDown = false;
-  const shutdown = (signal: NodeJS.Signals) => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    console.log(`Received ${signal}; shutting down...`);
-
-    const forceExit = setTimeout(() => {
-      console.warn("Shutdown timed out; forcing exit.");
-      process.exit(0);
-    }, 5000);
-    forceExit.unref();
-
-    void Promise.resolve(client.destroy())
-      .catch((err) => console.error("Error during shutdown:", err))
-      .finally(() => {
-        clearTimeout(forceExit);
-        process.exit(0);
-      });
-  };
-
-  process.once("SIGTERM", () => shutdown("SIGTERM"));
-  process.once("SIGINT", () => shutdown("SIGINT"));
-
-  startInternalApi();
-
   await client.login(config.discordToken);
-}
 
-main().catch((err) => {
-  console.error("Fatal startup error:", err);
-  process.exit(1);
-});
+  return {
+    client,
+    destroy: () => client.destroy(),
+  };
+}
