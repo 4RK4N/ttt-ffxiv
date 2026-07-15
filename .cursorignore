@@ -1,2 +1,6 @@
-# Runtime config — DB bootstrap only.
+# Runtime config: DB bootstrap only.
 data/config.json
+
+bot/dist/
+website/dist/
+website/.astro/

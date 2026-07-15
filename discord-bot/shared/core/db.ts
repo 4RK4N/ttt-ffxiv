@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { connect, type Database } from "@tursodatabase/database";
+import { resolveDataDir } from "./dataDir.js";
 
-const DATA_DIR = path.resolve(process.cwd(), "data");
+const DATA_DIR = resolveDataDir();
 const CONFIG_FILE = path.join(DATA_DIR, "config.json");
+const REPO_ROOT = path.dirname(DATA_DIR);
 
 export interface DbBootstrapConfig {
   dbPath: string;
@@ -37,7 +39,9 @@ export function loadDbBootstrapConfig(): DbBootstrapConfig {
       ? raw.dbPath.trim()
       : "data/ttt.db";
 
-  return { dbPath: path.isAbsolute(dbPath) ? dbPath : path.resolve(dbPath) };
+  return {
+    dbPath: path.isAbsolute(dbPath) ? dbPath : path.resolve(REPO_ROOT, dbPath),
+  };
 }
 
 export async function initDb(

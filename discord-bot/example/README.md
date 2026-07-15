@@ -5,11 +5,11 @@ loader only discovers `bot/src/modules/<name>/index.js`. Copy files from here in
 project when adding a feature.
 
 Also see [MODULES.md](../MODULES.md) (catalog + data layout) and
-[`.cursor/rules/module-template.mdc`](../.cursor/rules/module-template.mdc).
+[`.cursor/rules/module-template.mdc`](../../.cursor/rules/module-template.mdc).
 
 ## Layout
 
-Mirrors the repo root — copy subtrees into the matching paths:
+Mirrors `discord-bot/` — copy subtrees into the matching paths:
 
 ```text
 example/

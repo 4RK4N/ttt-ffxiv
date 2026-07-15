@@ -112,7 +112,7 @@ Never commit `data/config.json` or `data/ttt.db`. See **Configuration reference*
 
 Runtime settings are stored in Turso as key-value rows (`TEXT` JSON values).
 The web editor writes the database directly; the bot keeps an in-process module
-store (`shared/core/texts.ts`) that reloads automatically when rows change.
+store (`discord-bot/shared/core/texts.ts`) that reloads automatically when rows change.
 
 ### `data/config.json` — database bootstrap only
 
@@ -303,7 +303,7 @@ Portal -> Bot -> Privileged Gateway Intents). Deleted-message logs do not requir
 
 Text template keys (e.g. `messageDeleted`, `memberBanned`) support tokens such as
 `{author}`, `{channel}`, `{mention}`, `{executorId}`, `{messageId}`, and `{userId}`.
-Defaults live in `bot/src/lib/modules/moderation-log/types.ts` (`TEXT_DEFAULTS`).
+Defaults live in `discord-bot/bot/src/lib/modules/moderation-log/types.ts` (`TEXT_DEFAULTS`).
 
 ### custom-embeds — static embed panels
 
@@ -365,7 +365,7 @@ Run from the repo root (where `docker-compose.yml` lives). The committed `.env` 
 `nproc` ulimits in `docker-compose.yml` take effect.
 
 Use [`scripts/build.sh`](scripts/build.sh) for deploy builds. Bot and web editor use
-[`Dockerfile`](Dockerfile) (separate image targets); website uses
+[`discord-bot/Dockerfile`](discord-bot/Dockerfile) (separate image targets); website uses
 [`website/Dockerfile`](website/Dockerfile). Builds use layer cache by default;
 changed source re-runs only the affected steps.
 
@@ -542,10 +542,11 @@ If you prefer not to use Compose:
 
 ```bash
 # Bot + web editor (single image)
-docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.6.5 .
+docker build -f discord-bot/Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.6.5 .
 
 # Website
-docker build -f website/Dockerfile -t ttt-website:2.0.0 website/
+docker build -f website/Dockerfile --target ttt-website -t ttt-website:2.0.0 .
+
 
 # Register commands (one-off). The -v mount provides data/config.json (DB bootstrap).
 docker run --rm -v "$(pwd)/data:/app/data" ttt-discord-bot npm run deploy

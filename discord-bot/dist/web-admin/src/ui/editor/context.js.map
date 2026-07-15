@@ -1,0 +1,1 @@
+{"version":3,"file":"context.js","sourceRoot":"","sources":["../../../../../web-admin/src/ui/editor/context.ts"],"names":[],"mappings":"AAsBA,MAAM,UAAU,cAAc,CAC5B,MAAiB,EACjB,MAA+B,EAC/B,OAAgB;IAEhB,OAAO;QACL,SAAS,EAAE,MAAM,CAAC,SAAS;QAC3B,KAAK,EAAE,MAAM,CAAC,KAAK;QACnB,WAAW,EAAE,MAAM,CAAC,WAAW;QAC/B,MAAM,EAAE,MAAM,CAAC,MAAM;QACrB,MAAM;QACN,OAAO;KACR,CAAC;AACJ,CAAC"}

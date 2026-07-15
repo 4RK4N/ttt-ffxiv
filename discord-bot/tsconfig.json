@@ -11,7 +11,7 @@
       "path": "./web-admin"
     },
     {
-      "path": "./scripts"
+      "path": "../scripts"
     }
   ]
 }

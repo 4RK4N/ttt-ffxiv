@@ -1,0 +1,1 @@
+{"version":3,"file":"validate.d.ts","sourceRoot":"","sources":["../../../../shared/modules/reaction-roles/validate.ts"],"names":[],"mappings":"AAIA,OAAO,EAIL,KAAK,iBAAiB,EACvB,MAAM,YAAY,CAAC;AAIpB,wBAAgB,iBAAiB,CAAC,KAAK,EAAE,iBAAiB,GAAG,IAAI,CAyDhE;AAED,wBAAgB,oBAAoB,CAClC,SAAS,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,EAClC,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAC/B,IAAI,CAsBN"}

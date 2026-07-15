@@ -1,8 +1,7 @@
 node_modules/
 node_modules/.vite/
-dist/
+bot/dist/
 website/dist/
-.astro/
 website/.astro/
 # Runtime config — DB bootstrap only (secrets live in Turso app_config).
 data/config.json

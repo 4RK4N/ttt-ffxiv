@@ -100,10 +100,11 @@ run_bot_node "$DB_CLI" apply-sql "$DB_PATH" "$SCHEMA"
 
 if [[ "$SEED_MODULES" -eq 1 ]]; then
   seed_count=0
-  for seed in shared/modules/*/seed.sql; do
+  for seed in discord-bot/shared/modules/*/seed.sql; do
     [[ -f "$seed" ]] || continue
-    echo "Applying $seed ..."
-    run_bot_node "$DB_CLI" apply-sql "$DB_PATH" "$seed"
+    container_seed="${seed#discord-bot/}"
+    echo "Applying $container_seed ..."
+    run_bot_node "$DB_CLI" apply-sql "$DB_PATH" "$container_seed"
     seed_count=$((seed_count + 1))
   done
   if [[ "$seed_count" -eq 0 ]]; then

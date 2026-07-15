@@ -1,9 +1,10 @@
 import path from "node:path";
+import { resolveDataDir } from "./dataDir.js";
 import { RESERVED_MODULE_KEYS } from "./dbData.js";
 import { getDbDataAll } from "./dbData.js";
 import { moduleTableName } from "./moduleTable.js";
 
-const DATA_DIR = path.resolve(process.cwd(), "data");
+const DATA_DIR = resolveDataDir();
 
 /** Resolves a path inside a module's data folder: data/<namespace>/<segments>. */
 export function moduleDataPath(

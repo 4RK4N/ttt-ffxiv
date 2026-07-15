@@ -1,0 +1,1 @@
+{"version":3,"file":"panelPublishBridge.js","sourceRoot":"","sources":["../../../shared/core/panelPublishBridge.ts"],"names":[],"mappings":"AASA,IAAI,mBAAmB,GAAoC,EAAE,CAAC;AAE9D,yEAAyE;AACzE,MAAM,UAAU,uBAAuB,CACrC,GAAoC;IAEpC,mBAAmB,GAAG,GAAG,CAAC;AAC5B,CAAC;AAED,MAAM,UAAU,kBAAkB,CAChC,SAAiB;IAEjB,OAAO,mBAAmB,CAAC,SAAS,CAAC,CAAC;AACxC,CAAC"}

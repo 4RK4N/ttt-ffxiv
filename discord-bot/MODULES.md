@@ -3,7 +3,7 @@
 Bot features live under `bot/src/modules/<name>/` (handlers), `bot/src/lib/modules/<name>/`
 (config-io, panels, publishers), and `shared/modules/<name>/` (web contract: types,
 validators, `seed.sql`). Runtime settings live in Turso (`module_*` tables in `data/ttt.db`).
-The [web editor](README.md#web-editor) edits module settings; changes hot-reload without restart.
+The [web editor](../README.md#web-editor) edits module settings; changes hot-reload without restart.
 Panel publish/unpublish runs in-process (no internal HTTP API).
 
 Setup details: [INSTALL.md](INSTALL.md#configuration-reference).

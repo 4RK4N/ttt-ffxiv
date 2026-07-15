@@ -2,7 +2,7 @@
 
 target "ttt-discord-bot" {
 
-  dockerfile = "Dockerfile"
+  dockerfile = "discord-bot/Dockerfile"
 
   target     = "ttt-discord-bot"
 
@@ -12,6 +12,10 @@ target "ttt-discord-bot" {
 
 target "ttt-website" {
 
-  ulimits = ["nproc=65535:65535"]
+  dockerfile = "website/Dockerfile"
+
+  target     = "ttt-website"
+
+  ulimits    = ["nproc=65535:65535"]
 
 }

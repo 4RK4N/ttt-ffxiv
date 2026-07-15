@@ -3,7 +3,7 @@ import { closeDb } from "#shared/core/db.js";
 import { MODULE_NAMESPACES } from "#shared/core/moduleTable.js";
 import { reloadAllModuleStores } from "#shared/core/texts.js";
 import { config, initConfig } from "#shared/config.js";
-import { loadModules } from "../bot/src/moduleLoader.js";
+import { loadModules } from "#bot/moduleLoader.js";
 
 async function main(): Promise<void> {
   await initConfig({ readonly: true });
