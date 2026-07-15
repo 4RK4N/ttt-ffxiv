@@ -2,11 +2,12 @@
  * Module types, defaults, and DB-backed accessors.
  *
  * Handlers should import via config-io.ts, not directly from here.
+ * Panel modules: use shared/modules/<name>/types.ts instead (see example/shared/).
  */
 import {
   defineSimpleModule,
   optionalConfigString,
-} from "../../../../../shared/core/moduleConfig.js";
+} from "@shared/core/moduleConfig.js";
 
 export interface ExampleConfig {
   enabled?: boolean;

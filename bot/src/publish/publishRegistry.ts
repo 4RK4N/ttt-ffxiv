@@ -1,4 +1,5 @@
-import type { PublishHandlers } from "../../../shared/core/panelPublishBridge.js";
+import type { PublishHandlers } from "@shared/core/panelPublishBridge.js";
+import { PANEL_MODULE_NAMESPACES } from "@shared/core/panelModuleRegistry.js";
 import {
   publishEmbedPanel,
   unpublishEmbedPanel,
@@ -28,3 +29,11 @@ export const publishHandlersByNamespace: Record<string, PublishHandlers> = {
     unpublish: unpublishRolePanel,
   },
 };
+
+for (const namespace of PANEL_MODULE_NAMESPACES) {
+  if (!publishHandlersByNamespace[namespace]) {
+    throw new Error(
+      `[publishRegistry] Missing publish handlers for panel module "${namespace}".`,
+    );
+  }
+}

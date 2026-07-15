@@ -1,4 +1,4 @@
-import { assertSlugId } from "../../../../shared/core/discordIds.js";
+import { assertSlugId } from "@shared/core/discordIds.js";
 import type { Context } from "hono";
 import type { WebConfig } from "../../config.js";
 import { ensureCsrfToken } from "../../auth.js";
@@ -13,9 +13,9 @@ import {
   writeValues,
   type FieldValue,
 } from "../../store.js";
-import { config } from "../../../../shared/config.js";
-import { publishClientError } from "../../../../shared/core/publishErrors.js";
-import { getPublishHandlers } from "../../../../shared/core/panelPublishBridge.js";
+import { config } from "@shared/config.js";
+import { publishClientError } from "@shared/core/publishErrors.js";
+import { getPublishHandlers } from "@shared/core/panelPublishBridge.js";
 import { buildEditorModule, loadEditorContext, parseExpanded } from "./data.js";
 import { formBodyToValues } from "./form-parse.js";
 import {

@@ -5,7 +5,7 @@ import {
   type DiscordApiContext,
 } from "../../core/panelPublish.js";
 import { resolveEmbedPanel } from "./config-io.js";
-import { validateEmbedPanel } from "../../../../../shared/modules/custom-embeds/validate.js";
+import { validateEmbedPanel } from "@shared/modules/custom-embeds/validate.js";
 
 export type { DiscordApiContext };
 

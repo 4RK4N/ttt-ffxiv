@@ -10,7 +10,7 @@ import {
   type TextBasedChannel,
   type TextChannel,
 } from "discord.js";
-import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
 import { findRecentBan, findRecentKick, findRecentUnban } from "./audit.js";
 import {
   buildMemberBannedEmbed,
@@ -33,6 +33,15 @@ const recentBans = new Set<string>();
 const BAN_DEDUPE_MS = 10_000;
 const BULK_DELETE_BATCH = 5;
 const BULK_DELETE_DELAY_MS = 1_000;
+
+function withModerationLogEnabled<T extends (...args: never[]) => unknown>(
+  handler: T,
+): T {
+  return ((...args: Parameters<T>) => {
+    if (!isModuleEnabled(NAMESPACE)) return;
+    return handler(...args);
+  }) as T;
+}
 
 function markRecentBan(userId: string): void {
   recentBans.add(userId);
@@ -66,7 +75,6 @@ async function handleMessageDelete(
   message: Message | PartialMessage,
   bulkChannel?: TextBasedChannel,
 ): Promise<void> {
-  if (!isModuleEnabled(NAMESPACE)) return;
   if (!get("logMessageDeleted")) return;
 
   const logChannel = logChannelId();
@@ -111,8 +119,6 @@ async function handleMessageDeleteBulk(
 }
 
 async function handleGuildBanAdd(ban: GuildBan): Promise<void> {
-  if (!isModuleEnabled(NAMESPACE)) return;
-
   markRecentBan(ban.user.id);
 
   if (!get("logMemberBanned")) return;
@@ -129,7 +135,6 @@ async function handleGuildBanAdd(ban: GuildBan): Promise<void> {
 }
 
 async function handleGuildBanRemove(ban: GuildBan): Promise<void> {
-  if (!isModuleEnabled(NAMESPACE)) return;
   if (!get("logMemberUnbanned")) return;
   if (!logChannelId()) return;
 
@@ -172,7 +177,6 @@ async function resolveRemovedMember(
 async function handleGuildMemberRemove(
   member: GuildMember | PartialGuildMember,
 ): Promise<void> {
-  if (!isModuleEnabled(NAMESPACE)) return;
   if (!logChannelId()) return;
   if (wasRecentBan(member.id)) return;
 
@@ -181,7 +185,6 @@ async function handleGuildMemberRemove(
 
   const { guild, user } = resolved;
   const cfg = data();
-  const t = cfg;
   const timestamp = new Date();
 
   if (cfg.logMemberKicked) {
@@ -189,7 +192,7 @@ async function handleGuildMemberRemove(
     if (kickEntry) {
       await postLog(
         member.client,
-        buildMemberKickedEmbed(t, user, timestamp, kickEntry.executorId),
+        buildMemberKickedEmbed(cfg, user, timestamp, kickEntry.executorId),
       );
       return;
     }
@@ -197,42 +200,44 @@ async function handleGuildMemberRemove(
 
   if (!cfg.logMemberLeft) return;
 
-  await postLog(member.client, buildMemberLeftEmbed(t, user, timestamp));
+  await postLog(member.client, buildMemberLeftEmbed(cfg, user, timestamp));
 }
 
 export function registerModerationLogHandlers(client: Client): void {
   registerSafeHandler(
     client,
     Events.MessageDelete,
-    (message) => handleMessageDelete(message),
+    withModerationLogEnabled((message) => handleMessageDelete(message)),
     "[moderation-log]",
   );
 
   registerSafeHandler(
     client,
     Events.MessageBulkDelete,
-    (messages, channel) => handleMessageDeleteBulk(messages, channel),
+    withModerationLogEnabled((messages, channel) =>
+      handleMessageDeleteBulk(messages, channel),
+    ),
     "[moderation-log]",
   );
 
   registerSafeHandler(
     client,
     Events.GuildBanAdd,
-    (ban) => handleGuildBanAdd(ban),
+    withModerationLogEnabled((ban) => handleGuildBanAdd(ban)),
     "[moderation-log]",
   );
 
   registerSafeHandler(
     client,
     Events.GuildBanRemove,
-    (ban) => handleGuildBanRemove(ban),
+    withModerationLogEnabled((ban) => handleGuildBanRemove(ban)),
     "[moderation-log]",
   );
 
   registerSafeHandler(
     client,
     Events.GuildMemberRemove,
-    (member) => handleGuildMemberRemove(member),
+    withModerationLogEnabled((member) => handleGuildMemberRemove(member)),
     "[moderation-log]",
   );
 }

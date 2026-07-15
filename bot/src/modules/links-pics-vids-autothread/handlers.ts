@@ -1,6 +1,6 @@
 import { GuildMember, PermissionFlagsBits, type Message } from "discord.js";
-import { channelUrl } from "../../../../shared/core/limits.js";
-import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { channelUrl } from "@shared/core/limits.js";
+import { format, isModuleEnabled } from "@shared/core/texts.js";
 import { buildTextOrEmbedPayload } from "../../lib/core/embedBuilder.js";
 import { isDiscordUnknownMessage } from "../../lib/core/discordInteractions.js";
 import { trySendDm } from "../../lib/core/discordDm.js";

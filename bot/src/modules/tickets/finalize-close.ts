@@ -12,7 +12,7 @@ import {
   isThreadMember,
   extractFirstMentionId,
 } from "../../lib/core/threads.js";
-import type { ResolvedTicketType } from "../../../../shared/modules/tickets/types.js";
+import type { ResolvedTicketType } from "@shared/modules/tickets/types.js";
 
 async function fetchOldestThreadMessage(
   thread: ThreadChannel,

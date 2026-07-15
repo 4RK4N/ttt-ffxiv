@@ -1,7 +1,7 @@
 import {
   defineSimpleModule,
   optionalConfigString,
-} from "../../../../../shared/core/moduleConfig.js";
+} from "@shared/core/moduleConfig.js";
 
 export interface ModLogTexts {
   messageDeleted: string;

@@ -1,9 +1,10 @@
 import type { CommandModule } from "../../moduleLoader.js";
 import { NAMESPACE } from "../../lib/modules/custom-embeds/config-io.js";
+import { initPublishOnly } from "./handlers.js";
 
-/** Publish-only module — panels are managed via web-admin; no bot handlers needed. */
 const customEmbedsModule: CommandModule = {
   name: NAMESPACE,
+  init: initPublishOnly,
 };
 
 export default customEmbedsModule;

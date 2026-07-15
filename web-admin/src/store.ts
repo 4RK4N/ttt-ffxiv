@@ -1,19 +1,20 @@
 import {
   MAX_PANEL_OPTIONS,
   resolveFieldMaxLength,
-} from "../../shared/core/limits.js";
+} from "@shared/core/limits.js";
 import {
   assertSlugId,
   assertSnowflake,
   assertSnowflakesInArray,
-} from "../../shared/core/discordIds.js";
-import { slugify, toStringArray } from "../../shared/core/strings.js";
-import { setDbDataMany } from "../../shared/core/dbData.js";
-import { moduleTableName } from "../../shared/core/moduleTable.js";
-import { getModuleRowsSync } from "../../shared/core/texts.js";
-import { validateEmbedPanelRow } from "../../shared/modules/custom-embeds/validate.js";
-import { validateRolePanelRow } from "../../shared/modules/reaction-roles/validate.js";
-import { validateTicketTypeRow } from "../../shared/modules/tickets/validate.js";
+} from "@shared/core/discordIds.js";
+import { slugify, toStringArray } from "@shared/core/strings.js";
+import { setDbDataMany } from "@shared/core/dbData.js";
+import { moduleTableName } from "@shared/core/moduleTable.js";
+import { PANEL_MODULE_REGISTRY } from "@shared/core/panelModuleRegistry.js";
+import { getModuleRowsSync } from "@shared/core/texts.js";
+import { validateEmbedPanelRow } from "@shared/modules/custom-embeds/validate.js";
+import { validateRolePanelRow } from "@shared/modules/reaction-roles/validate.js";
+import { validateTicketTypeRow } from "@shared/modules/tickets/validate.js";
 import type { WebPlugin, WebPluginField, WebPluginSubField } from "./plugins.js";
 import {
   isBooleanField,
@@ -48,6 +49,14 @@ const PANEL_ROW_VALIDATORS: Record<
     ticketTypes: validateTicketTypeRow,
   },
 };
+
+for (const { namespace, listField } of PANEL_MODULE_REGISTRY) {
+  if (!PANEL_ROW_VALIDATORS[namespace]?.[listField]) {
+    throw new Error(
+      `[web-admin/store] Missing panel row validator for "${namespace}.${listField}".`,
+    );
+  }
+}
 
 function runPanelRowValidator(
   namespace: string,

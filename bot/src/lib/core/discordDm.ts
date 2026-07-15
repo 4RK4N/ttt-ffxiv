@@ -3,7 +3,7 @@ import {
   type MessageCreateOptions,
   type User,
 } from "discord.js";
-import { DISCORD_CANNOT_SEND_DM } from "../../../../shared/core/limits.js";
+import { DISCORD_CANNOT_SEND_DM } from "@shared/core/limits.js";
 
 export interface TrySendDmOptions {
   logPrefix: string;

@@ -1,4 +1,5 @@
 import {
+  PermissionFlagsBits,
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
 } from "discord.js";
@@ -11,6 +12,7 @@ const emojiAddCommand = {
   data: new SlashCommandBuilder()
     .setName("emoji-add")
     .setDMPermission(false)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuildExpressions)
     .setDescription("Add a custom emoji to this server from an image.")
     .addAttachmentOption((opt) =>
       opt
@@ -32,6 +34,7 @@ const emojiCopyCommand = {
   data: new SlashCommandBuilder()
     .setName("emoji-copy")
     .setDMPermission(false)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuildExpressions)
     .setDescription("Copy a custom emoji from another server into this server.")
     .addStringOption((opt) =>
       opt

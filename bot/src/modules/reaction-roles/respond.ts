@@ -4,11 +4,11 @@ import {
   roleChangeErrorMessage,
   type RoleChangeResult,
 } from "../../lib/core/discordRoles.js";
-import { format } from "../../../../shared/core/texts.js";
+import { format } from "@shared/core/texts.js";
 import type {
   ReactionRolesTexts,
   ResolvedRolePanel,
-} from "../../../../shared/modules/reaction-roles/types.js";
+} from "@shared/modules/reaction-roles/types.js";
 
 export interface EphemeralContext {
   mention: string;

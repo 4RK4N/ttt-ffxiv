@@ -2,19 +2,19 @@ import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { connect } from "@tursodatabase/database";
-import { APP_CONFIG_SECRET_KEYS } from "../../shared/config.js";
+import { APP_CONFIG_SECRET_KEYS } from "@shared/config.js";
 import {
   closeDb,
   getDb,
   initDb,
   loadDbBootstrapConfig,
-} from "../../shared/core/db.js";
-import { setDbDataMany } from "../../shared/core/dbData.js";
+} from "@shared/core/db.js";
+import { setDbDataMany } from "@shared/core/dbData.js";
 import {
   APP_CONFIG_TABLE,
   MODULE_NAMESPACES,
   moduleTableName,
-} from "../../shared/core/moduleTable.js";
+} from "@shared/core/moduleTable.js";
 
 /** Escape a string as a single-quoted SQL literal (`''` for embedded quotes). */
 function sqlStringLiteral(value: string): string {

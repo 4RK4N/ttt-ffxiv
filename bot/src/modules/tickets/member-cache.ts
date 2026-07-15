@@ -4,11 +4,12 @@ import {
   type Client,
   type GuildMember,
 } from "discord.js";
-import { config } from "../../../../shared/config.js";
+import { config } from "@shared/config.js";
 import {
   removeMemberDisplayName,
   setMemberDisplayName,
 } from "../../lib/core/memberDisplayNames.js";
+import { registerSafeHandler } from "../../lib/core/discordEvents.js";
 import { warmGuildMemberCache } from "./thread-members.js";
 
 export interface CachedMember {
@@ -66,12 +67,23 @@ export function getMembersForGuild(guildId: string): Map<string, CachedMember> {
 }
 
 function registerGatewayListeners(client: Client): void {
-  client.on(Events.GuildMemberAdd, (member) => upsertGuildMember(member));
-  client.on(Events.GuildMemberUpdate, (_old, member) =>
-    upsertGuildMember(member),
+  registerSafeHandler(
+    client,
+    Events.GuildMemberAdd,
+    (member) => upsertGuildMember(member),
+    "[tickets]",
   );
-  client.on(Events.GuildMemberRemove, (member) =>
-    removeMember(member.guild.id, member.id),
+  registerSafeHandler(
+    client,
+    Events.GuildMemberUpdate,
+    (_old, member) => upsertGuildMember(member),
+    "[tickets]",
+  );
+  registerSafeHandler(
+    client,
+    Events.GuildMemberRemove,
+    (member) => removeMember(member.guild.id, member.id),
+    "[tickets]",
   );
 }
 

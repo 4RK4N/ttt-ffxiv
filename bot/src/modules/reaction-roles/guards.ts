@@ -1,6 +1,7 @@
-import type { MessageComponentInteraction } from "discord.js";
+import type { GuildMember, MessageComponentInteraction } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
-import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
+import { isOnCooldown, touchCooldown } from "./cooldown.js";
 import {
   NAMESPACE,
   resolvePanel,
@@ -9,7 +10,7 @@ import {
 import type {
   ReactionType,
   ResolvedRolePanel,
-} from "../../../../shared/modules/reaction-roles/types.js";
+} from "@shared/modules/reaction-roles/types.js";
 
 export type PanelGuardResult =
   | { ok: true; panel: ResolvedRolePanel; t: ReturnType<typeof data> }
@@ -75,5 +76,34 @@ export function isActivePanelMessage(
   if (panel.panelMessageId !== messageId) return false;
   if (panel.channelId && channelId && panel.channelId !== channelId)
     return false;
+  return true;
+}
+
+/** Fetches the interacting guild member; replies with roleError when missing. */
+export async function fetchPanelGuildMember(
+  interaction: MessageComponentInteraction,
+  roleError: string,
+): Promise<GuildMember | null> {
+  const guildMember = await interaction.guild?.members.fetch(
+    interaction.user.id,
+  );
+  if (!guildMember) {
+    await replyEphemeral(interaction, roleError);
+    return null;
+  }
+  return guildMember;
+}
+
+/** Enforces per-user panel cooldown; replies with cooldown text when active. */
+export async function guardPanelCooldown(
+  interaction: MessageComponentInteraction,
+  panelId: string,
+  cooldownText: string,
+): Promise<boolean> {
+  if (isOnCooldown(interaction.user.id, panelId)) {
+    await replyEphemeral(interaction, cooldownText);
+    return false;
+  }
+  touchCooldown(interaction.user.id, panelId);
   return true;
 }

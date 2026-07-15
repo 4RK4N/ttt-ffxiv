@@ -1,5 +1,5 @@
 import { AttachmentBuilder, type GuildMember } from "discord.js";
-import { format } from "../../../../shared/core/texts.js";
+import { format } from "@shared/core/texts.js";
 import { trySendDm } from "../../lib/core/discordDm.js";
 import { renderWelcomeCard } from "./card.js";
 import {

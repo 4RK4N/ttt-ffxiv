@@ -9,9 +9,10 @@ export default tseslint.config(
     ignores: [
       "dist/",
       "node_modules/",
-      "website/",
+      "website/dist/",
+      "website/.astro/",
       ".astro/",
-      "bot/src/examples/",
+      "example/",
       // Vite CSS entry — not part of web-admin tsc
       "web-admin/vite.config.ts",
       "web-admin/src/ui/assets/admin-styles.ts",
@@ -29,6 +30,7 @@ export default tseslint.config(
       "shared/**/*.ts",
       "web-admin/**/*.ts",
       "scripts/**/*.ts",
+      "website/src/**/*.ts",
     ],
     languageOptions: {
       parserOptions: {
@@ -38,6 +40,12 @@ export default tseslint.config(
     },
     rules: {
       "@typescript-eslint/no-floating-promises": "error",
+    },
+  },
+  {
+    files: ["website/astro.config.mjs"],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   {

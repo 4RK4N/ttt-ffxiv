@@ -1,4 +1,4 @@
-import { defineSimpleModule } from "../../../../../shared/core/moduleConfig.js";
+import { defineSimpleModule } from "@shared/core/moduleConfig.js";
 import { DEFAULT_THREAD_FIRST_MESSAGE } from "../../core/threads.js";
 
 export interface PicTexts {

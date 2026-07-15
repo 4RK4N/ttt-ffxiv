@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { Context, MiddlewareHandler } from "hono";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
-import { fetchWithTimeout } from "../../shared/core/fetchWithTimeout.js";
+import { fetchWithTimeout } from "@shared/core/fetchWithTimeout.js";
 import type { WebConfig } from "./config.js";
 import { DISCORD_API } from "./discord.js";
 import {

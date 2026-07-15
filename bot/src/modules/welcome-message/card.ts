@@ -4,7 +4,7 @@ import {
   loadImage,
   type SKRSContext2D,
 } from "@napi-rs/canvas";
-import { moduleDataPath } from "../../../../shared/core/texts.js";
+import { moduleDataPath } from "@shared/core/texts.js";
 import { fetchBuffer } from "../../lib/core/download.js";
 
 // Assets live in the runtime data dir (data/welcome-message/), so they can be

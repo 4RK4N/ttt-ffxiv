@@ -1,5 +1,5 @@
-import { discordBotFetch } from "../../../../shared/core/discordApi.js";
-import { encodeEmojiForReaction } from "../../../../shared/core/discordEmoji.js";
+import { discordBotFetch } from "@shared/core/discordApi.js";
+import { encodeEmojiForReaction } from "@shared/core/discordEmoji.js";
 import { sleep } from "./sleep.js";
 
 const MAX_ATTEMPTS = 5;

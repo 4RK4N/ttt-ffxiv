@@ -2,8 +2,8 @@
  * Panel publish/unpublish — panel modules only (delete for simple modules).
  *
  * Uncomment when panel types live in shared/modules/<name>/types.ts and config-io.ts
- * exports resolve* / get*Config / update*. Register exports in
- * bot/src/publish/publishRegistry.ts.
+ * exports resolve* / get*Config / update*. Add the namespace to
+ * shared/core/panelModuleRegistry.ts (publish + web-admin validation).
  */
 /*
 import { createPanelPublisher } from '../../core/panelPublisher.js';

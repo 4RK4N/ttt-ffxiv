@@ -9,6 +9,7 @@ import {
   type DiscordApiContext,
   type DiscordMessagePayload,
 } from "../../core/panelPublish.js";
+// import { applyEmojiToButton } from "../../core/buttonEmoji.js"; // use for panel buttons
 
 export type { DiscordApiContext };
 
@@ -18,8 +19,8 @@ export const EXAMPLE_BTN_PREFIX = "example-module:btn:";
 
 export function buildPanelPayload(panelId: string): DiscordMessagePayload {
   /*
-  const panel = resolveExamplePanel(_panelId);
-  if (!panel) throw new Error(`Unknown example panel "${_panelId}".`);
+  const panel = resolveExamplePanel(panelId);
+  if (!panel) throw new Error(`Unknown example panel "${panelId}".`);
 
   return {
     content: panel.panelDescription,
@@ -27,7 +28,7 @@ export function buildPanelPayload(panelId: string): DiscordMessagePayload {
   };
   */
   throw new Error(
-    `Example panel stub for "${panelId}" — enable panel types and implement buildPanelPayload (see panel-types.ts).`,
+    `Example panel stub for "${panelId}" — enable panel types and implement buildPanelPayload (see shared/modules/<name>/types.ts).`,
   );
 }
 

@@ -6,10 +6,11 @@ import {
   StringSelectMenuBuilder,
 } from "discord.js";
 import { buildEmbed } from "../../core/embedBuilder.js";
+import { applyEmojiToButton } from "../../core/buttonEmoji.js";
 import {
   parseEmoji,
   reactionsMatch,
-} from "../../../../../shared/core/discordEmoji.js";
+} from "@shared/core/discordEmoji.js";
 import { syncBotMessageReactions } from "../../core/discordReactions.js";
 import {
   publishDiscordMessage,
@@ -18,9 +19,9 @@ import {
 import type {
   ResolvedRolePanel,
   RoleOption,
-} from "../../../../../shared/modules/reaction-roles/types.js";
+} from "@shared/modules/reaction-roles/types.js";
 import { resolvePanel } from "./config-io.js";
-import { validateRolePanel } from "../../../../../shared/modules/reaction-roles/validate.js";
+import { validateRolePanel } from "@shared/modules/reaction-roles/validate.js";
 
 export type { DiscordApiContext };
 
@@ -41,11 +42,7 @@ function buildButtonRows(
       .setLabel(opt.label.slice(0, 80))
       .setStyle(ButtonStyle.Primary);
 
-    const parsed = parseEmoji(opt.emoji);
-    if (parsed)
-      button.setEmoji(
-        parsed.id ? { id: parsed.id, name: parsed.name } : parsed,
-      );
+    applyEmojiToButton(button, opt.emoji);
 
     current.addComponents(button);
     if (current.components.length >= MAX_BUTTONS_PER_ROW) {

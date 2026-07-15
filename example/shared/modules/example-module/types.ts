@@ -6,7 +6,7 @@ import {
   createModuleData,
   findListItemById,
   moduleDefaultsFromParts,
-} from "../../core/moduleConfig.js";
+} from "@shared/core/moduleConfig.js";
 
 export const NAMESPACE = "example-module";
 

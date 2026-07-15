@@ -1,6 +1,6 @@
 import { Events, type Client } from "discord.js";
 import type { CommandModule } from "../../moduleLoader.js";
-import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
 import { registerSafeHandler } from "../../lib/core/discordEvents.js";
 import {
   NAMESPACE,
@@ -12,10 +12,7 @@ const welcomeMessageModule: CommandModule = {
   name: NAMESPACE,
   init(client: Client): void {
     if (!welcomeChannelId()) {
-      console.warn(
-        "[welcome-message] No channelId configured in " +
-        "welcome-message module disabled or no channelId configured.",
-      );
+      console.warn(`[${NAMESPACE}] No channelId configured — module idle.`);
       return;
     }
 

@@ -10,12 +10,9 @@ import type {
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
 } from "discord.js";
-import { isModuleEnabled } from "../../shared/core/texts.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, "modules");
-
-/** Loaded for web publish only — no bot commands, events, or components. */
-const PUBLISH_ONLY_MODULES = new Set(["custom-embeds"]);
 
 export type CommandExecutor = (
   interaction: ChatInputCommandInteraction,
@@ -111,12 +108,6 @@ export async function loadModules(
       Array.isArray(mod?.componentRoutes) && mod.componentRoutes.length > 0;
 
     if (!hasCommands && !hasInit && !hasComponents) {
-      if (PUBLISH_ONLY_MODULES.has(namespace)) {
-        console.log(
-          `[moduleLoader] Module "${namespace}" is publish-only; skipping runtime load.`,
-        );
-        continue;
-      }
       console.warn(
         `[moduleLoader] Module "${namespace}" exports no commands, init, or componentRoutes; skipping.`,
       );
@@ -156,7 +147,13 @@ export async function loadModules(
     }
 
     if (hasInit) {
-      inits.push(mod.init!);
+      if (isModuleEnabled(namespace)) {
+        inits.push(mod.init!);
+      } else {
+        console.log(
+          `[moduleLoader] Module "${namespace}" is disabled; skipping init.`,
+        );
+      }
     }
 
     if (Array.isArray(mod.componentRoutes)) {

@@ -39,17 +39,11 @@ function buildCommand(name: string): SlashCommandOptionsOnlyBuilder {
   return builder;
 }
 
-async function execute(
-  interaction: Parameters<typeof executePicRepost>[0],
-): Promise<void> {
-  await executePicRepost(interaction);
-}
-
 const picRepostModule: CommandModule = {
   name: NAMESPACE,
   commands: [
-    { data: buildCommand("pic"), execute },
-    { data: buildCommand("post"), execute },
+    { data: buildCommand("pic"), execute: executePicRepost },
+    { data: buildCommand("post"), execute: executePicRepost },
   ],
   init: registerDeleteReactionHandler,
 };

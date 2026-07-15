@@ -10,12 +10,9 @@ const moderationLogModule: CommandModule = {
   name: NAMESPACE,
   init(client: Client): void {
     if (!logChannelId()) {
-      console.warn(
-        "[moderation-log] No channelId configured in " +
-        "moderation-log disabled or no channelId configured.",
-      );
+      console.warn(`[${NAMESPACE}] No channelId configured — module idle.`);
+      return;
     }
-
     registerModerationLogHandlers(client);
   },
 };

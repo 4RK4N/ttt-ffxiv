@@ -12,11 +12,11 @@ import {
   isCustomEmojiMarkup,
   isValidGuildEmojiName,
   parseEmoji,
-} from "../../../../shared/core/discordEmoji.js";
-import { isSupportedEmojiImageBuffer } from "../../../../shared/core/imageBuffer.js";
-import { isImageAttachment } from "../../../../shared/core/attachments.js";
-import { DISCORD_EMOJI_MAX_BYTES } from "../../../../shared/core/limits.js";
-import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+} from "@shared/core/discordEmoji.js";
+import { isSupportedEmojiImageBuffer } from "@shared/core/imageBuffer.js";
+import { isImageAttachment } from "@shared/core/attachments.js";
+import { DISCORD_EMOJI_MAX_BYTES } from "@shared/core/limits.js";
+import { format, isModuleEnabled } from "@shared/core/texts.js";
 import { fetchBuffer } from "../../lib/core/download.js";
 import { canConfiguredRoleOrAdmin } from "../../lib/core/discordInteractions.js";
 import {
@@ -24,7 +24,7 @@ import {
   emojiRoleId,
   data,
 } from "../../lib/modules/emojis/config-io.js";
-import type { EmojisTexts } from "../../lib/modules/emojis/types.js";
+import type { EmojisTexts } from "../../lib/modules/emojis/config-io.js";
 
 type CreateErrorKey = keyof Pick<
   EmojisTexts,
@@ -34,10 +34,6 @@ type CreateErrorKey = keyof Pick<
   | "slotsFull"
   | "createFailed"
 >;
-
-async function downloadImage(url: string): Promise<Buffer | null> {
-  return fetchBuffer(url, `[${NAMESPACE}]`);
-}
 
 function attachmentPayload(buffer: Buffer, animated: boolean): Buffer | string {
   if (!animated) return buffer;
@@ -85,12 +81,6 @@ async function createGuildEmoji(
   }
 }
 
-function resolveMember(
-  interaction: ChatInputCommandInteraction,
-): GuildMember | null {
-  return interaction.member instanceof GuildMember ? interaction.member : null;
-}
-
 async function guardInteraction(
   interaction: ChatInputCommandInteraction,
 ): Promise<EmojisTexts | null> {
@@ -106,7 +96,8 @@ async function guardInteraction(
     return null;
   }
 
-  const member = resolveMember(interaction);
+  const member =
+    interaction.member instanceof GuildMember ? interaction.member : null;
   if (!member) {
     await interaction.editReply(t.createFailed);
     return null;
@@ -194,7 +185,7 @@ export async function executeEmojiAdd(
   }
 
   const animated = attachment.contentType === "image/gif";
-  const buffer = await downloadImage(attachment.url);
+  const buffer = await fetchBuffer(attachment.url, `[${NAMESPACE}]`);
   if (!buffer) {
     await interaction.editReply(t.downloadFailed);
     return;
@@ -225,7 +216,10 @@ export async function executeEmojiCopy(
   }
 
   const animated = isAnimatedCustomEmojiMarkup(emojiInput);
-  const buffer = await downloadImage(customEmojiCdnUrl(parsed.id, animated));
+  const buffer = await fetchBuffer(
+    customEmojiCdnUrl(parsed.id, animated),
+    `[${NAMESPACE}]`,
+  );
   if (!buffer) {
     await interaction.editReply(t.downloadFailed);
     return;

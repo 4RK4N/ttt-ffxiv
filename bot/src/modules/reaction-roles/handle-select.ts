@@ -3,8 +3,11 @@ import {
   memberHasAnyRole,
   replyEphemeral,
 } from "../../lib/core/discordInteractions.js";
-import { isOnCooldown, touchCooldown } from "./cooldown.js";
-import { guardPublishedPanel } from "./guards.js";
+import {
+  fetchPanelGuildMember,
+  guardPanelCooldown,
+  guardPublishedPanel,
+} from "./guards.js";
 import { formatEphemeralMessage } from "./respond.js";
 import { parseSelectCustomId } from "./parsers.js";
 import { get } from "../../lib/modules/reaction-roles/config-io.js";
@@ -26,19 +29,10 @@ export async function handleSelectInteraction(
 
   const { panel, t } = guarded;
 
-  const guildMember = await interaction.guild?.members.fetch(
-    interaction.user.id,
-  );
-  if (!guildMember) {
-    await replyEphemeral(interaction, t.roleError);
-    return;
-  }
+  const guildMember = await fetchPanelGuildMember(interaction, t.roleError);
+  if (!guildMember) return;
 
-  if (isOnCooldown(interaction.user.id, panel.id)) {
-    await replyEphemeral(interaction, t.cooldown);
-    return;
-  }
-  touchCooldown(interaction.user.id, panel.id);
+  if (!(await guardPanelCooldown(interaction, panel.id, t.cooldown))) return;
 
   const validOptionIds = new Set(panel.roleOptions.map((o) => o.id));
   const selected = interaction.values.filter((v) => validOptionIds.has(v));
@@ -68,7 +62,7 @@ export async function handleSelectInteraction(
       await replyEphemeral(interaction, message);
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : t.roleError;
-    await replyEphemeral(interaction, message);
+    console.error("[reaction-roles] Dropdown role selection failed:", err);
+    await replyEphemeral(interaction, t.roleError);
   }
 }

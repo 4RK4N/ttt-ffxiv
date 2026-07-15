@@ -1,5 +1,5 @@
 import type { WebConfig } from "./config.js";
-import { discordBotFetch } from "../../shared/core/discordApi.js";
+import { discordBotFetch } from "@shared/core/discordApi.js";
 
 /** Guild list endpoints change rarely; cache briefly to cut burst API calls. */
 export const DISCORD_LIST_CACHE_TTL_MS = 30_000;

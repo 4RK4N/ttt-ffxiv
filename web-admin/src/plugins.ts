@@ -1,8 +1,8 @@
 import {
   MODULE_NAMESPACES,
   moduleTableName,
-} from "../../shared/core/moduleTable.js";
-import { getDbData } from "../../shared/core/dbData.js";
+} from "@shared/core/moduleTable.js";
+import { getDbData } from "@shared/core/dbData.js";
 import type {
   WebFieldStore,
   WebFieldType,

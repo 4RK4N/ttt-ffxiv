@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import { DISCORD_MESSAGE_CONTENT_MAX } from "../../../../shared/core/limits.js";
+import { DISCORD_MESSAGE_CONTENT_MAX } from "@shared/core/limits.js";
 
 const MAX_TITLE = 256;
 const MAX_DESCRIPTION = 4096;

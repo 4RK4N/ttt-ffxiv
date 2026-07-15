@@ -97,8 +97,9 @@ const componentRoutes: ComponentRoute[] = [
 // =============================================================================
 
 /*
-Register in bot/src/publish/publishRegistry.ts after uncommenting publisher.ts.
-See bot/src/lib/modules/example-module/publisher.ts and tickets/publisher.ts.
+Add publish handlers in bot/src/publish/publishRegistry.ts and register the
+namespace in shared/core/panelModuleRegistry.ts after uncommenting publisher.ts.
+See example/bot/src/lib/modules/example-module/publisher.ts and tickets/publisher.ts.
 */
 
 // =============================================================================

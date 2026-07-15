@@ -6,7 +6,7 @@ import {
   Partials,
   type Interaction,
 } from "discord.js";
-import { config } from "../../shared/config.js";
+import { config } from "@shared/config.js";
 import { loadModules } from "./moduleLoader.js";
 
 const COMMAND_ERROR_MESSAGE =

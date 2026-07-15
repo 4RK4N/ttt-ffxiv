@@ -14,17 +14,18 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 1. **Copy source files**
 
    ```text
-   bot/src/examples/module-template/  →  bot/src/modules/<name>/   (handlers, index.ts)
-   bot/src/lib/modules/example-module/  →  bot/src/lib/modules/<name>/  (config-io, types, panel…)
+   example/bot/src/modules/example-module/       →  bot/src/modules/<name>/
+   example/bot/src/lib/modules/example-module/   →  bot/src/lib/modules/<name>/
+   example/shared/modules/example-module/          →  shared/modules/<name>/   (panel modules)
    ```
 
    Use kebab-case for `<name>` (e.g. `my-feature`). Delete unused files (`panel.ts`, `validate.ts` for simple modules).
 
 2. **Set the namespace** — `createModuleData('<name>', …)` must match the Turso table prefix:
    - **Simple modules:** `bot/src/lib/modules/<name>/types.ts`
-   - **Panel modules:** `shared/modules/<name>/types.ts` (copy from [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts))
+   - **Panel modules:** `shared/modules/<name>/types.ts` (copy from [`example/shared/modules/example-module/types.ts`](example/shared/modules/example-module/types.ts))
 
-3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts`, add `shared/modules/<name>/seed.sql`, then `./scripts/db/db-update.sh <file.sql>` for incremental changes on a live DB. **Keep `MODULE_DEFAULTS` in `types.ts` and the matching `INSERT` rows in `seed.sql` in sync manually** (same keys/values; `editorConfig` lives only in `seed.sql`).
+3. **Register the module table** — add the namespace to `MODULE_NAMESPACES` in `shared/core/moduleTable.ts`, add `shared/modules/<name>/seed.sql` (adapt [`example/shared/modules/example-module/seed.sql`](example/shared/modules/example-module/seed.sql)), then `./scripts/db/db-update.sh <file.sql>` for incremental changes on a live DB. **Keep `MODULE_DEFAULTS` in `types.ts` and the matching `INSERT` rows in `seed.sql` in sync manually** (same keys/values; `editorConfig` lives only in `seed.sql`).
 
 4. **Wire `index.ts`** — export a `CommandModule` with at least one of:
    - `init(client)` — event listeners
@@ -33,9 +34,9 @@ Copy the reference template — it is **not loaded by the bot** (only `bot/src/m
 
 5. **Web editor (optional)** — add an `editorConfig` row in `seed.sql` (title, description, fields). When you change code defaults in `types.ts`, update the corresponding `INSERT` rows in `seed.sql` too.
 
-6. **Panel modules only** — copy [`panel-types.ts`](bot/src/examples/module-template/panel-types.ts) and [`validate.ts`](bot/src/examples/module-template/validate.ts) to `shared/modules/<name>/`; bot lib `panel.ts` / `publisher.ts`; wire validate in `web-admin/src/store.ts`; register namespace in `bot/src/publish/publishRegistry.ts`.
+6. **Panel modules only** — copy `types.ts` and `validate.ts` from `example/shared/modules/example-module/` to `shared/modules/<name>/`; implement bot lib `panel.ts` / `publisher.ts`; add namespace to `shared/core/panelModuleRegistry.ts`.
 
-Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Patterns and core helpers are documented in [`bot/src/examples/module-template/README.md`](bot/src/examples/module-template/README.md).
+Handlers import config/texts from **`bot/src/lib/modules/<name>/config-io.ts`**, not `types.ts`. Full patterns: [`example/README.md`](example/README.md).
 
 ```bash
 npm run build

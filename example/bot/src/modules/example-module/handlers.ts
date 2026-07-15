@@ -4,7 +4,7 @@
  * Import runtime config/texts from config-io.ts (not types.ts).
  * Import types from types.ts only when you need interfaces.
  */
-import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { format, isModuleEnabled } from "@shared/core/texts.js";
 import {
   memberHasAnyRole,
   replyEphemeral,

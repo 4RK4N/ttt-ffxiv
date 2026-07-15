@@ -6,7 +6,7 @@ import {
   type InteractionReplyOptions,
   type MessageComponentInteraction,
 } from "discord.js";
-import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
 
 /** Discord API: unknown message (already deleted). */
 export function isDiscordUnknownMessage(err: unknown): boolean {

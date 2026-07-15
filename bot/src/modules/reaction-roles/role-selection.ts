@@ -7,7 +7,7 @@ import {
 import type {
   ReactionRolesTexts,
   ResolvedRolePanel,
-} from "../../../../shared/modules/reaction-roles/types.js";
+} from "@shared/modules/reaction-roles/types.js";
 
 type AppliedChange = { roleId: string; action: "add" | "remove" };
 

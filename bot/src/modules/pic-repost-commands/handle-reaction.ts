@@ -5,17 +5,17 @@ import {
   type PartialMessageReaction,
   type User,
 } from "discord.js";
-import { ensureFullReaction } from "../../lib/core/reactionContext.js";
+import { guardReactionEvent } from "../../lib/core/reactionContext.js";
 import { isDiscordUnknownMessage } from "../../lib/core/discordInteractions.js";
 import { registerSafeHandler } from "../../lib/core/discordEvents.js";
-import { reactionsMatch } from "../../../../shared/core/discordEmoji.js";
-import { isModuleEnabled } from "../../../../shared/core/texts.js";
+import { reactionsMatch } from "@shared/core/discordEmoji.js";
 import {
   data,
   NAMESPACE,
   resolveDeleteAuthorLastMention,
   resolveDeleteEmoji,
 } from "../../lib/modules/pic-repost-commands/config-io.js";
+
 import { deleteCommentsThreadForMessage } from "../../lib/core/threads.js";
 import { resolvePicRepostAuthor } from "../../lib/modules/pic-repost-commands/resolve-author.js";
 
@@ -24,15 +24,13 @@ async function handleDeleteReaction(
   user: User | { id: string; bot?: boolean },
   botUserId: string | undefined,
 ): Promise<void> {
-  if (user.bot) return;
-  if (!isModuleEnabled(NAMESPACE)) return;
   if (!botUserId) return;
 
-  const ctx = await ensureFullReaction(reaction);
+  const ctx = await guardReactionEvent(reaction, user, NAMESPACE);
   if (!ctx) return;
 
-  const { message } = ctx;
-  const messageFetched = !reaction.message.partial;
+  const { message, reaction: fullReaction } = ctx;
+  const messageFetched = !fullReaction.message.partial;
 
   const cfg = data();
   if (
@@ -55,7 +53,7 @@ async function handleDeleteReaction(
   if (user.id !== authorUserId) {
     try {
       // Event reaction already matched deleteEmoji; remove only that emoji for this user.
-      await reaction.users.remove(user.id);
+      await fullReaction.users.remove(user.id);
     } catch (err) {
       console.warn(
         `[${NAMESPACE}] Failed to remove non-author delete reaction message=${message.id} user=${user.id}:`,

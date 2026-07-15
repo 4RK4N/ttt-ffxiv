@@ -1,11 +1,10 @@
 /**
  * Panel row validation — copy to `shared/modules/<name>/validate.ts` when creating a
- * panel module. Wire `validateExamplePanelRow` in `web-admin/src/store.ts` (see README).
+ * panel module. Register the namespace in `shared/core/panelModuleRegistry.ts`.
  *
- * Not compiled in-place (see bot/tsconfig.json exclude) — imports assume destination
- * under shared/modules/<name>/.
+ * Not compiled in-place — this tree is a copy template only.
  */
-import { parsePanelBaseFields } from "../../core/panelFields.js";
+import { parsePanelBaseFields } from "@shared/core/panelFields.js";
 
 interface ExamplePanelLike {
   panelTitle: string;

@@ -1,4 +1,4 @@
-import { resolveFieldMaxLength } from "../../../../../shared/core/limits.js";
+import { resolveFieldMaxLength } from "@shared/core/limits.js";
 import type { WebPluginSubField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 

@@ -9,16 +9,16 @@ import {
   buildThreadName,
   startAndPopulateCommentsThread,
 } from "../../lib/core/threads.js";
-import { format } from "../../../../shared/core/texts.js";
+import { format } from "@shared/core/texts.js";
 import { guardEnabledSlash } from "../../lib/core/discordInteractions.js";
 import { resolveDisplayName } from "../../lib/core/memberDisplayNames.js";
 import { fetchBuffer } from "../../lib/core/download.js";
-import { isImageAttachment } from "../../../../shared/core/attachments.js";
+import { isImageAttachment } from "@shared/core/attachments.js";
 import {
   DISCORD_MESSAGE_CONTENT_MAX,
   DISCORD_REQUEST_ENTITY_TOO_LARGE,
   guildUploadLimitBytes,
-} from "../../../../shared/core/limits.js";
+} from "@shared/core/limits.js";
 import {
   NAMESPACE,
   data,

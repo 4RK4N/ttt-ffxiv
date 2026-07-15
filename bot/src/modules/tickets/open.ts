@@ -10,8 +10,8 @@ import {
   type TextChannel,
   type ThreadChannel,
 } from "discord.js";
-import { channelThreadUrl } from "../../../../shared/core/limits.js";
-import { format, isModuleEnabled } from "../../../../shared/core/texts.js";
+import { channelThreadUrl } from "@shared/core/limits.js";
+import { format, isModuleEnabled } from "@shared/core/texts.js";
 import { sleep } from "../../lib/core/sleep.js";
 import { buildTextOrEmbedPayload } from "../../lib/core/embedBuilder.js";
 import {
@@ -21,6 +21,7 @@ import {
 import { buildTicketThreadName, isClosedTicketThread } from "./names.js";
 import {
   CLOSE_PREFIX,
+  OPEN_PREFIX,
   ROLE_ACTION_PREFIX,
 } from "../../lib/modules/tickets/panel.js";
 import { memberHasAnyRole } from "../../lib/core/discordInteractions.js";
@@ -34,10 +35,6 @@ import {
 
 const openInFlight = new Set<string>();
 const THREAD_MEMBER_FETCH_DELAY_MS = 250;
-
-function buildWelcomePayload(welcomeText: string) {
-  return buildTextOrEmbedPayload(welcomeText);
-}
 
 function openLockKey(channelId: string, userId: string): string {
   return `${channelId}:${userId}`;
@@ -118,7 +115,7 @@ export async function handleOpenTicket(
     return;
   }
 
-  const typeId = interaction.customId.slice("tickets:open:".length);
+  const typeId = interaction.customId.slice(OPEN_PREFIX.length);
   const ticketType = resolveTicketType(typeId);
 
   if (!ticketType || !ticketType.published) {
@@ -225,7 +222,7 @@ export async function handleOpenTicket(
       mention: `<@${interaction.user.id}>`,
     });
     await thread.send({
-      ...buildWelcomePayload(welcomeText),
+      ...buildTextOrEmbedPayload(welcomeText),
       components: [row],
     });
 

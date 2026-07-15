@@ -79,10 +79,10 @@ Static embed panels (info/rules) with optional author, footer, timestamp.
 
 Upload or clone custom server emojis.
 
-- **Config:** `emojiRoleId` (optional — members with this role can use the commands; Administrators always can)
+- **Config:** `emojiRoleId` (optional — members with this role can use the commands; Administrators always can). The Discord role must also have **Manage Emojis and Stickers** in Server Settings → Roles so assignees see the slash commands.
 - **Texts:** disabled notice, permission/size/slot errors, success reply
 - **Tokens:** `{emoji}` in success reply
-- **Permissions:** Manage Emojis and Stickers
+- **Permissions:** Manage Emojis and Stickers (bot and emoji-manager role)
 
 ---
 
@@ -124,18 +124,17 @@ Every production module follows the same shape:
 **Simple modules:** `config-io.ts` re-exports reads from `bot/src/lib/modules/<name>/types.ts`.
 **Panel modules:** shared `types.ts` + `validate.ts`; bot lib holds `config-io`, `panel`, `publisher`.
 
-**Adding a module:** copy [`bot/src/examples/module-template/`](bot/src/examples/module-template/) →
-`bot/src/modules/<name>/` and `bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/`.
-For the web editor, add `editorConfig` to `shared/modules/<name>/seed.sql` (see existing modules).
-Panel modules also copy `panel-types.ts` and `validate.ts` from the template into `shared/modules/<name>/`.
+**Adding a module:** copy [`example/`](example/) into the project — `example/bot/src/modules/example-module/` →
+`bot/src/modules/<name>/`, `example/bot/src/lib/modules/example-module/` → `bot/src/lib/modules/<name>/`,
+and (panel modules) `example/shared/modules/example-module/` → `shared/modules/<name>/`.
+For the web editor, adapt `example/shared/modules/example-module/seed.sql` (see existing modules).
+Panel modules also register the namespace in `shared/core/panelModuleRegistry.ts`.
 The loader picks up any folder with `index.ts` automatically.
-Panel modules also register the namespace in `bot/src/publish/publishRegistry.ts` and validators in
-`web-admin/src/store.ts`.
 
 Shared contract helpers: `shared/core/moduleConfig.ts`, `panelFields.ts`, `strings.ts`, `texts.ts`.
 Bot runtime helpers: `bot/src/lib/core/discordInteractions.ts`, `discordRoles.ts`, `threads.ts`, `panelPublisher.ts`.
 
-See the [module template README](bot/src/examples/module-template/README.md) for full patterns.
+See the [example module README](example/README.md) for full patterns.
 
 ---
 

@@ -4,6 +4,7 @@ import type {
   MessageReaction,
   PartialMessageReaction,
 } from "discord.js";
+import { isModuleEnabled } from "@shared/core/texts.js";
 
 export interface FullReactionContext {
   reaction: MessageReaction;
@@ -42,4 +43,15 @@ export async function ensureFullReaction(
     message,
     guild: message.guild,
   };
+}
+
+/** Skips bot reactions and disabled modules before resolving reaction context. */
+export async function guardReactionEvent(
+  reaction: MessageReaction | PartialMessageReaction,
+  user: { bot?: boolean },
+  namespace: string,
+): Promise<FullReactionContext | null> {
+  if (user.bot) return null;
+  if (!isModuleEnabled(namespace)) return null;
+  return ensureFullReaction(reaction);
 }

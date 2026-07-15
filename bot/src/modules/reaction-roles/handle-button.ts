@@ -1,15 +1,18 @@
 import { type ButtonInteraction } from "discord.js";
 import { replyEphemeral } from "../../lib/core/discordInteractions.js";
 import { tryAssignRole, tryRemoveRole } from "../../lib/core/discordRoles.js";
-import { isOnCooldown, touchCooldown } from "./cooldown.js";
-import { guardPublishedPanel } from "./guards.js";
+import {
+  fetchPanelGuildMember,
+  guardPanelCooldown,
+  guardPublishedPanel,
+} from "./guards.js";
 import { parseButtonCustomId } from "./parsers.js";
 import { formatEphemeralMessage, replyRoleResult } from "./respond.js";
 import {
   resolveOption,
   get,
 } from "../../lib/modules/reaction-roles/config-io.js";
-import type { ResolvedRolePanel } from "../../../../shared/modules/reaction-roles/types.js";
+import type { ResolvedRolePanel } from "@shared/modules/reaction-roles/types.js";
 
 async function replySuccess(
   interaction: ButtonInteraction,
@@ -48,15 +51,11 @@ export async function handleButtonInteraction(
     return;
   }
 
-  if (isOnCooldown(interaction.user.id, panel.id)) {
-    await replyEphemeral(interaction, t.cooldown);
-    return;
-  }
-  touchCooldown(interaction.user.id, panel.id);
+  if (!(await guardPanelCooldown(interaction, panel.id, t.cooldown))) return;
 
-  const guildMember = await interaction.guild!.members.fetch(
-    interaction.user.id,
-  );
+  const guildMember = await fetchPanelGuildMember(interaction, t.roleError);
+  if (!guildMember) return;
+
   const hasRole = guildMember.roles.cache.has(option.roleId);
   const roleName =
     interaction.guild!.roles.cache.get(option.roleId)?.name ?? "role";

@@ -388,7 +388,7 @@ chmod +x scripts/build.sh   # once, on Linux/macOS
 
 This builds and recreates:
 
-- **`ttt-discord-bot:1.5.0`** — single Node 24 (glibc) image: Discord bot + web editor in one process (`dist/bot/src/app.js`). Includes Turso, discord.js, hono, and admin UI assets.
+- **`ttt-discord-bot:1.6.5`** — single Node 24 (glibc) image: Discord bot + web editor in one process (`dist/bot/src/app.js`). Includes Turso, discord.js, hono, and admin UI assets.
 - **`ttt-website:2.0.0`** — multi-stage: Astro static site (`website/`), served by nginx on port **8089** inside the container.
 
 Runtime config and the database live in the mounted `./data` volume — not copied into images at build time.
@@ -542,7 +542,7 @@ If you prefer not to use Compose:
 
 ```bash
 # Bot + web editor (single image)
-docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.5.0 .
+docker build -f Dockerfile --target ttt-discord-bot -t ttt-discord-bot:1.6.5 .
 
 # Website
 docker build -f website/Dockerfile -t ttt-website:2.0.0 website/

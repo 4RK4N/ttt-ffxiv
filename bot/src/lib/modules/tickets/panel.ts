@@ -1,15 +1,17 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { buildEmbed } from "../../core/embedBuilder.js";
-import { parseEmoji } from "../../../../../shared/core/discordEmoji.js";
+import { applyEmojiToButton } from "../../core/buttonEmoji.js";
 import {
   publishDiscordMessage,
   type DiscordApiContext,
 } from "../../core/panelPublish.js";
-import { validateTicketType } from "../../../../../shared/modules/tickets/validate.js";
+import { validateTicketType } from "@shared/modules/tickets/validate.js";
 import { resolveTicketType } from "./config-io.js";
 
 export type { DiscordApiContext };
 
+export const CLOSE_CANCEL_PREFIX = "tickets:close-cancel:";
+export const DELETE_CANCEL_PREFIX = "tickets:delete-cancel:";
 export const OPEN_PREFIX = "tickets:open:";
 export const CLOSE_PREFIX = "tickets:close:";
 export const CLOSE_CONFIRM_PREFIX = "tickets:close-confirm:";
@@ -51,14 +53,7 @@ export function buildPanelPayload(typeId: string) {
     .setLabel(ticketType.openButtonLabel.slice(0, 80))
     .setStyle(ButtonStyle.Primary);
 
-  const parsedEmoji = parseEmoji(ticketType.emoji);
-  if (parsedEmoji) {
-    button.setEmoji(
-      parsedEmoji.id
-        ? { id: parsedEmoji.id, name: parsedEmoji.name }
-        : parsedEmoji,
-    );
-  }
+  applyEmojiToButton(button, ticketType.emoji);
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 

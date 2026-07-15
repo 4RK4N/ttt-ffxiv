@@ -3,8 +3,11 @@ import {
   type GuildMember,
   type ThreadChannel,
 } from "discord.js";
-import { replyEphemeral } from "../../lib/core/discordInteractions.js";
-import { format } from "../../../../shared/core/texts.js";
+import {
+  canConfiguredRoleOrAdmin,
+  replyEphemeral,
+} from "../../lib/core/discordInteractions.js";
+import { format } from "@shared/core/texts.js";
 import {
   tryAssignRole,
   roleChangeErrorMessage,
@@ -12,7 +15,6 @@ import {
 import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
 import { guardTicketThreadAction } from "./guards.js";
 import { parseRoleActionCustomId } from "./parsers.js";
-import { canConfiguredRoleOrAdmin } from "../../lib/core/discordInteractions.js";
 import { get } from "../../lib/modules/tickets/config-io.js";
 
 export async function handleRoleAction(

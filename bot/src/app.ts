@@ -1,8 +1,8 @@
-import { closeDb } from "../../shared/core/db.js";
-import { registerPublishHandlers } from "../../shared/core/panelPublishBridge.js";
-import { initConfig } from "../../shared/config.js";
-import { MODULE_NAMESPACES } from "../../shared/core/moduleTable.js";
-import { reloadAllModuleStores } from "../../shared/core/texts.js";
+import { closeDb } from "@shared/core/db.js";
+import { registerPublishHandlers } from "@shared/core/panelPublishBridge.js";
+import { initConfig } from "@shared/config.js";
+import { MODULE_NAMESPACES } from "@shared/core/moduleTable.js";
+import { reloadAllModuleStores } from "@shared/core/texts.js";
 import { startWeb } from "../../web-admin/src/server.js";
 import { publishHandlersByNamespace } from "./publish/publishRegistry.js";
 import { startBot } from "./index.js";

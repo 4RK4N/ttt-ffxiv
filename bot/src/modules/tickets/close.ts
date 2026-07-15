@@ -4,7 +4,6 @@ import { finalizeTicketClose, resolveOpenerUserId } from "./finalize-close.js";
 import { runTicketConfirmFlow } from "./confirm-flow.js";
 import { guardTicketThreadAction } from "./guards.js";
 import { parseCloseCustomId } from "./parsers.js";
-import { handleTicketCancel } from "./cancel-ui.js";
 import {
   buildConfirmRow,
   CLOSE_CONFIRM_PREFIX,
@@ -78,5 +77,8 @@ export async function handleCloseTicket(
 export async function handleCloseCancel(
   interaction: ButtonInteraction,
 ): Promise<void> {
-  await handleTicketCancel(interaction, get("closeCancelled"));
+  await interaction.update({
+    content: get("closeCancelled"),
+    components: [],
+  });
 }

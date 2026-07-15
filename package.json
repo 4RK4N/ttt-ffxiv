@@ -1,8 +1,11 @@
 {
   "name": "ttt-bot",
-  "version": "1.5.0",
+  "version": "1.6.5",
   "description": "Custom Discord bot for Tiny Temptation Tubs (TTT) with an extensible module system.",
   "type": "module",
+  "imports": {
+    "@shared/*": "./dist/shared/*"
+  },
   "main": "dist/bot/src/app.js",
   "engines": {
     "node": ">=24"

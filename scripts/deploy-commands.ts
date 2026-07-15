@@ -1,5 +1,5 @@
 import { REST, Routes } from "discord.js";
-import { config, initConfig } from "../shared/config.js";
+import { config, initConfig } from "@shared/config.js";
 import { loadModules } from "../bot/src/moduleLoader.js";
 
 async function main(): Promise<void> {
