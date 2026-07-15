@@ -1,5 +1,5 @@
 {
-  "name": "ttt-bot",
+  "name": "ttt-ffxiv",
   "version": "1.6.5",
   "description": "Custom Discord bot for Tiny Temptation Tubs (TTT) with an extensible module system.",
   "type": "module",

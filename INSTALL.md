@@ -23,7 +23,7 @@ so you do not need to open any firewall ports or set up a reverse proxy.
 ## Part 1 - Create the Discord application (one time)
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
-   and click **New Application**. Give it a name (e.g. `ttt-bot`).
+   and click **New Application**. Give it a name (e.g. `ttt-ffxiv`).
 2. Open **Bot** in the sidebar -> **Reset Token** -> copy the token. This is your
    `discordToken`. Keep it secret. While on this page, enable the
    **Message Content** intent under **Privileged Gateway Intents** - the
@@ -72,7 +72,7 @@ docker compose version
    `cd` into it:
 
    ```bash
-   cd ttt-bot
+   cd ttt-ffxiv
    ```
 
 2. Bootstrap Turso and app settings:
