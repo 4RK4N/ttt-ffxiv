@@ -1,1 +1,0 @@
-{"version":3,"file":"validate.d.ts","sourceRoot":"","sources":["../../../../shared/modules/custom-embeds/validate.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,kBAAkB,EAAE,MAAM,YAAY,CAAC;AAWrD,wBAAgB,kBAAkB,CAAC,KAAK,EAAE,kBAAkB,GAAG,IAAI,CAmBlE;AAED,wBAAgB,qBAAqB,CACnC,SAAS,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,EAClC,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAC/B,IAAI,CAYN"}

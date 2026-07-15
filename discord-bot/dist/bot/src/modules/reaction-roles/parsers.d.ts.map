@@ -1,1 +1,0 @@
-{"version":3,"file":"parsers.d.ts","sourceRoot":"","sources":["../../../../../bot/src/modules/reaction-roles/parsers.ts"],"names":[],"mappings":"AAEA,wBAAgB,mBAAmB,CACjC,QAAQ,EAAE,MAAM,GACf;IAAE,OAAO,EAAE,MAAM,CAAC;IAAC,QAAQ,EAAE,MAAM,CAAA;CAAE,GAAG,IAAI,CAS9C;AAED,wBAAgB,mBAAmB,CAAC,QAAQ,EAAE,MAAM,GAAG,MAAM,GAAG,IAAI,CAInE"}

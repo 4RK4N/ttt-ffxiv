@@ -1,1 +1,0 @@
-{"version":3,"file":"permissions.d.ts","sourceRoot":"","sources":["../../../../../bot/src/modules/tickets/permissions.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,iBAAiB,EAAoB,MAAM,YAAY,CAAC;AAGtE,wBAAgB,cAAc,CAC5B,WAAW,EAAE,iBAAiB,EAC9B,YAAY,EAAE,MAAM,GAAG,IAAI,EAC3B,WAAW,EAAE,MAAM,GAClB,OAAO,CAMT;AAED,wBAAgB,eAAe,CAC7B,WAAW,EAAE,iBAAiB,EAC9B,WAAW,EAAE,MAAM,GAClB,OAAO,CAIT"}
