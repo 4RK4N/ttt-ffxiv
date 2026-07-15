@@ -102,7 +102,7 @@ Never commit `data/config.json` or `data/ttt.db`. See **Configuration reference*
 **Schema updates:** write a `.sql` file under `scripts/db/migrations/`, then
 `./scripts/db/db-update.sh scripts/db/migrations/001_example.sql` (stops the bot if running, applies SQL, restarts).
 
-**Backups:** with the bot running, `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` (read-only exec into the container). Default dumps **redact** `discordToken`, `clientSecret`, and `sessionSecret` in `app_config`. For a credential-bearing backup (treat like the DB file), exec with `--include-secrets`: `docker compose exec -T ttt-discord-bot node dist/scripts/db/cli.js dump-db --include-secrets data/ttt.db > backups/full.sql`.
+**Backups:** with the bot running, `./scripts/db/db-dump.sh backups/ttt-YYYY-MM-DD.sql` (read-only exec into the container). Default dumps **redact** `discordToken`, `clientSecret`, and `sessionSecret` in `app_config`. For a credential-bearing backup (treat like the DB file): `./scripts/db/db-dump.sh --include-secrets backups/full.sql` (or `docker compose exec -T ttt-discord-bot node dist/scripts/db/cli.js dump-db --include-secrets data/ttt.db > backups/full.sql`).
 
 **First-time init:** `./scripts/db/db-init.sh` (stops the bot if running, applies schema/seeds, prompts for secrets, restarts if it was up).
 
