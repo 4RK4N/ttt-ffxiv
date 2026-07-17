@@ -12,6 +12,25 @@ describe("isSupportedAutoThreadUrl", () => {
     ).toBe(true);
   });
 
+  it.each([
+    "https://fxtwitter.com/user/status/1234567890",
+    "https://fixupx.com/user/status/1234567890",
+    "https://twittpr.com/user/status/1234567890",
+    "https://xfixup.com/user/status/1234567890",
+    "https://vxtwitter.com/user/status/1234567890",
+    "https://fixvx.com/user/status/1234567890",
+    "https://g.fxtwitter.com/user/status/1234567890",
+  ])("accepts Twitter embed-fixer status links: %s", (url) => {
+    expect(isSupportedAutoThreadUrl(url)).toBe(true);
+  });
+
+  it.each([
+    "https://fxtwitter.com/user",
+    "https://vxtwitter.com/home",
+  ])("rejects non-status Twitter embed-fixer links: %s", (url) => {
+    expect(isSupportedAutoThreadUrl(url)).toBe(false);
+  });
+
   it("accepts bsky.app post links", () => {
     expect(
       isSupportedAutoThreadUrl(

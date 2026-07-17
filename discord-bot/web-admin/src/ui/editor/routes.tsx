@@ -43,12 +43,30 @@ export interface HtmxDeps {
   byNamespace: Map<string, WebPlugin>;
 }
 
+/** CSRF token + Discord editor context for HTMX partials. */
+async function withEditorCtx(
+  c: HonoCtx,
+  deps: HtmxDeps,
+): Promise<EditorContext> {
+  const csrfToken = await ensureCsrfToken(c, deps.cfg);
+  return loadEditorContext(deps.cfg, csrfToken);
+}
+
+/** Editor context plus a fresh ModulePanel model for a known plugin. */
+async function withEditorModule(
+  c: HonoCtx,
+  deps: HtmxDeps,
+  plugin: WebPlugin,
+) {
+  const ctx = await withEditorCtx(c, deps);
+  const mod = buildEditorModule(plugin);
+  return { ctx, mod };
+}
+
 async function ctxAndMod(c: HonoCtx, deps: HtmxDeps, namespace: string) {
   const plugin = deps.byNamespace.get(namespace);
   if (!plugin) return null;
-  const csrfToken = await ensureCsrfToken(c, deps.cfg);
-  const ctx = await loadEditorContext(deps.cfg, csrfToken);
-  const mod = buildEditorModule(plugin);
+  const { ctx, mod } = await withEditorModule(c, deps, plugin);
   return { plugin, ctx, mod };
 }
 
@@ -108,9 +126,7 @@ export function registerHtmxRoutes(
       console.log(
         `[web] ${c.get("user").username} updated "${namespace}" via HTMX.`,
       );
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       mod.values = saved;
       return c.html(
         <ModulePanel
@@ -122,9 +138,7 @@ export function registerHtmxRoutes(
         err instanceof ValidationError || err instanceof DataReadError
           ? err.message
           : "Failed to save changes.";
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       mod.values = values as Record<string, FieldValue>;
       return c.html(
         <ModulePanel
@@ -177,8 +191,7 @@ export function registerHtmxRoutes(
     const items = getObjectListItems(plugin, body, fieldKey);
     items.push(defaultObjectItem(field));
 
-    const csrfToken = await ensureCsrfToken(c, deps.cfg);
-    const ctx = await loadEditorContext(deps.cfg, csrfToken);
+    const ctx = await withEditorCtx(c, deps);
 
     return c.html(
       <ObjectListRowsOnly
@@ -205,8 +218,7 @@ export function registerHtmxRoutes(
     const items = getObjectListItems(plugin, body, fieldKey);
     items.splice(index, 1);
 
-    const csrfToken = await ensureCsrfToken(c, deps.cfg);
-    const ctx = await loadEditorContext(deps.cfg, csrfToken);
+    const ctx = await withEditorCtx(c, deps);
 
     return c.html(
       <ObjectListRowsOnly
@@ -237,8 +249,7 @@ export function registerHtmxRoutes(
       expanded = toggleExpanded(expanded, key);
     }
 
-    const csrfToken = await ensureCsrfToken(c, deps.cfg);
-    const ctx = await loadEditorContext(deps.cfg, csrfToken);
+    const ctx = await withEditorCtx(c, deps);
 
     return c.html(
       <ObjectListRow
@@ -271,8 +282,7 @@ export function registerHtmxRoutes(
     const row =
       listItems[index] ?? mergeRowFromForm(plugin, body, fieldKey, index);
 
-    const csrfToken = await ensureCsrfToken(c, deps.cfg);
-    const ctx = await loadEditorContext(deps.cfg, csrfToken);
+    const ctx = await withEditorCtx(c, deps);
 
     return c.html(
       <ObjectListRow
@@ -309,8 +319,7 @@ export function registerHtmxRoutes(
       row[optionKey] = opts;
       items[rowIndex] = row;
 
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
+      const ctx = await withEditorCtx(c, deps);
       const name = `${fieldKey}[${rowIndex}].${optionKey}`;
 
       return c.html(
@@ -358,8 +367,7 @@ export function registerHtmxRoutes(
       row[optionKey] = opts;
       items[rowIndex] = row;
 
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
+      const ctx = await withEditorCtx(c, deps);
       const name = `${fieldKey}[${rowIndex}].${optionKey}`;
 
       return c.html(
@@ -399,9 +407,7 @@ export function registerHtmxRoutes(
       console.log(
         `[web] ${c.get("user").username} published ${namespace} panel "${itemId}".`,
       );
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       mod.values = readValues(plugin);
       return c.html(
         <ModulePanel
@@ -416,9 +422,7 @@ export function registerHtmxRoutes(
         `[web] publish failed ${namespace}/${itemId}:`,
         err,
       );
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       const message = publishClientError(true);
       return c.html(
         <ModulePanel
@@ -452,9 +456,7 @@ export function registerHtmxRoutes(
       console.log(
         `[web] ${c.get("user").username} unpublished ${namespace} panel "${itemId}".`,
       );
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       mod.values = readValues(plugin);
       return c.html(
         <ModulePanel
@@ -469,9 +471,7 @@ export function registerHtmxRoutes(
         `[web] unpublish failed ${namespace}/${itemId}:`,
         err,
       );
-      const csrfToken = await ensureCsrfToken(c, deps.cfg);
-      const ctx = await loadEditorContext(deps.cfg, csrfToken);
-      const mod = buildEditorModule(plugin);
+      const { ctx, mod } = await withEditorModule(c, deps, plugin);
       const message = publishClientError(false);
       return c.html(
         <ModulePanel

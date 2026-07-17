@@ -34,7 +34,7 @@ export function ChannelField({
 
   if (ctx.channelsError) {
     return (
-      <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+      <FieldWrap label={f.label} help={f.help} disabled={disabled}>
         <input
           class="input input-bordered w-full"
           type="text"
@@ -51,7 +51,7 @@ export function ChannelField({
   }
 
   return (
-    <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+    <FieldWrap label={f.label} help={f.help} disabled={disabled}>
       <select
         class="select select-bordered w-full"
         id={id}
@@ -77,7 +77,7 @@ export function ChannelMultiField({
 
   if (ctx.channelsError) {
     return (
-      <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+      <FieldWrap label={f.label} help={f.help} disabled={disabled}>
         <input
           class="input input-bordered w-full"
           type="text"
@@ -94,7 +94,7 @@ export function ChannelMultiField({
   }
 
   return (
-    <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+    <FieldWrap label={f.label} help={f.help} disabled={disabled}>
       <div class="checklist-scroll rounded-box border border-base-300 p-2">
         {ctx.channels.length === 0 ? (
           <p class="text-sm text-base-content/60">No channels available.</p>

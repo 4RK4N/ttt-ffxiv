@@ -2,7 +2,7 @@ import type { WebPluginField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 import { RowSubFieldsWithWatch } from "../Field.js";
 import { OptionListField } from "./OptionListField.js";
-import { fieldValueStr } from "./shared.js";
+import { FieldWrap, fieldValueStr } from "./shared.js";
 
 function rowKey(item: Record<string, unknown>, index: number): string {
   const id = item.id;
@@ -17,10 +17,10 @@ function cardTitle(
   const merged = { ...row, ...subValues };
   return String(
     merged.openButtonLabel ??
-      merged.panelTitle ??
-      merged.id ??
-      field.itemLabel ??
-      "Item",
+    merged.panelTitle ??
+    merged.id ??
+    field.itemLabel ??
+    "Item",
   );
 }
 
@@ -59,11 +59,11 @@ export function ObjectListRow({
         class={`flex items-center justify-between gap-2 border-b border-base-300 p-4${field.collapsible ? " is-toggle" : ""}`}
         {...(field.collapsible
           ? {
-              "hx-post": toggleUrl,
-              "hx-target": `#row-${namespace}-${field.key}-${rowIndex}`,
-              "hx-swap": "outerHTML",
-              "hx-include": `#panel-form-${namespace}`,
-            }
+            "hx-post": toggleUrl,
+            "hx-target": `#row-${namespace}-${field.key}-${rowIndex}`,
+            "hx-swap": "outerHTML",
+            "hx-include": `#panel-form-${namespace}`,
+          }
           : {})}
       >
         <div class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
@@ -174,13 +174,11 @@ export function ObjectListField({
   >[];
   const expandedParam = encodeURIComponent((expanded ?? []).join(","));
 
+  const listId = `list-${namespace}-${f.key}`;
+
   return (
-    <div class="field mb-4 w-full">
-      <label class="mb-1 block font-medium">{f.label}</label>
-      {f.help ? (
-        <p class="mb-1 text-sm text-base-content/60">{f.help}</p>
-      ) : null}
-      <div class="flex flex-col gap-3" id={`list-${namespace}-${f.key}`}>
+    <FieldWrap label={f.label} help={f.help}>
+      <div class="flex flex-col gap-3" id={listId}>
         {items.map((row, index) => (
           <ObjectListRow
             field={f}
@@ -197,12 +195,12 @@ export function ObjectListField({
         class="btn btn-sm mt-2"
         hx-post={`/htmx/modules/${namespace}/list/${f.key}/add?expanded=${expandedParam}`}
         hx-include={`#panel-form-${namespace}`}
-        hx-target={`#list-${namespace}-${f.key}`}
+        hx-target={`#${listId}`}
         hx-swap="innerHTML"
       >
         Add {(f.itemLabel ?? "item").toLowerCase()}
       </button>
-    </div>
+    </FieldWrap>
   );
 }
 

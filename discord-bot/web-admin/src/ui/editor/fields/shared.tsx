@@ -31,29 +31,27 @@ export function textInputMaxLength(
 
 export function Help({ text }: { text?: string }) {
   if (!text) return null;
-  return <p class="mb-1 text-sm text-base-content/60">{text}</p>;
+  return <p class="label">{text}</p>;
 }
 
 export function FieldWrap({
-  id,
   label,
   help,
   children,
   disabled,
 }: {
-  id: string;
   label: string;
   help?: string;
   children: unknown;
   disabled?: boolean;
 }) {
   return (
-    <div class={`mb-4 field w-full${disabled ? " disabled" : ""}`}>
-      <label class="mb-1 block font-medium" for={id}>
-        {label}
-      </label>
+    <fieldset
+      class={`fieldset field mb-4 w-full${disabled ? " disabled" : ""}`}
+    >
+      <legend class="fieldset-legend">{label}</legend>
       <Help text={help} />
       {children}
-    </div>
+    </fieldset>
   );
 }

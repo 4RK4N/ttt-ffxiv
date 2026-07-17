@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import type { Context, MiddlewareHandler } from "hono";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 import { fetchWithTimeout } from "#shared/core/fetchWithTimeout.js";
@@ -140,15 +140,7 @@ async function isGuildAdmin(
   // The guild owner implicitly has every permission.
   if (guild.owner === true) return true;
 
-  if (guild.permissions === undefined || guild.permissions === null)
-    return false;
-
-  try {
-    // BigInt accepts both the string (v8+) and number (legacy) forms.
-    return (BigInt(guild.permissions) & ADMINISTRATOR) === ADMINISTRATOR;
-  } catch {
-    return false;
-  }
+  return hasAdminPermission(guild.permissions);
 }
 
 interface DiscordGuildMember {
@@ -161,10 +153,19 @@ const adminCache = new Map<string, { at: number }>();
 function hasAdminPermission(permissions: string | number | undefined): boolean {
   if (permissions === undefined || permissions === null) return false;
   try {
+    // BigInt accepts both the string (v8+) and number (legacy) forms.
     return (BigInt(permissions) & ADMINISTRATOR) === ADMINISTRATOR;
   } catch {
     return false;
   }
+}
+
+/** Constant-time compare for CSRF cookie vs form/header token. */
+function csrfTokensEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, "utf8");
+  const bufB = Buffer.from(b, "utf8");
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
 }
 
 /**
@@ -426,7 +427,7 @@ export async function verifyFormCsrf(
   return (
     typeof cookieToken === "string" &&
     formToken !== "" &&
-    cookieToken === formToken
+    csrfTokensEqual(cookieToken, formToken)
   );
 }
 
@@ -453,7 +454,7 @@ export function requireCsrf(cfg: WebConfig): MiddlewareHandler {
     if (
       typeof cookieToken !== "string" ||
       !headerToken ||
-      cookieToken !== headerToken
+      !csrfTokensEqual(cookieToken, headerToken)
     ) {
       return c.json({ error: "Invalid CSRF token." }, 403);
     }

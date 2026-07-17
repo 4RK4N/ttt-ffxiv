@@ -5,7 +5,7 @@ export function BooleanField({ f, value, name, disabled }: SubFieldProps) {
   const id = name.replace(/[[\].]/g, "-");
   const checked = value === true;
   return (
-    <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+    <FieldWrap label={f.label} help={f.help} disabled={disabled}>
       <div class="flex items-center gap-3">
         <input
           class="toggle toggle-success"
@@ -34,7 +34,7 @@ export function SelectField({
   const id = name.replace(/[[\].]/g, "-");
   const strVal = value != null ? String(value) : "";
   return (
-    <FieldWrap id={id} label={f.label} help={f.help} disabled={disabled}>
+    <FieldWrap label={f.label} help={f.help} disabled={disabled}>
       <select
         class="select select-bordered w-full"
         id={id}

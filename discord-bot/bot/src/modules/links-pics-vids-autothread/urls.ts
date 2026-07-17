@@ -3,12 +3,31 @@ export const URL_REGEX = /https?:\/\/[^\s<>]+/gi;
 const DISCORD_MEDIA_PATH =
   /^\/attachments\/\d+\/\d+\/[^/]+\.(?:avif|bmp|gif|jpe?g|png|webp|m4v|mov|mp4|webm)$/i;
 
+/** Native X/Twitter hosts plus common Discord embed fixers (FxEmbed, BetterTwitFix). */
+const TWITTER_STATUS_HOSTS = [
+  "x.com",
+  "twitter.com",
+  "mobile.twitter.com",
+  "fxtwitter.com",
+  "fixupx.com",
+  "twittpr.com",
+  "xfixup.com",
+  "vxtwitter.com",
+  "fixvx.com",
+] as const;
+
 export function stripUrls(content: string): string {
   return content.replace(URL_REGEX, " ").replace(/\s+/g, " ").trim();
 }
 
 function normalizeHost(host: string): string {
   return host.replace(/^www\./i, "").toLowerCase();
+}
+
+function isTwitterStatusHost(host: string): boolean {
+  return TWITTER_STATUS_HOSTS.some(
+    (apex) => host === apex || host.endsWith(`.${apex}`),
+  );
 }
 
 export function isSupportedAutoThreadUrl(raw: string): boolean {
@@ -24,7 +43,7 @@ export function isSupportedAutoThreadUrl(raw: string): boolean {
   const host = normalizeHost(url.hostname);
   const path = url.pathname.replace(/[).,]+$/, "");
 
-  if (["x.com", "twitter.com", "mobile.twitter.com"].includes(host)) {
+  if (isTwitterStatusHost(host)) {
     return /\/status(?:es)?\/\d+/.test(path);
   }
 

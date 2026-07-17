@@ -32,9 +32,9 @@ The author can delete their repost by reacting with the configured delete emoji 
 
 ### links-pics-vids-autothread
 
-Auto-creates comments threads on qualifying posts in watched channels: X,
-Bluesky, Aethy, or Instagram post links; direct Discord image/video links; or
-native image/video attachments.
+Auto-creates comments threads on qualifying posts in watched channels: X/Twitter
+(including common fx/vx embed fixers), Bluesky, Aethy, or Instagram post links;
+direct Discord image/video links; or native image/video attachments.
 
 - **Config:** `channelIds[]`, `deleteNonQualifyingMessages` (default off)
 - **Texts:** `threadFirstMessage`, `nonQualifyingDm` (tokens: `{channel}` link, `{message}`)

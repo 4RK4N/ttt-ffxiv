@@ -34,7 +34,7 @@ services:
 
       caddy.header.X-Content-Type-Options: "nosniff"
 
-      caddy.header.X-Frame-Options: "SAMEORIGIN"
+      caddy.header.X-Frame-Options: "DENY"
 
       caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
 
@@ -81,7 +81,7 @@ services:
 
       caddy.header.X-Content-Type-Options: "nosniff"
 
-      caddy.header.X-Frame-Options: "SAMEORIGIN"
+      caddy.header.X-Frame-Options: "DENY"
 
       caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
 

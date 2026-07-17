@@ -1,7 +1,7 @@
 import type { WebPluginSubField } from "../../../plugin-types.js";
 import type { EditorContext } from "../context.js";
 import { SubField } from "../Field.js";
-import { fieldValueStr } from "./shared.js";
+import { FieldWrap, fieldValueStr } from "./shared.js";
 
 function OptionListRows({
   f,
@@ -87,13 +87,7 @@ export function OptionListField({
   const listId = `optlist-${namespace}-${fieldKey}-${rowIndex}-${f.key}`;
 
   return (
-    <div class={`field mb-4 w-full${disabled ? " disabled" : ""}`}>
-      <label class="label py-0">
-        <span class="label-text font-medium">{f.label}</span>
-      </label>
-      {f.help ? (
-        <p class="mb-1 text-sm text-base-content/60">{f.help}</p>
-      ) : null}
+    <FieldWrap label={f.label} help={f.help} disabled={disabled}>
       <div class="flex flex-col gap-3" id={listId}>
         <OptionListRows
           f={f}
@@ -118,7 +112,7 @@ export function OptionListField({
       >
         Add option
       </button>
-    </div>
+    </FieldWrap>
   );
 }
 

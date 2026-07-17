@@ -157,7 +157,13 @@ export async function loadModules(
     }
 
     if (Array.isArray(mod.componentRoutes)) {
-      componentRoutes.push(...mod.componentRoutes);
+      if (isModuleEnabled(namespace)) {
+        componentRoutes.push(...mod.componentRoutes);
+      } else {
+        console.log(
+          `[moduleLoader] Module "${namespace}" is disabled; skipping component routes.`,
+        );
+      }
     }
 
     console.log(`[moduleLoader] Loaded module "${mod.name ?? entry.name}".`);

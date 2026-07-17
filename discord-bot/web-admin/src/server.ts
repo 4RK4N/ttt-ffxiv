@@ -128,11 +128,6 @@ export async function startWeb(): Promise<WebRuntime> {
     );
   });
 
-  app.get("/logout", (c) => {
-    logout(c);
-    return c.redirect("/");
-  });
-
   app.post("/logout", async (c) => {
     const body = await c.req.parseBody();
     const formToken = typeof body._csrf === "string" ? body._csrf : "";
