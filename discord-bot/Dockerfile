@@ -27,6 +27,5 @@ COPY --from=build /app/dist/scripts ./dist/scripts
 COPY discord-bot/scripts/db/schema.sql ./scripts/db/schema.sql
 COPY discord-bot/scripts/db/migrations ./scripts/db/migrations
 COPY discord-bot/shared/modules ./shared/modules
-COPY discord-bot/scripts/web-health.mjs ./scripts/web-health.mjs
 USER node
 CMD ["node", "dist/bot/src/app.js"]

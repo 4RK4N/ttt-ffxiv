@@ -46,13 +46,6 @@ services:
 
       caddy.reverse_proxy: "{{upstreams 8088}}"
 
-    healthcheck:
-      test: ["CMD", "node", "scripts/web-health.mjs"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
     restart: unless-stopped
 
   ttt-website:

@@ -156,8 +156,7 @@ a CSRF token (`X-CSRF-Token` header matching a signed cookie set at login).
 See [Web editor](README.md#web-editor).
 
 **Health check:** `GET /health` on the web port returns `{"ok":true}` when the
-combined app is up. Docker Compose runs
-[`discord-bot/scripts/web-health.mjs`](discord-bot/scripts/web-health.mjs) against that endpoint.
+combined app is up.
 
 **Deployment security notes:**
 - The web editor listens on `0.0.0.0` inside the container — expose it only via reverse proxy and firewall.
