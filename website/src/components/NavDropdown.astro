@@ -1,38 +1,32 @@
 ---
-import { isNavPathActive, type NavItem } from "../data/nav";
+import { isNavPathActive, type NavItem } from '../data/nav';
 
 interface Props {
   label: string;
   items: NavItem[];
   currentPath: string;
   isGroupActive: boolean;
-  variant?: "bar" | "drawer";
+  variant?: 'bar' | 'drawer';
 }
 
-const {
-  label,
-  items,
-  currentPath,
-  isGroupActive,
-  variant = "bar",
-} = Astro.props;
+const { label, items, currentPath, isGroupActive, variant = 'bar' } = Astro.props;
 
-const isDrawer = variant === "drawer";
+const isDrawer = variant === 'drawer';
 const isActive = (itemPath: string) => isNavPathActive(itemPath, currentPath);
 ---
 
 <li
   class:list={[
-    "nav-dropdown",
-    isDrawer ? "nav-dropdown--drawer border-b border-bar-border" : "relative",
+    'nav-dropdown',
+    isDrawer ? 'nav-dropdown--drawer border-b border-bar-border' : 'relative',
   ]}
 >
   <button
     type="button"
     class:list={[
-      "nav-link nav-dropdown-trigger cursor-pointer bg-transparent font-inherit",
-      isDrawer && "w-full justify-start px-1 py-2.5 text-left",
-      isGroupActive && "nav-link--active",
+      'nav-link nav-dropdown-trigger cursor-pointer bg-transparent font-inherit',
+      isDrawer && 'w-full justify-start px-1 py-2.5 text-left',
+      isGroupActive && 'nav-link--active',
     ]}
     aria-haspopup="true"
     aria-expanded="false"
@@ -43,15 +37,14 @@ const isActive = (itemPath: string) => isNavPathActive(itemPath, currentPath);
       class="h-3 w-3 shrink-0 fill-none stroke-current stroke-2 transition-transform duration-200"
       aria-hidden="true"
     >
-      <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"
-      ></path>
+      <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
   </button>
   <ul
     class:list={[
-      "nav-dropdown-menu",
+      'nav-dropdown-menu',
       !isDrawer &&
-        "site-bar absolute left-1/2 top-full z-50 mt-1 min-w-40 -translate-x-1/2 rounded border py-1 shadow-lg",
+        'site-bar absolute left-1/2 top-full z-50 mt-1 min-w-40 -translate-x-1/2 rounded border py-1 shadow-lg',
     ]}
     role="menu"
   >
@@ -63,8 +56,8 @@ const isActive = (itemPath: string) => isNavPathActive(itemPath, currentPath);
             data-astro-prefetch
             role="menuitem"
             class:list={[
-              "nav-link block px-4 py-2 text-left",
-              isActive(item.path) && "nav-link--active",
+              'nav-link block px-4 py-2 text-left',
+              isActive(item.path) && 'nav-link--active',
             ]}
           >
             {item.label}

@@ -1,23 +1,18 @@
 ---
-import { Image } from "astro:assets";
-import Base from "../layouts/Base.astro";
-import Timer from "./Timer.astro";
-import DiscordButton from "./DiscordButton.astro";
-import IntroPanel from "./IntroPanel.astro";
-import OrnamentDivider from "./OrnamentDivider.astro";
-import AddressPlaque from "./AddressPlaque.astro";
-import SectionHeading from "./SectionHeading.astro";
-import {
-  HERO_LOGO_PX,
-  HERO_REM,
-  remScaledSizes,
-  remScaledWidths,
-} from "../data/layout";
-import { homeCopy } from "../data/home";
-import { buildResponsivePreload } from "../data/preload";
-import { DISCORD_TTT, EVENT_TIMESTAMP } from "../data/site";
-import { type Lang, siteName } from "../data/nav";
-import { homeLogo } from "../data/images";
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Timer from './Timer.astro';
+import DiscordButton from './DiscordButton.astro';
+import IntroPanel from './IntroPanel.astro';
+import OrnamentDivider from './OrnamentDivider.astro';
+import AddressPlaque from './AddressPlaque.astro';
+import SectionHeading from './SectionHeading.astro';
+import { HERO_LOGO_PX, HERO_REM, remScaledSizes, remScaledWidths } from '../data/layout';
+import { homeCopy } from '../data/home';
+import { buildResponsivePreload } from '../data/preload';
+import { DISCORD_TTT, EVENT_TIMESTAMP } from '../data/site';
+import { type Lang, siteName } from '../data/nav';
+import { homeLogo } from '../data/images';
 
 interface Props {
   lang: Lang;
@@ -28,20 +23,10 @@ const { lang } = Astro.props;
 const copy = homeCopy[lang];
 const heroSizes = remScaledSizes(HERO_REM);
 const heroWidths = remScaledWidths(HERO_REM);
-const lcpPreload = await buildResponsivePreload(
-  homeLogo,
-  heroWidths,
-  heroSizes,
-);
+const lcpPreload = await buildResponsivePreload(homeLogo, heroWidths, heroSizes);
 ---
 
-<Base
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heroLcp
-  lcpPreload={lcpPreload}
->
+<Base title={copy.title} lang={lang} path={copy.path} heroLcp lcpPreload={lcpPreload}>
   <section class="content-section content-section--home">
     <div class="section-head section-head--compact">
       <Image

@@ -8,7 +8,5 @@ export function applyEmojiToButton(
 ): void {
   const parsed = parseEmoji(emojiString);
   if (!parsed) return;
-  button.setEmoji(
-    parsed.id ? { id: parsed.id, name: parsed.name } : parsed,
-  );
+  button.setEmoji(parsed.id ? { id: parsed.id, name: parsed.name } : parsed);
 }

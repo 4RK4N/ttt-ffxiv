@@ -1,13 +1,7 @@
 import { withTransaction } from "#shared/core/db.js";
-import {
-  getDbDataFromClient,
-  setDbData,
-} from "#shared/core/dbData.js";
+import { getDbDataFromClient, setDbData } from "#shared/core/dbData.js";
 import { moduleTableName } from "#shared/core/moduleTable.js";
-import {
-  getModuleRowsSync,
-  reloadModuleStore,
-} from "#shared/core/texts.js";
+import { getModuleRowsSync, reloadModuleStore } from "#shared/core/texts.js";
 
 export interface ConfigIo<T extends { id: string }> {
   updateItem: (id: string, patch: Partial<T>) => Promise<T | undefined>;

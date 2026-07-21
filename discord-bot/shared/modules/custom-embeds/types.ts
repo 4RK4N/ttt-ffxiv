@@ -21,7 +21,7 @@ export interface EmbedPanelTexts {
   footer: string;
 }
 
-export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts { }
+export interface ResolvedEmbedPanel extends EmbedPanelConfig, EmbedPanelTexts {}
 
 export interface CustomEmbedsConfig {
   enabled?: boolean;

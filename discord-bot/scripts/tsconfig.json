@@ -7,10 +7,7 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": [
-    "deploy-commands.ts",
-    "db/cli.ts"
-  ],
+  "include": ["deploy-commands.ts", "db/cli.ts"],
   "references": [
     {
       "path": "../shared"

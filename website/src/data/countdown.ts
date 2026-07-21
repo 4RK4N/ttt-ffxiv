@@ -6,6 +6,6 @@ export function splitRemainingMs(remainingMs: number): string[] {
   return COUNTDOWN_UNITS_MS.map((unit) => {
     const value = Math.floor(remaining / unit);
     remaining -= value * unit;
-    return String(value).padStart(2, "0");
+    return String(value).padStart(2, '0');
   });
 }

@@ -29,8 +29,9 @@ export function loadDbBootstrapConfig(): DbBootstrapConfig {
   } catch (err) {
     throw new Error(
       `Could not read DB bootstrap config from "${CONFIG_FILE}". ` +
-      'Copy "data/config.example.json" to "data/config.json". ' +
-      `(${(err as Error).message})`,
+        'Copy "data/config.example.json" to "data/config.json". ' +
+        `(${err instanceof Error ? err.message : String(err)})`,
+      { cause: err },
     );
   }
 

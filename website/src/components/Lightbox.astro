@@ -1,7 +1,7 @@
 ---
-import CloseIcon from "./CloseIcon.astro";
-import type { Lang } from "../data/nav";
-import { lightboxLabels } from "../data/ui";
+import CloseIcon from './CloseIcon.astro';
+import type { Lang } from '../data/nav';
+import { lightboxLabels } from '../data/ui';
 
 interface Props {
   lang: Lang;
@@ -21,12 +21,7 @@ const labels = lightboxLabels[lang];
   data-zoom-out={labels.zoomOut}
   hidden
 >
-  <button
-    type="button"
-    id="lightbox-close"
-    class="lightbox-close"
-    aria-label={labels.close}
-  >
+  <button type="button" id="lightbox-close" class="lightbox-close" aria-label={labels.close}>
     <CloseIcon class="h-5 w-5" />
   </button>
   <div id="lightbox-stage" class="lightbox-stage">
@@ -47,11 +42,7 @@ const labels = lightboxLabels[lang];
       class="lightbox-btn lightbox-btn--prev"
       aria-label={labels.prev}
     >
-      <svg
-        viewBox="0 0 24 24"
-        class="h-6 w-6 fill-none stroke-current stroke-2"
-        aria-hidden="true"
-      >
+      <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2" aria-hidden="true">
         <path d="M15 6l-6 6 6 6"></path>
       </svg>
     </button>
@@ -62,11 +53,7 @@ const labels = lightboxLabels[lang];
       class="lightbox-btn lightbox-btn--next"
       aria-label={labels.next}
     >
-      <svg
-        viewBox="0 0 24 24"
-        class="h-6 w-6 fill-none stroke-current stroke-2"
-        aria-hidden="true"
-      >
+      <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2" aria-hidden="true">
         <path d="M9 6l6 6-6 6"></path>
       </svg>
     </button>
@@ -74,34 +61,26 @@ const labels = lightboxLabels[lang];
 </div>
 
 <script>
-  import { on, renewListenerScope } from "../lib/dom-listeners";
+  import { on, renewListenerScope } from '../lib/dom-listeners';
 
   let triggers: HTMLButtonElement[] = [];
   let current = 0;
   let lastFocus: HTMLButtonElement | null = null;
   let overlayAbort: AbortController | null = null;
   let zoomed = false;
-  let fitSrc = "";
+  let fitSrc = '';
   let zoomResizeObserver: ResizeObserver | null = null;
   const documentScope = new AbortController();
 
   function getElements() {
     return {
-      overlay: document.getElementById("lightbox") as HTMLDivElement | null,
-      stage: document.getElementById("lightbox-stage") as HTMLDivElement | null,
-      img: document.getElementById("lightbox-image") as HTMLImageElement | null,
-      counter: document.getElementById(
-        "lightbox-counter",
-      ) as HTMLParagraphElement | null,
-      closeBtn: document.getElementById(
-        "lightbox-close",
-      ) as HTMLButtonElement | null,
-      prevBtn: document.getElementById(
-        "lightbox-prev",
-      ) as HTMLButtonElement | null,
-      nextBtn: document.getElementById(
-        "lightbox-next",
-      ) as HTMLButtonElement | null,
+      overlay: document.getElementById('lightbox') as HTMLDivElement | null,
+      stage: document.getElementById('lightbox-stage') as HTMLDivElement | null,
+      img: document.getElementById('lightbox-image') as HTMLImageElement | null,
+      counter: document.getElementById('lightbox-counter') as HTMLParagraphElement | null,
+      closeBtn: document.getElementById('lightbox-close') as HTMLButtonElement | null,
+      prevBtn: document.getElementById('lightbox-prev') as HTMLButtonElement | null,
+      nextBtn: document.getElementById('lightbox-next') as HTMLButtonElement | null,
     };
   }
 
@@ -109,19 +88,19 @@ const labels = lightboxLabels[lang];
     const src = source.currentSrc || source.src;
     if (src) return src;
 
-    const srcset = source.getAttribute("srcset");
-    if (!srcset) return "";
+    const srcset = source.getAttribute('srcset');
+    if (!srcset) return '';
 
     const largest = srcset
-      .split(",")
+      .split(',')
       .map((entry) => entry.trim().split(/\s+/))
       .sort((a, b) => {
-        const wA = parseInt(a[1] || "0", 10);
-        const wB = parseInt(b[1] || "0", 10);
+        const wA = parseInt(a[1] || '0', 10);
+        const wB = parseInt(b[1] || '0', 10);
         return wB - wA;
       })[0]?.[0];
 
-    return largest || "";
+    return largest || '';
   }
 
   function setZoomUi(isZoomed: boolean) {
@@ -129,14 +108,14 @@ const labels = lightboxLabels[lang];
     if (!overlay || !img) return;
 
     zoomed = isZoomed;
-    img.classList.toggle("is-zoomed", isZoomed);
-    overlay.classList.toggle("is-zoomed", isZoomed);
+    img.classList.toggle('is-zoomed', isZoomed);
+    overlay.classList.toggle('is-zoomed', isZoomed);
 
     const label = isZoomed
-      ? (overlay.dataset.zoomOut ?? "Zoom out")
-      : (overlay.dataset.zoomIn ?? "Zoom in");
+      ? (overlay.dataset.zoomOut ?? 'Zoom out')
+      : (overlay.dataset.zoomIn ?? 'Zoom in');
     img.title = label;
-    img.setAttribute("aria-label", label);
+    img.setAttribute('aria-label', label);
   }
 
   function centerStageScroll() {
@@ -166,7 +145,7 @@ const labels = lightboxLabels[lang];
       return;
     }
 
-    img.addEventListener("load", scheduleCenter, { once: true });
+    img.addEventListener('load', scheduleCenter, { once: true });
     if (img.decode) {
       img.decode().then(scheduleCenter).catch(scheduleCenter);
     }
@@ -191,11 +170,11 @@ const labels = lightboxLabels[lang];
     if (!overlay || !img) return;
 
     resetZoom();
-    overlay.classList.add("hidden");
+    overlay.classList.add('hidden');
     overlay.hidden = true;
-    document.body.classList.remove("overflow-hidden");
-    img.src = "";
-    fitSrc = "";
+    document.body.classList.remove('overflow-hidden');
+    img.src = '';
+    fitSrc = '';
     lastFocus?.focus();
   }
 
@@ -209,7 +188,7 @@ const labels = lightboxLabels[lang];
 
     current = (index + triggers.length) % triggers.length;
     const trigger = triggers[current];
-    const source = trigger.querySelector<HTMLImageElement>("img");
+    const source = trigger.querySelector<HTMLImageElement>('img');
     if (!source) return;
 
     const fullSrc = trigger.dataset.fullSrc;
@@ -220,9 +199,9 @@ const labels = lightboxLabels[lang];
     img.src = src;
     img.alt = source.alt;
     counter.textContent = `${current + 1} / ${triggers.length}`;
-    overlay.classList.remove("hidden");
+    overlay.classList.remove('hidden');
     overlay.hidden = false;
-    document.body.classList.add("overflow-hidden");
+    document.body.classList.add('overflow-hidden');
     closeBtn.focus();
   }
 
@@ -242,7 +221,7 @@ const labels = lightboxLabels[lang];
       }
       setZoomUi(true);
       if (srcChanged) {
-        img.addEventListener("load", () => centerStageScrollAfterZoom(img), {
+        img.addEventListener('load', () => centerStageScrollAfterZoom(img), {
           once: true,
         });
       } else {
@@ -266,18 +245,18 @@ const labels = lightboxLabels[lang];
   }
 
   function resetLightboxOnNavigation() {
-    document.body.classList.remove("overflow-hidden");
+    document.body.classList.remove('overflow-hidden');
     const { overlay, img } = getElements();
     if (!overlay) return;
 
     zoomed = false;
-    fitSrc = "";
-    overlay.classList.remove("is-zoomed");
-    overlay.classList.add("hidden");
+    fitSrc = '';
+    overlay.classList.remove('is-zoomed');
+    overlay.classList.add('hidden');
     overlay.hidden = true;
     if (img) {
-      img.classList.remove("is-zoomed");
-      img.src = "";
+      img.classList.remove('is-zoomed');
+      img.src = '';
     }
   }
 
@@ -300,53 +279,51 @@ const labels = lightboxLabels[lang];
     overlayAbort = renewListenerScope(overlayAbort);
     const { signal } = overlayAbort;
 
-    triggers = [
-      ...document.querySelectorAll<HTMLButtonElement>(".lightbox-trigger"),
-    ];
+    triggers = [...document.querySelectorAll<HTMLButtonElement>('.lightbox-trigger')];
     triggers.forEach((trigger) => {
-      on(trigger, "click", onTriggerClick, signal);
+      on(trigger, 'click', onTriggerClick, signal);
     });
 
-    on(els.closeBtn, "click", hide, signal);
-    on(els.prevBtn, "click", () => show(current - 1), signal);
-    on(els.nextBtn, "click", () => show(current + 1), signal);
-    on(els.img, "click", onImageClick, signal);
+    on(els.closeBtn, 'click', hide, signal);
+    on(els.prevBtn, 'click', () => show(current - 1), signal);
+    on(els.nextBtn, 'click', () => show(current + 1), signal);
+    on(els.img, 'click', onImageClick, signal);
 
     on(
       els.overlay,
-      "click",
+      'click',
       (e) => {
         if (e.target === els.overlay) hide();
       },
-      signal,
+      signal
     );
 
     on(
       els.stage,
-      "click",
+      'click',
       (e) => {
         if (e.target === els.stage) hide();
       },
-      signal,
+      signal
     );
   }
 
   on(
     document,
-    "keydown",
+    'keydown',
     (e) => {
       if (!(e instanceof KeyboardEvent)) return;
       const { overlay } = getElements();
       if (!overlay || overlay.hidden) return;
 
-      if (e.key === "Escape") hide();
-      else if (e.key === "ArrowLeft") show(current - 1);
-      else if (e.key === "ArrowRight") show(current + 1);
+      if (e.key === 'Escape') hide();
+      else if (e.key === 'ArrowLeft') show(current - 1);
+      else if (e.key === 'ArrowRight') show(current + 1);
     },
-    documentScope.signal,
+    documentScope.signal
   );
 
-  document.addEventListener("astro:before-swap", resetLightboxOnNavigation);
-  document.addEventListener("astro:page-load", setupLightbox);
+  document.addEventListener('astro:before-swap', resetLightboxOnNavigation);
+  document.addEventListener('astro:page-load', setupLightbox);
   setupLightbox();
 </script>

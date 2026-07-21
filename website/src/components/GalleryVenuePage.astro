@@ -1,24 +1,24 @@
 ---
-import ContentPage from "./ContentPage.astro";
-import IntroPanel from "./IntroPanel.astro";
-import ContentImage from "./ContentImage.astro";
-import Gallery from "./Gallery.astro";
-import SectionBreak from "./SectionBreak.astro";
-import SectionHeading from "./SectionHeading.astro";
+import ContentPage from './ContentPage.astro';
+import IntroPanel from './IntroPanel.astro';
+import ContentImage from './ContentImage.astro';
+import Gallery from './Gallery.astro';
+import SectionBreak from './SectionBreak.astro';
+import SectionHeading from './SectionHeading.astro';
 import {
   GALLERY_CONTENT_COLUMN_SIZES,
   CONTENT_COLUMN_PX,
   contentColumnWidths,
-} from "../data/layout";
-import { pageImages } from "../data/images";
+} from '../data/layout';
+import { pageImages } from '../data/images';
 import {
   galleryRoom01Images,
   galleryRoom02Images,
   galleryRoom03Images,
   galleryVenueCopy,
   galleryVenueImages,
-} from "../data/gallery";
-import type { Lang } from "../data/nav";
+} from '../data/gallery';
+import type { Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -28,13 +28,7 @@ const { lang } = Astro.props;
 const copy = galleryVenueCopy[lang];
 ---
 
-<ContentPage
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heading={copy.heading}
-  gallery
->
+<ContentPage title={copy.title} lang={lang} path={copy.path} heading={copy.heading} gallery>
   <IntroPanel gap={4} divider>
     <p><strong>{copy.introLead}</strong></p>
     <p><strong>{copy.introBody}</strong></p>

@@ -111,7 +111,10 @@ async function tableCounts(dbPath: string): Promise<void> {
   await initDb({ dbPath: path.resolve(dbPath) });
   try {
     const db = getDb();
-    const tables = [APP_CONFIG_TABLE, ...MODULE_NAMESPACES.map(moduleTableName)];
+    const tables = [
+      APP_CONFIG_TABLE,
+      ...MODULE_NAMESPACES.map(moduleTableName),
+    ];
     for (const table of tables) {
       const stmt = await db.prepare(`SELECT COUNT(*) AS count FROM ${table}`);
       const row = (await stmt.get()) as { count: number };
@@ -170,7 +173,7 @@ async function dumpDb(dbPath: string, includeSecrets: boolean): Promise<void> {
         }
         lines.push(
           `INSERT INTO ${name}(key,value) VALUES(${sqlStringLiteral(row.key)},${sqlStringLiteral(value)}) ` +
-          `ON CONFLICT(key) DO UPDATE SET value=excluded.value;`,
+            `ON CONFLICT(key) DO UPDATE SET value=excluded.value;`,
         );
       }
       if (rows.length > 0) lines.push("");

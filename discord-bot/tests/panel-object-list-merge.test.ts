@@ -5,25 +5,6 @@ import { validateRolePanelRow } from "../shared/modules/reaction-roles/validate.
 import { validateTicketTypeRow } from "../shared/modules/tickets/validate.js";
 import type { WebPluginSubField } from "../web-admin/src/plugin-types.js";
 
-function blankIncoming(
-  id: string,
-  overrides: Record<string, unknown>,
-  itemFields: WebPluginSubField[],
-): Record<string, unknown> {
-  const incoming: Record<string, unknown> = { id, ...overrides };
-  for (const sub of itemFields) {
-    if (sub.key in incoming) continue;
-    if (sub.type === "role-multi" || sub.type === "option-list") {
-      incoming[sub.key] = [];
-    } else if (sub.type === "boolean") {
-      incoming[sub.key] = false;
-    } else {
-      incoming[sub.key] = "";
-    }
-  }
-  return incoming;
-}
-
 function splitRow(
   row: Record<string, unknown>,
   itemFields: WebPluginSubField[],
@@ -62,7 +43,13 @@ const ticketItemFields: WebPluginSubField[] = [
     type: "textarea",
     store: "texts",
   },
-  { key: "ticketWelcome", label: "Welcome", type: "textarea", store: "texts", maxLength: 4096 },
+  {
+    key: "ticketWelcome",
+    label: "Welcome",
+    type: "textarea",
+    store: "texts",
+    maxLength: 4096,
+  },
   { key: "closeButtonLabel", label: "Close", type: "text", store: "texts" },
   {
     key: "roleActionButtonLabel",
@@ -92,11 +79,26 @@ const ticketItemFields: WebPluginSubField[] = [
     type: "textarea",
     store: "texts",
   },
-  { key: "confirmDeleteYes", label: "Delete yes", type: "text", store: "texts" },
+  {
+    key: "confirmDeleteYes",
+    label: "Delete yes",
+    type: "text",
+    store: "texts",
+  },
   { key: "confirmDeleteNo", label: "Delete no", type: "text", store: "texts" },
   { key: "ticketDeleted", label: "Deleted", type: "textarea", store: "texts" },
-  { key: "alreadyOpen", label: "Already open", type: "textarea", store: "texts" },
-  { key: "openSuccess", label: "Open success", type: "textarea", store: "texts" },
+  {
+    key: "alreadyOpen",
+    label: "Already open",
+    type: "textarea",
+    store: "texts",
+  },
+  {
+    key: "openSuccess",
+    label: "Open success",
+    type: "textarea",
+    store: "texts",
+  },
   { key: "roleDenied", label: "Role denied", type: "textarea", store: "texts" },
 ];
 
@@ -148,10 +150,17 @@ const rolePanelItemFields: WebPluginSubField[] = [
     type: "option-list",
     store: "config",
   },
+  {
+    key: "emojiHelp",
+    label: "Emoji help",
+    type: "text",
+    store: "texts",
+    visibleWhen: { reactionType: ["emoji"] },
+  },
 ];
 
 describe("mergeObjectListRow", () => {
-  it("preserves stored ticket fields when form only updates ticketWelcome", () => {
+  it("keeps other ticket fields when form posts previous values and updates ticketWelcome", () => {
     const prev: Record<string, unknown> = {
       id: "nsfw-yes",
       channelId: "123456789012345678",
@@ -176,11 +185,10 @@ describe("mergeObjectListRow", () => {
       roleActionButtonLabel: "Grant",
       roleActionConfirmation: "Done.",
     };
-    const incoming = blankIncoming(
-      "nsfw-yes",
-      { ticketWelcome: "Updated welcome {mention}" },
-      ticketItemFields,
-    );
+    const incoming = {
+      ...prev,
+      ticketWelcome: "Updated welcome {mention}",
+    };
 
     const merged = mergeObjectListRow(incoming, prev, ticketItemFields);
 
@@ -191,7 +199,7 @@ describe("mergeObjectListRow", () => {
     expect(() => validateTicketTypeRow(configRow, textRow)).not.toThrow();
   });
 
-  it("preserves long ticketWelcome when form updates another field", () => {
+  it("preserves long ticketWelcome when form updates another field with prior values", () => {
     const longWelcome = "w".repeat(2500);
     const prev: Record<string, unknown> = {
       id: "nsfw-yes",
@@ -217,11 +225,10 @@ describe("mergeObjectListRow", () => {
       roleActionButtonLabel: "Grant",
       roleActionConfirmation: "Done.",
     };
-    const incoming = blankIncoming(
-      "nsfw-yes",
-      { openButtonLabel: "Updated label" },
-      ticketItemFields,
-    );
+    const incoming = {
+      ...prev,
+      openButtonLabel: "Updated label",
+    };
 
     const merged = mergeObjectListRow(incoming, prev, ticketItemFields);
 
@@ -230,7 +237,7 @@ describe("mergeObjectListRow", () => {
     expect(() => validateTicketTypeRow(configRow, textRow)).not.toThrow();
   });
 
-  it("preserves stored embed fields when form only updates panelDescription", () => {
+  it("keeps other embed fields when form updates panelDescription", () => {
     const prev: Record<string, unknown> = {
       id: "rules",
       channelId: "123456789012345678",
@@ -241,11 +248,10 @@ describe("mergeObjectListRow", () => {
       authorIconUrl: "",
       footer: "",
     };
-    const incoming = blankIncoming(
-      "rules",
-      { panelDescription: "Updated description" },
-      embedItemFields,
-    );
+    const incoming = {
+      ...prev,
+      panelDescription: "Updated description",
+    };
 
     const merged = mergeObjectListRow(incoming, prev, embedItemFields);
 
@@ -257,7 +263,66 @@ describe("mergeObjectListRow", () => {
     expect(() => validateEmbedPanelRow(configRow, textRow)).not.toThrow();
   });
 
-  it("preserves stored role panel fields when form only updates panelTitle", () => {
+  it("clears a visible optional embed field when submitted blank", () => {
+    const prev: Record<string, unknown> = {
+      id: "rules",
+      channelId: "123456789012345678",
+      showTimestamp: false,
+      panelTitle: "Rules",
+      panelDescription: "Body",
+      authorName: "Author",
+      authorIconUrl: "https://example.com/icon.png",
+      footer: "Footer text",
+    };
+    const incoming = {
+      ...prev,
+      footer: "",
+      authorName: "",
+    };
+
+    const merged = mergeObjectListRow(incoming, prev, embedItemFields);
+
+    expect(merged.footer).toBe("");
+    expect(merged.authorName).toBe("");
+    expect(merged.panelTitle).toBe("Rules");
+  });
+
+  it("preserves a hidden field when submitted blank", () => {
+    const prev: Record<string, unknown> = {
+      id: "roles",
+      channelId: "123456789012345678",
+      reactionType: "button",
+      toggleable: true,
+      panelTitle: "Pick roles",
+      panelDescription: "Choose below",
+      ephemeralMessage: "",
+      emojiHelp: "Only for emoji mode",
+      roleOptions: [
+        {
+          id: "opt1",
+          roleId: "222222222222222222",
+          emoji: "",
+          label: "Member",
+        },
+      ],
+    };
+    const incoming = {
+      ...prev,
+      panelTitle: "Updated title",
+      emojiHelp: "",
+    };
+
+    const merged = mergeObjectListRow(incoming, prev, rolePanelItemFields);
+
+    expect(merged.panelTitle).toBe("Updated title");
+    expect(merged.emojiHelp).toBe("Only for emoji mode");
+    expect(merged.roleOptions).toEqual(prev.roleOptions);
+
+    const { configRow, textRow } = splitRow(merged, rolePanelItemFields);
+    expect(() => validateRolePanelRow(configRow, textRow)).not.toThrow();
+  });
+
+  it("preserves stored role panel fields when form updates panelTitle", () => {
     const prev: Record<string, unknown> = {
       id: "roles",
       channelId: "123456789012345678",
@@ -275,11 +340,10 @@ describe("mergeObjectListRow", () => {
         },
       ],
     };
-    const incoming = blankIncoming(
-      "roles",
-      { panelTitle: "Updated title" },
-      rolePanelItemFields,
-    );
+    const incoming = {
+      ...prev,
+      panelTitle: "Updated title",
+    };
 
     const merged = mergeObjectListRow(incoming, prev, rolePanelItemFields);
 

@@ -4,15 +4,8 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { closeDb, getDb, initDb, withTransaction } from "../shared/core/db.js";
-import {
-  getDbData,
-  setDbData,
-  setDbDataMany,
-} from "../shared/core/dbData.js";
-import {
-  getModuleRowsSync,
-  reloadModuleStore,
-} from "../shared/core/texts.js";
+import { getDbData, setDbData, setDbDataMany } from "../shared/core/dbData.js";
+import { getModuleRowsSync, reloadModuleStore } from "../shared/core/texts.js";
 import { moduleTableName } from "../shared/core/moduleTable.js";
 
 describe("Turso dbData", () => {

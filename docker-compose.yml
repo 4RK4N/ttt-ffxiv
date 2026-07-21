@@ -82,7 +82,8 @@ services:
 
       caddy.header.Permissions-Policy: "camera=(), microphone=(), geolocation=()"
 
-      caddy.header.Content-Security-Policy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+      # Fonts are bundled at build time (Astro Fonts API); do not allow Google Fonts CDNs.
+      caddy.header.Content-Security-Policy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
       caddy.reverse_proxy: "{{upstreams 8089}}"
 

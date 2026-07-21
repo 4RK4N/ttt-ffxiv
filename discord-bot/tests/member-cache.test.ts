@@ -74,7 +74,12 @@ describe("member-cache", () => {
 
   it("upserts API member payloads using nick then global_name", () => {
     upsertApiMember(GUILD_ID, {
-      user: { id: "user-3", bot: false, username: "plain", global_name: "Global" },
+      user: {
+        id: "user-3",
+        bot: false,
+        username: "plain",
+        global_name: "Global",
+      },
       nick: "Nick",
       roles: ["role-b"],
     });

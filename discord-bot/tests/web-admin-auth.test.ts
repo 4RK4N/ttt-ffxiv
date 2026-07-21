@@ -8,7 +8,9 @@ vi.mock("hono/cookie", () => ({
 import { getSignedCookie } from "hono/cookie";
 import { getCsrfToken, verifyFormCsrf } from "../web-admin/src/auth.js";
 
-const cfg = { sessionSecret: "test-secret" } as Parameters<typeof verifyFormCsrf>[1];
+const cfg = { sessionSecret: "test-secret" } as Parameters<
+  typeof verifyFormCsrf
+>[1];
 
 describe("verifyFormCsrf", () => {
   it("returns true when form token matches signed cookie", async () => {

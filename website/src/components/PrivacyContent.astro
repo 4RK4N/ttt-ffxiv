@@ -1,6 +1,6 @@
 ---
-import { legalContact } from "../data/legal";
-import { footerLinks, type Lang } from "../data/nav";
+import { legalContact } from '../data/legal';
+import { footerLinks, type Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -13,7 +13,7 @@ const imprintPath = footerLinks[lang][0].path;
 ---
 
 {
-  lang === "de" ? (
+  lang === 'de' ? (
     <div class="legal flex flex-col gap-6">
       <p>Stand: Juli 2026</p>
 
@@ -24,7 +24,7 @@ const imprintPath = footerLinks[lang][0].path;
         <br />
         {operatorName}
         <br />
-        Discord:{" "}
+        Discord:{' '}
         <a
           href={discordUrl}
           class="text-bar-accent hover:underline"
@@ -35,7 +35,7 @@ const imprintPath = footerLinks[lang][0].path;
         </a>
         <br />
         <br />
-        Weitere Angaben finden Sie in unserem{" "}
+        Weitere Angaben finden Sie in unserem{' '}
         <a href={imprintPath} class="text-bar-accent hover:underline">
           Impressum
         </a>
@@ -44,24 +44,21 @@ const imprintPath = footerLinks[lang][0].path;
 
       <h2>2. Überblick</h2>
       <p>
-        Diese Datenschutzerklärung informiert Sie darüber, welche
-        personenbezogenen Daten beim Besuch von {siteUrl} verarbeitet werden und
-        zu welchem Zweck. Personenbezogene Daten sind alle Informationen, die
-        sich auf eine identifizierte oder identifizierbare natürliche Person
+        Diese Datenschutzerklärung informiert Sie darüber, welche personenbezogenen Daten beim
+        Besuch von {siteUrl} verarbeitet werden und zu welchem Zweck. Personenbezogene Daten sind
+        alle Informationen, die sich auf eine identifizierte oder identifizierbare natürliche Person
         beziehen (Art. 4 Nr. 1 DSGVO).
         <br />
         <br />
-        Die Website dient ausschließlich der Information über unsere
-        FFXIV-Roleplay-Community. Es gibt keine Registrierung, kein
-        Kontaktformular, keinen Newsletter und keine Werbeanalyse auf dieser
-        Website.
+        Die Website dient ausschließlich der Information über unsere FFXIV-Roleplay-Community. Es
+        gibt keine Registrierung, kein Kontaktformular, keinen Newsletter und keine Werbeanalyse auf
+        dieser Website.
       </p>
 
       <h2>3. Bereitstellung der Website und Server-Logfiles</h2>
       <p>
-        Beim Aufruf unserer Website werden durch den Webserver automatisch
-        Informationen erfasst und in Logdateien gespeichert. Dabei können
-        insbesondere folgende Daten anfallen:
+        Beim Aufruf unserer Website werden durch den Webserver automatisch Informationen erfasst und
+        in Logdateien gespeichert. Dabei können insbesondere folgende Daten anfallen:
       </p>
       <p>
         • IP-Adresse des anfragenden Geräts
@@ -74,62 +71,53 @@ const imprintPath = footerLinks[lang][0].path;
         <br />• Referrer-URL (zuvor besuchte Seite), sofern übermittelt
       </p>
       <p>
-        Die Verarbeitung erfolgt, um die Website auszuliefern, Stabilität und
-        Sicherheit des Betriebs zu gewährleisten sowie Missbrauch nachvollziehen
-        zu können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
-        Interesse an einem sicheren und funktionsfähigen Webauftritt).
+        Die Verarbeitung erfolgt, um die Website auszuliefern, Stabilität und Sicherheit des
+        Betriebs zu gewährleisten sowie Missbrauch nachvollziehen zu können. Rechtsgrundlage ist
+        Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren und funktionsfähigen
+        Webauftritt).
         <br />
         <br />
-        Die Website wird auf einem eigenen Server betrieben (nginx). Logdaten
-        werden nur so lange gespeichert, wie dies für die genannten Zwecke
-        erforderlich ist, in der Regel höchstens 14 Tage, sofern keine längere
-        Aufbewahrung aus Sicherheitsgründen erforderlich ist.
+        Die Website wird auf einem eigenen Server betrieben (nginx). Logdaten werden nur so lange
+        gespeichert, wie dies für die genannten Zwecke erforderlich ist, in der Regel höchstens 14
+        Tage, sofern keine längere Aufbewahrung aus Sicherheitsgründen erforderlich ist.
       </p>
 
       <h2>4. TLS-Verschlüsselung (HTTPS)</h2>
       <p>
-        Diese Website nutzt aus Sicherheitsgründen eine TLS-Verschlüsselung
-        (HTTPS). Eine verschlüsselte Verbindung erkennen Sie am Schloss-Symbol
-        in der Adresszeile Ihres Browsers und daran, dass die Adresse mit
-        „https://“ beginnt. Die Verschlüsselung schützt die übertragenen Daten
-        vor unbefugtem Mitlesen.
+        Diese Website nutzt aus Sicherheitsgründen eine TLS-Verschlüsselung (HTTPS). Eine
+        verschlüsselte Verbindung erkennen Sie am Schloss-Symbol in der Adresszeile Ihres Browsers
+        und daran, dass die Adresse mit „https://“ beginnt. Die Verschlüsselung schützt die
+        übertragenen Daten vor unbefugtem Mitlesen.
       </p>
 
       <h2>5. Schriftarten</h2>
       <p>
-        Zur Darstellung der Website werden Schriftarten verwendet, die beim
-        Build der Website eingebunden und von unserem Server ausgeliefert
-        werden. Beim Seitenaufruf werden dafür keine Verbindungen zu
-        Drittanbietern (z. B. Google Fonts) hergestellt.
+        Zur Darstellung der Website werden Schriftarten verwendet, die beim Build der Website
+        eingebunden und von unserem Server ausgeliefert werden. Beim Seitenaufruf werden dafür keine
+        Verbindungen zu Drittanbietern (z. B. Google Fonts) hergestellt.
       </p>
 
       <h2>6. Links zu externen Diensten</h2>
       <p>
-        Unsere Website enthält Links zu externen Angeboten, insbesondere zu
-        Discord. Wenn Sie einem solchen Link folgen, verlassen Sie unsere
-        Website. Für die dortige Datenverarbeitung gelten die
-        Datenschutzbestimmungen des jeweiligen Anbieters. Wir haben keinen
-        Einfluss auf deren Inhalte und Datenverarbeitung.
+        Unsere Website enthält Links zu externen Angeboten, insbesondere zu Discord. Wenn Sie einem
+        solchen Link folgen, verlassen Sie unsere Website. Für die dortige Datenverarbeitung gelten
+        die Datenschutzbestimmungen des jeweiligen Anbieters. Wir haben keinen Einfluss auf deren
+        Inhalte und Datenverarbeitung.
       </p>
 
       <h2>7. Cookies und Analyse-Tools</h2>
       <p>
-        Diese Website setzt keine Cookies zu Tracking- oder Marketingzwecken ein
-        und verwendet keine Webanalyse-Dienste (z. B. Google Analytics oder
-        Matomo).
+        Diese Website setzt keine Cookies zu Tracking- oder Marketingzwecken ein und verwendet keine
+        Webanalyse-Dienste (z. B. Google Analytics oder Matomo).
         <br />
         <br />
-        Beim Navigieren zwischen Seiten kann Ihr Browser auf Wunsch Inhalte im
-        Voraus laden (Prefetch), um Seiten schneller anzuzeigen. Dabei werden
-        ausschließlich Inhalte unserer eigenen Website abgerufen; es werden
-        keine zusätzlichen Profile erstellt.
+        Beim Navigieren zwischen Seiten kann Ihr Browser auf Wunsch Inhalte im Voraus laden
+        (Prefetch), um Seiten schneller anzuzeigen. Dabei werden ausschließlich Inhalte unserer
+        eigenen Website abgerufen; es werden keine zusätzlichen Profile erstellt.
       </p>
 
       <h2>8. Ihre Rechte</h2>
-      <p>
-        Sie haben gegenüber uns folgende Rechte hinsichtlich Ihrer
-        personenbezogenen Daten:
-      </p>
+      <p>Sie haben gegenüber uns folgende Rechte hinsichtlich Ihrer personenbezogenen Daten:</p>
       <p>
         • Auskunft (Art. 15 DSGVO)
         <br />
@@ -140,20 +128,18 @@ const imprintPath = footerLinks[lang][0].path;
         • Einschränkung der Verarbeitung (Art. 18 DSGVO)
         <br />
         • Datenübertragbarkeit (Art. 20 DSGVO), soweit anwendbar
-        <br />• Widerspruch gegen Verarbeitung auf Grundlage berechtigter
-        Interessen (Art. 21 DSGVO)
+        <br />• Widerspruch gegen Verarbeitung auf Grundlage berechtigter Interessen (Art. 21 DSGVO)
       </p>
       <p>
-        Zur Ausübung Ihrer Rechte kontaktieren Sie uns über unseren
-        Discord-Server (Link oben). Sie haben zudem das Recht, sich bei einer
-        Datenschutz-Aufsichtsbehörde zu beschweren.
+        Zur Ausübung Ihrer Rechte kontaktieren Sie uns über unseren Discord-Server (Link oben). Sie
+        haben zudem das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren.
       </p>
 
       <h2>9. Änderungen</h2>
       <p>
-        Wir behalten uns vor, diese Datenschutzerklärung anzupassen, wenn sich
-        die Website, die Rechtslage oder unsere Verarbeitungsprozesse ändern. Es
-        gilt die jeweils auf dieser Seite veröffentlichte Fassung.
+        Wir behalten uns vor, diese Datenschutzerklärung anzupassen, wenn sich die Website, die
+        Rechtslage oder unsere Verarbeitungsprozesse ändern. Es gilt die jeweils auf dieser Seite
+        veröffentlichte Fassung.
       </p>
     </div>
   ) : (
@@ -167,7 +153,7 @@ const imprintPath = footerLinks[lang][0].path;
         <br />
         {operatorName}
         <br />
-        Discord:{" "}
+        Discord:{' '}
         <a
           href={discordUrl}
           class="text-bar-accent hover:underline"
@@ -178,7 +164,7 @@ const imprintPath = footerLinks[lang][0].path;
         </a>
         <br />
         <br />
-        Further details are available in our{" "}
+        Further details are available in our{' '}
         <a href={imprintPath} class="text-bar-accent hover:underline">
           Imprint
         </a>
@@ -187,21 +173,19 @@ const imprintPath = footerLinks[lang][0].path;
 
       <h2>2. Overview</h2>
       <p>
-        This privacy policy explains what personal data is processed when you
-        visit {siteUrl}
-        and for what purpose. Personal data means any information relating to an
-        identified or identifiable natural person (Art. 4 (1) GDPR).
+        This privacy policy explains what personal data is processed when you visit {siteUrl}
+        and for what purpose. Personal data means any information relating to an identified or
+        identifiable natural person (Art. 4 (1) GDPR).
         <br />
         <br />
-        This website provides information about our FFXIV roleplay community
-        only. There is no registration, contact form, newsletter, or advertising
-        analytics on this site.
+        This website provides information about our FFXIV roleplay community only. There is no
+        registration, contact form, newsletter, or advertising analytics on this site.
       </p>
 
       <h2>3. Provision of the website and server log files</h2>
       <p>
-        When you access our website, the web server automatically collects
-        information and stores it in log files. This may include in particular:
+        When you access our website, the web server automatically collects information and stores it
+        in log files. This may include in particular:
       </p>
       <p>
         • IP address of the requesting device
@@ -214,48 +198,46 @@ const imprintPath = footerLinks[lang][0].path;
         <br />• referrer URL (previous page), if transmitted
       </p>
       <p>
-        Processing is necessary to deliver the website, maintain operational
-        stability and security, and investigate abuse. The legal basis is Art. 6
-        (1) (f) GDPR (legitimate interest in a secure, functional website).
+        Processing is necessary to deliver the website, maintain operational stability and security,
+        and investigate abuse. The legal basis is Art. 6 (1) (f) GDPR (legitimate interest in a
+        secure, functional website).
         <br />
         <br />
-        The site is operated on our own server (nginx). Log data is retained
-        only as long as needed for these purposes, typically no longer than 14
-        days, unless longer retention is required for security reasons.
+        The site is operated on our own server (nginx). Log data is retained only as long as needed
+        for these purposes, typically no longer than 14 days, unless longer retention is required
+        for security reasons.
       </p>
 
       <h2>4. TLS encryption (HTTPS)</h2>
       <p>
-        For security reasons this site uses TLS encryption (HTTPS). You can
-        recognize an encrypted connection by the lock icon in your browser's
-        address bar and by the “https://” prefix. Encryption helps protect
-        transmitted data from unauthorized access.
+        For security reasons this site uses TLS encryption (HTTPS). You can recognize an encrypted
+        connection by the lock icon in your browser's address bar and by the “https://” prefix.
+        Encryption helps protect transmitted data from unauthorized access.
       </p>
 
       <h2>5. Fonts</h2>
       <p>
-        Fonts used on this site are bundled when the website is built and served
-        from our own server. No connections to third-party font providers (e.g.
-        Google Fonts) are made when you load a page.
+        Fonts used on this site are bundled when the website is built and served from our own
+        server. No connections to third-party font providers (e.g. Google Fonts) are made when you
+        load a page.
       </p>
 
       <h2>6. Links to external services</h2>
       <p>
-        Our website contains links to external services, in particular Discord.
-        If you follow such a link, you leave our website. Data processing there
-        is governed by the respective provider's privacy policy. We have no
-        control over their content or data processing.
+        Our website contains links to external services, in particular Discord. If you follow such a
+        link, you leave our website. Data processing there is governed by the respective provider's
+        privacy policy. We have no control over their content or data processing.
       </p>
 
       <h2>7. Cookies and analytics</h2>
       <p>
-        This website does not use cookies for tracking or marketing purposes and
-        does not use web analytics services (e.g. Google Analytics or Matomo).
+        This website does not use cookies for tracking or marketing purposes and does not use web
+        analytics services (e.g. Google Analytics or Matomo).
         <br />
         <br />
-        When navigating between pages, your browser may prefetch content from
-        our site in advance to display pages faster. Only content from our own
-        website is requested; no additional user profiles are created.
+        When navigating between pages, your browser may prefetch content from our site in advance to
+        display pages faster. Only content from our own website is requested; no additional user
+        profiles are created.
       </p>
 
       <h2>8. Your rights</h2>
@@ -270,20 +252,17 @@ const imprintPath = footerLinks[lang][0].path;
         • restriction of processing (Art. 18 GDPR)
         <br />
         • data portability (Art. 20 GDPR), where applicable
-        <br />• object to processing based on legitimate interests (Art. 21
-        GDPR)
+        <br />• object to processing based on legitimate interests (Art. 21 GDPR)
       </p>
       <p>
-        To exercise your rights, contact us via our Discord server (link above).
-        You also have the right to lodge a complaint with a data protection
-        supervisory authority.
+        To exercise your rights, contact us via our Discord server (link above). You also have the
+        right to lodge a complaint with a data protection supervisory authority.
       </p>
 
       <h2>9. Changes</h2>
       <p>
-        We may update this privacy policy if the website, legal requirements, or
-        our processing activities change. The version published on this page
-        applies.
+        We may update this privacy policy if the website, legal requirements, or our processing
+        activities change. The version published on this page applies.
       </p>
     </div>
   )

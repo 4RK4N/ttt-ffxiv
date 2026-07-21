@@ -43,6 +43,9 @@ export default defineConfig({
         "web-admin/src/auth.ts",
         "web-admin/src/csp.ts",
         "web-admin/src/editor-logic.ts",
+        "web-admin/src/store.ts",
+        "web-admin/src/plugins.ts",
+        "bot/src/moduleLoader.ts",
       ],
       thresholds: {
         lines: 50,

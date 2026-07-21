@@ -53,11 +53,7 @@ async function withEditorCtx(
 }
 
 /** Editor context plus a fresh ModulePanel model for a known plugin. */
-async function withEditorModule(
-  c: HonoCtx,
-  deps: HtmxDeps,
-  plugin: WebPlugin,
-) {
+async function withEditorModule(c: HonoCtx, deps: HtmxDeps, plugin: WebPlugin) {
   const ctx = await withEditorCtx(c, deps);
   const mod = buildEditorModule(plugin);
   return { ctx, mod };
@@ -155,8 +151,8 @@ export function registerHtmxRoutes(
       return c.text(`Unknown module "${namespace}".`, 404);
     }
 
-    let enabled = false;
     const contentType = c.req.header("content-type") ?? "";
+    let enabled: boolean;
     if (contentType.includes("application/json")) {
       const body = (await c.req.json()) as { enabled?: unknown };
       enabled = body.enabled === true;
@@ -418,10 +414,7 @@ export function registerHtmxRoutes(
         />,
       );
     } catch (err) {
-      console.error(
-        `[web] publish failed ${namespace}/${itemId}:`,
-        err,
-      );
+      console.error(`[web] publish failed ${namespace}/${itemId}:`, err);
       const { ctx, mod } = await withEditorModule(c, deps, plugin);
       const message = publishClientError(true);
       return c.html(
@@ -467,10 +460,7 @@ export function registerHtmxRoutes(
         />,
       );
     } catch (err) {
-      console.error(
-        `[web] unpublish failed ${namespace}/${itemId}:`,
-        err,
-      );
+      console.error(`[web] unpublish failed ${namespace}/${itemId}:`, err);
       const { ctx, mod } = await withEditorModule(c, deps, plugin);
       const message = publishClientError(false);
       return c.html(

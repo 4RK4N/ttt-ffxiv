@@ -1,10 +1,10 @@
 ---
-import ContentPage from "./ContentPage.astro";
-import IntroPanel from "./IntroPanel.astro";
-import Gallery from "./Gallery.astro";
-import SectionHeading from "./SectionHeading.astro";
-import { staffCopy, staffMain, staffPartTime } from "../data/staff";
-import type { Lang } from "../data/nav";
+import ContentPage from './ContentPage.astro';
+import IntroPanel from './IntroPanel.astro';
+import Gallery from './Gallery.astro';
+import SectionHeading from './SectionHeading.astro';
+import { staffCopy, staffMain, staffPartTime } from '../data/staff';
+import type { Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -14,13 +14,7 @@ const { lang } = Astro.props;
 const copy = staffCopy[lang];
 ---
 
-<ContentPage
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heading={copy.heading}
-  gallery
->
+<ContentPage title={copy.title} lang={lang} path={copy.path} heading={copy.heading} gallery>
   <IntroPanel divider>
     {
       copy.paragraphs.map((text) => (

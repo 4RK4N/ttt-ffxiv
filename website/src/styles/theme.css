@@ -1,7 +1,7 @@
 @theme inline {
   --font-jost: var(--font-jost-face), system-ui, sans-serif;
-  --font-cinzel: var(--font-cinzel-face), "Times New Roman", serif;
-  --font-cormorant: var(--font-cormorant-face), "Times New Roman", serif;
+  --font-cinzel: var(--font-cinzel-face), 'Times New Roman', serif;
+  --font-cormorant: var(--font-cormorant-face), 'Times New Roman', serif;
 
   --header-height: 74px;
 

@@ -1,17 +1,17 @@
 ---
-import ContentPage from "./ContentPage.astro";
-import ContentImage from "./ContentImage.astro";
-import Gallery from "./Gallery.astro";
-import SectionHeading from "./SectionHeading.astro";
+import ContentPage from './ContentPage.astro';
+import ContentImage from './ContentImage.astro';
+import Gallery from './Gallery.astro';
+import SectionHeading from './SectionHeading.astro';
 import {
   FEATURED_EVENT_IMAGE_PX,
   FEATURED_EVENT_REM,
   featuredEventImageSizes,
   remScaledWidths,
-} from "../data/layout";
-import { eventArchiveImages, resolveImage } from "../data/images";
-import { eventsCopy, FEATURED_EVENT_IMAGE } from "../data/events";
-import type { Lang } from "../data/nav";
+} from '../data/layout';
+import { eventArchiveImages, resolveImage } from '../data/images';
+import { eventsCopy, FEATURED_EVENT_IMAGE } from '../data/events';
+import type { Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -21,13 +21,7 @@ const { lang } = Astro.props;
 const copy = eventsCopy[lang];
 ---
 
-<ContentPage
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heading={copy.heading}
-  gallery
->
+<ContentPage title={copy.title} lang={lang} path={copy.path} heading={copy.heading} gallery>
   <ContentImage
     src={resolveImage(FEATURED_EVENT_IMAGE)}
     width={FEATURED_EVENT_IMAGE_PX}
@@ -38,10 +32,5 @@ const copy = eventsCopy[lang];
     alt={copy.featuredAlt}
   />
   <SectionHeading>{copy.archiveHeading}</SectionHeading>
-  <Gallery
-    wide
-    cols={5}
-    altPrefix={copy.photoAltPrefix}
-    images={eventArchiveImages}
-  />
+  <Gallery wide cols={5} altPrefix={copy.photoAltPrefix} images={eventArchiveImages} />
 </ContentPage>

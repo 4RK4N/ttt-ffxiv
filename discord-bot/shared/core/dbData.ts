@@ -62,9 +62,7 @@ export async function getDbDataFromClient(
   key: string,
 ): Promise<unknown> {
   assertSafeTableName(table);
-  const stmt = await client.prepare(
-    `SELECT value FROM ${table} WHERE key = ?`,
-  );
+  const stmt = await client.prepare(`SELECT value FROM ${table} WHERE key = ?`);
   const row = (await stmt.get(key)) as { value: unknown } | undefined;
   return row ? parseStoredValue(row.value) : undefined;
 }

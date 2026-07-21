@@ -1,4 +1,5 @@
 import eslint from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -10,6 +11,7 @@ export default tseslint.config(
       "discord-bot/dist/",
       "discord-bot/node_modules/",
       "discord-bot/example/",
+      "discord-bot/coverage/",
       "node_modules/",
       "dist/",
       "website/",
@@ -50,4 +52,5 @@ export default tseslint.config(
       },
     },
   },
+  eslintConfigPrettier,
 );

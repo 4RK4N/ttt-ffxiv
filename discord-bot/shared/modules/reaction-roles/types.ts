@@ -31,10 +31,16 @@ export interface RoleOption {
 
 export function normalizeRoleOptions(raw: unknown): RoleOption[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (v): v is RoleOption =>
-      typeof v === "object" && v !== null && typeof v.id === "string",
-  );
+  return raw.filter((v): v is RoleOption => {
+    if (typeof v !== "object" || v === null) return false;
+    const o = v as Record<string, unknown>;
+    return (
+      typeof o.id === "string" &&
+      typeof o.roleId === "string" &&
+      typeof o.emoji === "string" &&
+      typeof o.label === "string"
+    );
+  });
 }
 
 export interface RolePanelConfig {
@@ -53,7 +59,7 @@ export interface RolePanelTexts {
   ephemeralMessage: string;
 }
 
-export interface ResolvedRolePanel extends RolePanelConfig, RolePanelTexts { }
+export interface ResolvedRolePanel extends RolePanelConfig, RolePanelTexts {}
 
 export interface ReactionRolesConfig {
   enabled?: boolean;
@@ -101,11 +107,7 @@ const mod = createModuleData(NAMESPACE, MODULE_DEFAULTS);
 export const get = mod.get;
 export const data = mod.data;
 
-export function resolvePanel(id: string): ResolvedRolePanel | undefined {
-  return resolvePanelById(id);
-}
-
-const resolvePanelById = createListResolver<
+export const resolvePanel = createListResolver<
   RolePanelConfig,
   RolePanelTexts,
   ResolvedRolePanel,
@@ -118,7 +120,9 @@ const resolvePanelById = createListResolver<
     ({
       ...DEFAULT_PANEL_TEXTS,
       ...row,
-      reactionType: isReactionType(row.reactionType) ? row.reactionType : "button",
+      reactionType: isReactionType(row.reactionType)
+        ? row.reactionType
+        : "button",
       toggleable: row.toggleable !== false,
       roleOptions: normalizeRoleOptions(row.roleOptions),
     }) as ResolvedRolePanel,

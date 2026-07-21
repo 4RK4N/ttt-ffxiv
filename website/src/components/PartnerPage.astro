@@ -1,19 +1,14 @@
 ---
-import ContentPage from "./ContentPage.astro";
-import IntroPanel from "./IntroPanel.astro";
-import ContentImage from "./ContentImage.astro";
-import DiscordButton from "./DiscordButton.astro";
-import SectionHeading from "./SectionHeading.astro";
-import {
-  PARTNER_LOGO_PX,
-  PARTNER_REM,
-  remScaledSizes,
-  remScaledWidths,
-} from "../data/layout";
-import { resolveImage } from "../data/images";
-import { partnerBandLogos, partnerCopy } from "../data/partner";
-import { DISCORD_MOBATH } from "../data/site";
-import type { Lang } from "../data/nav";
+import ContentPage from './ContentPage.astro';
+import IntroPanel from './IntroPanel.astro';
+import ContentImage from './ContentImage.astro';
+import DiscordButton from './DiscordButton.astro';
+import SectionHeading from './SectionHeading.astro';
+import { PARTNER_LOGO_PX, PARTNER_REM, remScaledSizes, remScaledWidths } from '../data/layout';
+import { resolveImage } from '../data/images';
+import { partnerBandLogos, partnerCopy } from '../data/partner';
+import { DISCORD_MOBATH } from '../data/site';
+import type { Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -24,12 +19,7 @@ const copy = partnerCopy[lang];
 const bandLogos = partnerBandLogos(lang);
 ---
 
-<ContentPage
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heading={copy.heading}
->
+<ContentPage title={copy.title} lang={lang} path={copy.path} heading={copy.heading}>
   <IntroPanel>
     {
       copy.introParagraphs.map((text) => (
@@ -43,7 +33,7 @@ const bandLogos = partnerBandLogos(lang);
     </p>
   </IntroPanel>
   <ContentImage
-    src={resolveImage("partner/0d103a87.png")}
+    src={resolveImage('partner/0d103a87.png')}
     width={PARTNER_LOGO_PX}
     sizes={remScaledSizes(PARTNER_REM)}
     widths={remScaledWidths(PARTNER_REM)}

@@ -1,9 +1,10 @@
 # Installation & Hosting
 
-This guide focuses on running the bot in Docker on your own server (root server,
-VPS, home machine, etc.). A Discord bot is a long-running process that holds a
-WebSocket connection to Discord; it has **no inbound ports** and is not a website,
-so you do not need to open any firewall ports or set up a reverse proxy.
+This guide focuses on running the bot (and optional website) in Docker on your own
+server (root server, VPS, home machine, etc.). The Discord bot holds a WebSocket
+connection to Discord for gateway events. The **web editor** (same container as the
+bot) listens on an internal port and should be exposed only via reverse proxy and
+firewall — see the Docker Compose / Caddy sections below.
 
 > Other hosting options (Oracle Cloud Always Free, Fly.io, Railway, Raspberry Pi)
 > are summarized at the bottom.
@@ -459,7 +460,7 @@ Static multi-page site built with **Astro 7 + Tailwind CSS**. The site is **buil
 | `website/public/`                                 | Fixed-URL assets only: `robots.txt`, favicon, apple-touch-icon, OG share image                           |
 | `website/astro.config.mjs`                        | `@astrojs/sitemap` generates `sitemap-index.xml` at build time                                           |
 | `website/dist/`                                   | Local `npm run build` output (gitignored); dev preview only — production uses files baked into the image |
-| `website/Dockerfile`                              | Multi-stage: `npm ci` + `astro build`, then nginx                                                        |
+| `website/Dockerfile`                              | Multi-stage: `npm ci` + `npm run build` (`astro check` then `astro build`), then nginx                   |
 | `website/nginx.conf`                              | nginx config (clean URLs, gzip, caching); `listen 8089`                                                  |
 
 **Site images:** keep `website/src/assets/` **in git** (do not gitignore). Logo,
@@ -479,7 +480,23 @@ docker compose build ttt-website && docker compose up -d --force-recreate ttt-we
 
 For a full stack deploy (bot + website), use `./scripts/build.sh` (see Part 4 for flags).
 
-For local preview, run the dev server in `website/` (`npm install` once, then `npm run dev`).
+### Local preview and quality checks
+
+```bash
+cd website
+npm install
+npm run dev            # Astro dev server
+npm run lint           # ESLint (incl. .astro)
+npm run format:check   # Prettier (incl. .astro)
+npm test               # Vitest
+npm run check          # astro check (types)
+npm run build          # astro check then astro build (same path as Docker builder)
+```
+
+Lint, format, and tests are local/dev only — they are **not** run inside the production nginx image.
+`astro check` runs in the Docker **builder** as part of `npm run build`; the final image only serves static `dist/`.
+
+Bot / web-admin use the same script names from `discord-bot/` (`lint`, `format` / `format:check`, `test`); see [README.md § Local quality checks](README.md#local-quality-checks).
 
 ### How traffic reaches the site (nginx + Caddy + SSL)
 

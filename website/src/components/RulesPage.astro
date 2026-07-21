@@ -1,9 +1,9 @@
 ---
-import ContentPage from "./ContentPage.astro";
-import IntroPanel from "./IntroPanel.astro";
-import RuleCard from "./RuleCard.astro";
-import { rulesCopy } from "../data/rules";
-import type { Lang } from "../data/nav";
+import ContentPage from './ContentPage.astro';
+import IntroPanel from './IntroPanel.astro';
+import RuleCard from './RuleCard.astro';
+import { rulesCopy } from '../data/rules';
+import type { Lang } from '../data/nav';
 
 interface Props {
   lang: Lang;
@@ -13,13 +13,7 @@ const { lang } = Astro.props;
 const copy = rulesCopy[lang];
 ---
 
-<ContentPage
-  title={copy.title}
-  lang={lang}
-  path={copy.path}
-  heading={copy.heading}
-  wide
->
+<ContentPage title={copy.title} lang={lang} path={copy.path} heading={copy.heading} wide>
   <IntroPanel center={false} gap={4}>
     <h2 set:html={copy.introTitle} />
     <p set:html={copy.introBody} />

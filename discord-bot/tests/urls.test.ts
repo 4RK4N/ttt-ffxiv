@@ -24,12 +24,12 @@ describe("isSupportedAutoThreadUrl", () => {
     expect(isSupportedAutoThreadUrl(url)).toBe(true);
   });
 
-  it.each([
-    "https://fxtwitter.com/user",
-    "https://vxtwitter.com/home",
-  ])("rejects non-status Twitter embed-fixer links: %s", (url) => {
-    expect(isSupportedAutoThreadUrl(url)).toBe(false);
-  });
+  it.each(["https://fxtwitter.com/user", "https://vxtwitter.com/home"])(
+    "rejects non-status Twitter embed-fixer links: %s",
+    (url) => {
+      expect(isSupportedAutoThreadUrl(url)).toBe(false);
+    },
+  );
 
   it("accepts bsky.app post links", () => {
     expect(

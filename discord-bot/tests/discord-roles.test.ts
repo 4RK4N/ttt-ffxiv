@@ -1,4 +1,8 @@
-import { DiscordAPIError, PermissionFlagsBits, type GuildMember } from "discord.js";
+import {
+  DiscordAPIError,
+  PermissionFlagsBits,
+  type GuildMember,
+} from "discord.js";
 import { describe, expect, it, vi } from "vitest";
 import {
   roleChangeErrorMessage,

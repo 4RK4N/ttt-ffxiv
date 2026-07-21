@@ -1,6 +1,6 @@
 ---
-import type { ImageMetadata } from "astro";
-import { getImage, Image } from "astro:assets";
+import type { ImageMetadata } from 'astro';
+import { getImage, Image } from 'astro:assets';
 
 interface Props {
   src: ImageMetadata;
@@ -9,12 +9,12 @@ interface Props {
   widths?: number[];
   class?: string;
   imageClass?: string;
-  loading?: "lazy" | "eager";
+  loading?: 'lazy' | 'eager';
   alt?: string;
   /** Open in site lightbox with zoom. Default true when alt is set. */
   lightbox?: boolean;
   /** Copper-framed layout for menu or event poster. */
-  featured?: "menu" | "event";
+  featured?: 'menu' | 'event';
 }
 
 const {
@@ -24,8 +24,8 @@ const {
   widths,
   class: className,
   imageClass,
-  loading = "lazy",
-  alt = "",
+  loading = 'lazy',
+  alt = '',
   lightbox = true,
   featured,
 } = Astro.props;
@@ -33,14 +33,14 @@ const {
 const useLightbox = lightbox && alt.trim().length > 0;
 
 const frameClass =
-  featured === "menu"
-    ? "image-frame--featured image-frame--menu"
-    : featured === "event"
-      ? "image-frame--featured image-frame--event"
+  featured === 'menu'
+    ? 'image-frame--featured image-frame--menu'
+    : featured === 'event'
+      ? 'image-frame--featured image-frame--event'
       : undefined;
 
 const fullSrc = useLightbox
-  ? (await getImage({ src, width: src.width, format: "webp" })).src
+  ? (await getImage({ src, width: src.width, format: 'webp' })).src
   : undefined;
 
 const widthProps = widths ? { widths } : { densities: [1, 2] };
@@ -51,7 +51,7 @@ const widthProps = widths ? { widths } : { densities: [1, 2] };
     <button
       type="button"
       class:list={[
-        "image-frame lightbox-trigger mx-auto max-w-full cursor-pointer p-0",
+        'image-frame lightbox-trigger mx-auto max-w-full cursor-pointer p-0',
         frameClass,
         className,
       ]}
@@ -65,11 +65,11 @@ const widthProps = widths ? { widths } : { densities: [1, 2] };
         {...widthProps}
         sizes={sizes}
         loading={loading}
-        class:list={["block h-auto w-full", imageClass]}
+        class:list={['block h-auto w-full', imageClass]}
       />
     </button>
   ) : (
-    <div class:list={["image-frame mx-auto max-w-full", frameClass, className]}>
+    <div class:list={['image-frame mx-auto max-w-full', frameClass, className]}>
       <Image
         src={src}
         alt={alt}
@@ -77,7 +77,7 @@ const widthProps = widths ? { widths } : { densities: [1, 2] };
         {...widthProps}
         sizes={sizes}
         loading={loading}
-        class:list={["block h-auto w-full", imageClass]}
+        class:list={['block h-auto w-full', imageClass]}
       />
     </div>
   )

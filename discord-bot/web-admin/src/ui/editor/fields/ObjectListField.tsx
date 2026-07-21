@@ -17,10 +17,10 @@ function cardTitle(
   const merged = { ...row, ...subValues };
   return String(
     merged.openButtonLabel ??
-    merged.panelTitle ??
-    merged.id ??
-    field.itemLabel ??
-    "Item",
+      merged.panelTitle ??
+      merged.id ??
+      field.itemLabel ??
+      "Item",
   );
 }
 
@@ -59,11 +59,11 @@ export function ObjectListRow({
         class={`flex items-center justify-between gap-2 border-b border-base-300 p-4${field.collapsible ? " is-toggle" : ""}`}
         {...(field.collapsible
           ? {
-            "hx-post": toggleUrl,
-            "hx-target": `#row-${namespace}-${field.key}-${rowIndex}`,
-            "hx-swap": "outerHTML",
-            "hx-include": `#panel-form-${namespace}`,
-          }
+              "hx-post": toggleUrl,
+              "hx-target": `#row-${namespace}-${field.key}-${rowIndex}`,
+              "hx-swap": "outerHTML",
+              "hx-include": `#panel-form-${namespace}`,
+            }
           : {})}
       >
         <div class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">

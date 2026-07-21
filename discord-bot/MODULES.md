@@ -109,17 +109,17 @@ Channel and role fields in the web editor are validated as Discord IDs (numeric 
 
 Every production module follows the same shape:
 
-| Location                      | File              | Role                                                     |
-| ----------------------------- | ----------------- | -------------------------------------------------------- |
-| `shared/modules/<name>/`      | `types.ts`        | Panel modules only — shared contract with web validators |
-| `shared/modules/<name>/`      | `validate.ts`     | Row validation for object-lists (panel modules)          |
-| `shared/modules/<name>/`      | `seed.sql`        | Table DDL + `editorConfig` + default rows (one-time seed) |
-| `bot/src/lib/modules/<name>/` | `types.ts`        | Non-panel modules — defaults, `get()` / `data()`         |
-| `bot/src/lib/modules/<name>/` | `config-io.ts`    | IO boundary — **handlers import from here**              |
-| `bot/src/lib/modules/<name>/` | `panel.ts`        | Publish payload + custom IDs (panel modules)             |
-| `bot/src/lib/modules/<name>/` | `publisher.ts`    | Publish/unpublish (panel modules)                        |
-| `bot/src/modules/<name>/`     | `index.ts`        | `CommandModule` export only                              |
-| `bot/src/modules/<name>/`     | `handlers.ts`     | Event/command handlers (recommended)                     |
+| Location                      | File           | Role                                                      |
+| ----------------------------- | -------------- | --------------------------------------------------------- |
+| `shared/modules/<name>/`      | `types.ts`     | Panel modules only — shared contract with web validators  |
+| `shared/modules/<name>/`      | `validate.ts`  | Row validation for object-lists (panel modules)           |
+| `shared/modules/<name>/`      | `seed.sql`     | Table DDL + `editorConfig` + default rows (one-time seed) |
+| `bot/src/lib/modules/<name>/` | `types.ts`     | Non-panel modules — defaults, `get()` / `data()`          |
+| `bot/src/lib/modules/<name>/` | `config-io.ts` | IO boundary — **handlers import from here**               |
+| `bot/src/lib/modules/<name>/` | `panel.ts`     | Publish payload + custom IDs (panel modules)              |
+| `bot/src/lib/modules/<name>/` | `publisher.ts` | Publish/unpublish (panel modules)                         |
+| `bot/src/modules/<name>/`     | `index.ts`     | `CommandModule` export only                               |
+| `bot/src/modules/<name>/`     | `handlers.ts`  | Event/command handlers (recommended)                      |
 
 **Simple modules:** `config-io.ts` re-exports reads from `bot/src/lib/modules/<name>/types.ts`.
 **Panel modules:** shared `types.ts` + `validate.ts`; bot lib holds `config-io`, `panel`, `publisher`.

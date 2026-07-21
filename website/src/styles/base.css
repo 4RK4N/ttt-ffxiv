@@ -65,14 +65,13 @@
 
   /* Page background (--page-bg-image set in Base.astro) */
   body::before {
-    content: "";
+    content: '';
     position: fixed;
     inset: 0;
     z-index: -2;
     pointer-events: none;
     background-image:
-      linear-gradient(var(--color-page-overlay), var(--color-page-overlay)),
-      var(--page-bg-image);
+      linear-gradient(var(--color-page-overlay), var(--color-page-overlay)), var(--page-bg-image);
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;

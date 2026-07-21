@@ -78,16 +78,29 @@ function parseSubField(entry: unknown): WebPluginSubField | null {
   const f = entry as Record<string, unknown>;
   if (typeof f.key !== "string" || f.key.trim() === "") return null;
 
-  const type =
+  let type: WebPluginSubField["type"];
+  if (f.type === undefined) {
+    type = "text";
+  } else if (
     typeof f.type === "string" &&
-      (VALID_SCALAR_TYPES as string[]).includes(f.type)
-      ? (f.type as WebPluginSubField["type"])
-      : "text";
+    (VALID_SCALAR_TYPES as string[]).includes(f.type)
+  ) {
+    type = f.type as WebPluginSubField["type"];
+  } else {
+    return null;
+  }
 
-  const store =
-    typeof f.store === "string" && (VALID_STORES as string[]).includes(f.store)
-      ? (f.store as WebFieldStore)
-      : "config";
+  let store: WebFieldStore;
+  if (f.store === undefined) {
+    store = "config";
+  } else if (
+    typeof f.store === "string" &&
+    (VALID_STORES as string[]).includes(f.store)
+  ) {
+    store = f.store as WebFieldStore;
+  } else {
+    return null;
+  }
 
   const optionFields: WebPluginSubField[] = [];
   if (type === "option-list" && Array.isArray(f.optionFields)) {
@@ -149,16 +162,35 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
       continue;
     }
 
-    const type: WebFieldType =
-      typeof f.type === "string" && (VALID_TYPES as string[]).includes(f.type)
-        ? (f.type as WebFieldType)
-        : "text";
+    let type: WebFieldType;
+    if (f.type === undefined) {
+      type = "text";
+    } else if (
+      typeof f.type === "string" &&
+      (VALID_TYPES as string[]).includes(f.type)
+    ) {
+      type = f.type as WebFieldType;
+    } else {
+      console.warn(
+        `[web/plugins] "${namespace}" field "${f.key}" has invalid type ${JSON.stringify(f.type)}; skipping field.`,
+      );
+      continue;
+    }
 
-    const store: WebFieldStore =
+    let store: WebFieldStore;
+    if (f.store === undefined) {
+      store = "texts";
+    } else if (
       typeof f.store === "string" &&
-        (VALID_STORES as string[]).includes(f.store)
-        ? (f.store as WebFieldStore)
-        : "texts";
+      (VALID_STORES as string[]).includes(f.store)
+    ) {
+      store = f.store as WebFieldStore;
+    } else {
+      console.warn(
+        `[web/plugins] "${namespace}" field "${f.key}" has invalid store ${JSON.stringify(f.store)}; skipping field.`,
+      );
+      continue;
+    }
 
     const itemFields: WebPluginSubField[] = [];
     if (type === "object-list" && Array.isArray(f.itemFields)) {
@@ -194,6 +226,14 @@ function parsePlugin(namespace: string, raw: unknown): WebPlugin | null {
   }
 
   return { namespace, title, description, fields };
+}
+
+/** Parse a module editorConfig object into a web plugin (exported for tests). */
+export function parseWebPlugin(
+  namespace: string,
+  raw: unknown,
+): WebPlugin | null {
+  return parsePlugin(namespace, raw);
 }
 
 export async function loadWebPlugins(): Promise<WebPlugin[]> {

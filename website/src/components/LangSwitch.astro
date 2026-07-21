@@ -1,6 +1,6 @@
 ---
-import type { Lang } from "../data/nav";
-import { langSwitchLabels } from "../data/ui";
+import type { Lang } from '../data/nav';
+import { langSwitchLabels } from '../data/ui';
 
 interface Props {
   lang: Lang;
@@ -10,7 +10,7 @@ interface Props {
 
 const { lang, altDe, altEn } = Astro.props;
 
-const target = lang === "de" ? altEn : altDe;
+const target = lang === 'de' ? altEn : altDe;
 const { title, altLabel } = langSwitchLabels[lang];
 ---
 
@@ -22,7 +22,7 @@ const { title, altLabel } = langSwitchLabels[lang];
   class="header-chip header-chip--lang"
 >
   {
-    lang === "de" ? (
+    lang === 'de' ? (
       <svg viewBox="0 0 60 30" aria-hidden="true" preserveAspectRatio="none">
         <rect width="60" height="30" fill="#012169" />
         <path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6" />

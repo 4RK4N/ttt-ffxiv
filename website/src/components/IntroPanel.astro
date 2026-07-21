@@ -1,6 +1,6 @@
 ---
-import ContentPanel from "./ContentPanel.astro";
-import OrnamentDivider from "./OrnamentDivider.astro";
+import ContentPanel from './ContentPanel.astro';
+import OrnamentDivider from './OrnamentDivider.astro';
 
 interface Props {
   /** Vertical spacing between paragraphs. */
@@ -14,13 +14,11 @@ interface Props {
 }
 
 const { gap = 6, center = true, narrow = false, divider = false } = Astro.props;
-const gapClass = gap === 4 ? "gap-4" : "gap-6";
+const gapClass = gap === 4 ? 'gap-4' : 'gap-6';
 ---
 
-<ContentPanel class:list={[narrow && "panel-narrow"]}>
-  <div
-    class:list={["body", center && "body-center", "flex", "flex-col", gapClass]}
-  >
+<ContentPanel class:list={[narrow && 'panel-narrow']}>
+  <div class:list={['body', center && 'body-center', 'flex', 'flex-col', gapClass]}>
     <slot />
   </div>
 </ContentPanel>

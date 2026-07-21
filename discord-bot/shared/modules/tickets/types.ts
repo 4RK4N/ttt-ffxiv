@@ -40,7 +40,7 @@ export interface TicketTypeTexts {
   roleActionConfirmation: string;
 }
 
-export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts { }
+export interface ResolvedTicketType extends TicketTypeConfig, TicketTypeTexts {}
 
 export interface TicketsConfig {
   enabled?: boolean;

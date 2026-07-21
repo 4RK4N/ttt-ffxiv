@@ -15,7 +15,11 @@ import { getModuleRowsSync } from "#shared/core/texts.js";
 import { validateEmbedPanelRow } from "#shared/modules/custom-embeds/validate.js";
 import { validateRolePanelRow } from "#shared/modules/reaction-roles/validate.js";
 import { validateTicketTypeRow } from "#shared/modules/tickets/validate.js";
-import type { WebPlugin, WebPluginField, WebPluginSubField } from "./plugins.js";
+import type {
+  WebPlugin,
+  WebPluginField,
+  WebPluginSubField,
+} from "./plugins.js";
 import {
   isBooleanField,
   isBooleanSubField,
@@ -71,8 +75,7 @@ function runPanelRowValidator(
   try {
     validator(configRow, textRow);
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : fallbackMessage;
+    const message = err instanceof Error ? err.message : fallbackMessage;
     throw new ValidationError(`${itemLabel}: ${message}`);
   }
 }
@@ -181,7 +184,10 @@ export function mergeObjectListRow(
   for (const sub of itemFields) {
     const formVal = incoming[sub.key];
     const prevVal = prev[sub.key];
-    if (isBlankValue(formVal) && !isBlankValue(prevVal)) {
+    if (!isBlankValue(formVal) || isBlankValue(prevVal)) continue;
+    // Visible blanks are intentional clears. Hidden blanks preserve previous
+    // (conditional fields not rendered in the form).
+    if (!isSubFieldVisible(sub, merged)) {
       merged[sub.key] = prevVal;
     }
   }
@@ -415,7 +421,7 @@ export function readValues(plugin: WebPlugin): Record<string, FieldValue> {
   return values;
 }
 
-export class ValidationError extends Error { }
+export class ValidationError extends Error {}
 
 export async function writeValues(
   plugin: WebPlugin,
@@ -477,7 +483,7 @@ export async function writeValues(
             typeof row.panelTitle === "string" && row.panelTitle.trim() !== ""
               ? row.panelTitle
               : typeof row.openButtonLabel === "string" &&
-                row.openButtonLabel.trim() !== ""
+                  row.openButtonLabel.trim() !== ""
                 ? row.openButtonLabel
                 : (field.itemLabel ?? "item");
           id = uniqueId(slugify(label), usedIds);

@@ -1,4 +1,4 @@
-import type { Lang } from "./nav";
+import type { Lang } from './nav';
 
 export const shellLabels: Record<
   Lang,
@@ -11,42 +11,37 @@ export const shellLabels: Record<
   }
 > = {
   en: {
-    skip: "Skip to content",
-    mainMenu: "Main menu",
-    mobileMenu: "Mobile menu",
-    legalNav: "Legal",
-    menuToggle: "Menu",
+    skip: 'Skip to content',
+    mainMenu: 'Main menu',
+    mobileMenu: 'Mobile menu',
+    legalNav: 'Legal',
+    menuToggle: 'Menu',
   },
   de: {
-    skip: "Zum Inhalt springen",
-    mainMenu: "Hauptmenü",
-    mobileMenu: "Mobilmenü",
-    legalNav: "Rechtliches",
-    menuToggle: "Menü",
+    skip: 'Zum Inhalt springen',
+    mainMenu: 'Hauptmenü',
+    mobileMenu: 'Mobilmenü',
+    legalNav: 'Rechtliches',
+    menuToggle: 'Menü',
   },
 };
 
-export const langSwitchLabels: Record<
-  Lang,
-  { title: string; altLabel: string }
-> = {
-  en: { title: "Switch to German", altLabel: "Deutsch" },
-  de: { title: "Zu Englisch wechseln", altLabel: "English" },
+export const langSwitchLabels: Record<Lang, { title: string; altLabel: string }> = {
+  en: { title: 'Switch to German', altLabel: 'Deutsch' },
+  de: { title: 'Zu Englisch wechseln', altLabel: 'English' },
 };
 
-export const timerLabels: Record<
-  Lang,
-  { units: [string, string, string, string]; open: string }
-> = {
-  en: {
-    units: ["Days", "Hours", "Minutes", "Seconds"],
-    open: "We're open!",
-  },
-  de: {
-    units: ["Tage", "Stunden", "Minuten", "Sekunden"],
-    open: "Wir haben geöffnet!",
-  },
-};
+export const timerLabels: Record<Lang, { units: [string, string, string, string]; open: string }> =
+  {
+    en: {
+      units: ['Days', 'Hours', 'Minutes', 'Seconds'],
+      open: "We're open!",
+    },
+    de: {
+      units: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
+      open: 'Wir haben geöffnet!',
+    },
+  };
 
 export const lightboxLabels: Record<
   Lang,
@@ -60,19 +55,19 @@ export const lightboxLabels: Record<
   }
 > = {
   en: {
-    dialog: "Image viewer",
-    close: "Close",
-    prev: "Previous image",
-    next: "Next image",
-    zoomIn: "Zoom in",
-    zoomOut: "Zoom out",
+    dialog: 'Image viewer',
+    close: 'Close',
+    prev: 'Previous image',
+    next: 'Next image',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
   },
   de: {
-    dialog: "Bildbetrachter",
-    close: "Schließen",
-    prev: "Vorheriges Bild",
-    next: "Nächstes Bild",
-    zoomIn: "Vergrößern",
-    zoomOut: "Verkleinern",
+    dialog: 'Bildbetrachter',
+    close: 'Schließen',
+    prev: 'Vorheriges Bild',
+    next: 'Nächstes Bild',
+    zoomIn: 'Vergrößern',
+    zoomOut: 'Verkleinern',
   },
 };

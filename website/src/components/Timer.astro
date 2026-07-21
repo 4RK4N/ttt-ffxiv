@@ -1,7 +1,7 @@
 ---
-import type { Lang } from "../data/nav";
-import { timerLabels } from "../data/ui";
-import { splitRemainingMs } from "../data/countdown";
+import type { Lang } from '../data/nav';
+import { timerLabels } from '../data/ui';
+import { splitRemainingMs } from '../data/countdown';
 
 interface Props {
   lang: Lang;
@@ -44,7 +44,7 @@ const isOpen = targetMs <= Date.now();
 </div>
 
 <script>
-  import { splitRemainingMs } from "../data/countdown";
+  import { splitRemainingMs } from '../data/countdown';
 
   let interval: ReturnType<typeof setInterval> | undefined;
 
@@ -54,19 +54,17 @@ const isOpen = targetMs <= Date.now();
       interval = undefined;
     }
 
-    const timer = document.getElementById(
-      "event-timer",
-    ) as HTMLDivElement | null;
+    const timer = document.getElementById('event-timer') as HTMLDivElement | null;
     if (!timer) return;
 
     const target = Number(timer.dataset.timestamp) * 1000;
     const openMessage = timer.dataset.openMessage ?? "We're open!";
-    const digits = timer.querySelectorAll<HTMLSpanElement>("[data-digit]");
+    const digits = timer.querySelectorAll<HTMLSpanElement>('[data-digit]');
 
     function showOpen() {
       timer!.replaceChildren();
-      const paragraph = document.createElement("p");
-      paragraph.className = "timer-open";
+      const paragraph = document.createElement('p');
+      paragraph.className = 'timer-open';
       paragraph.textContent = openMessage;
       timer!.append(paragraph);
     }
@@ -97,6 +95,6 @@ const isOpen = targetMs <= Date.now();
     }, 1000);
   }
 
-  document.addEventListener("astro:page-load", initTimer);
+  document.addEventListener('astro:page-load', initTimer);
   initTimer();
 </script>

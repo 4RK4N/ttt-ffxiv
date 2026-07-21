@@ -1,7 +1,7 @@
 ---
-import "../styles/global.css";
-import { Font, Image, getImage } from "astro:assets";
-import { ClientRouter, fade } from "astro:transitions";
+import '../styles/global.css';
+import { Font, Image, getImage } from 'astro:assets';
+import { ClientRouter, fade } from 'astro:transitions';
 import {
   siteName,
   siteDescription,
@@ -10,21 +10,21 @@ import {
   homePath,
   pathMap,
   type Lang,
-} from "../data/nav";
+} from '../data/nav';
 import {
   headerLogoDisplayHeight,
   headerLogoDisplayPx,
   headerLogoSizes,
   headerLogoWidths,
-} from "../data/layout";
-import { DISCORD_TTT, SITE_URL } from "../data/site";
-import { shellLabels } from "../data/ui";
-import { logo, bg, cornerOrnament } from "../data/images";
-import SiteNav from "../components/SiteNav.astro";
-import DiscordIcon from "../components/DiscordIcon.astro";
-import LangSwitch from "../components/LangSwitch.astro";
-import Lightbox from "../components/Lightbox.astro";
-import CloseIcon from "../components/CloseIcon.astro";
+} from '../data/layout';
+import { DISCORD_TTT, SITE_URL } from '../data/site';
+import { shellLabels } from '../data/ui';
+import { logo, bg, cornerOrnament } from '../data/images';
+import SiteNav from '../components/SiteNav.astro';
+import DiscordIcon from '../components/DiscordIcon.astro';
+import LangSwitch from '../components/LangSwitch.astro';
+import Lightbox from '../components/Lightbox.astro';
+import CloseIcon from '../components/CloseIcon.astro';
 
 interface Props {
   title: string;
@@ -62,10 +62,10 @@ const shareImage = `${SITE_URL}/assets/images/share.jpg`;
 
 const menu = siteMenu[lang];
 const legal = footerLinks[lang];
-const alt = pathMap[path] ?? { de: "/de.html", en: "/" };
-const canonical = SITE_URL + (path === "/" ? "" : path.replace(/\/$/, ""));
+const alt = pathMap[path] ?? { de: '/de.html', en: '/' };
+const canonical = SITE_URL + (path === '/' ? '' : path.replace(/\/$/, ''));
 
-const bgOptimized = await getImage({ src: bg, width: 1920, format: "webp" });
+const bgOptimized = await getImage({ src: bg, width: 1920, format: 'webp' });
 
 const labels = shellLabels[lang];
 const skipLabel = labels.skip;
@@ -87,7 +87,7 @@ const menuToggleLabel = labels.menuToggle;
     <meta property="og:title" content={title} />
     <meta property="og:type" content="website" />
     <meta property="og:description" content={metaDescription} />
-    <meta property="og:locale" content={lang === "de" ? "de_DE" : "en_US"} />
+    <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
     <meta property="og:image" content={shareImage} />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1024" />
@@ -139,9 +139,7 @@ const menuToggleLabel = labels.menuToggle;
       />
     </div>
 
-    <a href="#main-content" class="skip-link site-bar site-bar--header"
-      >{skipLabel}</a
-    >
+    <a href="#main-content" class="skip-link site-bar site-bar--header">{skipLabel}</a>
 
     <header
       class="site-bar site-bar--header fixed inset-x-0 top-0 z-50 flex h-(--header-height) items-center gap-4 px-4 text-base lg:px-7"
@@ -155,7 +153,7 @@ const menuToggleLabel = labels.menuToggle;
           widths={headerLogoWidths()}
           sizes={headerLogoSizes()}
           loading="eager"
-          fetchpriority={heroLcp || lcpPreload ? undefined : "high"}
+          fetchpriority={heroLcp || lcpPreload ? undefined : 'high'}
           class="block h-full w-auto"
         />
       </a>
@@ -203,7 +201,7 @@ const menuToggleLabel = labels.menuToggle;
       class="site-bar site-bar--header fixed inset-x-0 top-(--header-height) z-40 hidden max-h-[calc(100vh-var(--header-height))] overflow-y-auto px-4 pb-4 pt-3 text-left text-base md:hidden!"
     />
 
-    <main id="main-content" transition:animate={fade({ duration: "0.2s" })}>
+    <main id="main-content" transition:animate={fade({ duration: '0.2s' })}>
       <slot />
     </main>
 
@@ -214,10 +212,7 @@ const menuToggleLabel = labels.menuToggle;
             <a
               href={item.path}
               data-astro-prefetch
-              class:list={[
-                "footer-nav-link",
-                item.path === path && "footer-nav-link--active",
-              ]}
+              class:list={['footer-nav-link', item.path === path && 'footer-nav-link--active']}
             >
               {item.label}
             </a>
@@ -229,149 +224,124 @@ const menuToggleLabel = labels.menuToggle;
     <Lightbox lang={lang} />
 
     <script>
-      import { on, renewListenerScope } from "../lib/dom-listeners";
+      import { on, renewListenerScope } from '../lib/dom-listeners';
 
       let shellAbort: AbortController | null = null;
       const documentScope = new AbortController();
 
       function closeAllDropdowns() {
-        document
-          .querySelectorAll<HTMLLIElement>(".nav-dropdown.is-open")
-          .forEach((el) => {
-            el.classList.remove("is-open");
-            el.querySelector<HTMLButtonElement>(
-              ".nav-dropdown-trigger",
-            )?.setAttribute("aria-expanded", "false");
-          });
+        document.querySelectorAll<HTMLLIElement>('.nav-dropdown.is-open').forEach((el) => {
+          el.classList.remove('is-open');
+          el.querySelector<HTMLButtonElement>('.nav-dropdown-trigger')?.setAttribute(
+            'aria-expanded',
+            'false'
+          );
+        });
       }
 
       function setDrawer(open: boolean) {
-        const toggle = document.getElementById(
-          "menu-toggle",
-        ) as HTMLButtonElement | null;
-        const drawer = document.getElementById(
-          "mobile-drawer",
-        ) as HTMLElement | null;
-        const iconOpen = document.getElementById(
-          "menu-icon-open",
-        ) as SVGElement | null;
-        const iconClose = document.getElementById(
-          "menu-icon-close",
-        ) as SVGElement | null;
+        const toggle = document.getElementById('menu-toggle') as HTMLButtonElement | null;
+        const drawer = document.getElementById('mobile-drawer') as HTMLElement | null;
+        const iconOpen = document.getElementById('menu-icon-open') as SVGElement | null;
+        const iconClose = document.getElementById('menu-icon-close') as SVGElement | null;
         if (!toggle || !drawer || !iconOpen || !iconClose) return;
 
-        drawer.classList.toggle("hidden", !open);
-        document.body.classList.toggle("overflow-hidden", open);
-        toggle.setAttribute("aria-expanded", String(open));
-        iconOpen.classList.toggle("hidden", open);
-        iconClose.classList.toggle("hidden", !open);
+        drawer.classList.toggle('hidden', !open);
+        document.body.classList.toggle('overflow-hidden', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        iconOpen.classList.toggle('hidden', open);
+        iconClose.classList.toggle('hidden', !open);
         if (!open) closeAllDropdowns();
       }
 
       function initMobileMenu(signal: AbortSignal) {
-        const toggle = document.getElementById(
-          "menu-toggle",
-        ) as HTMLButtonElement | null;
-        const drawer = document.getElementById(
-          "mobile-drawer",
-        ) as HTMLElement | null;
+        const toggle = document.getElementById('menu-toggle') as HTMLButtonElement | null;
+        const drawer = document.getElementById('mobile-drawer') as HTMLElement | null;
         if (!toggle || !drawer) return;
 
         setDrawer(false);
 
         on(
           toggle,
-          "click",
+          'click',
           () => {
-            setDrawer(drawer.classList.contains("hidden"));
+            setDrawer(drawer.classList.contains('hidden'));
           },
-          signal,
+          signal
         );
 
         on(
           drawer,
-          "click",
+          'click',
           (e) => {
-            const link = (e.target as HTMLElement).closest(
-              "a",
-            ) as HTMLAnchorElement | null;
+            const link = (e.target as HTMLElement).closest('a') as HTMLAnchorElement | null;
             if (link && drawer.contains(link)) setDrawer(false);
           },
-          signal,
+          signal
         );
       }
 
       function initNavDropdowns(signal: AbortSignal) {
-        document
-          .querySelectorAll<HTMLLIElement>(".nav-dropdown")
-          .forEach((dropdown) => {
-            const trigger = dropdown.querySelector<HTMLButtonElement>(
-              ".nav-dropdown-trigger",
-            );
-            const menu =
-              dropdown.querySelector<HTMLUListElement>(".nav-dropdown-menu");
-            if (!trigger || !menu) return;
+        document.querySelectorAll<HTMLLIElement>('.nav-dropdown').forEach((dropdown) => {
+          const trigger = dropdown.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
+          const menu = dropdown.querySelector<HTMLUListElement>('.nav-dropdown-menu');
+          if (!trigger || !menu) return;
 
-            const items =
-              menu.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
+          const items = menu.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
 
+          on(
+            trigger,
+            'click',
+            (e) => {
+              e.stopPropagation();
+              const wasOpen = dropdown.classList.contains('is-open');
+              closeAllDropdowns();
+              if (!wasOpen) {
+                dropdown.classList.add('is-open');
+                trigger.setAttribute('aria-expanded', 'true');
+              }
+            },
+            signal
+          );
+
+          on(
+            trigger,
+            'keydown',
+            (e) => {
+              if (!(e instanceof KeyboardEvent)) return;
+              if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                dropdown.classList.add('is-open');
+                trigger.setAttribute('aria-expanded', 'true');
+                items[0]?.focus();
+              }
+            },
+            signal
+          );
+
+          on(menu, 'mousedown', (e) => e.stopPropagation(), signal);
+
+          items.forEach((item, index) => {
             on(
-              trigger,
-              "click",
-              (e) => {
-                e.stopPropagation();
-                const wasOpen = dropdown.classList.contains("is-open");
-                closeAllDropdowns();
-                if (!wasOpen) {
-                  dropdown.classList.add("is-open");
-                  trigger.setAttribute("aria-expanded", "true");
-                }
-              },
-              signal,
-            );
-
-            on(
-              trigger,
-              "keydown",
+              item,
+              'keydown',
               (e) => {
                 if (!(e instanceof KeyboardEvent)) return;
-                if (
-                  e.key === "ArrowDown" ||
-                  e.key === "Enter" ||
-                  e.key === " "
-                ) {
+                if (e.key === 'ArrowDown') {
                   e.preventDefault();
-                  dropdown.classList.add("is-open");
-                  trigger.setAttribute("aria-expanded", "true");
-                  items[0]?.focus();
+                  (items[index + 1] ?? items[0]).focus();
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  (items[index - 1] ?? items[items.length - 1]).focus();
+                } else if (e.key === 'Escape') {
+                  closeAllDropdowns();
+                  trigger.focus();
                 }
               },
-              signal,
+              signal
             );
-
-            on(menu, "mousedown", (e) => e.stopPropagation(), signal);
-
-            items.forEach((item, index) => {
-              on(
-                item,
-                "keydown",
-                (e) => {
-                  if (!(e instanceof KeyboardEvent)) return;
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    (items[index + 1] ?? items[0]).focus();
-                  } else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    (items[index - 1] ?? items[items.length - 1]).focus();
-                  } else if (e.key === "Escape") {
-                    closeAllDropdowns();
-                    trigger.focus();
-                  }
-                },
-                signal,
-              );
-            });
           });
+        });
       }
 
       function initShell() {
@@ -381,18 +351,18 @@ const menuToggleLabel = labels.menuToggle;
       }
 
       initShell();
-      document.addEventListener("astro:page-load", initShell);
+      document.addEventListener('astro:page-load', initShell);
 
-      on(document, "click", closeAllDropdowns, documentScope.signal);
+      on(document, 'click', closeAllDropdowns, documentScope.signal);
       on(
         document,
-        "keydown",
+        'keydown',
         (e) => {
-          if (!(e instanceof KeyboardEvent) || e.key !== "Escape") return;
+          if (!(e instanceof KeyboardEvent) || e.key !== 'Escape') return;
           setDrawer(false);
           closeAllDropdowns();
         },
-        documentScope.signal,
+        documentScope.signal
       );
     </script>
   </body>

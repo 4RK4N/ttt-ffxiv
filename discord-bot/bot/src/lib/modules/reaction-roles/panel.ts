@@ -7,10 +7,7 @@ import {
 } from "discord.js";
 import { buildEmbed } from "../../core/embedBuilder.js";
 import { applyEmojiToButton } from "../../core/buttonEmoji.js";
-import {
-  parseEmoji,
-  reactionsMatch,
-} from "#shared/core/discordEmoji.js";
+import { parseEmoji, reactionsMatch } from "#shared/core/discordEmoji.js";
 import { syncBotMessageReactions } from "../../core/discordReactions.js";
 import {
   publishDiscordMessage,

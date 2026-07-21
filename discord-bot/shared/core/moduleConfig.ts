@@ -31,11 +31,7 @@ export function createModuleData<TModule extends object>(
 export function defineSimpleModule<
   TConfig extends object,
   TTexts extends object,
->(opts: {
-  namespace: string;
-  configDefaults: TConfig;
-  textDefaults: TTexts;
-}) {
+>(opts: { namespace: string; configDefaults: TConfig; textDefaults: TTexts }) {
   type TModule = TConfig & TTexts;
   const MODULE_DEFAULTS = moduleDefaultsFromParts(
     opts.configDefaults,

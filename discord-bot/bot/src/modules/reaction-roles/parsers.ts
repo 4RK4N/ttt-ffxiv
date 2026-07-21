@@ -1,4 +1,7 @@
-import { BTN_PREFIX, SEL_PREFIX } from "../../lib/modules/reaction-roles/panel.js";
+import {
+  BTN_PREFIX,
+  SEL_PREFIX,
+} from "../../lib/modules/reaction-roles/panel.js";
 
 export function parseButtonCustomId(
   customId: string,

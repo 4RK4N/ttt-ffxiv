@@ -12,13 +12,10 @@ const CONTENT_MAX_TEXT_REM = 28.333;
 const CONTENT_MAX_GALLERY_REM = 40;
 const CONTENT_MAX_EVENT_REM = 23.333;
 
-const CONTENT_COLUMN_INNER_REM =
-  CONTENT_MAX_TEXT_REM - CONTENT_SECTION_PADDING_REM;
+const CONTENT_COLUMN_INNER_REM = CONTENT_MAX_TEXT_REM - CONTENT_SECTION_PADDING_REM;
 
 /** Inner content width for full-width images in the default text column. */
-export const CONTENT_COLUMN_PX = Math.round(
-  CONTENT_COLUMN_INNER_REM * ROOT_FONT_PX,
-);
+export const CONTENT_COLUMN_PX = Math.round(CONTENT_COLUMN_INNER_REM * ROOT_FONT_PX);
 
 function contentSectionSizes(maxRem: number): string {
   return `calc(min(100vw, ${maxRem}rem) - ${CONTENT_SECTION_PADDING_REM}rem)`;
@@ -30,9 +27,7 @@ export const HERO_LOGO_PX = 420;
 
 /** Featured event poster — synced with --content-max-event */
 export const FEATURED_EVENT_REM = CONTENT_MAX_EVENT_REM;
-export const FEATURED_EVENT_IMAGE_PX = Math.round(
-  FEATURED_EVENT_REM * ROOT_FONT_PX,
-);
+export const FEATURED_EVENT_IMAGE_PX = Math.round(FEATURED_EVENT_REM * ROOT_FONT_PX);
 
 /** w-48 = 12rem — partner logo */
 export const PARTNER_REM = 12;
@@ -50,8 +45,7 @@ const HEADER_LOGO_TARGET_PX = 54;
 
 /** Header bar height and logo vertical padding — logo scales with rem. */
 const HEADER_BAR_PX = HEADER_HEIGHT_PX;
-const HEADER_LOGO_PAD_REM =
-  (HEADER_HEIGHT_PX - HEADER_LOGO_TARGET_PX) / 2 / ROOT_FONT_PX;
+const HEADER_LOGO_PAD_REM = (HEADER_HEIGHT_PX - HEADER_LOGO_TARGET_PX) / 2 / ROOT_FONT_PX;
 
 /** Display height of header logo at a given root font size. */
 export function headerLogoDisplayHeight(rootPx: number = ROOT_FONT_PX): number {
@@ -75,12 +69,7 @@ const BUILD_WIDTHS = {
   hero: [420, 630, 840],
   featuredEvent: [400, 560, 840],
   partner: [288, 432, 576],
-  contentColumn: [
-    400,
-    CONTENT_COLUMN_PX,
-    1200,
-    Math.round(CONTENT_COLUMN_PX * 1.67),
-  ],
+  contentColumn: [400, CONTENT_COLUMN_PX, 1200, Math.round(CONTENT_COLUMN_PX * 1.67)],
   galleryGrid: [400, 800, 1200],
   galleryGridDense: [320, 640, 960],
 } as const;
@@ -93,7 +82,7 @@ function buildWidths(profile: BuildWidthProfile): number[] {
 
 /** srcset widths for header logo. */
 export function headerLogoWidths(): number[] {
-  return buildWidths("headerLogo");
+  return buildWidths('headerLogo');
 }
 
 const GRID_GAP_REM = 0.75; // gap-3
@@ -109,9 +98,9 @@ export function remScaledSizes(rem: number): string {
 }
 
 const REM_WIDTH_PROFILES: Partial<Record<number, BuildWidthProfile>> = {
-  [HERO_REM]: "hero",
-  [FEATURED_EVENT_REM]: "featuredEvent",
-  [PARTNER_REM]: "partner",
+  [HERO_REM]: 'hero',
+  [FEATURED_EVENT_REM]: 'featuredEvent',
+  [PARTNER_REM]: 'partner',
 };
 
 /** srcset widths for a rem-width element (hero circle or partner logo). */
@@ -124,13 +113,11 @@ export function remScaledWidths(rem: number): number[] {
 }
 
 /** Full content column for gallery pages. */
-export const GALLERY_CONTENT_COLUMN_SIZES = contentSectionSizes(
-  CONTENT_MAX_GALLERY_REM,
-);
+export const GALLERY_CONTENT_COLUMN_SIZES = contentSectionSizes(CONTENT_MAX_GALLERY_REM);
 
 /** srcset widths for full-width content column images. */
 export function contentColumnWidths(): number[] {
-  return buildWidths("contentColumn");
+  return buildWidths('contentColumn');
 }
 
 /** 2-column gallery sizes — 1 col below sm, 2 cols at sm+. */
@@ -167,12 +154,12 @@ export const GALLERY_GRID_DENSE_SIZES_WIDE =
 
 /** srcset widths for default 2-column gallery cells. */
 export function galleryGridWidths(): number[] {
-  return buildWidths("galleryGrid");
+  return buildWidths('galleryGrid');
 }
 
 /** srcset widths for dense 5-column gallery cells. */
 export function galleryGridDenseWidths(): number[] {
-  return buildWidths("galleryGridDense");
+  return buildWidths('galleryGridDense');
 }
 
 /** Featured event poster: full column on narrow screens, max 32rem above. */

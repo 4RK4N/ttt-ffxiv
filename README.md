@@ -92,7 +92,7 @@ With Docker: `./scripts/build.sh bot` for deploy (see [INSTALL.md § Part 4](INS
 
 ## Setup
 
-1. Node.js 24+ (local dev only; Docker-only servers need only Docker)
+1. Node.js 24.16+ (local dev only; Docker-only servers need only Docker)
 2. `cd discord-bot && npm install`
 3. [Developer Portal](https://discord.com/developers/applications): bot token + client ID; invite with Administrator (see [INSTALL.md](INSTALL.md))
 4. `cp data/config.example.json data/config.json` — DB path only (from repo root)
@@ -113,6 +113,35 @@ Guild ID in config → instant guild commands. Omit → global (~1 h).
 cd discord-bot
 npm start
 ```
+
+## Local quality checks
+
+Lint, format, and tests are **dev-only** (not run in production images). Typecheck runs in each package’s build.
+
+| Script | `discord-bot/` | `website/` |
+| ------ | -------------- | ---------- |
+| `npm run lint` | ESLint (repo-root config) | ESLint + Astro |
+| `npm run format` / `format:check` | Prettier | Prettier + Astro |
+| `npm test` | Vitest | Vitest |
+| Typecheck | `tsc` inside `npm run build` | `astro check` inside `npm run build` |
+
+```bash
+# Bot / web-admin
+cd discord-bot
+npm run lint
+npm run format:check
+npm test
+
+# Public website
+cd website
+npm run lint
+npm run format:check
+npm test
+npm run check          # astro check alone
+npm run build          # astro check then astro build
+```
+
+Website local preview: `cd website && npm install && npm run dev` (see [INSTALL.md § Part 7](INSTALL.md#part-7---public-website-ttt-ffxivcom)).
 
 ## Notes
 

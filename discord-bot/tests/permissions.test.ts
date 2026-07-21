@@ -2,10 +2,7 @@ import { PermissionFlagsBits } from "discord.js";
 import { describe, expect, it } from "vitest";
 import { canConfiguredRoleOrAdmin } from "../bot/src/lib/core/discordInteractions.js";
 
-function mockMember(opts: {
-  admin?: boolean;
-  roleIds?: string[];
-}) {
+function mockMember(opts: { admin?: boolean; roleIds?: string[] }) {
   const roleIds = new Set(opts.roleIds ?? []);
   return {
     permissions: {

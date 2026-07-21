@@ -13,7 +13,10 @@ describe("fetchBuffer", () => {
   });
 
   it("blocks non-Discord URLs", async () => {
-    const result = await fetchBuffer("https://evil.example.com/image.png", "[test]");
+    const result = await fetchBuffer(
+      "https://evil.example.com/image.png",
+      "[test]",
+    );
     expect(result).toBeNull();
     expect(fetchWithTimeout).not.toHaveBeenCalled();
   });
@@ -29,7 +32,9 @@ describe("fetchBuffer", () => {
       arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
     } as Response);
 
-    const result = await fetchBuffer("https://cdn.discordapp.com/avatars/1.png");
+    const result = await fetchBuffer(
+      "https://cdn.discordapp.com/avatars/1.png",
+    );
     expect(result).toEqual(Buffer.from([1, 2, 3]));
   });
 
@@ -47,7 +52,10 @@ describe("fetchBuffer", () => {
 
   it("returns null when fetch fails", async () => {
     vi.mocked(fetchWithTimeout).mockRejectedValue(new Error("network"));
-    const result = await fetchBuffer("https://media.discordapp.net/x.png", "[test]");
+    const result = await fetchBuffer(
+      "https://media.discordapp.net/x.png",
+      "[test]",
+    );
     expect(result).toBeNull();
   });
 });
