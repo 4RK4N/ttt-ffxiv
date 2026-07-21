@@ -1,6 +1,6 @@
 import type { Lang } from "./nav";
 
-export const FEATURED_EVENT_IMAGE = "events/Event_11.07.26.png" as const;
+export const FEATURED_EVENT_IMAGE = "events/Event_18.07.26.png" as const;
 
 interface EventsPageCopy {
   title: string;

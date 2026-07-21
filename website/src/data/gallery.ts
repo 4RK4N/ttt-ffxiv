@@ -40,9 +40,16 @@ export const GALLERY_ROOM02_PATHS = [
   "gallery/room02/e83b206b.jpg",
 ] as const;
 
+export const GALLERY_ROOM03_PATHS = [
+  "gallery/room03/ffxiv_dx11_2026-07-20_19-22-20.png",
+  "gallery/room03/ffxiv_dx11_2026-07-20_19-22-36.png",
+  "gallery/room03/ffxiv_dx11_2026-07-20_19-23-06.png",
+] as const;
+
 export const galleryVenueImages = resolveImages(GALLERY_VENUE_PATHS);
 export const galleryRoom01Images = resolveImages(GALLERY_ROOM01_PATHS);
 export const galleryRoom02Images = resolveImages(GALLERY_ROOM02_PATHS);
+export const galleryRoom03Images = resolveImages(GALLERY_ROOM03_PATHS);
 
 interface GalleryVenueCopy {
   title: string;
@@ -54,6 +61,10 @@ interface GalleryVenueCopy {
   altPrefix: string;
   room1Heading: string;
   room2Heading: string;
+  room3Heading: string;
+  room1Subtitle: string;
+  room2Subtitle: string;
+  room3Subtitle: string;
   roomScreenshotSuffix: string;
 }
 
@@ -69,6 +80,10 @@ export const galleryVenueCopy: Record<Lang, GalleryVenueCopy> = {
     altPrefix: "Bathhouse screenshot",
     room1Heading: "Room 1",
     room2Heading: "Room 2",
+    room3Heading: "Room 3",
+    room1Subtitle: "Dreamweaver's Recess",
+    room2Subtitle: "White Delight",
+    room3Subtitle: "Noble Nexus",
     roomScreenshotSuffix: " screenshot",
   },
   de: {
@@ -82,6 +97,10 @@ export const galleryVenueCopy: Record<Lang, GalleryVenueCopy> = {
     altPrefix: "Badehaus-Screenshot",
     room1Heading: "Zimmer 1",
     room2Heading: "Zimmer 2",
+    room3Heading: "Zimmer 3",
+    room1Subtitle: "Dreamweaver's Recess",
+    room2Subtitle: "White Delight",
+    room3Subtitle: "Noble Nexus",
     roomScreenshotSuffix: "-Screenshot",
   },
 };

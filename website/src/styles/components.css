@@ -143,6 +143,18 @@
     text-align: center;
   }
 
+  .section-subheading {
+    margin: 0;
+    font-family: var(--font-cormorant);
+    font-size: clamp(1.0625rem, 2vw, 1.25rem);
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-heading-h2);
+    text-align: center;
+    opacity: 0.85;
+  }
+
   main h3 {
     width: 100%;
     font-family: var(--font-cormorant);

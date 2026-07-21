@@ -14,6 +14,7 @@ import { pageImages } from "../data/images";
 import {
   galleryRoom01Images,
   galleryRoom02Images,
+  galleryRoom03Images,
   galleryVenueCopy,
   galleryVenueImages,
 } from "../data/gallery";
@@ -49,6 +50,7 @@ const copy = galleryVenueCopy[lang];
   <Gallery wide altPrefix={copy.altPrefix} images={galleryVenueImages} />
   <SectionBreak>
     <SectionHeading>{copy.room1Heading}</SectionHeading>
+    <p class="section-subheading">{copy.room1Subtitle}</p>
   </SectionBreak>
   <Gallery
     wide
@@ -57,10 +59,20 @@ const copy = galleryVenueCopy[lang];
   />
   <SectionBreak>
     <SectionHeading>{copy.room2Heading}</SectionHeading>
+    <p class="section-subheading">{copy.room2Subtitle}</p>
   </SectionBreak>
   <Gallery
     wide
     altPrefix={`${copy.room2Heading}${copy.roomScreenshotSuffix}`}
     images={galleryRoom02Images}
+  />
+  <SectionBreak>
+    <SectionHeading>{copy.room3Heading}</SectionHeading>
+    <p class="section-subheading">{copy.room3Subtitle}</p>
+  </SectionBreak>
+  <Gallery
+    wide
+    altPrefix={`${copy.room3Heading}${copy.roomScreenshotSuffix}`}
+    images={galleryRoom03Images}
   />
 </ContentPage>
