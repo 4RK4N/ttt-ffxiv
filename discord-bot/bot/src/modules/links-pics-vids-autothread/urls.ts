@@ -16,6 +16,9 @@ const TWITTER_STATUS_HOSTS = [
   "fixvx.com",
 ] as const;
 
+/** Mastodon-style instances with /@user/id or /users/user/statuses/id posts. */
+const MASTODON_POST_HOSTS = ["aethy.com", "baraag.net"] as const;
+
 export function stripUrls(content: string): string {
   return content.replace(URL_REGEX, " ").replace(/\s+/g, " ").trim();
 }
@@ -26,6 +29,12 @@ function normalizeHost(host: string): string {
 
 function isTwitterStatusHost(host: string): boolean {
   return TWITTER_STATUS_HOSTS.some(
+    (apex) => host === apex || host.endsWith(`.${apex}`),
+  );
+}
+
+function isMastodonPostHost(host: string): boolean {
+  return MASTODON_POST_HOSTS.some(
     (apex) => host === apex || host.endsWith(`.${apex}`),
   );
 }
@@ -51,7 +60,7 @@ export function isSupportedAutoThreadUrl(raw: string): boolean {
     return /^\/profile\/[^/]+\/post\/[^/]+/.test(path);
   }
 
-  if (host === "aethy.com") {
+  if (isMastodonPostHost(host)) {
     return (
       /^\/@[^/]+\/\d+/.test(path) || /^\/users\/[^/]+\/statuses\/\d+/.test(path)
     );

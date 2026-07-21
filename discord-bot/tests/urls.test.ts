@@ -46,6 +46,17 @@ describe("isSupportedAutoThreadUrl", () => {
   });
 
   it.each([
+    "https://baraag.net/@user/1234567890",
+    "https://baraag.net/users/user/statuses/1234567890",
+  ])("accepts Baraag post links: %s", (url) => {
+    expect(isSupportedAutoThreadUrl(url)).toBe(true);
+  });
+
+  it("rejects Baraag profile-only links", () => {
+    expect(isSupportedAutoThreadUrl("https://baraag.net/@user")).toBe(false);
+  });
+
+  it.each([
     "https://www.instagram.com/p/ABC_123/",
     "https://instagram.com/reel/ABC-123/?igsh=example",
     "https://instagram.com/reels/ABC123/).",
