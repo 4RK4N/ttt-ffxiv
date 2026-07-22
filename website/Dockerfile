@@ -3,14 +3,14 @@ FROM node:24-bookworm-slim AS builder
 WORKDIR /site
 COPY website/package.json website/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+  npm ci
 COPY website/astro.config.mjs website/tsconfig.json ./
 COPY website/public ./public
 COPY website/src ./src
 # Cap parallel OS threads during astro build (compiler-rs + esbuild + Node).
-ENV RAYON_NUM_THREADS=1 \
-    GOMAXPROCS=1 \
-    UV_THREADPOOL_SIZE=2
+ENV RAYON_NUM_THREADS=2 \
+  GOMAXPROCS=2 \
+  UV_THREADPOOL_SIZE=4
 RUN npm run build
 
 FROM nginx:alpine AS ttt-website
