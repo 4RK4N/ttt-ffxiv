@@ -58,6 +58,8 @@ export const guestbookImages = resolveImages(GUESTBOOK_IMAGE_PATHS);
 
 /** Past event photos in archive display order. */
 export const EVENT_ARCHIVE_PATHS = [
+  'events/Event_08.08.26.png',
+  'events/Event_25.07.26.png',
   'events/Event_18.07.26.png',
   'events/Event_11.07.26.png',
   'events/Event_04.07.26.jpg',
