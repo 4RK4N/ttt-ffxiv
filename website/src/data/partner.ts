@@ -9,7 +9,7 @@ interface BandLogoConfig {
 
 const BAND_LOGO_PATHS: BandLogoConfig[] = [
   {
-    path: 'gallery/bands/29745391.png',
+    path: 'partner/bands/badger-trinity.png',
     alt: {
       en: 'The Badger Trinity logo',
       de: 'The Badger Trinity Logo',
@@ -17,10 +17,17 @@ const BAND_LOGO_PATHS: BandLogoConfig[] = [
     imageClass: 'scale-125',
   },
   {
-    path: 'gallery/bands/TheSundering-White.png',
+    path: 'partner/bands/TheSundering-White.png',
     alt: {
       en: 'The Sundering logo',
       de: 'The Sundering Logo',
+    },
+  },
+  {
+    path: 'partner/bands/domi-logo.png',
+    alt: {
+      en: 'Domi Darkstar logo',
+      de: 'Domi Darkstar Logo',
     },
   },
 ];

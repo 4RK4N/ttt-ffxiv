@@ -33,7 +33,7 @@ const bandLogos = partnerBandLogos(lang);
     </p>
   </IntroPanel>
   <ContentImage
-    src={resolveImage('partner/0d103a87.png')}
+    src={resolveImage('partner/mo-bath-loft.png')}
     width={PARTNER_LOGO_PX}
     sizes={remScaledSizes(PARTNER_REM)}
     widths={remScaledWidths(PARTNER_REM)}
@@ -41,7 +41,7 @@ const bandLogos = partnerBandLogos(lang);
     alt={copy.mobathLogoAlt}
     lightbox={false}
   />
-  <IntroPanel center={false} gap={4}>
+  <IntroPanel gap={4}>
     <h2>{copy.mobathHeading}</h2>
     <p>
       <strong>{copy.mobathBody[0]}</strong>
@@ -49,11 +49,13 @@ const bandLogos = partnerBandLogos(lang);
     <p>
       <strong>{copy.mobathBody[1]}</strong>
     </p>
-    <h3>{copy.mobathWorlds}</h3>
+    <h3 class="text-center">
+      <span class="heading-gradient-text">{copy.mobathWorlds}</span>
+    </h3>
   </IntroPanel>
   <DiscordButton href={DISCORD_MOBATH} label={copy.discordLabel} />
   <SectionHeading>{copy.bandsHeading}</SectionHeading>
-  <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
+  <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
     {
       bandLogos.map(({ src, alt, imageClass }) => (
         <ContentImage
