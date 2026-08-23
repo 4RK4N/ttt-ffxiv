@@ -55,7 +55,7 @@ const bandLogos = partnerBandLogos(lang);
   </IntroPanel>
   <DiscordButton href={DISCORD_MOBATH} label={copy.discordLabel} />
   <SectionHeading>{copy.bandsHeading}</SectionHeading>
-  <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
+  <div class="grid w-full grid-cols-2 gap-6 xl:grid-cols-3">
     {
       bandLogos.map(({ src, alt, imageClass }) => (
         <ContentImage
