@@ -9,6 +9,7 @@ const STAFF_MAIN_PATHS = [
   'staff/Elphine-Staff.png',
   'staff/Ralvus-Staff.png',
   'staff/Domino-Staff.png',
+  'staff/Kia-Staff.png',
 ] as const;
 
 /** Part-time staff — shown below the main grid. */
