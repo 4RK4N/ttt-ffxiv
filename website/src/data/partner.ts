@@ -14,7 +14,6 @@ const BAND_LOGO_PATHS: BandLogoConfig[] = [
       en: 'The Badger Trinity logo',
       de: 'The Badger Trinity Logo',
     },
-    imageClass: 'scale-125',
   },
   {
     path: 'partner/bands/TheSundering-White.png',

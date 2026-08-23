@@ -34,14 +34,14 @@ const {
   altPrefix = 'Screenshot',
 } = Astro.props;
 
-const colsClass =
+const itemWidthClass =
   cols === 2
-    ? 'grid-cols-2'
+    ? 'w-[calc((100%-18px)/2)]'
     : cols === 3
-      ? 'grid-cols-2 sm:grid-cols-3'
+      ? 'w-[calc((100%-18px)/2)] sm:w-[calc((100%-36px)/3)]'
       : cols === 5
-        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
-        : 'grid-cols-1 sm:grid-cols-2';
+        ? 'w-[calc((100%-18px)/2)] sm:w-[calc((100%-36px)/3)] lg:w-[calc((100%-72px)/5)]'
+        : 'w-full sm:w-[calc((100%-18px)/2)]';
 
 const dense = cols === 5;
 const threeCol = cols === 3;
@@ -65,7 +65,7 @@ const fullSrcs = lightbox
   : [];
 ---
 
-<div class:list={['grid w-full gallery-grid', colsClass, className]}>
+<div class:list={['flex w-full flex-wrap justify-center gallery-grid', className]}>
   {
     images.map((src, index) => {
       const alt = `${altPrefix} ${index + 1}`;
@@ -85,14 +85,14 @@ const fullSrcs = lightbox
       return lightbox ? (
         <button
           type="button"
-          class="image-frame lightbox-trigger cursor-pointer p-0"
+          class:list={['image-frame lightbox-trigger cursor-pointer p-0', itemWidthClass]}
           data-full-src={fullSrcs[index]}
           aria-label={alt}
         >
           {imageEl}
         </button>
       ) : (
-        <div class="image-frame">{imageEl}</div>
+        <div class:list={['image-frame', itemWidthClass]}>{imageEl}</div>
       );
     })
   }
